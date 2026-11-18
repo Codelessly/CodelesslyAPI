@@ -85,12 +85,11 @@ Pages @page h=160
 
 It reads as:
 
-```notation unchecked
+```notation
 state page:decimal=0
-Pages h=160 @page itemCount=2
-  Column#pageView1Page stretch h=fill
-    Text "One" h=fill visible={index == 0} {"bind":{"visible":"${= index == 0}"}}
-    Text "Two" h=fill visible={index == 1} {"bind":{"visible":"${= index == 1}"}}
+Pages h=160 @page
+  Text "One" h=fill
+  Text "Two" h=fill
 ```
 
 <a id="lists-words"></a>
@@ -183,11 +182,11 @@ Flutter `GridView`; the first child is the item.
 | `reorder` | [ListReorder](#type-ListReorder) |  | 0 | Lets the user drag the items to a new place. |
 
 <a id="node-pageView"></a>
-### `Pages` (`pageView`)
+### `PageView` (`pageView`)
 
 Flutter `PageView`; the first child is the page.
 
-- Written `Pages`. Level 1 (Widget catalog).
+- Written `PageView`; also `Pages`. Level 1 (Widget catalog).
 - Takes no quoted string.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).

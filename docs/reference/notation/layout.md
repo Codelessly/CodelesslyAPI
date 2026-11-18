@@ -369,7 +369,26 @@ Column#col gap=8 pad=10 w={"fill":400} h={"fill":400}
 From [`responsive_web.json`](../layout.md).
 
 ```notation width=1440
-document {"nodes":{"home":{"slots":{"body":"page"},"layout":{"height":900}},"page":{"type":"column","children":["header","content"],"layout":{"width":{"fill":1440},"height":{"fill":900}},"props":{"scrollable":true}},"header":{"type":"row","children":["logo","nav","menu"],"layout":{"width":{"fill":1440},"height":64,"padding":[16,0,16,0]},"props":{"mainAxisAlignment":"spaceBetween"},"decoration":{"fills":[{"color":"#FF111827"}]},"media":[{"minWidth":"desktop","patch":{"layout":{"padding":[32,0,32,0]}}}]},"logo":{"type":"text","layout":{"width":{"hug":80},"height":{"hug":24}},"props":{"text":"Relay","style":{"fontSize":20,"fontWeight":700,"color":"#FFFFFFFF"}}},"nav":{"type":"row","children":["nav-1","nav-2","nav-3"],"visible":false,"layout":{"width":{"hug":300},"height":{"hug":20}},"props":{"spacing":32},"media":[{"minWidth":"desktop","patch":{"visible":true}}]},"nav-1":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":20}},"props":{"text":"Product","style":{"fontSize":15,"color":"#FFD1D5DB"}}},"nav-2":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":20}},"props":{"text":"Pricing","style":{"fontSize":15,"color":"#FFFFFFFF"}}},"nav-3":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":20}},"props":{"text":"Docs","style":{"fontSize":15,"color":"#FFD1D5DB"}}},"menu":{"type":"icon","layout":{"width":28,"height":28},"props":{"icon":"menu","color":"#FFFFFFFF"},"media":[{"minWidth":"desktop","patch":{"visible":false}}]},"content":{"type":"column","children":["title","plans","split"],"layout":{"width":{"fill":1440},"height":{"hug":800},"padding":[16,24,16,24],"constraints":{"maxWidth":1200}},"props":{"crossAxisAlignment":"stretch","spacing":24},"media":[{"minWidth":"tablet","patch":{"layout":{"padding":[32,48,32,48]},"props":{"spacing":32}}}]},"title":{"type":"text","layout":{"width":{"fill":1136},"height":{"hug":64}},"props":{"text":"Plans that scale with your team","style":{"fontSize":32,"fontWeight":700,"height":1.1,"color":"#FF111827"}},"media":[{"minWidth":"tablet","patch":{"props":{"style":{"fontSize":40}}}},{"minWidth":"desktop","patch":{"props":{"style":{"fontSize":56}}}}]},"plans":{"type":"gridView","children":["plan"],"layout":{"width":{"fill":1136},"height":{"hug":200}},"props":{"physics":"never","minCrossAxisExtent":280,"shrinkWrapRows":true,"crossAxisSpacing":24,"mainAxisSpacing":24},"bind":{"data":"${plans}"}},"plan":{"type":"column","children":["plan-name","plan-price"],"layout":{"width":{"fill":360},"height":{"fill":160},"padding":24},"props":{"crossAxisAlignment":"start","spacing":8},"decoration":{"fills":[{"color":"#FFF3F4F6"}],"radius":12}},"plan-name":{"type":"text","layout":{"width":{"fill":312},"height":{"hug":24}},"props":{"text":"${item.name}","style":{"fontSize":18,"fontWeight":600,"color":"#FF111827"}}},"plan-price":{"type":"text","layout":{"width":{"fill":312},"height":{"hug":40}},"props":{"text":"${item.price}","style":{"fontSize":32,"fontWeight":700,"color":"#FF2563EB"}}},"split":{"type":"row","children":["split-text","split-photo"],"layout":{"width":{"fill":1136},"height":{"hug":240}},"props":{"wrap":true,"spacing":48,"runSpacing":16,"crossAxisAlignment":"center"}},"split-text":{"type":"text","layout":{"width":{"fill":544},"height":{"hug":60},"basis":320},"props":{"text":"Every plan includes on-call schedules, escalation policies and status pages.","style":{"fontSize":18,"height":1.5,"color":"#FF374151"}}},"split-photo":{"type":"box","layout":{"width":{"fill":544},"height":240,"basis":320},"decoration":{"fills":[{"color":"#FF93C5FD"}],"radius":12},"media":[{"maxWidth":"mobile","patch":{"layout":{"order":-1}}}]}},"variables":{"home":[{"name":"plans","type":"list","value":[{"name":"Starter","price":"$0"},{"name":"Team","price":"$29"},{"name":"Enterprise","price":"Talk to us"}]}]}}
+state plans=[{"name":"Starter","price":"$0"},{"name":"Team","price":"$29"},{"name":"Enterprise","price":"Talk to us"}]
+canvas h=900
+Column#page scroll w={"fill":1440} h={"fill":900} crossAxisAlignment=null
+  Row#header between pad=[16,0,16,0] w={"fill":1440} h=64 fill=#FF111827 crossAxisAlignment=null minDesktop.pad=[32,0,32,0]
+    Text.title#logo "Relay" weight=700 color=#FFFFFFFF w={"hug":80} h={"hug":24}
+    Row#nav gap=32 w={"hug":300} h={"hug":20} hidden crossAxisAlignment=null minDesktop.visible=true
+      Text#nav-1 "Product" size=15 color=#FFD1D5DB w={"hug":60} h={"hug":20}
+      Text#nav-2 "Pricing" size=15 color=#FFFFFFFF w={"hug":60} h={"hug":20}
+      Text#nav-3 "Docs" size=15 color=#FFD1D5DB w={"hug":60} h={"hug":20}
+    Icon#menu "menu" w=28 h=28 color=#FFFFFFFF minDesktop.hidden
+  Column#content gap=24 stretch pad=[16,24,16,24] w={"fill":1440} h={"hug":800} maxWidth=1200 minTablet.gap=32 minTablet.pad=[32,48,32,48]
+    Text.heading2#title "Plans that scale with your team" size=32 lineHeight=1.1 w={"fill":1136} h={"hug":64} minTablet.size=40 minDesktop.size=56
+    gridView#plans w={"fill":1136} h={"hug":200} physics=never minCrossAxisExtent=280 crossAxisSpacing=24 mainAxisSpacing=24
+      each item in plans
+        Column#plan gap=8 pad=24 h={"fill":160} fill=#FFF3F4F6 radius=12 w={"fill":360}
+          Text.heading3#plan-name "{item.name}" w={"fill":312} h={"hug":24}
+          Text.heading2#plan-price "{item.price}" size=32 color=#FF2563EB w={"fill":312} h={"hug":40}
+    Row#split gap=48 w={"fill":1136} h={"hug":240} wrap=true runSpacing=16
+      Text#split-text "Every plan includes on-call schedules, escalation policies and status pages." size=18 color=#FF374151 lineHeight=1.5 w={"fill":544} h={"hug":60} basis=320
+      box#split-photo w={"fill":544} h=240 basis=320 fill=#FF93C5FD radius=12 maxMobile.order=-1
 ```
 
 <a id="layout-example-band-json"></a>
@@ -480,7 +499,14 @@ Column#scroller gap=16 scroll pad=24 w={"fill":390} h={"fill":844}
 From [`responsive.json`](../layout.md).
 
 ```notation
-document {"roots":["home-mobile","home-desktop"],"nodes":{"screen":{"type":"canvas","layout":{"width":390.0,"height":{"hug":0}},"decoration":{"fills":[{"color":"#FFFFFFFF"}]}},"home-mobile":{"name":"Home","props":{"screen":"home","breakpoint":"mobile"},"slots":{"body":"m-page"},"layout":{"height":844}},"m-page":{"type":"column","children":["m-title","m-size"],"layout":{"width":{"fill":390},"height":{"fill":844},"padding":24},"props":{"crossAxisAlignment":"start","spacing":8}},"m-title":{"type":"text","layout":{"width":{"fill":342},"height":{"hug":32}},"props":{"text":"Stacked for phones","style":{"fontSize":24,"fontWeight":700,"color":"#FF111827"}}},"m-size":{"type":"text","layout":{"width":{"fill":342},"height":{"hug":20}},"props":{"text":"${screen.breakpoint}: ${screen.width} px wide","style":{"fontSize":14,"color":"#FF6B7280"}}},"home-desktop":{"type":"canvas","name":"Home","props":{"screen":"home","breakpoint":"desktop"},"slots":{"body":"d-page"},"layout":{"width":1440,"height":900},"decoration":{"fills":[{"color":"#FFF3F4F6"}]}},"d-page":{"type":"row","children":["d-title","d-size"],"layout":{"width":{"fill":1440},"height":{"hug":120},"padding":48},"props":{"mainAxisAlignment":"spaceBetween"}},"d-title":{"type":"text","layout":{"width":{"hug":400},"height":{"hug":48}},"props":{"text":"Side by side on desktops","style":{"fontSize":40,"fontWeight":700,"color":"#FF111827"}}},"d-size":{"type":"text","layout":{"width":{"hug":200},"height":{"hug":20}},"props":{"text":"${screen.breakpoint}: ${screen.width} px wide","style":{"fontSize":14,"color":"#FF6B7280"}}},"screen2":null}}
+canvas "Home" h=844 props.screen="home" props.breakpoint="mobile"
+Column#m-page gap=8 pad=24 w={"fill":390} h={"fill":844}
+  Text.heading2#m-title "Stacked for phones" w={"fill":342} h={"hug":32}
+  Text#m-size "{screen.breakpoint}: {screen.width} px wide" size=14 color=#FF6B7280 w={"fill":342} h={"hug":20}
+Canvas#home-desktop "Home" w=1440 h=900 fill=#FFF3F4F6 props.screen="home" props.breakpoint="desktop"
+  Row#d-page between pad=48 w={"fill":1440} h={"hug":120} crossAxisAlignment=null
+    Text.heading2#d-title "Side by side on desktops" size=40 w={"hug":400} h={"hug":48}
+    Text#d-size "{screen.breakpoint}: {screen.width} px wide" size=14 color=#FF6B7280 w={"hug":200} h={"hug":20}
 ```
 
 <a id="layout-example-variance-json"></a>

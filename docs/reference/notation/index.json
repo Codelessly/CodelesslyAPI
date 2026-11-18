@@ -89,7 +89,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4677
+      "words": 4837
     },
     {
       "topic": "layout-sizes",
@@ -145,7 +145,7 @@
       "file": "layout.md",
       "anchor": "layout-examples",
       "title": "Examples",
-      "words": 789
+      "words": 949
     },
     {
       "topic": "theme",
@@ -353,21 +353,21 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 5706
+      "words": 5689
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 223
+      "words": 204
     },
     {
       "topic": "lists-words",
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3216
+      "words": 3218
     },
     {
       "topic": "lists-behaviors",
@@ -697,7 +697,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1578
+      "words": 1580
     },
     {
       "topic": "components-calling-one",
@@ -732,7 +732,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 947
+      "words": 949
     },
     {
       "topic": "design-systems",
