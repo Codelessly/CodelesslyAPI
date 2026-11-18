@@ -1082,20 +1082,19 @@ Column#page scroll pad=24 w={"fill":390} h={"fill":760}
       ListView#summaryList w={"fill":318} h={"hug":40} scrollable=false gap=2
         each item in form.errors
           Text#summaryItem "{item.label}: {item.message}" color=#FF991B1B w={"fill":318} h={"hug":18}
-    Input#name "Name" w={"fill":342} h={"hug":56} initialValue={name} decoration.border={"type":"outline","borderRadius":8} {"props":{"validator":"${= trim(value) == '' ? 'Enter your name.' : ''}"},"bind":{"props.validator":null}}
-    Input#email "Email" w={"fill":342} h={"hug":56} initialValue={email} decoration.border={"type":"outline","borderRadius":8} keyboardType=emailAddress {"props":{"validator":"${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"},"bind":{"props.validator":null}}
+    Input#name "Name" w={"fill":342} h={"hug":56} initialValue={name} decoration.border={"type":"outline","borderRadius":8} validator="${= trim(value) == '' ? 'Enter your name.' : ''}"
+    Input#email "Email" w={"fill":342} h={"hug":56} initialValue={email} decoration.border={"type":"outline","borderRadius":8} keyboardType=emailAddress validator="${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"
     Text.heading#budgetLabel "Budget" w={"fill":342} h={"hug":20}
-    Row#budget gap=8 w={"fill":342} h={"hug":32} radioGroup.groupValue={budget} crossAxisAlignment=null onChange={budget="{result}"} {"radioGroup":{"groupValue":"small"}}
+    Row#budget gap=8 w={"fill":342} h={"hug":32} radioGroup.groupValue={budget} crossAxisAlignment=null node.radioGroup.groupValue=small onChange={budget="{result}"}
       Radio#budgetSmall w=24 h=24 value=small
       Text#budgetSmallLabel "Under $10k" size=14 color=#FF374151 w={"hug":90} h={"hug":20}
       Radio#budgetLarge w=24 h=24 value=large
       Text#budgetLargeLabel "$10k or more" size=14 color=#FF374151 w={"hug":90} h={"hug":20}
-    Input#message "Message" w={"fill":342} h={"hug":120} initialValue={message} decoration.alignLabelWithHint=true decoration.border={"type":"outline","borderRadius":8} maxLines=5 minLines=3 {"props":{"validator":"${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"},"bind":{"props.validator":null}}
+    Input#message "Message" w={"fill":342} h={"hug":120} initialValue={message} decoration.alignLabelWithHint=true decoration.border={"type":"outline","borderRadius":8} maxLines=5 minLines=3 validator="${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"
     Button#send "Send message" w={"fill":342} h=48 onTap={validate node=contactForm; if condition={"left":"${result}","op":"isTrue"} then={sent=true}}
   Column#thanks gap=6 pad=16 w={"fill":342} h={"hug":80} fill=#FFF0FDF4 radius=8 visible={sent}
     Text.heading3#thanksTitle "Thanks, {name}!" weight=700 color=#FF166534 w={"fill":310} h={"hug":24}
     Text#thanksBody "We'll reply to {email} within a day." size=14 color=#FF166534 w={"fill":310} h={"hug":20}
-document {"nodes":{"name":{"props":{"validator":"${= trim(value) == '' ? 'Enter your name.' : ''}"}},"email":{"props":{"validator":"${= trim(value) == '' ? 'Enter your email.' : !matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? 'Enter an email like name@example.com.' : ''}"}},"message":{"props":{"validator":"${= length(trim(value)) < 20 ? 'Tell us a little more (20 characters or more).' : ''}"}}}}
 ```
 
 <a id="forms-example-form-offline-json"></a>
@@ -1110,14 +1109,13 @@ state failNext=false
 canvas h=420
 Column#col gap=12 pad=24 w={"fill":390} h={"fill":420} crossAxisAlignment=null
   Column#form gap=12 w={"fill":342} h={"hug":120} visible={status == 'idle' || status == 'error'} crossAxisAlignment=null form=true
-    Input#email "Email" w={"fill":342} h={"hug":56} @email keyboardType=emailAddress {"props":{"validator":"${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"},"bind":{"props.validator":null}}
+    Input#email "Email" w={"fill":342} h={"hug":56} @email keyboardType=emailAddress validator="${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"
     Button#send "Subscribe" w={"fill":342} h=48 onTap={validate node=form; if condition={"left":"${result}","op":"isTrue"} then={status=sending; delay ms=900; if condition={"left":"${failNext}","op":"isTrue"} then={status=error} else={setStorage key=submissions op=insert valueType=list value={{'email': email, 'at': now()}}; emitEvent event=signupSubmitted props={"email":"${email}"}; status=sent}}}
   Row#sending gap=10 w={"fill":342} h=32 visible={status == 'sending'} crossAxisAlignment=null
     CircularProgressIndicator#spinner w=24 h=24
     Text#sendingText "Sending…" size=15 color=#FF334155 w={"fill":300} h={"hug":20}
   Text#failed "We couldn't send that. Try again." size=15 color=#FFDC2626 w={"fill":342} h={"hug":20} visible={status == 'error'}
   Text#sent "Saved on this device: {email}. Nothing is sent." size=15 color=#FF166534 w={"fill":342} h={"hug":20} visible={status == 'sent'}
-document {"nodes":{"email":{"props":{"validator":"${= matches(value, '^[^@ ]+@[^@ ]+[.][^@ ]+$') ? '' : 'Enter an email like name@example.com.'}"}}}}
 ```
 
 <a id="forms-example-forms-md-search"></a>

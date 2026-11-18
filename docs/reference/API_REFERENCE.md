@@ -786,13 +786,13 @@ section's anchor is its topic.
 | Page | What it covers | Words |
 |---|---|---|
 | [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4788 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10330 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10407 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2963 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4096 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13663 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8037 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4754 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6726 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6744 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6342 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3820 |
@@ -971,6 +971,8 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 <a id="layout-margin"></a>
 <a id="layout-padding"></a>
 <a id="layout-aspectRatio"></a>
+<a id="layout-widthFactor"></a>
+<a id="layout-heightFactor"></a>
 <a id="layout-flex"></a>
 <a id="layout-squeezable"></a>
 <a id="layout-x"></a>
@@ -990,6 +992,8 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `margin` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
 | `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
+| `widthFactor` | double | unset | ≥ 0 | A share of the room the parent gives across (Flutter's `FractionallySizedBox.widthFactor`): a progress bar's fill is `0.6` of its track. Unset: sized by `width`. Bind it (`${= item.pct / 100}`) for a bar that follows data. |
+| `heightFactor` | double | unset | ≥ 0 | A share of the room the parent gives down (Flutter's `FractionallySizedBox.heightFactor`). Unset: sized by `height`. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |
 | `squeezable` | bool | `false` |  | Under a row/column: a hugging child that may shrink (`Flexible`). |
 | `x` | [AxisPosition](#type-AxisPosition) | `{"start":0}` |  | Under a freeform parent (`Positioned` / `Align`). |
@@ -6348,6 +6352,8 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.margin` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
 | `layout.padding` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
 | `layout.aspectRatio` | `double` | a number |
+| `layout.widthFactor` | `double` | a number |
+| `layout.heightFactor` | `double` | a number |
 | `layout.flex` | `int` | a whole number |
 | `layout.squeezable` | `bool` | `true` or `false` |
 | `layout.x` | `AxisPosition` | a number (distance from the start) or {"start": d}, {"end": d}, {"start": a, "end": b}, {"align": -1..1}, {"relative": d} |
@@ -6376,7 +6382,7 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 `props.<prop>` takes what the prop's type is written as: `"${= open ? 'vertical' : 'horizontal'}"` for
 `props.direction`, a TextStyle object or a theme style's name for `props.style`. Every bindable field:
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, `columnSpan`, `rowSpan`, `columnStart`, `rowStart`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `widthFactor`, `heightFactor`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, `columnSpan`, `rowSpan`, `columnStart`, `rowStart`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
 - `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint), [`form`](#behavior-form), [`radioGroup`](#behavior-radioGroup), [`focusable`](#behavior-focusable), [`focusGroup`](#behavior-focusGroup).

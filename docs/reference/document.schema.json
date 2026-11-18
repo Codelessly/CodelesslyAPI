@@ -3182,6 +3182,14 @@
             }
           ]
         },
+        "widthFactor": {
+          "type": "number",
+          "minimum": 0
+        },
+        "heightFactor": {
+          "type": "number",
+          "minimum": 0
+        },
         "flex": {
           "type": "integer",
           "minimum": 0
@@ -3246,14 +3254,6 @@
               "type": "null"
             }
           ]
-        },
-        "widthFactor": {
-          "type": "number",
-          "minimum": 0
-        },
-        "heightFactor": {
-          "type": "number",
-          "minimum": 0
         }
       },
       "additionalProperties": false

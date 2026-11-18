@@ -89,7 +89,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4677
+      "words": 4750
     },
     {
       "topic": "layout-sizes",
@@ -117,7 +117,7 @@
       "file": "layout.md",
       "anchor": "layout-keys-every-line-takes",
       "title": "Keys every line takes",
-      "words": 576
+      "words": 649
     },
     {
       "topic": "layout-words",
@@ -203,7 +203,7 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2616
+      "words": 2615
     },
     {
       "topic": "decoration-fills-borders-and-corners",
@@ -252,7 +252,7 @@
       "file": "decoration.md",
       "anchor": "decoration-examples",
       "title": "Examples",
-      "words": 285
+      "words": 284
     },
     {
       "topic": "paint",
@@ -296,7 +296,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 11688
+      "words": 11626
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-examples",
       "title": "Examples",
-      "words": 573
+      "words": 511
     },
     {
       "topic": "lists",
@@ -353,7 +353,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 5706
+      "words": 5704
     },
     {
       "topic": "lists-a-list-over-data",
@@ -395,7 +395,7 @@
       "file": "lists.md",
       "anchor": "lists-examples",
       "title": "Examples",
-      "words": 640
+      "words": 638
     },
     {
       "topic": "state",
@@ -640,7 +640,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2646
+      "words": 2648
     },
     {
       "topic": "navigation-page-frames",
@@ -654,7 +654,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 138
+      "words": 140
     },
     {
       "topic": "navigation-screens",
@@ -769,7 +769,7 @@
       "anchor": "page-document",
       "title": "The document",
       "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
-      "words": 745
+      "words": 746
     },
     {
       "topic": "document-the-order-of-a-document",
@@ -790,7 +790,7 @@
       "file": "document.md",
       "anchor": "document-examples",
       "title": "Examples",
-      "words": 392
+      "words": 393
     },
     {
       "topic": "values",

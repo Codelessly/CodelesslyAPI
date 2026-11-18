@@ -115,10 +115,10 @@ document {"variables":{"screen":[{"name":"annual","type":"boolean","value":false
 <a id="document-example-starter-md-bind"></a>
 ### STARTER.md: bind
 
-From [STARTER.md](../STARTER.md) (the block at line 337 of its template, base.md); its keys on a `Column`.
+From [STARTER.md](../STARTER.md) (the block at line 337 of its template, base.md); its keys on a `box`.
 
 ```notation
-Column#example fill={selected ? '#FFDBEAFE' : '#FFFFFFFF'} visible={count > 0} fills=null {"bind":{"props.text":"${= 'Total: ' + money(count * price, '$')}"}}
+box#example "{'Total: ' + money(count * price, '$')}" fill={selected ? '#FFDBEAFE' : '#FFFFFFFF'} visible={count > 0} w=null h=null fills=null
 ```
 
 <a id="document-example-starter-md-actions"></a>

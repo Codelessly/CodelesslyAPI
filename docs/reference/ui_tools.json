@@ -318,7 +318,7 @@
             },
             "layout": {
               "type": "object",
-              "description": "Size and placement: width, height, constraints, margin, padding, aspectRatio, flex, squeezable, x, y, align, order, basis, columnSpan, rowSpan, columnStart, rowStart."
+              "description": "Size and placement: width, height, constraints, margin, padding, aspectRatio, widthFactor, heightFactor, flex, squeezable, x, y, align, order, basis, columnSpan, rowSpan, columnStart, rowStart."
             },
             "decoration": {
               "type": "object",

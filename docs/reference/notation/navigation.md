@@ -93,7 +93,7 @@ Canvas#signup "signup" w=480.0 decoration.radius=16 decoration.effects=[{"type":
       Text.heading "Join the waitlist" grow
       IconButton "close" onTap={close}
     Row#column2Actions gap=8 end
-      Button "Close" maxWidth=240 onTap={close} {"media":[{"maxWidth":479.0,"patch":{"layout":{"flex":1,"width":{"fill":0,"hug":null},"constraints":{"maxWidth":null}}}}]}
+      Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
 ```
 
 <a id="navigation-screens"></a>

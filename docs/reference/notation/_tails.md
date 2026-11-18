@@ -3,15 +3,12 @@
 
 The work list for notation parity (docs/design/22-notation-parity.md). Each example of the JSON reference is printed with `printNotation`; a line that keeps part of its node in a `{…}` tail, a `node {…}` line and a `document {…}` line are listed here, with the paths the JSON holds. The reference is complete when this list is empty.
 
-64 examples; 15 with a tail; 21 lines with one; 76 distinct paths; 1 prints that do not read without an issue; 5 that print again differently.
+64 examples; 9 with a tail; 9 lines with one; 68 distinct paths; 1 prints that do not read without an issue; 6 that print again differently.
 
 ## Paths, most lines first
 
 | Path | Lines |
 |---|---|
-| `bind.props.validator` | 4 |
-| `props.validator` | 4 |
-| `bind.props.text` | 3 |
 | `actions[].actions[].type` | 2 |
 | `actions[].actions[].value` | 2 |
 | `actions[].actions[].variable` | 2 |
@@ -34,21 +31,17 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | `nodes.*.props.style.fontSize` | 2 |
 | `nodes.*.props.style.fontWeight` | 2 |
 | `nodes.*.props.text` | 2 |
-| `nodes.*.props.validator` | 2 |
 | `nodes.*.slots.body` | 2 |
 | `nodes.*.type` | 2 |
 | `variables.*[].name` | 2 |
 | `variables.*[].type` | 2 |
 | `variables.*[].value[].name` | 2 |
-| `bind.layout.widthFactor` | 1 |
 | `conditions.plans[].branches[].set[].node` | 1 |
 | `conditions.plans[].branches[].set[].path` | 1 |
 | `conditions.plans[].branches[].set[].value` | 1 |
 | `conditions.plans[].branches[].when.left` | 1 |
 | `conditions.plans[].branches[].when.op` | 1 |
 | `conditions.plans[].id` | 1 |
-| `layout.constraints` | 1 |
-| `layout.height` | 1 |
 | `nodes.*` | 1 |
 | `nodes.*.bind.data` | 1 |
 | `nodes.*.decoration.radius` | 1 |
@@ -76,7 +69,6 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | `nodes.*.props.style.height` | 1 |
 | `nodes.*.props.wrap` | 1 |
 | `nodes.*.visible` | 1 |
-| `radioGroup.groupValue` | 1 |
 | `roots` | 1 |
 | `states.selected.linen.props.style.backgroundColor` | 1 |
 | `states.selected.linen.props.style.foregroundColor` | 1 |
@@ -93,12 +85,6 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | Line | Starts | Paths |
 |---|---|---|
 | 6 | `document` | `variables.*[].formula`, `variables.*[].name`, `variables.*[].parameters`, `variables.*[].type`, `variables.*[].value`, `variables.*[].value[].monthly`, `variables.*[].value[].name` |
-
-### STARTER.md: bind ([document.md](document.md#document-example-starter-md-bind))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 1 | `Column#example fill={selected ? '#FFDBEA…` | `bind.props.text` |
 
 ### responsive_web.json ([layout.md](layout.md#layout-example-responsive-web-json))
 
@@ -117,42 +103,6 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 | Line | Starts | Paths |
 |---|---|---|
 | 1 | `Flex#split w={"fill":1200} h={"hug":400}…` | `children` |
-
-### photo_card.json ([decoration.md](decoration.md#decoration-example-photo-card-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 3 | `Column#card gap=6 end pad=20 w={"fill":3…` | `layout.constraints`, `layout.height` |
-
-### form_validated.json ([forms.md](forms.md#forms-example-form-validated-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 14 | `Input#name "Name" w={"fill":342} h={"hug…` | `bind.props.validator`, `props.validator` |
-| 15 | `Input#email "Email" w={"fill":342} h={"h…` | `bind.props.validator`, `props.validator` |
-| 17 | `Row#budget gap=8 w={"fill":342} h={"hug"…` | `radioGroup.groupValue` |
-| 22 | `Input#message "Message" w={"fill":342} h…` | `bind.props.validator`, `props.validator` |
-| 27 | `document` | `nodes.*.props.validator` |
-
-### form_offline.json ([forms.md](forms.md#forms-example-form-offline-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 7 | `Input#email "Email" w={"fill":342} h={"h…` | `bind.props.validator`, `props.validator` |
-| 14 | `document` | `nodes.*.props.validator` |
-
-### pages/table_filter.json ([lists.md](lists.md#lists-example-pages-table-filter-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 16 | `Text#hCust "Customer" color=#FF6B7280 w=…` | `bind.props.text` |
-| 17 | `Text#hAmt "Amount" color=#FF6B7280 w={"h…` | `bind.props.text` |
-
-### carousel.json ([lists.md](lists.md#lists-example-carousel-json))
-
-| Line | Starts | Paths |
-|---|---|---|
-| 22 | `box#trackFill w=0 h=4 fill=#FF111827 rad…` | `bind.layout.widthFactor` |
 
 ### conditions.json ([state.md](state.md#state-example-conditions-json))
 
@@ -209,6 +159,8 @@ Each example is shown as its print printed again (the same document): the printe
   - line 5: `Text.title#headline "A week on the salt marsh, by boat and on foot" weight=700 lineHeight=1.3 color=#FFFFFFFF w={"fil…` then `Text.title#headline "A week on the salt marsh, by boat and on foot" weight=700 color=#FFFFFFFF lineHeight=1.3 w={"fil…`
 - **table_view.json**
   - line 7: `Text#head "{item.label}" weight=700 color=#FF334155 pad=[12,10,12,10] w={"fill":100} h={"fill":40}` then `Text#head "{item.label}" color=#FF334155 weight=700 pad=[12,10,12,10] w={"fill":100} h={"fill":40}`
+- **navigation.md, the block of line 40**
+  - line 9: `Button "Close" maxWidth=240 onTap={close} max479.grow max479.w={"fill":0,"hug":null} max479.layout.constraints.maxWid…` then `Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWid…`
 
 ## Kept as JSON (not a layout document)
 

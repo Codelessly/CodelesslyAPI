@@ -11655,6 +11655,24 @@
         "doc": "Width / height the node keeps when its parent resizes it."
       },
       {
+        "key": "widthFactor",
+        "type": "double",
+        "kind": "number",
+        "default": null,
+        "nullable": true,
+        "min": 0.0,
+        "doc": "A share of the room the parent gives across (Flutter's `FractionallySizedBox.widthFactor`): a progress bar's fill is `0.6` of its track. Unset: sized by `width`. Bind it (`${= item.pct / 100}`) for a bar that follows data."
+      },
+      {
+        "key": "heightFactor",
+        "type": "double",
+        "kind": "number",
+        "default": null,
+        "nullable": true,
+        "min": 0.0,
+        "doc": "A share of the room the parent gives down (Flutter's `FractionallySizedBox.heightFactor`). Unset: sized by `height`."
+      },
+      {
         "key": "flex",
         "type": "int",
         "kind": "integer",
@@ -11757,7 +11775,9 @@
       "constraints",
       "margin",
       "padding",
-      "aspectRatio"
+      "aspectRatio",
+      "widthFactor",
+      "heightFactor"
     ],
     "parentData": [
       "flex",
