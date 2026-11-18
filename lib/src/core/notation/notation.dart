@@ -159,6 +159,7 @@ final class NotationOptions {
     this.track = '#FFE5E7EB',
     this.components = const {},
     this.componentRules = const {},
+    this.componentScreenActions = const {},
     this.badge = defaultBadge,
     this.cta,
     this.palette = const {},
@@ -240,6 +241,7 @@ final class NotationOptions {
         track: track,
         components: components,
         componentRules: componentRules,
+        componentScreenActions: componentScreenActions,
         badge: badge,
         cta: cta,
         palette: palette,
@@ -336,6 +338,11 @@ final class NotationOptions {
       componentRules: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root? when root.media.isNotEmpty) c.type: [for (final r in root.media) r.toJson()],
+      },
+      componentScreenActions: {
+        for (final c in designSystem.list)
+          if (c.document.extra['screenActions'] case final List actions when actions.isNotEmpty)
+            c.type: [for (final a in actions) if (a is Map) a.cast<String, Object?>()],
       },
     );
   }
@@ -545,6 +552,7 @@ final class NotationOptions {
         track: track,
         components: components,
         componentRules: componentRules,
+        componentScreenActions: componentScreenActions,
         badge: badge,
         cta: cta,
         palette: palette,
@@ -613,6 +621,11 @@ final class NotationOptions {
   /// it shows (`w=232 tablet.w=64` on the root of a sidebar), unless the
   /// call says that itself.
   final Map<String, List<Json>> componentRules;
+
+  /// What a component's `key`, `every` and `on load` lines do, by type (its
+  /// document's `screenActions`): the screen that shows the component takes
+  /// them (once, however many calls), as if written on it.
+  final Map<String, List<Json>> componentScreenActions;
 
   /// What a `BarChart` takes unless the line says (`barRadius`, `barGap`,
   /// `maxBarWidth`, its labels' font and colors): a theme's `radii.bar`,
@@ -3558,6 +3571,8 @@ class _Parser {
         'widget': ?widget,
         if (_previews.isNotEmpty) 'previews': _previews,
         'nodes': {...nodes},
+        // Its key, every and on load lines: the screen that shows it takes them.
+        if (widget != null && _timers.isNotEmpty) 'screenActions': [..._timers],
         if (own.isNotEmpty) 'variables': {_documentWords['scope'] as String? ?? _root ?? options.screen: own},
       }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
     }
@@ -3670,6 +3685,18 @@ class _Parser {
     // onTick={…}`: what the screen does as time passes (a timer on the canvas).
     // `every {60000/bpm} onTick={…}`: an interval worked out, in milliseconds
     // (a metronome at its tempo).
+    // A component's key, every and on load lines run on the screen that
+    // shows it: what they read and set are the screen's and the site's
+    // variables, not the component's own.
+    if (_widget != null && indent == 0 && RegExp(r'^(key|every|on)\s').hasMatch(line)) {
+      final own = [
+        for (final v in variables.keys)
+          if (!_projectVariables.contains(v) && RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(v)}(?![A-Za-z0-9_])').hasMatch(line)) v,
+      ];
+      if (own.isNotEmpty) {
+        _issue(column, "A component's ${line.split(RegExp(r'\s')).first} line runs on the screen that shows it, which has no ${own.join(', ')} of this component: make ${own.length == 1 ? 'it a variable' : 'them variables'} of the site (site.json's variables, read here by name) or write the line on the page.");
+      }
+    }
     final everyExpr = RegExp(r'^every\s+\{([^{}]+)\}(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
     if (everyExpr != null) {
       _timers.add({
@@ -3696,7 +3723,13 @@ class _Parser {
     // `when={expression}` (in either place, or `when expression` before
     // onPress) makes it act only while the expression holds.
     if (_shortcut(line, column) case final Json reaction) {
-      if (reaction.isNotEmpty) _timers.add(reaction);
+      if (reaction.isNotEmpty) {
+        // The screen's own key replaces a component's for the same key.
+        final trigger = readMap(reaction['trigger']);
+        _timers.removeWhere((t) =>
+            _fromComponents.any((c) => identical(c, t)) && readMap(t['trigger'])?['key'] == trigger?['key'] && readMap(t['trigger'])?['when'] == trigger?['when']);
+        _timers.add(reaction);
+      }
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
     }
@@ -7133,6 +7166,7 @@ class _Parser {
       if (rules.isNotEmpty) out['media'] = rules;
     }
     if (callSizes != null) _componentRules(type, callSizes, out);
+    _componentScreen(type);
     nodes[id] = out;
     // A list tile's leading icon (icon= on a ListTile).
     if (listIcon case final String icon when type == 'listTile') {
@@ -7389,6 +7423,35 @@ class _Parser {
   /// shows: `Column#nav w=232 tablet.w=64 hide=phone` in AppNav), before the
   /// line's own rules; a size the call writes ([written]: `w=`, `grow`, `h=`)
   /// or a rule the line gives that key is the call's, and wins.
+  /// The screen lines (key, every, on load) of the component [type], taken
+  /// by this screen the first time it is called on it: a component's
+  /// shortcuts were dropped with no word (test 9, admin 3: 42 lines of
+  /// `key alt+N` repeated on every page). A reaction the screen writes
+  /// itself for the same key is the screen's.
+  void _componentScreen(String type) {
+    final actions = options.componentScreenActions[type];
+    if (actions == null || !_top._screensOf.add(type)) return;
+    final top = _top;
+    for (final a in actions) {
+      final trigger = readMap(a['trigger']);
+      if (trigger?['type'] == 'keyDown' &&
+          top._timers.any((t) => readMap(t['trigger'])?['type'] == 'keyDown' && readMap(t['trigger'])?['key'] == trigger?['key'] && readMap(t['trigger'])?['when'] == trigger?['when'])) {
+        continue;
+      }
+      final copy = _copy(a);
+      top._fromComponents.add(copy);
+      top._timers.add(copy);
+    }
+    if (top._canvas) top._patches.add({'op': 'patch', 'id': top.options.screen, 'patch': {'actions': [...top._timers]}});
+  }
+
+  /// The components whose screen lines this screen has taken.
+  final _screensOf = <String>{};
+
+  /// The reactions taken from components (a key the screen writes itself
+  /// replaces the component's).
+  final _fromComponents = <Json>[];
+
   void _componentRules(String type, Set<String> written, Json out) {
     final rules = options.componentRules[type];
     if (rules == null || rules.isEmpty) return;

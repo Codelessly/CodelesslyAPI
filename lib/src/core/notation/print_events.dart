@@ -58,6 +58,22 @@ List<String> printCanvasEvents(Json document, PrintContext context, {int from = 
   return out;
 }
 
+/// The lines for a component's screen lines (its document's
+/// `screenActions`: the `key`, `every` and `on` lines the screen that shows
+/// it takes). Empty when it has none or one of them has no line.
+List<String> printComponentScreenEvents(Json document, PrintContext context) {
+  final reactions = readList(document['screenActions']);
+  if (reactions == null || readMap(document['widget']) == null) return const [];
+  final p = _Printer.of(context);
+  final out = <String>[];
+  for (final r in reactions) {
+    final line = p.canvasLine(readMap(r));
+    if (line == null) return const [];
+    out.add(line);
+  }
+  return out;
+}
+
 /// A reaction of a canvas as the word its `canvas` line says it with
 /// (`onLoad={…}`), or null: the walk's (print.dart), for what is neither a
 /// timer nor a shortcut.

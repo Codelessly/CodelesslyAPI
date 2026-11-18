@@ -20,7 +20,7 @@ import '../migrate/migrate.dart' show kOldestSchemaVersion;
 import 'declared.dart';
 import 'media_words.dart' show mediaConditionWords;
 import 'notation.dart';
-import 'print_events.dart' show printCanvasEvents, printNormalized;
+import 'print_events.dart' show printCanvasEvents, printComponentScreenEvents, printNormalized;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
 
@@ -219,6 +219,12 @@ final class _Printer {
     if (!_walk(root, 0)) return null;
     for (final l in printCanvasEvents(document, context, from: said)) {
       _lines.add(_Line(0, l));
+    }
+    // A component's key, every and on lines: after its tree, as written.
+    if (first['type'] != 'canvas') {
+      for (final l in printComponentScreenEvents(document, context)) {
+        _lines.add(_Line(0, l));
+      }
     }
     // Every other canvas: a `Canvas#id` block, its tree under it.
     for (final other in roots.skip(1)) {
