@@ -942,6 +942,13 @@ final class _NodeLine {
     // A Select with a box of its own and its own frame inside it (a
     // document made before round 11b): a `fill` or a `border` on its line
     // now makes the box its frame, so the frame it keeps is said.
+    // A grid of a cell shape whose rows are still their content's (a document
+    // made before round 11b): `childAspectRatio` alone now gives rows of that
+    // shape, so the rows it keeps are said.
+    if (type == 'gridView' && props['childAspectRatio'] != null && props['shrinkWrapRows'] == true) {
+      words.add('shrinkWrapRows=true');
+      doneProps.add('shrinkWrapRows');
+    }
     if (type == 'dropdown' && !props.containsKey('underline')) {
       final d = readMap(n['decoration']);
       if ((d?['fills'] as List?)?.isNotEmpty == true || (d?['strokes'] as List?)?.isNotEmpty == true) words.add('underline=true');
