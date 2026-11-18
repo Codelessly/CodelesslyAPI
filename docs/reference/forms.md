@@ -488,7 +488,7 @@ A month calendar in the page. A pick chooses the range's start, then its end; di
 <a id="node-dropdown"></a>
 ### `dropdown`
 
-Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it, and with `underline: false` that box is its frame, its padding the inset of its value and chevron (a fill or a border written on a notation `Select` line sets it: no second frame inside). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 Flutter `DropdownButton<Object>`. Its padding is the node's `layout.padding`.
 
