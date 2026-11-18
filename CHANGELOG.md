@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- **`Pages` in a centring column fill its width**: pages swiped across have no width of their own to hug, and
+  in a `Column center` they were 0 wide and showed nothing (round 11b, meal-planner: `Pages @step h=362`, the
+  cooking step card missing at every size).
 - **A `Page` under another line** (`Page grow` under a site's own header, `Page w=fill h=fill` in a Stack) is the
   page's scrolling column there, taking the room its column leaves, its Sections a page's, as `App grow` is an
   app's region: it was "No node type Page", which read as if the word did not exist (round 11b, 4 builds:

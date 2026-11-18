@@ -7866,6 +7866,10 @@ class _Parser {
       // An icon is as big as it is: it does not stretch across a column.
       final fills = !placed && layout.containsKey('flex') ||
           spread ||
+          // Pages swiped across have no width of their own to hug: in a
+          // centring column they were 0 wide and showed nothing (round 11b,
+          // meal-planner's cooking steps).
+          !placed && type == 'pageView' ||
           !placed && !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {

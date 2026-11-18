@@ -446,6 +446,21 @@ Column w=fill h=fill
     expect(_layout(r, 'band')['padding'], isNotNull);
   });
 
+  test('Pages in a centring column fill its width (they were 0 wide)', () {
+    // meal-planner (cook.txt:20): the step card was not drawn at any size.
+    final r = _parse('''
+state step=0
+Column center w=fill
+  Pages#pg @step h=362
+    Column
+      Text "Step one"
+    Column
+      Text "Step two"
+''');
+    expect(r.issues, isEmpty);
+    expect(_layout(r, 'pg')['width'], {'fill': 0});
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.
