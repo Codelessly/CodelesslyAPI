@@ -191,4 +191,14 @@ void main() {
       expect(w('bg'), {'fill': 0}, reason: 'a box with nothing in it still fills');
     });
   });
+
+  test('confirm with the action\'s own field names before then', () {
+    final words = _expand('state n=0\nColumn\n  Button "x" onTap={confirm "Delete this message?" message="It goes to the bin." confirmLabel="Delete" destructive=true then {n=1}}\n');
+    final short = _expand('state n=0\nColumn\n  Button "x" onTap={confirm "Delete this message?" "It goes to the bin." ok="Delete" danger then {n=1}}\n');
+    final titled = _expand('state n=0\nColumn\n  Button "x" onTap={confirm title="Delete this message?" message="It goes to the bin." confirmLabel="Delete" destructive=true then {n=1}}\n');
+    expect(words.issues, isEmpty);
+    expect(titled.issues, isEmpty);
+    expect(jsonEncode(words.document), jsonEncode(short.document));
+    expect(jsonEncode(titled.document), jsonEncode(short.document));
+  });
 }

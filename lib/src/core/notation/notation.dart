@@ -8323,11 +8323,9 @@ class _Parser {
     const usage = 'A confirm is a quoted question and what a yes does: confirm "Remove it?" then {count=0; toast "Removed"} '
         '(confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" cancel="Keep" danger then {clips=[]} else {toast "Kept"}).';
     final tokens = _Tokens(a.substring('confirm'.length))..skipSpace();
-    final title = tokens.peek == '"' ? tokens.string() : null;
-    if (title == null) {
-      _issue(column, usage);
-      return null;
-    }
+    // The question, quoted first (or as title="…", the confirm action's own
+    // field names: title, message, confirmLabel, cancelLabel, destructive).
+    var title = tokens.peek == '"' ? tokens.string() : null;
     String? message, ok, cancel;
     var danger = false;
     while (true) {
@@ -8354,14 +8352,24 @@ class _Parser {
       switch (key) {
         case 'danger' || 'destructive' when eq < 0:
           danger = true;
-        case 'ok' || 'yes' when eq > 0:
+        case 'danger' || 'destructive' when eq > 0:
+          danger = value() == 'true';
+        case 'ok' || 'yes' || 'confirmLabel' || 'confirm' when eq > 0:
           ok = value();
-        case 'cancel' || 'no' when eq > 0:
+        case 'cancel' || 'no' || 'cancelLabel' when eq > 0:
           cancel = value();
+        case 'message' || 'detail' when eq > 0 && message == null:
+          message = value();
+        case 'title' || 'question' when eq > 0 && title == null:
+          title = value();
         default:
-          _issue(column, 'A confirm takes a detail line, ok="…", cancel="…" and danger before then; "$word" is not one of them. $usage');
+          _issue(column, 'A confirm takes a detail line (or message="…"), ok="…" (confirmLabel), cancel="…" (cancelLabel) and danger (destructive=true) before then; "$word" is not one of them. $usage');
           return null;
       }
+    }
+    if (title == null) {
+      _issue(column, usage);
+      return null;
     }
     var tail = tokens.rest.trim();
     if (!tail.startsWith('then') || tail.substring(4).trim().isEmpty) {

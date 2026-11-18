@@ -146,6 +146,9 @@ extension _Events on _Parser {
     final named = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)=(?!=)').firstMatch(rest);
     if (rest.isNotEmpty && named == null) return null;
     if ((_Parser._verbs.contains(name) || name == 'confirm') && (named == null || _actionFields(spec).every((f) => f != named[1]))) return null;
+    // `confirm title=… message=… then {…}`: the verb with the action's field
+    // names, read by the verb (its then and else), not as the action's fields.
+    if (name == 'confirm' && !RegExp(r'(^|\s)actions=').hasMatch(rest) && RegExp(r'\sthen(\s|\{|$)').hasMatch(rest)) return null;
     final out = <String, Object?>{'type': spec.type};
     final fields = _actionFields(spec);
     final usage = 'An action is its type and its fields by name: ${_example(spec)}.';
