@@ -2656,6 +2656,9 @@ class _Parser {
     accentName: options.accent,
     accentText: options.accentText,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
+    // A website's headline at a display size, unless the theme gives its
+    // own headline one (a heading1 or pageTitle of 32 and up).
+    siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
     selectedFill: options.selectedFill,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),

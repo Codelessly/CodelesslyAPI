@@ -37,7 +37,7 @@ Column stretch scroll
   Divider
   Column center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
-      Text.heading1 "Fill every room"
+      Text.heading2 "Fill every room" size=60
   Divider
   Column center pad=[24,40,24,40]
     Column gap=24 w=fill maxWidth=1120

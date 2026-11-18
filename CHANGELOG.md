@@ -11,6 +11,10 @@
   labelled box. Everything else keeps its labelled box. The record keeps every use.
 - **`Section bleed` with no ground of its own has no padding**: what is in it (a hero picture) meets the bar above
   it; it sat 64 px below on the page's white. A bleed band with a `fill` or a tint keeps its padding.
+- **A website's headline is at a display size**: `Heading level=1`, `Text.pageTitle` and `Text.heading1` in a `Page`'s
+  Section are 60 px (52 on a tablet, 43 on a phone, by the reflow), `level=2` 36 and `level=3` 22; they were 30, 24
+  and 18, a section's title over a 1440 page (round 11: the web's were 48 to 150 px). A theme whose `heading1` or
+  `pageTitle` has a size of 32 and up keeps it, a line's own `size=` wins, and an `App`'s titles are as they were.
 
 ### Fixed
 

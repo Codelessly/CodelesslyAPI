@@ -247,4 +247,29 @@ define Rows
       expect((_node(r, 'band')!['layout'] as Map)['padding'], [0, 64, 0, 64]);
     });
   });
+
+  group('C1: a website\'s headline at a display size', () {
+    num? sizeOf(NotationResult r, String text) =>
+        (((_nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == 'text' && (n['props'] as Map)['text'] == text))['props'] as Map)['style'] as Map)['fontSize'] as num?;
+    const page = 'Page\n  Section\n    Heading "Head" level=1\n    Heading "Two" level=2\n    Heading "Three" level=3\n    Text.pageTitle "Title"\n    Heading "Own" level=1 size=40\n';
+
+    test('in a Page\'s Section: 60, 36 and 22 (it was 30, 24 and 18); Text.pageTitle 60', () {
+      final r = _parse(page, const NotationOptions(width: 1440));
+      expect([for (final t in ['Head', 'Two', 'Three', 'Title', 'Own']) sizeOf(r, t)], [60, 36, 22, 60, 40]);
+    });
+
+    test('an App\'s page title is as it was', () {
+      final r = _parse('App\n  Main\n    Heading "Head" level=1\n', const NotationOptions(width: 1440));
+      expect(sizeOf(r, 'Head'), 20);
+    });
+
+    test('a theme that gives its headline a display size keeps it', () {
+      final r = _parse(page, NotationOptions.fromTheme(const {
+        'textStyles': {
+          'heading1': {'fontSize': 48, 'fontWeight': 700},
+        },
+      }, width: 1440));
+      expect(sizeOf(r, 'Head'), 48);
+    });
+  });
 }

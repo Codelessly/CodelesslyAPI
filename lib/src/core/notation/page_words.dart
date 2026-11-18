@@ -47,6 +47,7 @@ final class PageWords {
     this.accentText,
     this.iconTile,
     this.accent = '#FF2563EB',
+    this.siteHeadline,
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
@@ -88,6 +89,25 @@ final class PageWords {
 
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
+
+  /// The size of a website's headline (`Heading level=1`, `Text.pageTitle`,
+  /// `Text.heading1` in a Page's Section), its second and third levels in
+  /// proportion; null where the theme gives its headline a display size of
+  /// its own. A 30 px headline over a 1440 page read as a section's title
+  /// (round 11: the web's were 48 to 150 px).
+  final num? siteHeadline;
+
+  /// [siteHeadline]'s size for heading [level] (1 to 3), or null.
+  num? _headlineSize(int level) => switch ((siteHeadline, level)) {
+        (final num h, 1) => h,
+        (final num h, 2) => (h * 0.6).roundToDouble(),
+        (final num h, 3) => (h * 0.37).roundToDouble(),
+        _ => null,
+      };
+
+  /// Whether a line is in a website's Section (not in its bar or its foot).
+  bool get _inSiteSection =>
+      _open.isNotEmpty && _open.first.frame == 'Page' && _open.any((l) => l.frame == 'Section') && !_open.any((l) => l.frame == 'Nav' || l.frame == 'Foot');
 
   /// The names `Text.<name>` takes: a heading picks the first it finds.
   final Set<String> textVariants;
@@ -1213,8 +1233,16 @@ final class PageWords {
               2 => _variant(const ['heading2', 'title', 'sectionTitle']),
               _ => _variant(const ['heading3', 'heading', 'cardTitle', 'strong']),
             };
+      final display = !inApp && _inSiteSection && !parts.has('size') ? _headlineSize(level.clamp(1, 3)) : null;
       open();
-      return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${parts.all}'));
+      return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${display == null ? '' : ' size=${_n(display.toDouble())}'}${parts.all}'));
+    }
+    // A website's headline written as its text style: the same size.
+    if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection && !parts.has('size')) {
+      if (_headlineSize(1) case final num display) {
+        open(frame: null);
+        return out..add((indent: at, text: '$text size=${_n(display.toDouble())}'));
+      }
     }
     // `Row … phone.direction=vertical`: a row that is a column at some width
     // is a Flex, which has a direction to change.
