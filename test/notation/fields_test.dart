@@ -87,8 +87,9 @@ void main() {
         ('box', 'box'),
         ('gridView', 'gridView'),
         ('badge', 'badge'),
-        // AreaChart fills under a line chart's series: not a line chart's name.
-        ('lineChart', 'LineChart'),
+        // LineChart adds a height and a color (design 22, 4.7): a line
+        // chart with neither is the catalog's lineChart.
+        ('lineChart', 'lineChart'),
       ]) {
         expect(_print(_expand('Column\n  $type')).split('\n')[1].trim(), startsWith(word), reason: type);
       }

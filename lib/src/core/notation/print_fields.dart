@@ -97,7 +97,8 @@ String printNodeLine(String id, Json n, PrintContext context) {
   }
   for (final words in [printStates(id, n, context), printEvents(id, n, context), printMedia(id, n, context), printPaint(id, n, context)]) {
     for (final w in words) {
-      b.write(' $w');
+      // A word the line already says (a chart's list by its name) once.
+      if (!line.words.contains(w)) b.write(' $w');
     }
   }
   return b.toString();

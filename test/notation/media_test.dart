@@ -81,7 +81,8 @@ void main() {
     });
 
     test('a width in px, either bound', () {
-      _word('Row#a gap=24 max899.direction=vertical', [
+      // A flex's direction (a row has none: `Row … direction=` is said).
+      _word('Flex#a gap=24 max899.direction=vertical', [
         {'maxWidth': 899, 'patch': {'props': {'direction': 'vertical'}}},
       ]);
       _word('Column#a min1100.pad=40', [
@@ -232,16 +233,16 @@ void main() {
     });
 
     test('motion, a field of the node', () {
-      _word('Column#a phone.motion={"x":10}', [
-        {'maxWidth': 699, 'patch': {'motion': {'x': 10}}},
+      _word('Column#a phone.motion.translateX=10', [
+        {'maxWidth': 699, 'patch': {'motion': {'translateX': 10}}},
       ]);
-    }, skip: 'needs the keys family (design 22 section 2.1): motion= is read as a prop today');
+    });
 
     test('a layout field by its own name', () {
-      _word('Text#t "x" max899.constraints.minHeight=0', [
+      _word('Text#t "x" max899.minHeight=0', [
         {'maxWidth': 899, 'patch': {'layout': {'constraints': {'minHeight': 0}}}},
       ]);
-    }, skip: 'needs the keys family (design 22 section 2.1): a layout field by its name');
+    });
   });
 
   group('rules from the corpus print in words', () {
@@ -326,7 +327,7 @@ void main() {
           ],
         },
       });
-    }, skip: 'needs the fields family: the line\'s bindings printed in words (a binding in the {…} tail is not there when print.dart reads the words alone)');
+    });
   });
 
   group('reflow', () {

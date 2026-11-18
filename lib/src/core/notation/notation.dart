@@ -12,7 +12,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import '../behaviors.dart' show WidgetState, mergePatch;
+import '../behaviors.dart' show WidgetState, diffPatch, mergePatch;
 import '../catalog.dart';
 import '../design_system.dart';
 import '../layout.dart' show SizeFit;
@@ -1054,8 +1054,52 @@ final class NotationStream {
     _buffer.clear();
     if (rest.isNotEmpty) _parser.line(rest);
     _parser.finish();
+    // What the end of the text does (design 22, 4.7): each line's tail merged
+    // again over what later lines added, the nodes a tail took away, the
+    // canvas lines' words; sent as patches and removals.
+    final removed = <String>[];
+    final patched = <String, Json>{};
+    _result = _parser._end(changed: (p, id, before) {
+      final now = p.nodes[id];
+      if (now == null) {
+        removed.add(id);
+        return;
+      }
+      final d = diffPatch(before ?? const {}, now);
+      if (d == null) return;
+      for (final k in const ['children', 'slots', 'type', 'id']) {
+        d.remove(k);
+      }
+      if (d.isNotEmpty) patched[id] = d;
+    });
+    for (final p in [_parser, ..._parser._overlays]) {
+      final c = p._canvasPatch;
+      if (c == null) continue;
+      final d = {...c}..remove('slots')..remove('type');
+      if (d.isNotEmpty) patched[p.options.screen] = mergePatch(patched[p.options.screen] ?? const {}, d, keepNulls: true);
+    }
+    // A `document {…}` line's nodes: patched, or taken away.
+    for (final e in (readMap(_parser._documentPatch?['nodes']) ?? const {}).entries) {
+      if (e.value == null) {
+        removed.add(e.key);
+      } else if (readMap(e.value) case final Json d) {
+        final p = {...d}..removeWhere((k, _) => const {'children', 'slots', 'type', 'id'}.contains(k));
+        if (p.isNotEmpty) patched[e.key] = mergePatch(patched[e.key] ?? const {}, p, keepNulls: true);
+      }
+    }
+    for (final e in patched.entries) {
+      _parser.ops.add({'op': 'patch', 'id': e.key, 'patch': e.value});
+    }
+    if (removed.isNotEmpty) _parser.ops.add({'op': 'remove', 'ids': removed});
     return _take();
   }
+
+  NotationResult? _result;
+
+  /// After [close]: what parseNotation gives for the whole text, for what
+  /// no operation carries (the document's `id`, `schema`, a component's
+  /// declaration and previews, a `document {…}` line).
+  NotationResult? get result => _result;
 
   List<Json> _take() {
     final out = [..._parser.ops];
@@ -1102,7 +1146,11 @@ class _ListWords {
 }
 
 class _Open {
-  _Open(this.indent, this.id, this.type, {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written});
+  _Open(this.indent, this.id, this.type,
+      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot});
+
+  /// A `slot name` line under node [id]: the line under it goes in that slot.
+  final String? slot;
 
   /// A design system's block that takes no children but has slots (a
   /// ListRow's trailing, a SectionHeader's actions): the lines under it go
@@ -1218,7 +1266,8 @@ class _Parser {
   /// Where the variables are declared: on the page's canvas, or, once the
   /// page has overlays, for every canvas of the document (an overlay reads
   /// and sets the page's values).
-  String get _scope => _top._overlays.isEmpty ? options.screen : 'page_variables';
+  /// `document scope=page_variables` says which.
+  String get _scope => _top._documentWords['scope'] as String? ?? (_top._overlays.isEmpty ? options.screen : 'page_variables');
 
   bool _taken(String id) {
     final top = _top;
@@ -2460,23 +2509,47 @@ class _Parser {
       }
     }
     final screen = options.screen;
+    // A component's tree (or one under `canvas none`) has no canvas: its
+    // root is the document's root, and nothing is sent before it.
+    final bare = _top._widget != null || _top._noCanvas;
+    if (bare && !_canvas && (id == null || _parentOf[id] != null)) return;
     final fresh = {
       for (final v in variables.values)
-        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String)) v['name']! as String: {'type': v['type'], 'value': v['value'], if (v['persist'] == true) 'persist': true},
+        if (!_projectVariables.contains(v['name']) && _declared.add(v['name']! as String))
+          v['name']! as String: {
+            for (final e in v.entries)
+              if (e.key != 'name') e.key: e.value,
+          },
     };
     if (id == null && fresh.isEmpty) return;
-    if (!_canvas) {
+    if (bare && !_canvas) {
+      // The root, then the roots, then what is kept on it.
       _canvas = true;
       ops
-        ..add({'op': 'roots', 'roots': _rootIds})
-        ..add({'op': 'set', 'id': screen, 'node': _canvasNode..remove('slots')});
+        ..add({'op': 'set', 'id': id, 'node': {...nodes[id!]!}..remove('children')..remove('slots')})
+        ..add({'op': 'roots', 'roots': [id]});
+      if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _documentWords['scope'] as String? ?? id, 'set': fresh});
+      ops.addAll(_patches);
+      _patches.clear();
+      return;
     }
-    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': _scope, 'set': fresh});
+    if (!_canvas) {
+      _canvas = true;
+      final canvas = _canvasNode..remove('slots');
+      ops
+        ..add({'op': 'roots', 'roots': _rootIds})
+        ..add({'op': 'set', 'id': screen, 'node': _canvasPatch == null ? canvas : mergePatch(canvas, {..._canvasPatch!}..remove('slots'))});
+    }
+    if (fresh.isNotEmpty) ops.add({'op': 'vars', 'scope': bare ? _documentWords['scope'] as String? ?? _root ?? screen : _scope, 'set': fresh});
     ops.addAll(_patches);
     _patches.clear();
     if (id == null) return;
     final node = {...nodes[id]!}..remove('children');
     final parent = _parentOf[id];
+    if (bare && parent == null) {
+      ops.add({'op': 'set', 'id': id, 'node': node..remove('slots')});
+      return;
+    }
     final slot = parent == null ? 'body' : _slotOf[id];
     ops.add({'op': 'set', 'id': id, 'parent': parent ?? screen, if (slot != null) 'slot': slot, 'node': node..remove('slots')});
   }
@@ -2616,6 +2689,11 @@ class _Parser {
 
   Json? _documentPatch;
 
+  /// What a `document id="checkout" schema=2 scope=page_variables` line
+  /// says: the document's own `id` and `schema`, and the scope its `state`
+  /// lines are kept in (docs/design/22 section 4.7).
+  final _documentWords = <String, Object?>{};
+
   /// A design system's component (`component Name "doc"` above its tree,
   /// docs/design/22 section 4.5): its declaration (the document's `widget`)
   /// and its previews. The document is then the tree alone: its root is the
@@ -2686,7 +2764,7 @@ class _Parser {
       case 'param':
         // `param title="Action" required doc="The title."`, `param size:small|medium|large=medium`.
         final first = words.firstOrNull;
-        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
         if (head == null) {
           _issue(indent + 1, 'A parameter is written: param name=default, its type after a colon where the default does not say it (param count:int=3), then required and doc="…".');
           return true;
@@ -2706,7 +2784,7 @@ class _Parser {
         add('props', p);
       case 'event':
         final first = words.firstOrNull;
-        final head = first == null || first.value != null ? null : RegExp(r'^(on[A-Z][A-Za-z0-9_]*)(?::(\S+))?$').firstMatch(first.key);
+        final head = first == null || first.value != null ? null : RegExp(r'^(on[A-Z][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
         if (head == null) {
           _issue(indent + 1, 'An event is written: event onName, with what it passes after a colon (event onChanged:String) and doc="…".');
           return true;
@@ -2756,12 +2834,102 @@ class _Parser {
   }
 
 
+  /// Node [id], written under `slot <name>` ([frame]), in that slot of the
+  /// node above; a second line under it is said and drawn as a child.
+  void _intoSlot(_Open frame, String id, int column) {
+    final p = nodes[frame.id]!;
+    final slots = (p['slots'] as Json?) ?? (p['slots'] = <String, Object?>{});
+    final name = frame.slot!;
+    if (frame.slotRow != null) {
+      _issue(column, 'A slot holds one node: put the lines of "slot $name" in a Row or a Column.');
+      ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
+    } else {
+      // What the node's own words put there (a ListTile's title text) gives
+      // way to the line written.
+      if (slots[name] case final String made when made != id && _parentOf[made] == frame.id) nodes.remove(made);
+      slots[name] = id;
+      _slotOf[id] = name;
+      frame.slotRow = id;
+    }
+    _parentOf[id] = frame.id;
+  }
+
+  /// The nodes a line's words made under it (a Badge's text) that its
+  /// `{…}` tail took out of its `children` or `slots`: no line holds them,
+  /// so they are not in the document.
+  void _dropOrphans() {
+    final tailed = {
+      for (final e in _lineTails.entries)
+        if (e.value.containsKey('children') || e.value.containsKey('slots')) e.key,
+    };
+    if (tailed.isEmpty) return;
+    final held = <String>{
+      for (final n in nodes.values) ...[
+        ...readStrings(n['children']),
+        for (final s in (readMap(n['slots']) ?? const {}).values)
+          if (s is String) s,
+      ],
+    };
+    var gone = [
+      for (final id in nodes.keys)
+        if (!held.contains(id) && tailed.contains(_parentOf[id])) id,
+    ];
+    while (gone.isNotEmpty) {
+      final next = <String>[];
+      for (final id in gone) {
+        if (held.contains(id)) continue;
+        final n = nodes.remove(id);
+        if (n == null) continue;
+        next.addAll(readStrings(n['children']));
+        next.addAll([
+          for (final s in (readMap(n['slots']) ?? const {}).values)
+            if (s is String) s,
+        ]);
+      }
+      gone = next;
+    }
+  }
+
+  /// The words of a `document` line (after `document`): `id="…"`,
+  /// `schema=<n>`, `scope=<canvas id or page_variables>`. False when the
+  /// line is not one (its first word is no key of it).
+  bool _documentLine(String text, int column) {
+    final words = _headWords(text);
+    if (words.isEmpty || !const {'id', 'schema', 'scope'}.contains(words.first.key)) return false;
+    for (final w in words) {
+      final ok = switch (w.key) {
+        'id' => w.value is String,
+        'schema' => w.value is int,
+        'scope' => w.value is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(w.value! as String),
+        _ => false,
+      };
+      if (ok) {
+        _top._documentWords[w.key] = w.value;
+      } else {
+        _issue(column, 'A document line takes the document\x27s id="…", schema=3 and scope= (where its state is kept: a canvas id, or page_variables): not "${w.key}${w.value == null ? '' : '=${w.value}'}".');
+      }
+    }
+    return true;
+  }
+
   /// What a canvas line's words (after `canvas`, or a `Canvas#id` block's
   /// head) say of its canvas, as a merge patch: its name in quotes, `w`,
   /// `h`, `fill`, any other field by its path from the canvas.
   Json _canvasWords(String text) {
     final patch = <String, Object?>{};
     for (final w in _headWords(text)) {
+      // `onLoad={go home}`, `onBackPressed={…}`: what the screen does, a
+      // reaction of the canvas, before its `every` and `key` lines.
+      final trigger = w.key.startsWith('on') ? notationEventTrigger(w.key) : null;
+      if (trigger != null && w.value is String && (w.value! as String).startsWith('{') && (w.value! as String).endsWith('}')) {
+        final body = (w.value! as String);
+        _timers.add({
+          'trigger': {'type': trigger},
+          'actions': _actions(body.substring(1, body.length - 1).trim(), 1),
+        });
+        if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
+        continue;
+      }
       final path = switch (w.key) {
         '"' => 'name',
         'w' => 'layout.width',
@@ -2848,9 +3016,13 @@ class _Parser {
         continue;
       }
       // A key runs to `=` or a space (a type after its colon may hold `<…>`
-      // and `|`).
+      // and `|`, or be JSON: `count:{"kind": "number", "flutter": "int"}`).
       var k = i;
       while (k < text.length && text[k] != ' ' && text[k] != '=') {
+        if (text[k] == '{' && k > i && text[k - 1] == ':') {
+          k = end(k);
+          continue;
+        }
         k++;
       }
       final key = text.substring(i, k);
@@ -2887,13 +3059,37 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     const LineSplitter().convert(text).forEach(line);
     finish();
+    return _end();
+  }
+
+  /// The end of the text, read whole or as it arrived ([NotationStream]):
+  /// each line's tail merged again, the nodes a tail took away left out,
+  /// and the document. [changed], when given, is told each node of a
+  /// parser that this changed (its id, the node before, or null for one
+  /// left out), so that a stream can send it.
+  NotationResult _end({void Function(_Parser p, String id, Json? before)? changed}) {
     for (final p in [this, ..._overlays]) {
+      final before = changed == null ? null : {for (final e in p.nodes.entries) e.key: _copy(e.value)};
       for (final e in p._lineTails.entries) {
         if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
       }
+      p._dropOrphans();
+      if (before != null) {
+        for (final e in before.entries) {
+          final now = p.nodes[e.key];
+          if (now == null || jsonEncode(now) != jsonEncode(e.value)) changed!(p, e.key, e.value);
+        }
+      }
     }
     final patch = _documentPatch;
-    Json patched(Json d) => patch == null ? d : mergePatch(d, patch);
+    final words = {
+      for (final k in const ['id', 'schema'])
+        if (_documentWords.containsKey(k)) k: _documentWords[k],
+    };
+    Json patched(Json d) {
+      final out = words.isEmpty ? d : mergePatch(d, words);
+      return patch == null ? out : mergePatch(out, patch);
+    }
     // A component's document (or a tree with `canvas none`): its declaration,
     // its previews and its tree, no canvas; its variables are its root's.
     if (_widget != null || _noCanvas) {
@@ -2906,7 +3102,7 @@ class _Parser {
         'widget': ?widget,
         if (_previews.isNotEmpty) 'previews': _previews,
         'nodes': {...nodes},
-        if (own.isNotEmpty) 'variables': {_root ?? options.screen: own},
+        if (own.isNotEmpty) 'variables': {_documentWords['scope'] as String? ?? _root ?? options.screen: own},
       }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
     }
     return NotationResult(patched({
@@ -3041,6 +3237,12 @@ class _Parser {
       if (j is Map) _documentPatch = mergePatch(_documentPatch ?? const {}, j.cast<String, Object?>(), keepNulls: true);
       return;
     }
+    // `document id="checkout" schema=2 scope=page_variables`: the document's
+    // own id and schema, and where its state lines are kept (a canvas id, or
+    // page_variables for every canvas of the page).
+    if (indent == 0 && RegExp(r'^document\s+[A-Za-z]+=').hasMatch(line)) {
+      if (_documentLine(line.substring(9), column + 9)) return;
+    }
     for (final d in _derived.entries) {
       if (!line.contains(d.key)) continue;
       // A worked-out value follows the state by itself: an action that sets
@@ -3060,6 +3262,20 @@ class _Parser {
         });
       }
       line = _rename(line, d.key, '(${d.value})');
+    }
+    // `slot title` under a node: the line under it is the node's child in that
+    // slot (a ListTile's title, a badge's child, a block's actions), as a
+    // component's head names its slots with `slot name`.
+    final slotLine = RegExp(r'^slot\s+([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(line);
+    if (slotLine != null && _stack.isNotEmpty && _stack.last.slot == null && nodes[_stack.last.id] != null) {
+      final holder = _stack.last;
+      final type = '${nodes[holder.id]!['type']}';
+      final names = catalog.widget(type)?.slots ?? const <String>[];
+      if (!names.contains(slotLine[1])) {
+        return _issue(column, names.isEmpty ? 'A ${holder.written ?? type} has no slots.' : 'A ${holder.written ?? type} has no slot "${slotLine[1]}". Its slots: ${names.join(', ')}.');
+      }
+      _stack.add(_Open(indent, holder.id, holder.type, condition: holder.condition, slot: slotLine[1]));
+      return;
     }
     var parent = _stack.isEmpty ? null : _stack.last;
     // Lines under a block that takes none but has a slot (a ListRow's
@@ -3257,6 +3473,25 @@ class _Parser {
         _stack.add(_Open(indent, parent.id, 'column', each: each[1], list: each[2]!.trim(), pages: pagesId));
         return;
       }
+      // Under a ListView or GridView line of its own, the list is that one:
+      // it repeats over the data, and the line under the `each` is its
+      // template (its first child), as a page view's page is under Pages.
+      final listNode = nodes[parent.id];
+      if (parent.grid == null &&
+          parent.condition == null &&
+          parent.each == null &&
+          parent.slot == null &&
+          (parent.type == 'listView' || parent.type == 'gridView') &&
+          listNode != null &&
+          readStrings(listNode['children']).isEmpty &&
+          readMap(listNode['bind'])?['data'] == null &&
+          eachWords.keys.every((k) => k == 'stagger')) {
+        final data = {'data': _read(each[2]!.trim())};
+        listNode['bind'] = {...?readMap(listNode['bind']), ...data};
+        _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'bind': data}});
+        _stack.add(_Open(indent, parent.id, parent.type, each: each[1], list: each[2]!.trim()));
+        return;
+      }
       // A list over the data, its item a column of the lines under it.
       final g = parent.grid;
       final listId = _id(g != null ? 'gridView' : 'listView'), itemId = '${listId}Item';
@@ -3446,6 +3681,8 @@ class _Parser {
       if (parent == null) {
         if (_root != null) return _issue(column, 'A second root: the first line is the root, everything else is indented under it.');
         _root = id;
+      } else if (parent.slot != null) {
+        _intoSlot(parent, id, column);
       } else {
         final p = nodes[parent.id]!;
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
@@ -3952,9 +4189,12 @@ class _Parser {
           // with a note, where the line is, not at render.
           if (readMap(tail['props']) case final Json guessed) {
             final kept = <String, Object?>{};
+            // A tail that gives the node another type gives its props too.
+            final own = tail['type'] is String ? catalog.widget(tail['type']! as String) ?? spec : spec;
             for (final e in guessed.entries) {
               final k = e.key, v = e.value;
-              if (spec.props.any((p) => p.key == k)) {
+              // null takes away what the line's words gave.
+              if (v == null || own.props.any((p) => p.key == k)) {
                 kept[k] = v;
               } else if (_layoutKeys.contains(k) || k == 'top' || k == 'left') {
                 if (k == 'top' || k == 'left') {
@@ -5016,7 +5256,13 @@ class _Parser {
     // height; in a row it hugs both; a control hugs.
     final control = _valueProps.containsKey(type) || type.endsWith('Button') || type.endsWith('Chip');
     if (component) {
-      bool has(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      // A parameter the line's `{…}` tail gives (a value, a binding, or none)
+      // is given too.
+      bool has(String k) =>
+          props.containsKey(k) ||
+          bind.containsKey('props.$k') ||
+          readMap(node['props'])?.containsKey(k) == true ||
+          readMap(node['bind'])?.containsKey('props.$k') == true;
       // A block with an optional boolean state should still toggle when its
       // author leaves off bind=name. Give each call its own page variable.
       for (final p in spec.props) {
@@ -5180,11 +5426,15 @@ class _Parser {
     }
     // Charts: a height of their own, and a line chart's plain values as its
     // data points.
+    // The type as the catalog spells it (`barChart`, `lineChart`, the
+    // printer's word for a document's chart) is the node as written: only
+    // the notation's words (BarChart, LineChart) add a height and colors.
+    final asWritten = written == type;
     if (type == 'barChart' || type == 'lineChart') {
-      layout.putIfAbsent('height', () => 140);
+      if (!asWritten) layout.putIfAbsent('height', () => 140);
       // The design system's primary, unless a color is written.
-      props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => options.accent);
-      if (type == 'barChart') {
+      if (!asWritten) props.putIfAbsent(type == 'barChart' ? 'color' : 'lineColor', () => options.accent);
+      if (type == 'barChart' && !asWritten) {
         for (final e in options.barChart.entries) {
           props.putIfAbsent(e.key, () => e.value);
         }
@@ -5205,7 +5455,7 @@ class _Parser {
     if (type == 'barcode' && written == 'Barcode') props.putIfAbsent('symbology', () => 'code128');
     // It fills its box, so a box with no height of its own is given one: 80
     // for the bars, 160 square for a two-dimensional code.
-    if (type == 'barcode' && (layout['height'] == null || layout['height'] is Map)) {
+    if (type == 'barcode' && !asWritten && (layout['height'] == null || layout['height'] is Map)) {
       final square = const {'qrCode', 'aztec', 'dataMatrix'}.contains(props['symbology'] ?? 'qrCode');
       layout['height'] = square ? 160 : 80;
       if (square && (layout['width'] == null || (layout['width'] is Map && (layout['width'] as Map).containsKey('fill')))) layout['width'] = 160;
@@ -5996,7 +6246,9 @@ class _Parser {
     } else {
       final p = nodes[parent.id]!;
       if (spec.type == 'canvas') return _issue(column, 'A canvas cannot be a child.');
-      if (parent.type == 'listTile') {
+      if (parent.slot != null) {
+        _intoSlot(parent, id, column);
+      } else if (parent.type == 'listTile') {
         final slots = (p['slots'] as Json?) ?? (p['slots'] = <String, Object?>{});
         final slot = type == 'icon' && !slots.containsKey('leading') ? 'leading' : 'trailing';
         slots[slot] = id;

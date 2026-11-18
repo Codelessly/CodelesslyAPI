@@ -18,7 +18,7 @@ import '../catalog.dart';
 import '../json.dart';
 import 'declared.dart';
 import 'notation.dart';
-import 'print_events.dart' show printCanvasEvents, printNormalized;
+import 'print_events.dart' show printCanvasEvents, printCanvasReaction, printNormalized;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
 
@@ -109,15 +109,19 @@ final class _Printer {
   /// line read otherwise without it), and those left out this time.
   final _keepId = <String>{}, _dropped = <String>{};
 
+  /// The nodes whose slots are written as `slot name` lines (their lines
+  /// under them read back into other slots, or into their children).
+  final _slotLines = <String>{};
+
   // An id the parser reads after `#`: a name, its parts joined by `-` (`m-logo`).
   static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)*$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length == before) return out;
     }
     return null;
   }
@@ -128,6 +132,7 @@ final class _Printer {
     _counts.clear();
     _structure.clear();
     _dropped.clear();
+    _handEach.clear();
     why = null;
     final roots = readStrings(document['roots']);
     final screen = roots.isEmpty ? 'screen' : roots.first;
@@ -150,18 +155,41 @@ final class _Printer {
         return null;
       }
       root = body;
-      final vars = readMap(document['variables']);
-      if (vars != null && vars[screen] == null && vars['page_variables'] != null) scope = 'page_variables';
     }
+    // Where the parser keeps the state lines: the page's canvas, or with
+    // other canvases or overlays every canvas's (`page_variables`); a
+    // component's on its root. The document's one scope, where it has one.
+    final fallback = first['type'] == 'canvas' && roots.length > 1 ? 'page_variables' : screen;
+    final vars = readMap(document['variables']);
+    if (vars != null && vars.length == 1) {
+      scope = vars.keys.single;
+    } else if (vars != null && vars[screen] == null && vars['page_variables'] != null) {
+      scope = 'page_variables';
+    }
+    final head = _documentWords(scope: scope != fallback && vars?[scope] != null ? scope : null);
+    if (head != null) _lines.add(_Line(0, head));
     _lines.addAll(_stateLines(scope));
     _canvases.clear();
+    // What the screen does that is neither a timer nor a shortcut (`onLoad`,
+    // `onBackPressed`): words of its canvas line, before its `every` and
+    // `key` lines.
+    var said = 0;
+    final events = StringBuffer();
     if (first['type'] == 'canvas') {
-      final line = _Line(0, '');
+      for (final r in readList(first['actions']) ?? const []) {
+        final type = readMap(readMap(r)?['trigger'])?['type'];
+        final word = type == 'timer' || type == 'keyDown' || readMap(r) == null ? null : printCanvasReaction(readMap(r)!, context);
+        if (word == null) break;
+        events.write(' $word');
+        said++;
+      }
+      _canvasEvents = '$events';
+      final line = _Line(0, _canvasEvents.isEmpty ? '' : 'canvas$_canvasEvents');
       _canvases[screen] = (line: line, head: 'canvas');
       _lines.add(line);
     }
     if (!_walk(root, 0)) return null;
-    for (final l in printCanvasEvents(document, context)) {
+    for (final l in printCanvasEvents(document, context, from: said)) {
       _lines.add(_Line(0, l));
     }
     // Every other canvas: a `Canvas#id` block, its tree under it.
@@ -182,6 +210,9 @@ final class _Printer {
   /// Each canvas printed, by id: its line (`canvas …` above the page's
   /// tree, empty while it says nothing; `Canvas#id …` heading another's).
   final _canvases = <String, ({_Line line, String head})>{};
+
+  /// The page canvas's reactions said on its line (` onLoad={…}`).
+  String _canvasEvents = '';
 
   /// `canvas "Trip" path="/trip" h=844 fill=paper`: what [patch] (the
   /// canvas as the document has it, over what the parser gives) says, its
@@ -221,6 +252,23 @@ final class _Printer {
     int rank(String w) => switch (w.split('=').first) { 'path' => 1, 'w' => 2, 'h' => 3, 'fill' => 4, _ when w.startsWith('"') => 0, _ => 5 };
     final order = [for (var i = 0; i < words.length; i++) i]..sort((a, b) => rank(words[a]) != rank(words[b]) ? rank(words[a]) - rank(words[b]) : a - b);
     return words.isEmpty ? null : [for (final i in order) words[i]].join(' ');
+  }
+
+  // --- the document's own fields ------------------------------------------
+
+  /// `document id="checkout" schema=2 scope=page_variables`: the document's
+  /// id where the parser gives another (a page has none, a component's is
+  /// its name), a schema other than 3, and the scope of its state lines
+  /// where the parser would keep them elsewhere ([scope]).
+  String? _documentWords({String? scope}) {
+    final words = <String>[];
+    final id = document['id'];
+    final given = readMap(document['widget'])?['type'];
+    if (id is String && id != given) words.add('id=${jsonEncode(id)}');
+    final schema = document['schema'];
+    if (schema is int && schema != 3) words.add('schema=$schema');
+    if (scope != null && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(scope)) words.add('scope=$scope');
+    return words.isEmpty ? null : 'document ${words.join(' ')}';
   }
 
   // --- state -------------------------------------------------------------
@@ -334,7 +382,51 @@ final class _Printer {
     for (final record in printPaintLines(id, n, context, depth).split('\n')) {
       if (record.trim().isNotEmpty) _lines.add(_Line(0, record));
     }
-    return _under(n, depth + 1);
+    // A list of its own line repeating its one child over data: the child
+    // under `each item in list` (design 22, 4.7).
+    if (_handList(id, n) case final ({String list, String template}) each) {
+      _handEach.add(id);
+      _lines.add(_Line(depth + 1, 'each ${_eachName(n)} in ${each.list}${_staggerWord(each.template)}'));
+      return _child(each.template, depth + 2);
+    }
+    return _under(n, depth + 1, id);
+  }
+
+  /// The lists printed as their own line with an `each` under it.
+  final _handEach = <String>{};
+
+  /// What `each` says of list [id] written as its own line: the list its
+  /// data is, and its one child, the template; null when it is not one
+  /// (not a listView or gridView, no data, other children, slots).
+  ({String list, String template})? _handList(String id, Json n) {
+    if (plan != _Plan.full || _noEach.contains(id) || (n['type'] != 'listView' && n['type'] != 'gridView')) return null;
+    if (n['slots'] != null || readMap(n['props'])?['layout'] != null) return null;
+    final kids = readStrings(n['children']);
+    final data = readMap(n['bind'])?['data'];
+    if (kids.length != 1 || data is! String) return null;
+    final list = _eachList(data);
+    return list == null ? null : (list: list, template: kids.single);
+  }
+
+  /// The list an `each` line names for the data binding [data]: a name or
+  /// a path (`${rows}`), or a formula (`${= filter(…)}`).
+  static String? _eachList(String data) {
+    final bare = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_.]*)\}$').firstMatch(data)?[1];
+    return bare ?? (data.startsWith(r'${= ') && data.endsWith('}') && !data.contains('\n') ? data.substring(4, data.length - 1).trim() : null);
+  }
+
+  /// ` stagger=80` when node [id], the first line under an `each`, starts
+  /// each copy that much after the one before (`animations[0].delay` bound
+  /// to `index*80`, plus its own delay).
+  String _staggerWord(String id) {
+    final n = readMap(nodes[id]);
+    final delay = readMap(n?['bind'])?['animations[0].delay'];
+    if (delay is! String || readList(n?['animations'])?.isEmpty != false) return '';
+    final m = RegExp(r'^\$\{= index\*([0-9]+)(?:\+([0-9]+))?\}$').firstMatch(delay);
+    if (m == null) return '';
+    final own = readMap(readList(n!['animations'])!.first)?['delay'];
+    if (m[2] != null && own != int.parse(m[2]!)) return '';
+    return ' stagger=${m[1]}';
   }
 
   /// [text] without `#id` when the parser gives the line that id anyway.
@@ -352,7 +444,7 @@ final class _Printer {
   /// The lines under a node: its children, sibling lines that share a
   /// condition under an `if` (and `else`), a list over data as `each`; then
   /// its slots.
-  bool _under(Json n, int depth) {
+  bool _under(Json n, int depth, [String? id]) {
     final kids = readStrings(n['children']);
     for (var i = 0; i < kids.length;) {
       final cond = _condition(kids[i]);
@@ -384,8 +476,17 @@ final class _Printer {
       if (!_child(kids[i], depth)) return false;
       i++;
     }
-    for (final c in (readMap(n['slots']) ?? const {}).values) {
-      if (c is String && !_walk(c, depth)) return false;
+    final slots = readMap(n['slots']) ?? const {};
+    final named = id != null && _slotLines.contains(id);
+    for (final e in slots.entries) {
+      final c = e.value;
+      if (c is! String) continue;
+      if (named && _printable.hasMatch(e.key)) {
+        _lines.add(_Line(depth, 'slot ${e.key}'));
+        if (!_walk(c, depth + 1)) return false;
+      } else if (!_walk(c, depth)) {
+        return false;
+      }
     }
     return true;
   }
@@ -443,6 +544,8 @@ final class _Printer {
     // outer one's `parent.item`, so an outer each names its element with a
     // word its lines do not use.
     final name = _eachName(itemNode!);
+    final first = readStrings(itemNode['children']).firstOrNull;
+    if (first != null) words.write(_staggerWord(first));
     _lines.add(_Line(depth, 'each $name in $list$words'));
     return _under(itemNode, depth + 1);
   }
@@ -506,6 +609,34 @@ final class _Printer {
         final patch = diffPatch(got, readMap(nodes[id])!);
         if (patch != null) tails[id] = ' ${jsonEncode(patch)}';
       }
+      // A node whose slots do not read back from the lines under it: its
+      // slots written as `slot name` lines.
+      final slotted = [
+        for (final l in _lines)
+          if (l.id case final String id
+              when !_slotLines.contains(id) &&
+                  readMap(readMap(nodes[id])?['slots'])?.isNotEmpty == true &&
+                  readMap(parsed[id]) != null &&
+                  !jsonEquality.equals(readMap(parsed[id])!['slots'], readMap(nodes[id])!['slots']))
+            id,
+      ];
+      // A list printed with an `each` under its line reads back with its
+      // data and its one child, or is printed as nodes.
+      final unread = [
+        for (final id in _handEach)
+          if (readMap(parsed[id]) case final got?)
+            if (!jsonEquality.equals(got['children'], readMap(nodes[id])!['children']) || readMap(got['bind'])?['data'] != readMap(readMap(nodes[id])!['bind'])?['data']) id,
+      ];
+      if (unread.isNotEmpty) {
+        _noEach.addAll(unread);
+        why = 'an each that does not read back';
+        return null;
+      }
+      if (slotted.isNotEmpty) {
+        _slotLines.addAll(slotted);
+        why = 'slots that do not read back';
+        return null;
+      }
       // A list printed as `each` reads back as it is, or is printed as nodes.
       for (final id in _structure) {
         final got = readMap(parsed[id]);
@@ -545,7 +676,8 @@ final class _Printer {
           if (d == null) continue;
           final next = mergePatch(canvas[e.key] ?? const {}, d, keepNulls: true);
           final words = _canvasLine(next);
-          final line = words == null ? (e.value.head == 'canvas' ? '' : e.value.head) : '${e.value.head} $words';
+          final more = e.value.head == 'canvas' ? _canvasEvents : '';
+          final line = words == null ? (e.value.head == 'canvas' && more.isEmpty ? '' : '${e.value.head}$more') : '${e.value.head} $words$more';
           if (line != e.value.line.text) {
             e.value.line.text = line;
             canvas[e.key] = next;
@@ -555,9 +687,46 @@ final class _Printer {
         if (!changed && round > 0) break;
         second = _parse(text(tails, null));
       }
+      // A line's media rules in its tail because its words, read with no tail,
+      // gave other rules (a rule that hides a node whose `visible` the tail
+      // binds drops that binding): with the tail, the words may say them.
+      final ruled = [
+        for (final e in patches.entries)
+          if (e.value.containsKey('media') && RegExp(r'\s(hide|show)=|\s[A-Za-z0-9]+\.[A-Za-z]').hasMatch(_lines.firstWhere((l) => l.id == e.key).text)) e.key,
+      ];
+      final unpruned = {...tails}, unprunedSecond = second;
+      if (ruled.isNotEmpty) {
+        final trial = {...tails};
+        for (final id in ruled) {
+          final p = {...patches[id]!}..remove('media');
+          if (p.isEmpty) {
+            trial.remove(id);
+          } else {
+            trial[id] = ' ${jsonEncode(p)}';
+          }
+        }
+        final got = readMap(_parse(text(trial, null))['nodes']) ?? const {};
+        final kept = [
+          for (final id in ruled)
+            if (diffPatch(readMap(got[id]) ?? const {}, readMap(nodes[id])!) == null) id,
+        ];
+        for (final id in kept) {
+          if (trial.containsKey(id)) {
+            tails[id] = trial[id]!;
+          } else {
+            tails.remove(id);
+          }
+        }
+        if (kept.isNotEmpty) second = _parse(text(tails, null));
+      }
       final rest = diffPatch(second, document);
       final out = text(tails, rest == null ? null : 'document ${jsonEncode(rest)}');
       if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
+      if (ruled.isNotEmpty) {
+        final rest = diffPatch(unprunedSecond, document);
+        final out = text(unpruned, rest == null ? null : 'document ${jsonEncode(rest)}');
+        if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
+      }
       why = 'the print does not read back';
       return null;
     } on Object catch (e, st) {

@@ -42,19 +42,26 @@ List<String> printEvents(String id, Json node, PrintContext context) {
 /// onTick={…}` for a timer, `key mod+k onPress={…}` for a shortcut. Empty
 /// when it has none or when one of them is neither (they stay on the
 /// `document {…}` line then).
-List<String> printCanvasEvents(Json document, PrintContext context) {
+/// [from]: the reactions before it are said on the canvas line (the walk's
+/// `onLoad={…}`, [printCanvasReaction]).
+List<String> printCanvasEvents(Json document, PrintContext context, {int from = 0}) {
   final screen = context.options.screen;
   final reactions = readList(readMap(context.nodes[screen])?['actions']);
-  if (reactions == null || reactions.isEmpty) return const [];
+  if (reactions == null || reactions.length <= from) return const [];
   final p = _Printer.of(context);
   final out = <String>[];
-  for (final r in reactions) {
+  for (final r in reactions.skip(from)) {
     final line = p.canvasLine(readMap(r));
     if (line == null) return const [];
     out.add(line);
   }
   return out;
 }
+
+/// A reaction of a canvas as the word its `canvas` line says it with
+/// (`onLoad={…}`), or null: the walk's (print.dart), for what is neither a
+/// timer nor a shortcut.
+String? printCanvasReaction(Json reaction, PrintContext context) => _Printer.of(context).reaction(reaction, 'Box');
 
 /// `bind=` for node [id] written with [head] (design 13 section 3): what it
 /// binds (`name` in `bind=name`: a variable, a field of a record variable or

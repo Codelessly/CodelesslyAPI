@@ -102,8 +102,10 @@ extension _PaintWords on _Parser {
         frames.add(_PaintFrame(indent, open.id, 'skip', {}));
         return true;
       }
-      // The block is the node's custom paint, whole.
+      // The block is the node's custom paint, whole: written after the
+      // line, it replaces a `customPaint` its `{…}` tail gave.
       node['customPaint'] = paint;
+      _lineTails[open.id]?.remove('customPaint');
       frames.add(_PaintFrame(indent, open.id, 'customPaint', paint));
       _paintChanged(open.id, 'customPaint');
     } else {
@@ -116,6 +118,9 @@ extension _PaintWords on _Parser {
         return true;
       }
       node[key] = [...?(node[key] as List?), record];
+      // The list the line's tail gave is in it already: merged again, the
+      // tail would take the records these lines add away.
+      _lineTails[open.id]?.remove(key);
       frames.add(_PaintFrame(indent, open.id, animation ? 'animation' : 'none', record));
       _paintChanged(open.id, key);
     }
