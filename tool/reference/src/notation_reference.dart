@@ -547,7 +547,10 @@ final class _NotationReference {
       'slots' => 'Its children are slots: ${[for (final s in t['slots'] as List) '`$s`'].join(', ')}.',
       _ => 'Takes no lines under it.',
     }}${t['children'] == 'list' && (t['slots'] as List).isNotEmpty ? ' Slots: ${[for (final s in t['slots'] as List) '`$s`'].join(', ')}.' : ''}');
-    b.writeln('- Decoration keys (`fill`, `border`, `radius`, `effects`…): ${t['decorated'] == true ? 'yes' : 'only `effects` (blurs)'}.');
+    b.writeln('- Decoration keys (`fill`, `border`, `radius`, `effects`…): ${t['decorated'] == true ? 'yes' : type == 'textField' ? 'the field\'s own box: `fill=#FFF3F4F6` its fill, `border=#FFD1D5DB` its line (`border=none`: none, and no fill unless one is written: a bare field), `radius=20` its corners; else only `effects` (blurs)' : 'only `effects` (blurs)'}.');
+    if (type == 'textField') {
+      b.writeln('- In a row beside buttons a multi-line `Input` is a composer: it starts at one line and grows (to `maxLines`), and its string is its placeholder (beside a hint, its spoken name); a field among icon buttons has no label above it either, and one in a framed row holding it alone (`Box radius=12 border` around a `Row` of it and its buttons) is drawn bare. A multi-line field with `onSubmit` sends on Enter and breaks the line on Shift+Enter (`textInputAction=send`).');
+    }
     final style = spec == null ? null : notationTextStyleProp(spec);
     if (style != null) {
       b.writeln('- The fields of its text style ([TextStyle](@type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.');
