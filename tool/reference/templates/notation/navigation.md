@@ -65,15 +65,8 @@ A Dialog, Sheet or Drawer that must not close while something is typed says so o
 `blockBack={dirty}`) keeps Escape, a tap outside and back from closing it while it holds; `guardText="Discard the
 draft?"` asks that first (a yes runs `onDiscard={…}` and closes); `onBackPressed={open keepDraft}` runs instead.
 With no design system the panel is drawn in the theme's `surface` and its title in `onSurface`, so it follows the
-site's theme and its dark mode; a `Drawer` has no rule at its side unless its line writes a `border`.
-
-```notation width=1280
-state draft=""
-Column gap=12
-  Button "Compose" onTap={open compose}
-Dialog#compose "New message" guard={draft != ""} guardText="Discard the draft?" onDiscard={draft=""}
-  Input "Message" @draft multiline
-```
+site's theme and its dark mode; a `Drawer` has no rule at its side unless its line writes a `border`. For example
+`Dialog#compose "New message" guard={draft != ""} guardText="Discard the draft?" onDiscard={draft=""}`.
 
 ## Screens
 
