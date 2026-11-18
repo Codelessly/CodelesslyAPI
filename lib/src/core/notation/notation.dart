@@ -944,6 +944,28 @@ void _setPath(Json root, String path, Object? value) {
   }
 }
 
+/// [root] without the field at [path] where it is null (`key=null`): the
+/// maps it was in taken out with it when nothing else is left in them. A
+/// path through a list's element is left as it is.
+void _removePath(Json root, String path) {
+  if (path.contains('[')) return;
+  final parts = path.split('.');
+  final maps = <Map>[root];
+  for (final p in parts.take(parts.length - 1)) {
+    final next = maps.last[p];
+    if (next is! Map) return;
+    maps.add(next);
+  }
+  if (!maps.last.containsKey(parts.last) || maps.last[parts.last] != null) return;
+  maps.last.remove(parts.last);
+  for (var i = maps.length - 1; i > 0 && maps[i].isEmpty; i--) {
+    maps[i - 1].remove(parts[i - 1]);
+  }
+}
+
+/// [s] without the double quotes around it, if it has them.
+String _unquoted(String s) => s.length >= 2 && s.startsWith('"') && s.endsWith('"') ? s.substring(1, s.length - 1) : s;
+
 /// A time as a model writes it (`600`, `600ms`, `0.6s`), in milliseconds.
 int? _milliseconds(String raw) {
   final m = RegExp(r'^(\d+(?:\.\d+)?)(ms|s)?$').firstMatch(raw.trim());
@@ -3445,14 +3467,20 @@ class _Parser {
     if (head == null) return _issue(column, 'A line starts with a node type: Column, Text "…", Button "…".');
     t.at = head.end;
     final written = head[1]!, variant = head[2];
+    // `Button "Save" type=Button`: the design system's component of a name a
+    // word of the notation has too, the node's type said by its own name
+    // (design 22, 4.7).
+    final named = catalog.widget(written) != null &&
+        written[0] != written[0].toLowerCase() &&
+        (LineParts.of(line)?.parts.any((p) => p.kind == 'pair' && (p.key == 'type' || p.key == 'node.type') && _unquoted(p.value!) == written) ?? false);
     // A design system's own Gauge, Ring, Sparkline or Avatar comes before the
     // notation's.
-    final short = _softNames.contains(written) && catalog.widget(written) != null ? null : notationTypes[written];
+    final short = named || (_softNames.contains(written) && catalog.widget(written) != null) ? null : notationTypes[written];
     var type = short?.type ?? '${written[0].toLowerCase()}${written.substring(1)}';
     // A design system's component, called by its own name (`StatusBadge`,
     // `Stepper`): a core type of that name, or a short name, comes first.
     final component =
-        short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
+        named || short == null && (catalog.widget(type) == null || notationComponentFirst.contains(written)) && catalog.widget(written) != null;
     // Whether the notation's own Gauge, Ring, Avatar… is what this line is
     // (not a design system's component of that name).
     final ours = short != null;
@@ -3501,7 +3529,7 @@ class _Parser {
         catalog.widget(type) == null &&
         written[0] == written[0].toUpperCase() &&
         ((_root != null && indent > 0) || _nodeLike(line));
-    if (written == 'Button' && variant != null) {
+    if (written == 'Button' && !component && variant != null) {
       final v = buttonVariants[variant];
       if (v == null && open) {
         _use('variant', 'Button.$variant', column + written.length + 1, on: written);
@@ -3520,7 +3548,7 @@ class _Parser {
       } else {
         props['style'] = style is Map ? _copy(style.cast<String, Object?>()) : style;
       }
-    } else if (written == 'Badge') {
+    } else if (written == 'Badge' && !component) {
       // SSUI's badge: a tinted pill-cornered row 20 high around its text.
       final v = options.badges[variant ?? 'neutral'];
       if (v == null && open) {
@@ -3573,7 +3601,7 @@ class _Parser {
     // written: left out of the document once the line is read, and recorded.
     final unknownKeys = <({String key, String value, int column})>[];
     if (component) strings = notationStrings(spec);
-    if (written == 'Card') {
+    if ((written == 'Card' && !component)) {
       // In a card, a card is a tile of it.
       var inCard = false;
       for (String? at = parent?.id; at != null && !inCard; at = _parentOf[at]) {
@@ -3592,7 +3620,7 @@ class _Parser {
     }
     final id = head[3] ?? _id((written == 'Grid' || written == 'GridView') ? 'grid' : type);
     final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
-    if (written == 'Card') _cards.add(id);
+    if ((written == 'Card' && !component)) _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
     final under = _stack.reversed.where((o) => o.condition != null).firstOrNull?.condition;
     if (_taken(id)) {
@@ -3624,7 +3652,11 @@ class _Parser {
     // A path of the node (`props.style.height`, `layout.constraints.maxWidth`,
     // `pan.axis`, `decoration.fills[0].color`) given its value, the maps and
     // lists on the way made as needed.
+    // The paths written `key=null`: the field is not there (design 22, 4.7),
+    // whatever the line would give it, taken out once the line is read.
+    final nulled = <String>[];
     void put(String path, Object? value) {
+      if (value == null) nulled.add(path);
       final dot = path.indexOf('.');
       final where = dot < 0 ? '' : path.substring(0, dot);
       final Json root = switch (where) { 'props' => props, 'layout' => layout, 'decoration' => decoration, _ => node };
@@ -4114,6 +4146,8 @@ class _Parser {
           continue;
         }
         var key = word.substring(0, eq);
+        // `type=Button` said which type the line is (above).
+        if (named && (key == 'type' || key == 'node.type') && _unquoted(word.substring(eq + 1)) == written) continue;
         if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {
@@ -4329,7 +4363,7 @@ class _Parser {
             // A see-through tint on a card sits over the card's own color:
             // alone it would let the card's shadow show through it.
             final raw8 = _value(raw);
-            final tint = written == 'Card' && raw8 is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(raw8) && !raw8.toUpperCase().startsWith('#FF');
+            final tint = (written == 'Card' && !component) && raw8 is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(raw8) && !raw8.toUpperCase().startsWith('#FF');
             final under = ((options.card['decoration'] as Map?)?['fills'] as List?)?.firstOrNull;
             decoration['fills'] = [
               if (tint && under is Map) {...under.cast<String, Object?>()},
@@ -4714,7 +4748,9 @@ class _Parser {
             case 'enabled' when !spec.props.any((p) => p.key == 'isEnabled'):
               // No enabled of its own: the node's disabled state (it takes no
               // input; a box is drawn at half strength, below).
-              final off = bound != null ? '!($bound)' : raw == 'false' ? 'true' : raw == 'true' ? null : '!($raw)';
+              // (`!name` for a name or a path, as a document writes it.)
+              String not(String e) => RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$').hasMatch(e) && !const {'true', 'false', 'null'}.contains(e) ? '!$e' : '!($e)';
+              final off = bound != null ? not(bound) : raw == 'false' ? 'true' : raw == 'true' ? null : not(raw);
               if (off != null) {
                 bind['disabled'] = _formula(off);
                 disabledBy = off;
@@ -4770,6 +4806,7 @@ class _Parser {
           final v = key == 'color' ? _named(_value(raw), 'text') : _value(raw);
           style[_textStyleKeys[key]!] = key == 'bold' ? 700 : v;
           props['style'] = style;
+          if (v == null && key != 'bold') nulled.add('props.style.${_textStyleKeys[key]!}');
           continue;
         }
         if (type == 'segmentedButton' && key == 'items') {
@@ -4792,7 +4829,7 @@ class _Parser {
         // `Badge "Pass" variant={ok ? "success" : "error"}` (or `Badge.{…}`):
         // the tone worked out from the state; its fill, hairline and ink
         // follow it.
-        if (key == 'variant' && written == 'Badge' && raw.startsWith('=') && !spec.props.any((p) => p.key == 'variant')) {
+        if (key == 'variant' && written == 'Badge' && !component && raw.startsWith('=') && !spec.props.any((p) => p.key == 'variant')) {
           final e = raw.substring(1).trim();
           String tone(String Function((String, String, String) t) part) {
             var f = '"${part(options.badges['neutral'] ?? badgeVariants['neutral']!)}"';
@@ -4831,6 +4868,12 @@ class _Parser {
         }
         if (key == 'color' && type == 'icon' && !raw.startsWith('=')) {
           props['color'] = _named(_value(raw), 'text');
+          continue;
+        }
+        // `data={…}`: what a list shows, bound by the binding's own path
+        // (design 22, 4.7) where the type has no prop of that name.
+        if (key == 'data' && raw.startsWith('=') && spec.prop(key) == null) {
+          bind[key] = _read(raw.substring(1).trim());
           continue;
         }
         final path = pathOf(key);
@@ -5397,7 +5440,7 @@ class _Parser {
     }
     if (type == 'progressBar' && options.progress['height'] != null) layout.putIfAbsent('height', () => options.progress['height']);
     // A card that writes no gap takes the theme's.
-    if (written == 'Card' && options.cardGap != null) props.putIfAbsent('spacing', () => options.cardGap);
+    if ((written == 'Card' && !component) && options.cardGap != null) props.putIfAbsent('spacing', () => options.cardGap);
     if (type == 'progressBar') {
       props.putIfAbsent('color', () => options.accent);
       props.putIfAbsent('backgroundColor', () => options.track);
@@ -5426,7 +5469,8 @@ class _Parser {
     // In a grid a child is as wide as its cell and as tall as it says (its
     // row is as tall as its tallest child).
     if (parent?.type == 'gridView') {
-      layout['width'] = {'fill': 0};
+      // (A fill with its design size, `w={"fill":140}`, is kept.)
+      if (!(layout['width'] is Map && (layout['width'] as Map).containsKey('fill'))) layout['width'] = {'fill': 0};
       layout.putIfAbsent('height', () => {'hug': 0});
     }
     // A grid's rows are as tall as their content unless a height is given.
@@ -5438,7 +5482,7 @@ class _Parser {
     }
     final inRow = !cell && parent?.type == 'row';
     // On a page, cards side by side are one row of panels: equally tall.
-    if (inRow && written == 'Card' && options.width >= 700) {
+    if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];
       final cross = (row?['props'] as Map?)?['crossAxisAlignment'];
       if (row != null && (cross == null || cross == 'center' || cross == 'start')) {
@@ -5641,8 +5685,10 @@ class _Parser {
     // A size that follows data (w={…}, h={…}) is a fixed one whose number the
     // binding gives: left to hug or fill, the number would change nothing
     // and an empty box would stay at no size.
-    if (bind.containsKey('layout.width')) layout['width'] = 0;
-    if (bind.containsKey('layout.height')) layout['height'] = 0;
+    // A number written beside it is the size it starts at (`h=24 h={…}`).
+    bool fixed(Set<String> keys) => pre?.parts.any((p) => p.kind == 'pair' && keys.contains(p.key) && num.tryParse(p.value!) != null) ?? false;
+    if (bind.containsKey('layout.width') && !fixed(const {'w', 'layout.width'})) layout['width'] = 0;
+    if (bind.containsKey('layout.height') && !fixed(const {'h', 'layout.height'})) layout['height'] = 0;
     // Copies across a row that `grow` share its width: a grid with a column
     // per item, each row as tall as its tallest cell.
     if (parent != null && layout.containsKey('flex')) {
@@ -5706,10 +5752,17 @@ class _Parser {
         (type == 'pageView' && props['viewportFraction'] != null)) {
       props.putIfAbsent('edgeFade', () => 12);
     }
+    for (final path in nulled) {
+      final dot = path.indexOf('.');
+      final where = dot < 0 ? '' : path.substring(0, dot);
+      final Json root = switch (where) { 'props' => props, 'layout' => layout, 'decoration' => decoration, _ => node };
+      _removePath(root, root == node ? path : path.substring(dot + 1));
+    }
+    final emptied = nulled.any((p) => p.startsWith('layout.')) && layout.isEmpty;
 
     final out = <String, Object?>{
       'type': type,
-      'layout': layout,
+      if (!emptied) 'layout': layout,
       if (props.isNotEmpty) 'props': props,
       if (decoration.isNotEmpty) 'decoration': decoration,
       if (bind.isNotEmpty) 'bind': bind,
@@ -5769,14 +5822,17 @@ class _Parser {
       }
     }
     // Selected (`Row … selected={…}`): a box is drawn in the theme's
-    // selected fill while it holds, as a NavItem is.
-    if (selectedState && const {'row', 'column', 'stack'}.contains(type) && !(readMap(out['bind'])?.keys.any((k) => k.startsWith('decoration.fills')) ?? false)) {
-      out['states'] = {
-        'selected': {
-          id: {
-            'decoration': {
-              'fills': [
-                {'color': options.selectedFill},
+    // selected fill while it holds, as a NavItem is, unless the line gives
+    // its selected look itself (its tail, design 22 4.7).
+    final givenStates = readMap(out['states']);
+    if (selectedState && const {'row', 'column', 'stack'}.contains(type) && !(readMap(out['bind'])?.keys.any((k) => k.startsWith('decoration.fills')) ?? false) && givenStates?['selected'] == null) {
+      out['states'] = <String, Object?>{
+        ...?givenStates,
+        'selected': <String, Object?>{
+          id: <String, Object?>{
+            'decoration': <String, Object?>{
+              'fills': <Object?>[
+                <String, Object?>{'color': options.selectedFill},
               ],
             },
           },
@@ -5786,12 +5842,13 @@ class _Parser {
     // Disabled where the type has no enabled of its own (docs/design/21): a
     // box, a text, an icon takes no pointer and no focus, and everything in
     // it with it, drawn at half strength while its disabled binding holds (a
-    // control draws its own disabled look from the same binding).
-    if (disabledBy.isNotEmpty && !controlLine) {
-      out['states'] = {
+    // control draws its own disabled look from the same binding), unless the
+    // line gives its disabled look itself.
+    if (disabledBy.isNotEmpty && !controlLine && givenStates?['disabled'] == null) {
+      out['states'] = <String, Object?>{
         ...?readMap(out['states']),
-        'disabled': {
-          id: {'opacity': 0.5, 'ignorePointer': true},
+        'disabled': <String, Object?>{
+          id: <String, Object?>{'opacity': 0.5, 'ignorePointer': true},
         },
       };
     }

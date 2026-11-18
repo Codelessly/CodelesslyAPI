@@ -254,9 +254,9 @@ void main() {
     test('every node type but a few is walked', () {
       final all = catalog.widgets.where((w) => w.type != 'canvas' && w.type[0] != w.type[0].toUpperCase()).map((w) => w.type);
       // A Box is a column, a Grid a column of rows, a Badge a row, an
-      // AppBar a column, a Modal the screen's, a Gauge a stack: no line is
-      // the type itself.
-      expect(all.where((t) => !heads.containsKey(t)).toSet(), {'box', 'gridView', 'badge', 'appBar', 'modal', 'radialGauge'});
+      // AppBar a column, a Modal the screen's: no line is the type itself.
+      // (radialGauge is the node as written since the paint family, 4.6.)
+      expect(all.where((t) => !heads.containsKey(t)).toSet(), {'box', 'gridView', 'badge', 'appBar', 'modal'});
     });
 
     final misses = <String>[];

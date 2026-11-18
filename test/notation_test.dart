@@ -676,7 +676,8 @@ Card
     expect((_node(r, 'b')['decoration'] as Map)['strokeWidth'], 2);
     expect(_node(r, 'msg')['props'], containsPair('maxLines', 6));
     expect((_node(r, 'star')['props'] as Map)['style'], {'iconColor': '#FFFFC107', 'iconSize': 28});
-    expect((_node(r, 'chip')['bind'] as Map)['props.selected'], contains('"Living Room"'));
+    // An expression is kept as written, its quotes too (docs/design/22, 4.7).
+    expect((_node(r, 'chip')['bind'] as Map)['props.selected'], contains("'Living Room'"));
     expect(_node(r, 'tm')['type'], 'text');
     expect((((_node(r, 'hero')['decoration'] as Map)['fills'] as List).single as Map)['stops'], hasLength(2));
     expect(((((_node(r, 'img')['decoration'] as Map)['fills'] as List).single as Map)['image'] as Map)['fit'], 'contain');
