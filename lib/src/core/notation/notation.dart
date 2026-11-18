@@ -434,8 +434,27 @@ final class NotationOptions {
       final secondary = d['color'] != null && d['color'] != '#FF111827';
       styles.putIfAbsent(e.key, () => body()..addAll({for (final k in const ['fontSize', 'fontWeight', 'fontFamily']) if (d[k] != null) k: d[k], 'color': secondary ? muted : ink}));
     }
-    (String, String, String) tone(String role, String inkName) =>
-        (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+    // A tone the theme has no tint for: a tenth of the tone's own color, a
+    // hairline of it at 28 % (SSUI's), or SSUI's tone when the theme has
+    // none of that name (a site's theme names a primary and its own colors:
+    // Badge.success drew as the neutral grey, round 11).
+    String? hex(String name) {
+      Object? c = colors[name] ?? theme[name];
+      for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+        c = colors[c] ?? theme[c];
+      }
+      return c is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(c) ? c : null;
+    }
+
+    (String, String, String) tone(String role, String inkName) {
+      if (role == 'neutral' || hex('${role}Tint') != null) {
+        return (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+      }
+      if (hex(inkName) case final String base) {
+        return ('#1A${base.substring(3)}', '#47${base.substring(3)}', color(inkName, ink));
+      }
+      return badgeVariants[role] ?? (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+    }
     final error = tone('error', 'error');
     // A design system's own words for the look of plain parts, each read
     // only when the theme has it (SSUI has none of them): `radii.card`,

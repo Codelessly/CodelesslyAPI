@@ -1184,11 +1184,14 @@ final class PageWords {
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
         return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
       }
+      // The theme's accent by its name where the document names its colors
+      // (a site): a fixed blue showed on every site (round 11).
+      final ink = accentText ?? accentName ?? accent;
       if (_looks(parts)) {
-        final color = parts.has('color') ? '' : ' color=${accentText ?? accent}';
+        final color = parts.has('color') ? '' : ' color=$ink';
         return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
       }
-      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color=${accentText ?? accent}'}${parts.props}$action'));
+      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color=$ink'}${parts.props}$action'));
     }
     if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
       final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;

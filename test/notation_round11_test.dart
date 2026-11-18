@@ -155,4 +155,39 @@ define Rows
       expect(readStrings(_node(r, 'kept')!['children']).single, startsWith('listView'));
     });
   });
+
+  group("A1, A2: a site's theme reaches a Link and a Badge's tone", () {
+    final site = {
+      'primary': '#FF15803D',
+      'colors': {'ink': '#FF201746'},
+    };
+    Map<String, Object?> styleOf(NotationResult r, String text) => ((_nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == 'text' && (n['props'] as Map)['text'] == text))['props'] as Map)['style'] as Map<String, Object?>;
+    Map<String, Object?> decoOf(NotationResult r, String text) {
+      final t = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'text' && ((e.value as Map)['props'] as Map)['text'] == text).key;
+      final row = _nodes(r).values.cast<Map>().firstWhere((n) => readStrings(n['children']).contains(t));
+      return (row['decoration'] as Map).cast<String, Object?>();
+    }
+
+    test("a Link is in the theme's primary, named where the site names its colors (it was #FF2563EB)", () {
+      for (final named in [true, false]) {
+        final r = _parse('Page\n  Section\n    Link "Go" onTap={go home}\n', NotationOptions.fromTheme(site, named: named, width: 1440));
+        expect(styleOf(r, 'Go')['color'], named ? 'primary' : '#FF15803D');
+      }
+    });
+
+    test('Badge.success, .warning, .info, .primary under a theme with no tints: a tint of the tone (it was the neutral grey)', () {
+      final r = _parse('Column\n  Badge.success "S"\n  Badge.warning "W"\n  Badge.info "I"\n  Badge.primary "P"\n  Badge "N"\n', NotationOptions.fromTheme(site, named: true, width: 1440));
+      expect(((decoOf(r, 'S')['fills'] as List).single as Map)['color'], '#1A16A34A');
+      expect(((decoOf(r, 'W')['fills'] as List).single as Map)['color'], '#1AEA580C');
+      expect(((decoOf(r, 'I')['fills'] as List).single as Map)['color'], '#1A0891B2');
+      expect(((decoOf(r, 'P')['fills'] as List).single as Map)['color'], '#1A15803D');
+      expect(((decoOf(r, 'N')['fills'] as List).single as Map)['color'], '#FFF3F4F6');
+      expect(styleOf(r, 'S')['color'], '#FF16A34A');
+    });
+
+    test('a theme with its own tints keeps them', () {
+      final r = _parse('Column\n  Badge.success "S"\n', NotationOptions.fromTheme({...site, 'colors': {'success': '#FF00AA00', 'successTint': '#FFDDFFDD', 'successTintBorder': '#FFBBEEBB'}}, width: 1440));
+      expect(((decoOf(r, 'S')['fills'] as List).single as Map)['color'], '#FFDDFFDD');
+    });
+  });
 }
