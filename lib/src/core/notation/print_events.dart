@@ -31,7 +31,7 @@ List<String> printEvents(String id, Json node, PrintContext context) {
     final r = readMap(reactions[i]);
     if (r == null) return const [];
     if (i == bound) continue;
-    final word = p.reaction(r, '${node['type']}');
+    final word = p.reaction(r, '${node['type']}', named: p.named('${node['type']}'));
     if (word == null) return const [];
     out.add(word);
   }
@@ -240,13 +240,15 @@ final class _Printer {
     final reactions = readList(node['actions']) ?? const [];
     // (In a list in a list, read alone: a variable's or a record's field.)
     final around = _around(id) ?? (lines: '', indent: '');
-    final alone = _line('${around.lines}${around.indent}$head#p');
+    // (A component a word of the notation shadows is called by its name.)
+    final after = named('${node['type']}');
+    final alone = _line('${around.lines}${around.indent}$head#p$after');
 
     // What a mark (`@__v`, or `key=@__v`) writes on this line, learnt from a
     // name no document has: the path it binds and, for a binding, its
     // template; null when it binds nothing there.
     ({String path, String? template})? learn(String mark) {
-      final learnt = _line('$head#p $mark').node;
+      final learnt = _line('$head#p$after $mark').node;
       if (learnt == null) return null;
       String? path, template;
       for (final e in (readMap(learnt['bind']) ?? const {}).entries) {
@@ -288,7 +290,7 @@ final class _Printer {
     // [words] read on the line where the node is: the node, when it reads
     // with no more said than the line alone and no variable of its own.
     Json? read(String words) {
-      final got = _line('${around.lines}${around.indent}$head#p $words');
+      final got = _line('${around.lines}${around.indent}$head#p$after $words');
       if (got.node == null || !_sameSaid(got.said, alone.said) || jsonEncode(got.document['variables']) != _variables) return null;
       return got.node;
     }
@@ -352,7 +354,7 @@ final class _Printer {
       };
 
   /// [r] as `on<Event>(fields)={actions}` on a node of [type], or null.
-  String? reaction(Json r, String type) {
+  String? reaction(Json r, String type, {String named = ''}) {
     if (r.keys.any((k) => k != 'trigger' && k != 'actions')) return null;
     final trigger = readMap(r['trigger']);
     final actions = readList(r['actions']) ?? const [];
@@ -363,14 +365,28 @@ final class _Printer {
     if (head == null) return null;
     final word = '$head={$body}';
     // Checked on a line of the node's type (its events are its own), else on a box.
-    for (final t in [type, 'Box']) {
-      final d = _probeWith('$t#p', word);
+    // A design system's component a word of the notation shadows is called
+    // by its name ([named]): its events are its own.
+    for (final (t, after) in [(type, named), ('Box', '')]) {
+      final d = _probeWith('$t#p$after', word);
       if (d == null) continue;
       final got = readList(readMap(readMap(d['nodes'])?['p'])?['actions']);
       return got != null && got.isNotEmpty && jsonEquality.equals(got.last, r) ? word : null;
     }
     return null;
   }
+
+  final _named = <String, String>{};
+
+  /// ` type=Button` where a line of [type] is a design system's component
+  /// that a word of the notation shadows (`Button`, `Chip`, `TopBar`): the
+  /// line reads as the notation's word without it (design 22, 4.7). Else
+  /// empty.
+  String named(String type) => _named[type] ??= () {
+        if (type.isEmpty || type[0] == type[0].toLowerCase() || context.catalog.widget(type) == null) return '';
+        Object? typeOf(String line) => readMap(readMap(_read(line).document['nodes'])?['p'])?['type'];
+        return typeOf('$type#p') != type && typeOf('$type#p type=$type') == type ? ' type=$type' : '';
+      }();
 
   /// A trigger as its event's name and its fields in parentheses.
   String? _event(Json trigger, String type) {

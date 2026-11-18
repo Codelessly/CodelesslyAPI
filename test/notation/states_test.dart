@@ -203,10 +203,10 @@ void main() {
       expect(r.issues.map((i) => i.message), [contains('there is no line b around this one')]);
     });
 
-    test('an id joined by _ names its line', () {
-      _word('Row#m_nav gap=4\n  Text#m_nav_t "Docs" m_nav.hovered.color=#FF0F172A', 'm_nav', {
+    test('an id joined by - names its line', () {
+      _word('Row#m-nav gap=4\n  Text#m-nav-t "Docs" m-nav.hovered.color=#FF0F172A', 'm-nav', {
         'hovered': {
-          'm_nav_t': {
+          'm-nav-t': {
             'props': {
               'style': {'color': '#FF0F172A'},
             },

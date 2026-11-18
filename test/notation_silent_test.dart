@@ -112,25 +112,27 @@ Column
     expect(r.issues.map((i) => i.message), [startsWith('shortcut= presses a line that is tapped'), startsWith('No key "mod+nokey"')]);
   });
 
-  test('an id with a hyphen is said once, where it is written, and read with _ there and where it is opened', () {
+  // Grammar change (the owner, 2026-11-17: "Support hyphens, that's very
+  // common!"): an id with a hyphen is that id, as written, where it is
+  // written and where it is opened, scrolled to or focused. Until then it was
+  // said and read with `_`.
+  test('an id with a hyphen is that id, where it is written and where it is opened', () {
     final r = _parse('''
 Column
   Button.ghost#indicators-button "Open" onTap={open live-image}
   Button#go "Down" onTap={scroll page-end}
+  Button#find "Find" onTap={focus note-title}
+  Input#note-title "Title"
   Text#page-end "End"
 Dialog#live-image "Live"
   Text "x"
 ''');
-    expect(r.issues.map((i) => i.message), [
-      startsWith('An id is one word of letters, digits and _: #indicators_button, not #indicators-button'),
-      startsWith('An id is one word of letters, digits and _: #page_end, not #page-end'),
-      startsWith('An id is one word of letters, digits and _: #live_image, not #live-image'),
-    ]);
-    expect(r.issues.map((i) => i.line), [2, 4, 5]);
-    expect(r.document['roots'], contains('live_image'));
-    expect(_firstActions(r, 'indicators_button').single, containsPair('to', 'live_image'));
-    expect((_firstActions(r, 'indicators_button').single as Map)['presentation'], 'dialog');
-    expect(_firstActions(r, 'go').single, containsPair('node', 'page_end'));
+    expect(r.issues, isEmpty);
+    expect(r.document['roots'], contains('live-image'));
+    expect(_firstActions(r, 'indicators-button').single, containsPair('to', 'live-image'));
+    expect((_firstActions(r, 'indicators-button').single as Map)['presentation'], 'dialog');
+    expect(_firstActions(r, 'go').single, containsPair('node', 'page-end'));
+    expect(_firstActions(r, 'find').single, containsPair('node', 'note-title'));
   });
 
   test('a whole-number state that an action or a control gives a fraction is a decimal; one counted in steps of 1 stays whole', () {

@@ -1,3 +1,14 @@
+## Unreleased
+
+### Changed
+
+- **Notation**: an id may have hyphens (the owner's decision: ids are written as JSON and HTML ids are). An id is
+  letters, digits and `_`, its parts joined by single hyphens (`Text#m-title`, `Dialog#live-image`, `hero-cta-2`),
+  read as written, with no issue, after `#`, after `open`, `scroll` and `focus`, and as the owner before a state
+  (`m-nav.selected.color=…`). A variable named after a node (`<id>Selected`, `<id>_<param>`, a Lightbox's
+  `<id>At`) takes the id's hyphens as `_`. `printNotation` writes such ids, so a document with them prints in
+  lines, not whole on the `document {…}` line. (34.0.0 said a hyphen in an id and read it as `_`.)
+
 ## 35.0.0
 
 Released with codelessly_sdk 35.0.0.

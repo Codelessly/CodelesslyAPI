@@ -69,6 +69,16 @@ final class PrintContext {
   late final _Probes _probes = _Probes.of(catalog, options);
   final Map<String, _NodeLine> _lines = {};
 
+  /// The page views the walk prints as written (`PageView`, their page a
+  /// line under them), not as `Pages`: their page did not read back as the
+  /// one `Pages` makes.
+  final Set<String> _pagesAsWritten = {};
+
+  /// Page view [id] is printed as written from now on ([_pagesAsWritten]).
+  void printPagesAsWritten(String id) {
+    if (_pagesAsWritten.add(id)) _lines.remove(id);
+  }
+
   /// The key that means [path] on [type] (keys.dart's shortest), or null
   /// when none reads back as it.
   String? _keyFor(String path, String type) {
@@ -273,7 +283,7 @@ String? _value(Object? v, Set<String> names) {
       return jsonEncode(v);
     case final String s:
       if (_bare.hasMatch(s) && !const {'true', 'false', 'null', 'item', 'index'}.contains(s) && !names.contains(s)) return s;
-      if (s.contains('{') || s.contains(r'\$')) return _verbatim(s);
+      if ((s.contains('{') && !_codeBraces(s)) || s.contains(r'\$')) return _verbatim(s);
       return jsonEncode(s);
     case List() || Map():
       return _json(v);
@@ -293,6 +303,26 @@ int _close(String s, int open) {
     if (c == '}' && --depth == 0) return i;
   }
   return -1;
+}
+
+/// Whether every `{` of [s] is text as the parser reads a string (its
+/// `_spans`): none reads a value. A brace that is empty or never closes, or
+/// whose inside runs over lines or is a record written `key: value` or a
+/// spaced word (`{ Beacon }`), is a code sample's. False when [s] holds a
+/// read (`${…}`).
+bool _codeBraces(String s) {
+  if (s.contains(r'${')) return false;
+  for (var i = 0; i < s.length; i++) {
+    if (s[i] != '{') continue;
+    final end = _close(s, i) + 1;
+    if (end > i + 2) {
+      final inner = s.substring(i + 1, end - 1);
+      final code = inner.contains('\n') || inner.contains(r'\n') || RegExp(r'^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$').hasMatch(inner);
+      if (!code) return false;
+      i = end - 1;
+    }
+  }
+  return true;
 }
 
 /// What goes in the braces for the read `${inner}`: the name, or the
@@ -342,6 +372,9 @@ final _writtenRead = RegExp(r'(?<!\\)\$\{=');
 /// string that reads back as it (`"Total: {total}"`), else as written
 /// ([_verbatim]: `"${= theme.colors.ink}"`); null when none does.
 String? _quoted(String s) {
+  // A text whose braces are a code sample's (`import { Beacon } from …`):
+  // the parser reads them as text.
+  if (s.contains('{') && _codeBraces(s) && !s.contains(r'\$')) return jsonEncode(s);
   final parts = <(String, bool)>[]; // (text, is an expression)
   final literal = StringBuffer();
   for (var i = 0; i < s.length; i++) {
@@ -627,7 +660,10 @@ final class _NodeLine {
   String get _asked => _typed ? '$head type=$type' : head;
 
   void write() {
-    var first = _head();
+    // A page view whose one child is the page `Pages` makes is `Pages`: the
+    // walk writes the page's lines under it (print.dart).
+    final pages = type == 'pageView' && !c._pagesAsWritten.contains(id) && readStrings(n['children']).length == 1 && readStrings(n['children']).single == '${id}Page';
+    var first = pages ? 'Pages' : _head();
     if (type[0] != type[0].toLowerCase() && _probes.node(first)['type'] != type && _probes.node('$type type=$type')['type'] == type) {
       _typed = true;
       first = type;
@@ -638,7 +674,7 @@ final class _NodeLine {
     // line chart's series): then the own word.
     final own = _probes.own(type);
     // (The marks are left out: under an each or of a record's field they read only where the line is.)
-    if (!_typed && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => w != twoWay?.word).join(' '))) {
+    if (!_typed && !pages && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => w != twoWay?.word).join(' '))) {
       words.clear();
       doneProps.clear();
       doneBind.clear();
@@ -836,6 +872,11 @@ final class _NodeLine {
     final leaf = nested ? key.substring(key.indexOf('.') + 1) : key;
     final fixed = holder?[leaf];
     final reads = type == 'text' || type == 'box';
+    // A value and a binding of a component's main field: the binding is its
+    // key, the value its path (`props.label="0" label={props.count}`), not
+    // the string, which a component's line reads as that parameter written
+    // twice.
+    if (fixed is String && !nested && bind['props.$key'] != null && type[0] != type[0].toLowerCase()) return;
     if (fixed is String && (reads || !fixed.contains(r'${'))) {
       final q = _quoted(fixed);
       if (q == null) return;

@@ -86,11 +86,16 @@ variable (`qty=qty+1`).
   (`Row#row-{row.id}`) is its fixed part (`row`), since every copy an `each` makes is the one node. An id given
   twice names the line that has it; the two branches of an `if`/`else` cannot share one (the document holds
   one node per id), and that is said with what to write instead. What the expander names itself (an `App`'s
-  sidebar drawer, `<screen>_sidebar`) takes no name an author would write. An id is one word of letters, digits
-  and `_`, as a variable's name is (a list's selection, a drawer's state and the like are named after it):
-  `Dialog#live-image` is said once, at the id, and read as `live_image` there and in the `open`, `scroll` and
-  `focus` that name it, so one hyphen is one issue and not a page of them. (A screen's id, which only `go` and
-  links name, may have hyphens: `go case-study`.)
+  sidebar drawer, `<screen>_sidebar`) takes no name an author would write. An id is letters, digits and `_`, its
+  parts joined by single hyphens, as JSON and HTML ids are written (`m-title`, `hero-cta-2`): it starts with a
+  letter or `_` and does not end in a hyphen. It is taken whole wherever the grammar expects an id: after `#`
+  (`Text#m-title`, `Dialog#live-image`, `Canvas#about-us`), after `open`, `scroll` and `focus` (`open
+  live-image`), as the owner before a state (`m-nav.selected.color=…`, section 4.7 of design 22), and as an
+  action field that names a node (`node=m-title`). No expression names a node by its id, and inside `{…}` `a-b`
+  stays a subtraction. A variable the expander names after a node (a selectable list's `<id>Selected`, a
+  block's own state `<id>_<param>`, a Lightbox's `<id>At`) takes the id with its hyphens as `_`
+  (`Lightbox#photo-view`'s picture shown is `photo_viewAt`), since a variable's name is one word an expression can read. (Until
+  the owner's decision of 2026-11-17, 34.0.0 to 35.0.0, a hyphen in an id was an issue and read as `_`.)
 - **`"text"`**: the node's main string: a text's text, a button's or toggle's `label`, a field's label, an
   image's source. `{name}` inside it reads a variable (`"Total: {total}"`).
 - **`key=value`**: any prop, layout or decoration field by its own name, unquoted when it has no space

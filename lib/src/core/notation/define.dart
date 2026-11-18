@@ -967,7 +967,7 @@ final class DefinedWords {
     for (final l in d.body) {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
-      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) {
+      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
         renamed[m[1]!] = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
         ids.add(m[1]!);
       }
@@ -1296,11 +1296,18 @@ final class _Substitution {
         continue;
       }
       if (c == '#') {
-        final m = RegExp(r'#[A-Za-z0-9_]*').matchAsPrefix(text, i)!;
+        final m = RegExp(r'#[A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*').matchAsPrefix(text, i)!;
         // `focus #cellInput`: an id of the body; `#FF2563EB` a colour.
         final id = m[0]!.substring(1);
         b.write(ids.contains(id) ? '#${renamed[id]}' : m[0]);
         i = m.end;
+        continue;
+      }
+      // `focus cell-input`: an id of the body with hyphens is named whole
+      // (elsewhere in an expression `a-b` is a subtraction).
+      if (RegExp(r'[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)+').matchAsPrefix(text, i) case final h? when (i == 0 || text[i - 1] != '.') && renamed[h[0]] != null) {
+        b.write(renamed[h[0]]);
+        i = h.end;
         continue;
       }
       final m = RegExp(r'[A-Za-z_][A-Za-z0-9_]*').matchAsPrefix(text, i);
@@ -1636,5 +1643,5 @@ List<String> checkDefinitions(NotationVocabulary vocabulary,
 /// as the taught prompt lists a design system's components.
 List<String> definitionLines(NotationVocabulary vocabulary) => [
       for (final defs in vocabulary.definitions.values)
-        for (final d in defs) '${d.signature.replaceFirstMapped(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*'), (m) => m[1]!)}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
+        for (final d in defs) '${d.signature.replaceFirstMapped(RegExp(r'^([A-Z][A-Za-z0-9.]*)#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*'), (m) => m[1]!)}${d.slots.isEmpty ? '' : ' (children${d.slots.where((s) => s.isNotEmpty).map((s) => ': $s').join()})'}${d.doc.isEmpty ? '' : ' : ${d.doc}'}',
     ];

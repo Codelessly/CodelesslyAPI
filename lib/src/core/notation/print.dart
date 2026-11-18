@@ -16,6 +16,7 @@ import 'dart:convert';
 import '../behaviors.dart' show diffPatch, mergePatch;
 import '../catalog.dart';
 import '../json.dart';
+import '../migrate/migrate.dart' show kOldestSchemaVersion;
 import 'declared.dart';
 import 'notation.dart';
 import 'print_events.dart' show printCanvasEvents, printNormalized;
@@ -28,6 +29,7 @@ import 'print_paint.dart' show printPaintLines;
 /// data (a single `document {…}` line): the measure's breakdown.
 String printNotation(Json document, {required Catalog catalog, void Function(String why)? whole}) {
   document = printNormalized(document, catalog); // one spelling of what the API reads in two (print_events.dart)
+  document = _componentNormalized(document);
   final options = notationOptionsFor(document);
   final context = PrintContext(document: document, catalog: catalog, options: options);
   String? why;
@@ -61,6 +63,27 @@ NotationOptions notationOptionsFor(Json document) {
   }
   final width = readMap(canvas?['layout'])?['width'];
   return NotationOptions(screen: first, width: width is num ? width.toDouble() : 390, reflow: false);
+}
+
+/// A document in the parser's spelling of what the API reads two ways
+/// (design 22, 4.8): a declaration's empty parameter list (`"widget":
+/// {"props": []}`) is none, as `widgetSpecFromJson` reads it; a preview with
+/// no `props` has empty ones, as `ComponentPreview` reads it; a document with
+/// no `schema` is of the oldest (`schemaOf`), written `document schema=2`.
+/// [document] itself when it has none of them.
+Json _componentNormalized(Json document) {
+  final widget = readMap(document['widget']);
+  final previews = readList(document['previews']);
+  final emptyProps = widget != null && widget['props'] is List && (widget['props']! as List).isEmpty;
+  final bare = previews != null && previews.any((p) => p is Map && !p.containsKey('props'));
+  final schema = !document.containsKey('schema');
+  if (!emptyProps && !bare && !schema) return document;
+  return {
+    ...document,
+    if (schema) 'schema': kOldestSchemaVersion,
+    if (emptyProps) 'widget': {...widget}..remove('props'),
+    if (bare) 'previews': [for (final p in previews) p is Map && !p.containsKey('props') ? {...p, 'props': <String, Object?>{}} : p],
+  };
 }
 
 /// How much the walk says in words, tried in order until the print reads
@@ -113,16 +136,16 @@ final class _Printer {
   /// under them read back into other slots, or into their children).
   final _slotLines = <String>{};
 
-  // An id the parser reads after `#`: one word of letters, digits and `_`
-  // (design 13, section 3: `m-logo` is read as `m_logo`, and said).
-  static final _idForm = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
+  // An id the parser reads after `#` (design 13, section 3): letters, digits
+  // and `_`, its parts joined by hyphens (`m-logo`).
+  static final _idForm = RegExp('^$notationId\$');
   static final _printable = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length + _slotLines.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length + _typedState.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length + _slotLines.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _typedState.length == before) return out;
     }
     return null;
   }
@@ -281,6 +304,11 @@ final class _Printer {
             _Line(0, _stateLine(v)),
       ];
 
+  /// The state whose type its value says but the print read back gives
+  /// another (a whole number a Pages or a number control widens to a
+  /// decimal): written with its type, which is then kept.
+  final _typedState = <String>{};
+
   String _stateLine(Json v) {
     final b = StringBuffer('state ${v['name']}');
     final type = readString(v['type']);
@@ -293,7 +321,7 @@ final class _Printer {
       final value = v['value'];
       final has = v.containsKey('value') && value != null;
       final inferred = notationVariableTypeOf(value);
-      if (type != null && (type != inferred || !has)) b.write(':$type');
+      if (type != null && (type != inferred || !has || _typedState.contains(v['name']))) b.write(':$type');
       if (has) b.write('=${jsonEncode(value)}');
       if (!has && type == null) b.write(':text');
     }
@@ -371,6 +399,8 @@ final class _Printer {
       why = 'an id the printer refuses';
       return false;
     }
+    // A page view not printed as `Pages` is printed as written.
+    if (n['type'] == 'pageView' && _pagesOf(id, n) == null) context.printPagesAsWritten(id);
     var text = printNodeLine(id, n, context);
     // The column a `Grid` line makes around the grid of its `each`: the Grid.
     if (_gridOfEach(n) case final grid?) text = _gridLine(text, grid);
@@ -378,22 +408,40 @@ final class _Printer {
     // (`visible="${= ready}"` is the binding as written, design 22, 4.8.)
     if (condition != null) text = text.replaceFirst(' visible={$condition}', '').replaceFirst(' visible=${jsonEncode('\${= $condition}')}', '');
     // A list written with an `each` under it: the each says its data.
-    if (_handList(id, n) != null) {
-      final at = text.indexOf(' data={');
-      if (at >= 0) {
-        var depthOf = 0, end = at + 6;
-        for (; end < text.length; end++) {
-          if (text[end] == '{') depthOf++;
-          if (text[end] == '}' && --depthOf == 0) break;
-        }
-        if (end < text.length) text = text.substring(0, at) + text.substring(end + 1);
-      }
+    if (_handList(id, n) != null) text = _withoutData(text);
+    // A page view as `Pages` makes it: its one page, `<id>Page`, is no
+    // line; the page's lines are under `Pages`, each shown at its position
+    // (or under an `each` for one page per element).
+    final page = _pagesOf(id, n);
+    if (page != null) {
+      text = text.replaceFirst(RegExp(r'^(pageView|PageView)(?=[#\s]|$)'), 'Pages');
+      if (page.list != null) text = _withoutData(text);
+      // (Its count is the lines under it.)
+      final count = readStrings(readMap(nodes[page.id])?['children']).length;
+      if (page.list == null) text = text.replaceFirst(' itemCount=$count', '');
     }
     _lines.add(_Line(depth, _withoutId(text, id, '${n['type']}'), id));
     // Its ordered records (paint ops, animations, transitions): lines of
     // their own under it, before its children.
     for (final record in printPaintLines(id, n, context, depth).split('\n')) {
       if (record.trim().isNotEmpty) _lines.add(_Line(0, record));
+    }
+    if (page != null) {
+      _seen.add(page.id);
+      _structure.add(page.id);
+      final pn = readMap(nodes[page.id])!;
+      final kids = readStrings(pn['children']);
+      if (page.list case final String list) {
+        _lines.add(_Line(depth + 1, 'each ${_eachName(pn)} in $list'));
+        for (final c in kids) {
+          if (!_child(c, depth + 2)) return false;
+        }
+        return true;
+      }
+      for (var i = 0; i < kids.length; i++) {
+        if (!_walk(kids[i], depth + 1, condition: 'index == $i')) return false;
+      }
+      return true;
     }
     // A list of its own line repeating its one child over data: the child
     // under `each item in list` (design 22, 4.7).
@@ -437,6 +485,34 @@ final class _Printer {
     return ['Grid$id', ...words, if (after.isNotEmpty) after].join(' ');
   }
 
+  /// [text] without its ` data={…}`: an `each` under the line says it.
+  static String _withoutData(String text) {
+    final at = text.indexOf(' data={');
+    if (at < 0) return text;
+    var depthOf = 0, end = at + 6;
+    for (; end < text.length; end++) {
+      if (text[end] == '{') depthOf++;
+      if (text[end] == '}' && --depthOf == 0) break;
+    }
+    return end < text.length ? text.substring(0, at) + text.substring(end + 1) : text;
+  }
+
+  /// The page of page view [id] as `Pages` makes it, its one child column
+  /// `<id>Page` with no slots, and the list its data is when it is bound
+  /// (one page per element, `each`); null when it is not one, or did not
+  /// read back as one.
+  ({String id, String? list})? _pagesOf(String id, Json n) {
+    if (plan != _Plan.full || n['type'] != 'pageView' || _noEach.contains(id)) return null;
+    final page = '${id}Page';
+    final kids = readStrings(n['children']);
+    final pn = readMap(nodes[page]);
+    if (kids.length != 1 || kids.single != page || pn?['type'] != 'column' || pn?['slots'] != null || n['slots'] != null) return null;
+    final data = readMap(n['bind'])?['data'];
+    if (data == null) return (id: page, list: null);
+    final list = data is String ? _eachList(data) : null;
+    return list == null ? null : (id: page, list: list);
+  }
+
   /// The lists printed as their own line with an `each` under it.
   final _handEach = <String>{};
 
@@ -444,7 +520,7 @@ final class _Printer {
   /// data is, and its one child, the template; null when it is not one
   /// (not a listView or gridView, no data, other children, slots).
   ({String list, String template})? _handList(String id, Json n) {
-    if (plan != _Plan.full || _noEach.contains(id) || (n['type'] != 'listView' && n['type'] != 'gridView')) return null;
+    if (plan != _Plan.full || _noEach.contains(id) || (n['type'] != 'listView' && n['type'] != 'gridView' && n['type'] != 'pageView')) return null;
     if (n['slots'] != null || readMap(n['props'])?['layout'] != null) return null;
     final kids = readStrings(n['children']);
     final data = readMap(n['bind'])?['data'];
@@ -633,6 +709,20 @@ final class _Printer {
       // what a line still differs in where it is: print_fields.dart).
       final first = printFieldsRefine(_parse(text(const {}, null)), [for (final l in _lines) if (l.id != null) (id: l.id!, get: () => l.text, set: (String t) => l.text = t)], () => _parse(text(const {}, null)), context);
       final parsed = readMap(first['nodes']) ?? const {};
+      // A variable read back with another type than its value says: its
+      // state line writes the type.
+      final widened = <String>[];
+      for (final e in (readMap(document['variables']) ?? const {}).entries) {
+        final got = {for (final v in readList(readMap(first['variables'])?[e.key]) ?? const []) if (readMap(v) case final Json m) m['name']: m['type']};
+        for (final v in readList(e.value) ?? const []) {
+          if (readMap(v) case final Json m when m['name'] is String && got.containsKey(m['name']) && got[m['name']] != m['type'] && !_typedState.contains(m['name'])) widened.add(m['name']! as String);
+        }
+      }
+      if (widened.isNotEmpty) {
+        _typedState.addAll(widened);
+        why = 'a state read back with another type';
+        return null;
+      }
       final tails = <String, String>{};
       for (final l in _lines) {
         final id = l.id;
@@ -683,13 +773,20 @@ final class _Printer {
         return null;
       }
       // A list printed as `each` reads back as it is, or is printed as nodes.
+      var unreadStructure = false;
       for (final id in _structure) {
         final got = readMap(parsed[id]);
         if (got == null || diffPatch(got, readMap(nodes[id])!) != null) {
-          _noEach.add(id.endsWith('Item') && !nodes.containsKey('${id}Item') ? id.substring(0, id.length - 4) : id);
+          unreadStructure = true;
+          _noEach.add(id.endsWith('Item') && !nodes.containsKey('${id}Item')
+              ? id.substring(0, id.length - 4)
+              // A page view's page that does not read back: the page view printed as written.
+              : id.endsWith('Page') && readMap(nodes[id.substring(0, id.length - 4)])?['type'] == 'pageView'
+                  ? id.substring(0, id.length - 4)
+                  : id);
         }
       }
-      if (_noEach.any(_structure.contains)) {
+      if (unreadStructure) {
         why = 'an each that does not read back';
         return null;
       }

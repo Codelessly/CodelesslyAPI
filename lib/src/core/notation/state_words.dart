@@ -28,9 +28,9 @@ final Set<String> notationStateNames = {for (final s in WidgetState.values) s.na
 bool notationStatePatchKey(String key) =>
     !const {'type', 'id', 'name', 'key', 'children', 'slots', 'states', 'media', 'actions', 'component'}.contains(key);
 
-// An id as the parser reads it after `#`: one word of letters, digits and
-// `_` (design 13, section 3).
-final _ownerId = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
+// An id as the parser reads it after `#` (design 13, section 3): `m-nav` in
+// `m-nav.selected.color=…` is the owner's id whole.
+final _ownerId = RegExp('^$notationId\$');
 
 /// The states whose patch of the node itself the parser gave as a default
 /// (`selected={…}` on a box: the theme's selected fill; `enabled={…}` on a

@@ -141,14 +141,14 @@ Column
 ''', same: ['  each item in rows reorder', '  each item in log follow h=180']);
     });
 
-    test('an id the parser gives is left out; any other is written, with its parts joined by _', () {
+    test('an id the parser gives is left out; any other is written, with its parts joined by a hyphen', () {
       final doc = _roundTrip('''
 Column
   Text "a"
-  Text#m_title "b"
+  Text#m-title "b"
   Text "c"
-''', same: ['Column', '  Text "a"', '  Text#m_title "b"', '  Text "c"']);
-      expect((doc['nodes']! as Map).keys, containsAll(['text1', 'm_title', 'text2']));
+''', same: ['Column', '  Text "a"', '  Text#m-title "b"', '  Text "c"']);
+      expect((doc['nodes']! as Map).keys, containsAll(['text1', 'm-title', 'text2']));
     });
   });
 

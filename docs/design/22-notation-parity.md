@@ -362,10 +362,8 @@ Settled 2026-11-17 (tests: `test/notation/events_test.dart`, group "the second p
   block reads as its first event and prints as that event's name. In a component's own tree, `emit name [value]`
   raises one (`Row onTap={emit onPressed}`).
 
-Not said yet: an event of a design system component whose name is also a word of the notation (`Button`,
-`IconButton`, `Card`, `Chip`, `TopBar`): the line reads as the notation's type, on which `onPressed` is a tap,
-so its reactions stay in the tail with its `type` until a line can name such a component (the fields' and the
-parser's head, not an event's word). A nested `each` (a list in a list's element) prints `@name` only for a
+(An event of a design system component whose name is also a word of the notation, `Button`, `Chip`, `TopBar`:
+said since wave 3, on the line that names it with `type=`, 4.8.) A nested `each` (a list in a list's element) prints `@name` only for a
 variable or a record's field; a field of the outer element keeps `value={…} onChange={…}`.
 
 ### 4.5 The document family: the forms settled
@@ -392,11 +390,11 @@ design 13 section 3; none is a second way to write what had one.
   line.
 - **Ids.** An id the parser would give the line (`text3`: its type and the count so far) is not written,
   unless the line reads as something else without it (`Sidebar`, a page word, for a component of that name).
-  Any other id is written when it is one word of letters, digits and `_` (`#m_logo`; an id from data,
-  `#row-{row.id}`, is still its fixed part). Since 34.0.0 a hyphen in an id is an issue, read as `_` (design 13
-  section 3): a document whose node or canvas ids have one (`m-logo`) cannot name them in a line, and prints
-  whole on the `document {…}` line, which the stream sends as its nodes, their places, its roots and its
-  variables.
+  Any other id is written: letters, digits and `_`, its parts joined by single hyphens (`#m_logo`, `#m-logo`,
+  `Canvas#about-us`; an id from data, `#row-{row.id}`, is still its fixed part). (From 34.0.0 a hyphen in an id
+  was an issue, read as `_`, and a document with one printed whole on the `document {…}` line; the owner
+  decided on 2026-11-17 that an id has hyphens as JSON and HTML ids do: design 13 section 3. The nine documents
+  of the corpus that printed whole for it print in lines.)
 - **A component.** A design system's component document is its head, then its tree (no canvas; its variables
   are its root's):
 
@@ -713,23 +711,15 @@ Settled 2026-11-17 (tests: `test/notation/document_p2_test.dart`, `test/notation
   root as the document's root. What no operation carries (the document's `id` and `schema`, a component's
   declaration and previews) is `NotationStream.result` after `close()`. `stream_test.dart` streams every printed
   document of `tool/reference/examples` and a sample of each form line by line and compares with `parseNotation`.
-- **The measure** (`tool/notation_coverage.dart`) reads each document with its own design system's declaration of
-  a component two design systems declare differently (the nearest on disk), does not count record lines as node
-  lines, and counts how each field of a node line is said: a word of the notation, the field's own name, a dotted
+- **The measure** (`tool/notation_coverage.dart`) reads each document with the components of its own design system
+  or site (4.8), does not count record lines as node lines, and counts how each field of a node line is said: a word of the notation, the field's own name, a dotted
   path, JSON as a value, an event, a media rule.
 
 Not said yet, and why:
 
-- **A design system's component whose name the notation reads as its own word** (`Button`, `IconButton`, `Badge`,
-  `TopBar`, `Card`, `Chip`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `ProgressBar`, `Sidebar`, `Header`,
-  `Footer`: 235 node lines carry `"type"` in their tail, and their 64 `"children": null`). The owner decided that
-  such a name stays the notation's (prompt.dart: "A name the notation already reads as a core type … stays
-  that"), and the grammar has no other spelling for a component: the catalog spells it with the capital the
-  notation takes. A form needs a decision: a component-first rule like `_softNames` (a writer's `Button` in such a
-  design system would then be its Button), or a new head (`node {…}` is the one there is).
-- **A component's empty parameter list** (`"widget": {"props": []}`, 3 documents): the parser gives a component no
-  `props` when it has no `param` line.
-- **A document's `conditions`** (1 document) and a missing `schema` (1).
+- (A design system's component whose name the notation reads as its own word: since 4.7 Fields `type=Name`, and
+  its events, marks and slots since 4.8. A component's empty parameter list and a missing `schema`: 4.8.)
+- **A document's `conditions`** (1 document).
 - **Values the catalog does not have** (a box's `path`, a filled button's `size`, a literal `${…}` in a prop that
   is not a text): the parser says them (2.1) and the document line keeps them.
 
@@ -841,6 +831,56 @@ says it, 2.1):
   Flutter's is `emailAddress`, which `type=email` writes);
 - a value beside a binding of the same text (`props.icon: "${item.icon}"` and `bind.props.icon` alike): the value
   is a read the field does not work out, which a line binds.
+
+### 4.8 Components, structure and ids: the forms settled (wave 3)
+
+Settled 2026-11-17 by the components family (tests: `test/notation/components_p3_test.dart`).
+
+- **A component a word of the notation shadows** (`Button`, `IconButton`, `Chip`, `Card`, `TopBar`, `Badge`), on
+  the line that names it with `type=` (4.7 Fields), is the component in everything the line says: its events by
+  their own names (`Button#apply "Apply" type=Button variant=ghost onPressed={toast "Applied"}`; in a component's
+  tree `onPressed={emit onAction}`), its variable parameter as a mark (`Chip#design "Design" type=Chip @tag`), its
+  slots as `slot` lines, and no page word reads it (`Badge#count "3" type=Badge w=24` is the component 24 wide, not a
+  cell around a badge). From CodelesslySDK `design_systems/cards/components/Banner.json`:
+  `Button#action type=Button label={props.action} visible={props.action != ''} props.label="" variant=outline
+  size=xs onPressed={emit onAction}`. A component's main field given both a value and a binding is written by its path and
+  its key (`Badge#count type=Badge label={props.count} props.label="0"`): the string and the key would be the
+  parameter written twice.
+- **Whose components a document is read with** (the measure): its home, the folder it is in or the nearest above it
+  that has a `components/` folder of component documents, or whose `site.json` names a `designSystem` that is one; a
+  document that names none (a folder of generated screens) takes the one home whose components take the most of its
+  calls with every prop a parameter. Over the home, the first declaration found of every other component.
+  `COVERAGE.md` lists the homes and how many documents each read.
+- **`Pages` and `PageView`.** A page view whose one child is the page `Pages` makes (`<id>Page`, a column) prints as
+  `Pages`, the page no line: its lines under `Pages`, each shown at its position (no `visible={index == n}`, no
+  `itemCount`), or under `each item in list` for one page per element. `PageView` (`pageView`), the catalog's name,
+  is the node as written (as `box`, `gridView` are, 4.7): the lines under it are its children, and an `each` under
+  it repeats its one child over the data, as under a `ListView` of its own line. From the cards design system's
+  `Carousel`: `PageView#pages … h={props.height + 94} …` / `  each item in props.items` / `    Column#page …`. A page view whose page does not read back as `Pages`' is printed as written.
+- **A string whose braces are a code sample's** (`"import { Beacon } from '@beacon/sdk';"`, a brace over lines, a
+  record written `key: value`) is written as it is: the parser reads those braces as text.
+- **One spelling of what the API reads two ways** (as 4.1's second pass): a declaration's empty parameter list
+  (`"widget": {"props": []}`) is none (`widgetSpecFromJson`); a preview with no `props` has empty ones
+  (`ComponentPreview`); a document with no `schema` is of the oldest, `document schema=2` (`schemaOf`).
+- **A type written on a state line is kept** (`state page:integer=0`): no control or `Pages` widens it to a
+  decimal, and the printer writes the type where the read-back would otherwise widen it.
+- **Ids with hyphens** (the owner's decision, 2026-11-17: ids are written as JSON and HTML ids are): an id is
+  letters, digits and `_`, its parts joined by single hyphens, starting with a letter or `_` (design 13, section
+  3): `Text#m-title`, `Dialog#live-image`, `Canvas#about-us`, the owner before a state `m-nav.hovered.color=…`,
+  `open live-image`, `scroll page-end`, `focus note-title`. It is taken whole wherever the grammar expects an id;
+  no expression names a node by its id, so `a-b` in braces stays a subtraction. A variable named after a node
+  takes the id's hyphens as `_` (`Lightbox#photo-view` keeps its picture in `photo_viewAt`). The nine documents
+  of the corpus that printed whole for an id print in lines; no other id shape is refused there.
+
+Still without a word, and why:
+
+- **A component given children its declaration does not take** (a `Sidebar` of `children: none` with a `footer`
+  slot holding two lines: `examples/showcase/desktop/baseline/app_dashboard.doc.json`): the lines under it are its
+  slot's, and a slot holds one; the document has what its catalog does not declare.
+- **A binding mixing a read and a formula that is code** (`bind.props.code` of a CodeBlock: `import ${Beacon} …
+  ${= apiKey: 'YOUR_API_KEY'}`): the formula is no expression a brace reads.
+- **A variable named as a runtime scope** (`theme`, `storage`: 2 documents) has no state line (4.7, the states
+  family), so the document line keeps the document's variables.
 
 ## 5. What does not change
 
