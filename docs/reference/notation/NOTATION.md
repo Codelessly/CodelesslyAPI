@@ -88,7 +88,7 @@ Column gap=8
   `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
 - An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector). In
   the sidebar write `Brand`, `NavSection "Group"`, `NavItem "Label" icon=… selected={…}` and a `Footer` (pinned at
-  its end) instead of styling rows by hand ([navigation.md](navigation.md#a-sidebar)). A
+  its end) instead of styling rows by hand ([navigation.md](navigation.md#navigation-a-sidebar)). A
   website is a `Page` of `Nav`, `Section` and `Footer` bands. Over the page: `Dialog#id`, `Sheet#id`, `Drawer#id`,
   `Menu#id`, written after the page at the margin with their lines under them; `open id` shows one, `close` closes
   it:
