@@ -6694,6 +6694,20 @@ class _Parser {
         parent?.type == 'column' &&
         !inRow &&
         const {'column', 'row', 'flex', 'stack', 'listView', 'gridView'}.contains(type);
+    // An empty box that grows in a column is what pushes the lines after it
+    // to the end (`box grow h=1` above a sidebar's foot, as `flex: 1` with a
+    // height does on the web): it takes the room left, and never less than
+    // the height written.
+    final pushesDown = type == 'box' &&
+        layout['height'] is num &&
+        !bind.containsKey('layout.height') &&
+        layout.containsKey('flex') &&
+        parent?.type == 'column' &&
+        !inRow;
+    if (pushesDown) {
+      layout['constraints'] = {...?readMap(layout['constraints']), 'minHeight': layout['height']};
+      layout['height'] = {'fill': 0};
+    }
     // A page is as tall as its page view.
     layout['height'] = growsDown
         ? {'fill': 0}

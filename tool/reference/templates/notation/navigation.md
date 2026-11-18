@@ -29,6 +29,33 @@ App
     Text "Orders"
 ```
 
+### A sidebar
+
+Write a sidebar with its own words and it is finished without styling: `Brand "Name" "line under it" icon="…"` at
+its head; `NavSection "People & access"` over a group of items (small spaced capitals in a quiet ink, with room over
+it); `NavItem "Members" icon="group"` for each item, with `selected={…}` for the chosen one (the accent and a tint
+of it; the others share one ink and tint under the pointer), `badge="4"` for a count and `shortcut="Alt 1"` for a
+key shown at its end; and `Footer` for what stays at the sidebar's end whatever is above it (the signed-in person,
+help, shortcuts): the lines under it are pinned there, with a rule over them. In a column written by hand, a
+`Spacer` (or an empty `box grow`) between two lines pushes the second to the end, as `margin-top: auto` does on the
+web; the column needs a height (`h=fill`).
+
+```notation width=1280 expands
+state tab="members"
+App
+  Sidebar
+    Brand "Tenant" "Admin console" icon="hub"
+    NavSection "People & access"
+    NavItem "Members" icon="group" selected={tab=="members"} onTap={tab="members"} shortcut="Alt 1"
+    NavItem "Teams" icon="groups" badge="4" selected={tab=="teams"} onTap={tab="teams"}
+    NavSection "Workspace"
+    NavItem "Billing" icon="credit_card" selected={tab=="billing"} onTap={tab="billing"}
+    Footer
+      NavItem "Keyboard shortcuts" icon="keyboard" shortcut="?"
+  Main
+    Text "Members"
+```
+
 A desktop window of three panes: a rail, the content, an inspector. `Sidebar` is the rail (`w=72` for icons only),
 `Main` takes the room left and scrolls, each `Pane` is a further column as tall as the window (`w=` its width, else
 it shares the room). A key with a size before it changes a pane at that width ([responsive.md](responsive.md)):

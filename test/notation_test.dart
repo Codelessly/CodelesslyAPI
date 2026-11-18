@@ -1537,7 +1537,15 @@ App
       expect((node(r, 'push')['layout']! as Map)['height'], {'fill': 0});
       final item = node(r, 'orders');
       expect(item['type'], 'row');
-      expect((item['bind']! as Map)['decoration.fills[0].color'], contains('tab=="orders"'));
+      // The chosen item is the row's selected state (its fill a tint of the
+      // accent), so the tint under the pointer never replaces it.
+      expect((item['bind']! as Map)['selected'], contains('tab=="orders"'));
+      expect((((item['states']! as Map)['selected']! as Map)['orders']! as Map)['decoration'], {
+        'fills': [
+          {'color': '#1F2563EB'},
+        ],
+      });
+      expect((((item['states']! as Map)['hovered']! as Map)['orders']! as Map)['decoration'], isNotNull);
       expect((item['children']! as List).length, 3);
       // A pane further in is a column of its row, not a pane of the window.
       expect((node(r, 'detail')['layout']! as Map)['height'], {'hug': 0});

@@ -736,6 +736,21 @@ final class PageWords {
   static const _bars = {'Nav', 'Navbar', 'NavBar', 'TopBar', 'Topbar', 'Header', 'AppBar'};
   static const _sides = {'Sidebar', 'Aside', 'SideNav', 'Sidenav', 'Rail'};
   static const _items = {'NavItem', 'NavLink', 'SidebarItem', 'MenuItem'};
+
+  /// In a sidebar: the label over a group of items, and the foot pinned at its end.
+  static const _sections = {'NavSection', 'NavGroup', 'NavLabel', 'SidebarSection', 'SidebarLabel', 'SidebarGroup'};
+  static const _feet = {'Footer', 'SidebarFooter', 'NavFooter'};
+
+  /// The fill of the chosen item of a sidebar or a bar: the design system's
+  /// selected fill, or with none a tint of the accent (the web's habit: the
+  /// chosen item is the accent's, not a grey).
+  String get _navFill {
+    final hex = RegExp(r'^#FF([0-9A-Fa-f]{6})$').firstMatch(accent);
+    return selectedFill == '#FFE5E7EB' && hex != null ? '#1F${hex[1]}' : selectedFill;
+  }
+
+  /// A quoted label in capitals (`"People & access"` is `"PEOPLE & ACCESS"`); one with a value in it as written.
+  static String _upper(String quoted) => quoted.contains('{') ? quoted : quoted.toUpperCase();
   static final _head = RegExp(r'^([A-Z][A-Za-z0-9]*)((?:\.[A-Za-z][A-Za-z0-9]*)?(?:#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?)(?=\s|$)');
 
   /// The lines [text] at [indent] stands for: itself, moved under the frame
@@ -903,8 +918,8 @@ final class PageWords {
     }
     if (_sides.contains(word) && !isComponentCall(word, parts)) {
       final width = parts.take('w') ?? _n(sidebarWidth);
-      final pad = parts.take('pad') ?? '[12,20,12,16]';
-      final gap = parts.take('gap') ?? '4';
+      final pad = parts.take('pad') ?? '[12,16,12,12]';
+      final gap = parts.take('gap') ?? '2';
       open(frame: framed ? 'Sidebar' : null);
       final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill=$paneFill';
       if (framed && root == 'App' && indent > 0 && !_mainSeen) {
@@ -944,24 +959,60 @@ final class PageWords {
       final badge = parts.take('badge') ?? parts.take('count');
       final selected = parts.take('selected') ?? parts.take('active');
       final on = parts.word('selected') | parts.word('active');
+      final shortcut = parts.take('shortcut') ?? parts.take('hint');
       final label = parts.string();
       final ink = accentName ?? accent;
-      const quiet = '#FF4B5563';
+      // Every item at rest has one ink and its icon a quieter one: only the
+      // chosen item stands out (the accent, a heavier weight, the selected fill).
+      const quiet = '#FF374151', quietIcon = '#FF6B7280', faint = '#FF9CA3AF';
+      // The chosen item's fill is a state of its row, so that the tint under
+      // the pointer (a state too) never replaces it: selected is the later one.
+      final chosen = _navFill;
       final fill = selected != null
-          ? ' fill={${_expr(selected)}?"$selectedFill":"#00000000"}'
+          ? ' selected={${_expr(selected)}} selected.fill=$chosen'
           : on
-              ? ' fill=$selectedFill'
+              ? ' fill=$chosen'
               : '';
       // In a bar the items sit side by side; in a sidebar each takes the width.
       final across = parent?.frame == 'Nav';
+      // Under the pointer an item that is not the chosen one is tinted.
+      final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=#0F111827';
+      final weight = on
+          ? 'weight=600 color=$ink'
+          : selected != null
+              ? 'weight={${_expr(selected)}?600:500} color={${_expr(selected)}?"$ink":"$quiet"}'
+              : 'weight=500 color=$quiet';
       open();
       return out
-        ..add((indent: at, text: 'Row$mark ${across ? '' : 'w=fill '}gap=10 middle pad=[10,8,10,8] radius=8$fill${parts.all}'))
+        ..add((indent: at, text: 'Row$mark ${across ? '' : 'w=fill '}gap=10 middle pad=[10,7,10,7] radius=6$fill$hover${parts.all}'))
         ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Icon $icon size=18${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quiet"}' : ' color=$quiet'}'),
-          (indent: at + 2, text: 'Text ${label ?? '""'} size=14 weight=${on ? 600 : 500}${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quiet"}' : ''}${across ? '' : ' grow'}'),
+          if (icon != null) (indent: at + 2, text: 'Icon $icon size=18${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quietIcon"}' : ' color=$quietIcon'}'),
+          (indent: at + 2, text: 'Text ${label ?? '""'} size=13 $weight${across ? '' : ' grow'}'),
           if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge'),
+          if (shortcut != null) (indent: at + 2, text: 'Text $shortcut size=11 color=$faint'),
         ]);
+    }
+    // A sidebar's parts: the label over a group of its items, and its foot.
+    if (parent?.frame == 'Sidebar' && _sections.contains(word) && !isComponent(word)) {
+      final label = parts.string();
+      open();
+      // Small, spaced capitals in a quiet ink, with room over it that parts
+      // the groups.
+      return out
+        ..add((
+          indent: at,
+          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]${parts.all}'
+        ));
+    }
+    if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) {
+      // The foot stays at the sidebar's end whatever is above it: a spacer
+      // takes the room between, and a rule parts it from the items.
+      final pad = parts.take('pad') ?? '[0,8,0,0]';
+      final gap = parts.take('gap') ?? '2';
+      open(frame: 'Sidebar');
+      return out
+        ..add((indent: at, text: 'Spacer'))
+        ..add((indent: at, text: 'Column$mark w=fill gap=$gap pad=$pad${parts.hasBorder ? '' : ' border-top=$line'}${parts.all}'));
     }
     // A badge with a width is a table's cell: the cell has the width, the
     // badge stays as big as its label.
@@ -985,14 +1036,18 @@ final class PageWords {
     if ((word == 'Brand' || word == 'Logo') && !isComponent(word)) {
       final icon = parts.take('icon');
       final name = parts.string();
+      final under = parts.string();
       final side = parent?.frame == 'Sidebar';
       open();
       return out
-        ..add((indent: at, text: 'Row$mark gap=10 middle${side ? ' pad=[8,4,8,16]' : ''}${parts.all}'))
+        ..add((indent: at, text: 'Row$mark gap=10 middle${side ? ' pad=[8,6,8,10]' : ''}${parts.all}'))
         ..addAll([
           if (icon != null) (indent: at + 2, text: 'Box w=28 h=28 radius=8 fill=$accent center middle'),
           if (icon != null) (indent: at + 4, text: 'Icon $icon size=16 color=#FFFFFFFF'),
-          (indent: at + 2, text: 'Text ${name ?? '""'} size=17 weight=700'),
+          if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
+          if (under != null) (indent: at + 2, text: 'Column gap=0'),
+          if (under != null) (indent: at + 4, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
+          if (under != null) (indent: at + 4, text: 'Text $under size=11 color=#FF6B7280'),
         ]);
     }
     // A field in a bar has no room for a label above it: its label is its hint.
