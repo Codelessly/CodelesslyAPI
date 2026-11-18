@@ -415,9 +415,9 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1347 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2635 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1947 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 12893 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 7330 |
-| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3374 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 12895 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 7343 |
+| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3401 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5702 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3530 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3560 |

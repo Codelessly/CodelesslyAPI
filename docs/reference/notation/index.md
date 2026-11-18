@@ -14,9 +14,9 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1347 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 2635 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 1947 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 12893 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 7330 |
-| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3374 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 12895 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 7343 |
+| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3401 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 5702 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3530 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 3560 |

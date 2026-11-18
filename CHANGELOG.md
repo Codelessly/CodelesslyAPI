@@ -4,6 +4,10 @@
 
 ### Documented
 
+- **forms.md**: a chip's label color is `labelStyle.color=` (it named `labelColor=`, which a ChoiceChip refuses:
+  round 11b, smart-home); a form is `form=true` (it said "a column with `form`", and bare `form` is refused:
+  meal-planner). **lists.md**: `SwipeAction` lines go under an each that runs down a Column, not a ListView (both
+  story-reader arms wrote it under a ListView and were refused).
 - **The names a variable cannot take** (`data`, `route`, `storage`, `screen`, `theme`, `auth`, `drag`, `perf`,
   `script`, `speech`, which the runtime gives every formula) are in the notation's state.md; only the JSON
   reference listed them (round 11b: `state perf` in seat-booking, 9 lines renamed; `state script` in

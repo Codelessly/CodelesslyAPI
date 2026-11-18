@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 12893
+      "words": 12895
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -324,7 +324,7 @@
       "file": "forms.md",
       "anchor": "forms-tabs-segments-and-chips-chosen-from",
       "title": "Tabs, segments and chips chosen from",
-      "words": 155
+      "words": 157
     },
     {
       "topic": "forms-a-number-with-its-buttons",
@@ -381,7 +381,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7330
+      "words": 7343
     },
     {
       "topic": "lists-a-list-over-data",
@@ -409,7 +409,7 @@
       "file": "lists.md",
       "anchor": "lists-a-list-chosen-from-and-swiped",
       "title": "A list chosen from and swiped",
-      "words": 267
+      "words": 280
     },
     {
       "topic": "lists-words",
@@ -452,14 +452,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3374
+      "words": 3401
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 112
+      "words": 139
     },
     {
       "topic": "state-bindings",
