@@ -1,5 +1,5 @@
 // The parser and printer bugs the notation reference exposed (wave 3, the
-// reference family; docs/design/22-notation-parity.md, section 4.8): a
+// reference family; docs/design/22-notation-parity.md, section 4.10): a
 // line's strings, a box's text, the order a line's words and its JSON are
 // written in, keys once, a variable's type, the words that print as written,
 // and the verbs the reference documents.
@@ -76,14 +76,14 @@ void main() {
       final printed = _print(doc);
       expect(printed, isNot(contains('box "x"')));
       // A value the catalog does not have stays JSON, said where it is read
-      // (design 22, 4.7), and the document reads back.
+      // (design 22, section 5), and the document reads back.
       final back = _read(printed);
       expect(back.issues.map((i) => i.message), everyElement(contains('A box has no "text"')));
       expect(readMap(_nodes(back.document, 'box').single['props']), {'text': 'x'});
     });
   });
 
-  group('one order for a line\'s words and its JSON (design 22, 4.8)', () {
+  group('one order for a line\'s words and its JSON (design 22, 4.10)', () {
     test('a text style\'s words are written in one order, whatever the JSON\'s key order', () {
       for (final written in [
         'Text "t" weight=700 lineHeight=1.3 color=#FFFFFFFF',

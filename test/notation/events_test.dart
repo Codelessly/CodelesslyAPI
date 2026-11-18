@@ -269,7 +269,7 @@ void main() {
       expect(printed, isNot(contains('document')));
     });
   });
-  group('the second pass (design 22, 4.1)', () {
+  group('the second pass (design 22, 4.3)', () {
     test('@name is printed for every two-way binding: a name, a field of a record, a field of the element under an each, two ends', () {
       const text = 'state rows=[{"id":1,"name":"a","on":true}]\nstate draft={"title":""}\nstate vol=0.5\nstate pick=""\nstate lo=20\nstate hi=80\n'
           'Column\n'

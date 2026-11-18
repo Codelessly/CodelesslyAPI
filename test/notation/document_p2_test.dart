@@ -1,4 +1,4 @@
-// The document family's second pass (docs/design/22, section 4.7): each form
+// The document family's second pass (docs/design/22, section 4.5): each form
 // is written, expanded, checked in the document, printed, and read back.
 import 'dart:convert';
 

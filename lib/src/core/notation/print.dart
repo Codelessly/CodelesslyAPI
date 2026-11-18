@@ -67,7 +67,7 @@ NotationOptions notationOptionsFor(Json document) {
 }
 
 /// A document in the parser's spelling of what the API reads two ways
-/// (design 22, 4.8): a declaration's empty parameter list (`"widget":
+/// (design 22, 4.9): a declaration's empty parameter list (`"widget":
 /// {"props": []}`) is none, as `widgetSpecFromJson` reads it; a preview with
 /// no `props` has empty ones, as `ComponentPreview` reads it; a document with
 /// no `schema` is of the oldest (`schemaOf`), written `document schema=2`.
@@ -207,7 +207,7 @@ final class _Printer {
     // What the screen does that is neither a timer nor a shortcut (`onLoad`,
     // `onBackPressed`): words of its canvas line, before its `every` and
     // `key` lines.
-    // One printed form (design 22, 4.1 second pass): the screen's reactions
+    // One printed form (design 22, 4.3): the screen's reactions
     // are `on` lines after the tree; `canvas onLoad={…}` still reads.
     const said = 0;
     if (first['type'] == 'canvas') {
@@ -539,7 +539,7 @@ final class _Printer {
       return true;
     }
     // A list of its own line repeating its one child over data: the child
-    // under `each item in list` (design 22, 4.7).
+    // under `each item in list` (design 22, 4.5).
     if (_handList(id, n) case final ({String list, String template}) each) {
       _handEach.add(id);
       _lines.add(_Line(depth + 1, 'each ${_eachName(n)} in ${each.list}${_staggerWord(each.template)}'));

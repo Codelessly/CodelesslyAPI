@@ -773,7 +773,7 @@ final class PageWords {
     }
     final parts = _Parts(rest);
     // `TopBar "…" type=TopBar`: the design system's component, by its own
-    // name (design 22, 4.7), no page word.
+    // name (design 22, 4.2), no page word.
     if ((isComponent(word) || declares(word)) && parts.value('type') == word) {
       open();
       return out..add((indent: at, text: text));
@@ -1092,7 +1092,7 @@ final class PageWords {
 
   /// 'single-quoted' text outside a string, as "double-quoted": a value
   /// in an expression ends at its closing quote. An expression is kept as
-  /// written, its quotes too (docs/design/22, 4.7): a value worked out
+  /// written, its quotes too (docs/design/22, 4.2): a value worked out
   /// (`key={…}` for a key that is no event), the condition of an `if` line
   /// and the list of an `each` line.
   static String _doubleQuoted(String t) {

@@ -87,7 +87,7 @@ void main() {
         ('box', 'box'),
         ('gridView', 'gridView'),
         ('badge', 'badge'),
-        // LineChart adds a height and a color (design 22, 4.7): a line
+        // LineChart adds a height and a color (design 22, 4.5): a line
         // chart with neither is the catalog's lineChart.
         ('lineChart', 'lineChart'),
       ]) {
@@ -374,7 +374,7 @@ void main() {
       ('state wifi=false\nColumn\n  Toggle "Wi-Fi" @wifi', 'switch', 'bind.props.value', r'${wifi}'),
       ('state email=""\nColumn\n  Input "Email" @email', 'textField', 'bind.props.initialValue', r'${email}'),
       ('state size=""\nColumn\n  Select @size items=["S","M"]','dropdown', 'bind.props.value', r'${size}'),
-      // The binding and the reaction are one word, the events' (design 22, 4.7).
+      // The binding and the reaction are one word, the events' (design 22, 4.2).
     ]);
 
     test('the reaction @name writes is the one the events leave out', () {

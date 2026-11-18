@@ -792,7 +792,7 @@ final class _NodeLine {
   List<String>? _stylePlan(Map style, Map base, Map<String, String> wordOf, {bool text = false}) {
     if (base.keys.any((k) => !style.containsKey(k))) return null;
     final out = <String>[];
-    // In one order whatever the JSON's key order (design 22, 4.8).
+    // In one order whatever the JSON's key order (design 22, 4.10).
     for (final e in style.entries.toList()..sort((a, b) => _styleRank('${a.key}').compareTo(_styleRank('${b.key}')))) {
       final k = '${e.key}', v = e.value;
       if (base.containsKey(k) && _equal(base[k], v)) continue;

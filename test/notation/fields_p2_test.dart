@@ -1,5 +1,5 @@
 // A node's line, second wave (docs/design/22-notation-parity.md, section
-// 4.7): every word the fields family added is written, expanded, checked in
+// 4.2): every word the fields family added is written, expanded, checked in
 // the document, printed, and read back as the same line.
 import 'dart:convert';
 

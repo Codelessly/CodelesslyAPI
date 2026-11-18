@@ -1003,7 +1003,7 @@ final class _NotationReference {
   Json _node(String type, Json fields) {
     final word = _words[type] ?? type;
     // The word the printer writes reads as the type (a lowercase one as
-    // exactly it, design 22 4.7); else the bare node.
+    // exactly it, design 22 4.2); else the bare node.
     var parsed = parseNotation(word, catalog: notationComponentsCatalog(root));
     if (parsed.issues.isNotEmpty) parsed = parseNotation('node {"type":"$type"}', catalog: notationComponentsCatalog(root));
     final nodes = (parsed.document['nodes'] as Map).values.where((n) => (n as Map)['type'] == type).toList();

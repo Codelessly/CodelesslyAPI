@@ -1,5 +1,56 @@
 ## Unreleased
 
+### Added
+
+- **Notation parity** (docs/design/22-notation-parity.md): anything a schema-3 document holds is written in the
+  notation's words and `printNotation` prints it back in them. Over the corpus (the reference's examples and
+  CodelesslySDK's design systems, examples and fixtures, 1,295 documents) no document prints whole as data (84%
+  did), and 60 of 29,789 node lines keep a `{…}` tail, each a field no renderer reads in a schema-3 document or a
+  schema-2 spelling the migration rewrites (design 22, section 5).
+- **Keys by the catalog and dotted paths.** `key=value` is, in order, a word of the notation, a prop of the type, a
+  field of its text style, a layout field, a decoration field (where the type is decorated), a field of the node or
+  a behavior: `letterSpacing=0.4`, `squeezable=true`, `maxWidth=720`, `strokeSides=topBottom`, `ignorePointer=true`.
+  A nested field is its dotted path (`pan.axis=horizontal`, `style.letterSpacing=0.4`, `fills[0].color=…`,
+  `node.tooltip=…`); the full path always reads (`layout.x=10`, `props.style.height=1.2`) and by it a size is that
+  size exactly (`layout.height=108`, `layout.width=170`). A value may be JSON (`w={"fill":342}`, `style={…}`).
+  `key={expression}` binds any key; `key=null` takes out a field the line gives; `props=null`, `props={}`. A key
+  that is none of these is said with the nearest name, never kept as a silent prop. `keys.dart` exports
+  `notationKeyPath`, `notationKey`, `notationKeyFor`, `notationKeyNearest`, `notationKeyNames`,
+  `notationTextStyleProp`.
+- **Events and actions.** Every trigger of the catalog is `on` and its name (`onLongPress`, `onDragEnd`,
+  `onEnterViewport`), its fields in parentheses (`onKeyDown(key=Shift+Enter, repeat=true)={…}`); the screen's other
+  reactions are `on load={…}`, `on backPressed(when={step > 0})={…}` lines. Every action of the catalog is its type
+  and its fields by name (`animate node=hero preset=fadeIn`, `runScript script=check onError={toast "Failed"}`),
+  with `enabled`, `nonBlocking`, `when`. A quoted string in a field keeps a `${…}` as written.
+- **States.** A node's states are rules with the state's name as the condition: `hovered.fill=accentDeep
+  pressed.opacity=0.82 focused.border=focusBorder`, and on a line inside it `btn.selected.color=primaryText`.
+  `name=` is the node's name; every behavior is written by its fields (`inkWell.hoverColor=…`, `motion.rotate=90`,
+  `drag=card(item.id) draggable.start=auto`).
+- **Media rules in words.** `tablet.direction=vertical tablet.gap=16`, `max900.size=40`, `max899.visible={menuOpen}`,
+  `minDesktop.visible=true`: any key the line reads at a width (`phone`, `tablet`, `desktop`, `min<px>`, `max<px>`,
+  a breakpoint, `portrait`, `landscape`, combined); `Grid cols=4 tablet.cols=2` changes a grid's columns at a width.
+- **Records under a line.** A node's custom paint, animations and transitions are lines under it: `customPaint
+  viewBox=[320,200]` with an op a line (`circle c=[236,62] radius=28 fill=#FFF4B740`, `group`, `repeat`,
+  `foregroundPainter`), `animation#enter duration=520` with its `track path=opacity from=0 to=1` lines, `transition
+  property=opacity duration=200`.
+- **The document line.** `document id="checkout" schema=2 scope=page_variables conditions={…}`: the document's own
+  id, schema, the scope its state lines are kept in and its conditions. `state count:decimal=2`, `state
+  total:decimal={price*qty}`, `state clamp(v):decimal={…}` for a type the value does not say, a formula variable and
+  a function; `canvas "Trip" path="/trip" h=844 fill=paper`, `canvas none`; `Canvas#about "About"` blocks for other
+  canvases; `slot title` lines under a node; a `ListView`/`GridView`/`PageView` line with an `each` under it repeats
+  its one child.
+- **Components.** A design system's component document prints as `component StatusPill "…"` with `param`, `event`,
+  `slot` and `preview` lines and its tree. A component a word of the notation shadows is `Button "Save"
+  type=Button`, with its own events, marks and slots. `Pages` prints for a page view of pages.
+- **printNotation and the coverage tool.** `printNotation(document, catalog:)` writes any document as notation that
+  reads back (with `notationOptionsFor(document)`) to exactly that document: words where they read back, else a
+  `{…}` tail or a `document {…}` line. Overlays print as their heads (`Dialog#confirm "Delete file?"`, opened with
+  `open confirm`). `tool/notation_coverage.dart <dir>... --components --out <dir>` measures a corpus: what is said
+  how, what stays in a tail and why, and the real gaps.
+- **The notation reference** (`docs/reference/notation/`, `dart run tool/reference/generate.dart --notation`): a
+  page per family of the notation with every word and an example that expands and prints back, generated from the
+  catalog; `_tails.md` lists what an example still prints as JSON (nothing now).
+
 ### Changed
 
 - **Notation**: an id may have hyphens (the owner's decision: ids are written as JSON and HTML ids are). An id is

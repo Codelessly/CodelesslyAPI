@@ -399,7 +399,7 @@ final class _Printer {
 
   /// ` type=Button` where a line of [type] is a design system's component
   /// that a word of the notation shadows (`Button`, `Chip`, `TopBar`): the
-  /// line reads as the notation's word without it (design 22, 4.7). Else
+  /// line reads as the notation's word without it (design 22, 4.2). Else
   /// empty.
   String named(String type) => _named[type] ??= () {
         if (type.isEmpty || type[0] == type[0].toLowerCase() || context.catalog.widget(type) == null) return '';

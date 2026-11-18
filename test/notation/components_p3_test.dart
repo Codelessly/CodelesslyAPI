@@ -144,7 +144,7 @@ Column
   });
 
   group('the document line', () {
-    // One spelling of what the API reads two ways (design 22, 4.8): the print
+    // One spelling of what the API reads two ways (design 22, 4.9): the print
     // reads back as the document in the parser's spelling.
     test('an empty parameter list, a preview with no values, a document with no schema', () {
       final doc = {

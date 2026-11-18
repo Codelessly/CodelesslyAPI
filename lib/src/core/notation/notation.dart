@@ -1247,7 +1247,7 @@ final class NotationStream {
         ..add({'op': 'roots', 'roots': _parser._rootIds})
         ..add({'op': 'set', 'id': _parser.options.screen, 'node': _parser._canvasNode..remove('slots')});
     }
-    // What the end of the text does (design 22, 4.7): each line's tail merged
+    // What the end of the text does (design 22, 4.5): each line's tail merged
     // again over what later lines added, the nodes a tail took away, the
     // canvas lines' words; sent as patches and removals.
     final removed = <String>[];
@@ -3017,7 +3017,7 @@ class _Parser {
 
   /// What a `document id="checkout" schema=2 scope=page_variables` line
   /// says: the document's own `id` and `schema`, and the scope its `state`
-  /// lines are kept in (docs/design/22 section 4.7).
+  /// lines are kept in (docs/design/22 section 4.5).
   final _documentWords = <String, Object?>{};
 
   /// A design system's component (`component Name "doc"` above its tree,
@@ -4067,7 +4067,7 @@ class _Parser {
     final written = head[1]!, variant = head[2];
     // `Button "Save" type=Button`: the design system's component of a name a
     // word of the notation has too, the node's type said by its own name
-    // (design 22, 4.7).
+    // (design 22, 4.2).
     final named = catalog.widget(written) != null &&
         written[0] != written[0].toLowerCase() &&
         (LineParts.of(line)?.parts.any((p) => p.kind == 'pair' && (p.key == 'type' || p.key == 'node.type') && _unquoted(p.value!) == written) ?? false);
@@ -4267,7 +4267,7 @@ class _Parser {
     // A path of the node (`props.style.height`, `layout.constraints.maxWidth`,
     // `pan.axis`, `decoration.fills[0].color`) given its value, the maps and
     // lists on the way made as needed.
-    // The paths written `key=null`: the field is not there (design 22, 4.7),
+    // The paths written `key=null`: the field is not there (design 22, 4.2),
     // whatever the line would give it, taken out once the line is read.
     final nulled = <String>[];
     // The sections written `props=null` (none) and `props={}` (empty).
@@ -5754,7 +5754,7 @@ class _Parser {
           continue;
         }
         // `data={…}`: what a list shows, bound by the binding's own path
-        // (design 22, 4.7) where the type has no prop of that name.
+        // (design 22, 4.2) where the type has no prop of that name.
         if (key == 'data' && raw.startsWith('=') && spec.prop(key) == null) {
           bind[key] = _read(raw.substring(1).trim());
           continue;

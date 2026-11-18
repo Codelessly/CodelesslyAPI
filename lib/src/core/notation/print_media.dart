@@ -125,7 +125,7 @@ List<({List<String> path, Object? value})> _leaves(Json patch) {
       // margin, x, y, the rest A to Z, the constraints), whatever the JSON's
       // (a size and the flex a rule of the parser gives in one order, its
       // words read back in another): a print printed again is the same text
-      // (design 22, 4.8).
+      // (design 22, 4.10).
       final keys = v.keys.map((k) => '$k').toList();
       if (at.length == 1 && at.first == 'layout') {
         const first = ['padding', 'width', 'height', 'flex', 'margin', 'x', 'y'];
