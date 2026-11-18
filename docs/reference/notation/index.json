@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 4945
+      "words": 5028
     },
     {
       "topic": "layout-sizes",
@@ -124,7 +124,7 @@
       "file": "layout.md",
       "anchor": "layout-scrolling",
       "title": "Scrolling",
-      "words": 38
+      "words": 121
     },
     {
       "topic": "layout-keys-every-line-takes",
@@ -217,14 +217,14 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2622
+      "words": 2629
     },
     {
       "topic": "decoration-fills-borders-and-corners",
       "file": "decoration.md",
       "anchor": "decoration-fills-borders-and-corners",
       "title": "Fills, borders and corners",
-      "words": 75
+      "words": 82
     },
     {
       "topic": "decoration-pictures-and-icons",
@@ -274,14 +274,14 @@
       "anchor": "page-paint",
       "title": "Custom paint",
       "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
-      "words": 1879
+      "words": 1902
     },
     {
       "topic": "paint-the-lines",
       "file": "paint.md",
       "anchor": "paint-the-lines",
       "title": "The lines",
-      "words": 258
+      "words": 281
     },
     {
       "topic": "paint-the-painter-s-keys",
@@ -374,14 +374,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 6738
+      "words": 6798
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 300
+      "words": 360
     },
     {
       "topic": "lists-a-table-of-records",
@@ -438,14 +438,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3348
+      "words": 3357
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 86
+      "words": 95
     },
     {
       "topic": "state-bindings",
@@ -488,7 +488,7 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 5492
+      "words": 5661
     },
     {
       "topic": "events-an-event",
@@ -502,7 +502,7 @@
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 3610
+      "words": 3779
     },
     {
       "topic": "interaction",
@@ -510,7 +510,7 @@
       "anchor": "page-interaction",
       "title": "Interaction",
       "summary": "Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches.",
-      "words": 3290
+      "words": 3500
     },
     {
       "topic": "interaction-drag-and-drop",
@@ -531,7 +531,7 @@
       "file": "interaction.md",
       "anchor": "interaction-focus-and-the-keyboard",
       "title": "Focus and the keyboard",
-      "words": 89
+      "words": 299
     },
     {
       "topic": "interaction-behaviors",
@@ -617,14 +617,14 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7496
+      "words": 7494
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 127
+      "words": 125
     },
     {
       "topic": "charts-words",
@@ -689,7 +689,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3252
+      "words": 3273
     },
     {
       "topic": "navigation-page-frames",
@@ -703,7 +703,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 223
+      "words": 244
     },
     {
       "topic": "navigation-screens",
@@ -746,21 +746,21 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 1580
+      "words": 1741
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 51
+      "words": 173
     },
     {
       "topic": "components-writing-one",
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 142
+      "words": 181
     },
     {
       "topic": "components-words",
@@ -789,7 +789,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 391
+      "words": 420
     },
     {
       "topic": "design-systems-a-design-system",
@@ -803,7 +803,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 104
+      "words": 133
     },
     {
       "topic": "design-systems-examples",
@@ -854,14 +854,14 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 13797
+      "words": 13879
     },
     {
       "topic": "values-writing-a-value",
       "file": "values.md",
       "anchor": "values-writing-a-value",
       "title": "Writing a value",
-      "words": 71
+      "words": 153
     },
     {
       "topic": "values-other-spellings-also-read",
