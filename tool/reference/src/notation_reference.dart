@@ -321,6 +321,8 @@ final class _NotationReference {
       final printed = _settle(printNotation(doc, catalog: cat), cat, width, title);
       final issues = parseNotation(printed, catalog: cat, options: notationBlockOptions(width: width)).issues;
       if (issues.isNotEmpty) _unreadTemplates.add((title: title, issues: [for (final i in issues) 'line ${i.line}: ${i.message}']));
+      final tails = _tailLines(printed);
+      if (tails.isNotEmpty) _templateTails.add((title: title, tails: tails));
       return '${m[0]}\n\nIt reads as:\n\n${_fence(printed, width, components: components, unchecked: issues.isNotEmpty)}';
     });
     text = text.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (m) {
@@ -829,6 +831,14 @@ final class _NotationReference {
     final issues = parseNotation(text, catalog: cat, options: notationBlockOptions(width: width)).issues;
     final e = NotationExample(title, source, page, text, width, note: note, components: components,
         issues: [for (final i in issues) 'line ${i.line}: ${i.message}']);
+    e.tails.addAll(_tailLines(text));
+    return e;
+  }
+
+  /// The lines of [text] (a print) that keep part of the document as JSON:
+  /// line (1-based), the line's start, the paths of its tail.
+  static List<({int line, String head, List<String> paths})> _tailLines(String text) {
+    final out = <({int line, String head, List<String> paths})>[];
     final lines = text.split('\n');
     for (var i = 0; i < lines.length; i++) {
       final l = lines[i].trimLeft();
@@ -845,10 +855,13 @@ final class _NotationReference {
       if (tail == null) continue;
       final paths = <String>{};
       _flatten(tail, '', paths);
-      e.tails.add((line: i + 1, head: head.split(' {"').first, paths: paths.toList()..sort()));
+      out.add((line: i + 1, head: head.split(' {"').first, paths: paths.toList()..sort()));
     }
-    return e;
+    return out;
   }
+
+  /// The prints of the templates' `expands` blocks with a tail.
+  final List<({String title, List<({int line, String head, List<String> paths})> tails})> _templateTails = [];
 
   /// A fragment of a JSON page made a document: a node map, a node's keys
   /// on a node, an action on a button, document keys around a column.
@@ -1106,6 +1119,23 @@ final class _NotationReference {
           ..writeln()
           ..writeln(Renderer.table(['Line', 'Starts', 'Paths'], [
             for (final t in e.tails) ['${t.line}', '`${t.head}`', t.paths.map((p) => '`$p`').join(', ')],
+          ]))
+          ..writeln();
+      }
+    }
+    if (_templateTails.isNotEmpty) {
+      b
+        ..writeln('## Prints of the pages\' own blocks with a tail')
+        ..writeln()
+        ..writeln('A block written as a writer would (`expands`) is followed on its page by its print; these prints keep part '
+            'of the document as JSON.')
+        ..writeln();
+      for (final t in _templateTails) {
+        b
+          ..writeln('### ${t.title}')
+          ..writeln()
+          ..writeln(Renderer.table(['Line', 'Starts', 'Paths'], [
+            for (final x in t.tails) ['${x.line}', '`${x.head}`', x.paths.map((p) => '`$p`').join(', ')],
           ]))
           ..writeln();
       }

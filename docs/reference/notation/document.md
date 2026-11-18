@@ -9,7 +9,7 @@ size or fill, a site's variables, or a field every node has.
 <a id="document-the-order-of-a-document"></a>
 ## The order of a document
 
-`state` lines, then the `canvas` line, then the tree, then the screen's `every` and `key` lines, then overlays
+`state` lines, then the `canvas` line, then the tree, then the screen's `every`, `key` and `on` lines, then overlays
 and other canvases (`Canvas#id`), each at the margin.
 
 ```notation
@@ -52,6 +52,31 @@ Beside its word's keys, every line takes these (and the keys any line takes on t
 
 A line's `#id` is the node's id; `node {…}` writes a whole node as JSON and a `{…}` tail adds JSON to a line:
 both read, and a print uses them only where the notation has no word yet ([_tails.md](_tails.md)).
+
+<a id="document-forms-a-print-uses"></a>
+## Forms a print uses
+
+Three forms say what the shorter words cannot; a writer rarely needs them, and a print of a document has them:
+
+- **`key=null`**: the node has no such field, though the line would give it one (a Row's cross-axis alignment, a
+  text's size from its look): `Row crossAxisAlignment=null`.
+- **`slot name`** under a line: the line under it fills that slot of the node (a ListTile's `title`, `leading`,
+  `trailing`), where the lines under a node would not land there by themselves.
+- **`type=Name`**: the line is a design system's component a word of the notation shadows (`Button "Save"
+  type=Button variant=ghost` is the design system's Button, not the notation's) ([components.md](components.md)).
+
+```notation
+Column
+  ListTile
+    slot title
+      Text "Hello"
+    slot trailing
+      Icon "chevron_right"
+  Row crossAxisAlignment=null
+    Text "a"
+```
+
+The screen's other reactions (`on load={…}`) are lines of their own after the tree ([events.md](events.md)).
 
 
 

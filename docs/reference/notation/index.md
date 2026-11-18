@@ -9,23 +9,23 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 
 | Page | What is in it | Words |
 |---|---|---|
-| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 3577 |
+| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 3980 |
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 4674 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1291 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 2623 |
-| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 1775 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 11877 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 5712 |
+| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 1879 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 11992 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 6102 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3348 |
-| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 5436 |
-| [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3175 |
+| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 5492 |
+| [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3290 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 3560 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 7496 |
-| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 405 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 2655 |
+| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 682 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 2819 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 1587 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 391 |
-| [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 741 |
+| [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 889 |
 | [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 13797 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | 1657 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | 282 |
@@ -33,7 +33,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [media.md](media.md) | The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads and preloading images. | 1820 |
 | [engage.md](engage.md) | The engagement layer: app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `{usage}` counters they read. | 247 |
 | [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | 541 |
-| [_tails.md](_tails.md) | What the notation still prints as JSON: the parity work list. | 1082 |
+| [_tails.md](_tails.md) | What the notation still prints as JSON: the parity work list. | 1187 |
 
 <a id="index-a-z"></a>
 ## A to Z

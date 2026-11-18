@@ -24,9 +24,27 @@ is a dotted key (`pan.axis=horizontal`).
 <a id="interaction-looks-by-state"></a>
 ## Looks by state
 
-A line's look while hovered, pressed, focused, selected or disabled is its `states` record
-([StateStyles](#type-StateStyles)). The words for them, when the parser has them, are on
-[responsive.md](responsive.md#responsive-states).
+A line's look while hovered, pressed, focused, selected or disabled is the state's name before a key:
+`hovered.fill=#FFE5E7EB`, `pressed.opacity=0.8`, `focused.border=#FF2563EB`; a line inside it follows its state by
+its id (`card.hovered.color=…`). The whole of it, with an example, is on
+[responsive.md](responsive.md#responsive-states); the record is `states` ([StateStyles](#type-StateStyles)).
+
+<a id="interaction-focus-and-the-keyboard"></a>
+## Focus and the keyboard
+
+A line with an `onTap` takes the focus and Enter presses it; `focusable=false` leaves it out. `focusGroup` on a
+line around a group of items (a menu, a toolbar) makes them one Tab stop moved through with the arrows;
+`focus email` in an action puts the caret in `Input#email`, `blur` takes it away. Keys of the screen are `key`
+lines ([events.md](events.md)), a key on a line is `onKeyDown(key=…)`.
+
+```notation
+Column gap=8
+  Column#menu focusGroup.typeAhead=true
+    Text "Open" onTap={emit open}
+    Text "Rename" onTap={emit rename}
+  Input#email "Email" onKeyDown(key=Escape)={blur}
+key mod+f onPress={focus email}
+```
 
 <a id="interaction-behaviors"></a>
 ## Keys any line takes here

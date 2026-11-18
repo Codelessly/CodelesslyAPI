@@ -91,6 +91,75 @@ Pages h=160 @page itemCount=2
     Text "Two" h=fill visible={index == 1} {"bind":{"visible":"${= index == 1}"}}
 ```
 
+<a id="lists-a-table-you-sort-and-filter"></a>
+## A table you sort and filter
+
+The rows shown are a formula variable over the data: `filter` keeps the rows the search and the status let through,
+`sortBy` puts them in the order of the column picked. The controls only set variables (`@search`, `@status`); a
+header's tap picks its column, or turns the order round when it is picked already. `hovered.fill=` marks the row
+under the pointer ([responsive.md](responsive.md#responsive-states)), and `if` says when nothing matches.
+
+```notation expands
+state orders=[{"name":"Ada","total":30,"status":"Paid"},{"name":"Lin","total":12,"status":"Due"}]
+state search=""
+state status="All"
+state sortKey="name"
+state desc=false
+state shown:list={sortBy(filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search))), sortKey, desc ? 'desc' : 'asc')}
+Column gap=12
+  Row gap=8
+    Input "Search" @search grow
+    Select @status items=["All","Paid","Due"] w=140
+  Row pad=[12,8,12,8]
+    Text.strong "{sortKey == 'name' ? (desc ? 'Customer ↓' : 'Customer ↑') : 'Customer'}" grow onTap={desc={sortKey == 'name' && !desc}; sortKey="name"}
+    Text.strong "{sortKey == 'total' ? (desc ? 'Total ↓' : 'Total ↑') : 'Total'}" w=80 onTap={desc={sortKey == 'total' && !desc}; sortKey="total"}
+  each item in shown
+    Row pad=[12,8,12,8] hovered.fill=#FFF3F4F6
+      Text "{item.name}" grow
+      Text "{item.total}" w=80
+  if length(shown) == 0
+    Text.muted "No orders match."
+```
+
+It reads as:
+
+```notation
+state orders=[{"name":"Ada","total":30,"status":"Paid"},{"name":"Lin","total":12,"status":"Due"}]
+state search=""
+state status="All"
+state sortKey="name"
+state desc=false
+state shown:list={sortBy(filter(orders, r => (status == 'All' || r.status == status) && contains(lower(r.name), lower(search))), sortKey, desc ? 'desc' : 'asc')}
+Column gap=12
+  Row gap=8
+    Input "" hint=Search grow @search
+    Select w=140 @status items=["All","Paid","Due"]
+  Row pad=[12,8,12,8]
+    Text.strong "{sortKey == 'name' ? (desc ? 'Customer ↓' : 'Customer ↑') : 'Customer'}" grow onTap={desc={sortKey == "name" && !desc}; sortKey=name}
+    Text.strong "{sortKey == 'total' ? (desc ? 'Total ↓' : 'Total ↑') : 'Total'}" w=80 onTap={desc={sortKey == "total" && !desc}; sortKey=total}
+  each item in shown
+    Row pad=[12,8,12,8] hovered.fill=#FFF3F4F6
+      Text "{item.name}" grow
+      Text "{item.total}" w=80
+  Text.muted "No orders match." visible={length(shown) == 0}
+```
+
+`TableView` (also written `DataTable`) draws a table from `data={rows}` and `columns=[…]` itself, with
+`sortable=true` for headers that sort; the hand-made one above is for a table whose rows and headers are your own.
+
+<a id="lists-a-list-of-its-own-line"></a>
+## A list of its own line
+
+A `ListView` or `GridView` line with an `each` as its only line under it repeats that one line over the data: the
+list's own keys (its height, its direction, its spacing) are on its line.
+
+```notation
+state products=[{"name":"Lamp"},{"name":"Desk"}]
+ListView h=120 scrollDirection=horizontal
+  each item in products
+    Text "{item.name}" w=100
+```
+
 <a id="lists-words"></a>
 ## Words
 

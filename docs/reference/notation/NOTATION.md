@@ -18,7 +18,8 @@ Type[.variant][#id] ["text"] [key=value ...] [on<Event>={actions} ...]
 - **`#id`** names the node, only where something else names it (an action, an overlay, a scroll target). An id the
   parser would give the line anyway is not written.
 - **`"text"`** is the node's main string: a Text's text, a Button's label, an Input's label, an Icon's name, an
-  Image's URL. A second string is the Input's hint. `{name}` inside a string shows a value: `"Total: {total}"`.
+  Image's URL. A line takes one; a second is an Input's hint or a ListTile's subtitle, and on a Column or Row each
+  string is a text in it. `{name}` inside a string shows a value: `"Total: {total}"`.
 - **`key=value`** sets a field. The key is a short word (`gap`, `pad`, `w`, `h`, `fill`, `radius`) or the field's own
   name in the API (`letterSpacing`, `squeezable`, `crossAxisCount`). A field inside a record is a dotted key
   (`pan.axis=horizontal`, `fills[0].color=#FF2563EB`); the full path from the node always reads too (`layout.x=10`,
@@ -81,6 +82,47 @@ Column gap=8
 - Badge looks: `Badge.neutral`, `Badge.primary`, `Badge.info`, `Badge.success`, `Badge.warning`, `Badge.error`, `Badge.danger`.
 - `Grid cols=3 gap=8` lays the lines under it in columns; `List` is a column of rows; `Image "url"` a picture;
   `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
+- An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector); a
+  website is a `Page` of `Nav`, `Section` and `Footer` bands. Over the page: `Dialog#id`, `Sheet#id`, `Drawer#id`,
+  `Menu#id`, written after the page at the margin with their lines under them; `open id` shows one, `close` closes
+  it:
+
+```notation width=1280 expands
+state tab="home"
+state name=""
+App
+  Sidebar w=72
+    NavItem "Home" icon="home" selected={tab == "home"} onTap={tab="home"}
+  Main
+    Button "New" onTap={open create}
+  Pane w=280 hide=tablet
+    Text.heading "Details"
+Dialog#create "New project"
+  Input "Name" @name
+```
+
+It reads as:
+
+```notation width=1280
+state tab="home"
+state name=""
+Row stretch h=fill
+  Column gap=4 pad=[12,20,12,16] w=72 h=fill border-right=#FFE5E7EB
+    Row gap=10 pad=[10,8,10,8] fill={(tab=="home")?"#FFE5E7EB":"#00000000"} radius=8 onTap={setVariable variable=tab value=home}
+      Icon "home" color={(tab=="home")?"#FF2563EB":"#FF4B5563"} size=18
+      Text.heading "Home" weight=500 grow color={(tab=="home")?"#FF2563EB":"#FF4B5563"}
+  Column scroll h=fill grow
+    Button "New" onTap={openModal to=create presentation=dialog insets=[16,24,16,24]}
+  Column scroll w=280 h=fill border-right=#FFE5E7EB hide=tablet
+    Text.heading "Details"
+Canvas#create "create" w=480.0 decoration.radius=16 decoration.effects=[{"type":"dropShadow","color":"#24000000","offset":[0,12],"blurRadius":32,"spreadRadius":-6}]
+  Column gap=16 pad=24
+    Row gap=12 between
+      Text.heading "New project" grow
+      IconButton "close" onTap={close}
+    Input "Name" @name
+```
+
 - Page frames and overlays (`App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`) are on [navigation.md](navigation.md).
 
 <a id="notation-words-every-line-takes"></a>
@@ -265,13 +307,15 @@ Any other action is its type and its fields by name: `animate node=hero command=
 Column w=40 h=40 onKeyDown(key=Enter)={emit go} onLongPress={toast "Held"}
 ```
 
-A screen's timers and shortcuts are lines of their own, after the tree:
+A screen's timers, shortcuts and other reactions are lines of their own, after the tree (`mod` is Ctrl, or ⌘ on a
+Mac); `on load={…}` runs when the screen opens:
 
 ```notation
 state count=0
 Text "{count}"
 every 1s onTick={count=count+1}
 key mod+k onPress={count=0}
+on load={count=1}
 ```
 
 <a id="notation-lists-and-conditions"></a>
@@ -293,7 +337,8 @@ Column gap=8
 ```
 
 A control bound to a field of the element changes that element: `Checkbox @row.done` under `each row in
-rows`. Tables, grids, paging and reordering are on [lists.md](lists.md).
+rows`. Under a `ListView` or `GridView` line of its own, an `each` repeats inside that list, whose keys (height,
+direction) are on its line. Tables (sorted and filtered), grids, paging and reordering are on [lists.md](lists.md).
 
 <a id="notation-pages-at-other-widths"></a>
 ## Pages at other widths
@@ -316,6 +361,38 @@ Column pad=48 phone.pad=16
 Bounds in pixels (`min700`, `max899`), breakpoints (`minTablet`), orientation (`portrait`) and combined conditions
 are on [responsive.md](responsive.md).
 
+<a id="notation-hover-press-focus"></a>
+## Hover, press, focus
+
+A state's name before a key holds while the line is in that state: `hovered.fill=#FFE5E7EB`, `pressed.opacity=0.8`,
+`focused.border=#FF2563EB`, `selected.fill=…` (with `selected={…}`), `disabled.opacity=0.4` (with `enabled={…}`). A
+line inside follows its state by its id: `card.hovered.color=…`.
+
+```notation
+Column#card pad=12 fill=#FFFFFFFF radius=8 hovered.fill=#FFF3F4F6 pressed.opacity=0.8 onTap={emit open}
+  Text "Open" card.hovered.color=#FF2563EB
+```
+
+More on [responsive.md](responsive.md#responsive-states); focus and the keyboard on [interaction.md](interaction.md).
+
+<a id="notation-records-under-a-line"></a>
+## Records under a line
+
+What is an ordered list in the document is lines under the node, one record a line, in the grammar of a line: a
+`customPaint` line and its draw ops ([paint.md](paint.md)), `animation#id` lines with their `track` lines, and
+`transition` lines ([animation.md](animation.md)). `animate=fadeIn` says a common entrance in a word.
+
+```notation
+box w=40 h=40
+  customPaint viewBox=[40,40]
+    circle c=[20,20] radius=16 fill=#FF2563EB
+  transition property=opacity duration=200 curve=easeOut
+```
+
+A print uses three more forms a writer rarely needs: `key=null` (no such field, though the line would give one),
+`slot name` (a line under it fills that slot) and `type=Name` (a design system's component a notation word shadows):
+[document.md](document.md).
+
 <a id="notation-the-references"></a>
 ## The references
 
@@ -326,19 +403,19 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 4674 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1291 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2623 |
-| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1775 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 11877 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 5712 |
+| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1879 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 11992 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 6102 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3348 |
-| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5436 |
-| [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3175 |
+| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5492 |
+| [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3290 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3560 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 7496 |
-| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 405 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2655 |
+| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 682 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 2819 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 1587 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 391 |
-| [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 741 |
+| [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 889 |
 | [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 13797 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1657 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 282 |

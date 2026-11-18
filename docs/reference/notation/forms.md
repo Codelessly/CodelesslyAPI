@@ -80,6 +80,22 @@ Column#signup gap=12 form=true
   Button "Send" onTap={validate node=signup}
 ```
 
+A whole form: each field's rule, the messages shown once a field is left (`form.autovalidateMode=onUnfocus`, a
+key of the form's record), a count of what is wrong read from `form.errors` (each error's `label` and `message`),
+and a send that goes on only when every field passes (`result ? … : …`).
+
+```notation
+state name=""
+state email=""
+state sent=false
+Column#signup gap=12 form.autovalidateMode=onUnfocus
+  Input "Name" @name validator={trim(name) == '' ? 'Enter your name.' : ''}
+  Input "Email" @email validator={matches(email, '^[^@ ]+@[^@ ]+$') ? '' : 'Enter an email like name@example.com.'} keyboardType=emailAddress
+  Text "{length(form.errors)} fields need attention" color=#FFDC2626 visible={length(form.errors) > 0}
+  Button "Send" onTap={validate node=signup; result ? sent=true : toast "Check the form"}
+  Text "Thanks, {name}!" visible={sent}
+```
+
 <a id="forms-words"></a>
 ## Words
 

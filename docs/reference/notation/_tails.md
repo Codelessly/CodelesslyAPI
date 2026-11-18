@@ -147,6 +147,23 @@ The work list for notation parity (docs/design/22-notation-parity.md). Each exam
 |---|---|---|
 | 6 | `Chip#design "Design" type=Chip w={"hug":…` | `actions[].actions[].type`, `actions[].actions[].value`, `actions[].actions[].variable`, `actions[].trigger.event`, `actions[].trigger.type` |
 
+## Prints of the pages' own blocks with a tail
+
+A block written as a writer would (`expands`) is followed on its page by its print; these prints keep part of the document as JSON.
+
+### lists.md, the block of line 43
+
+| Line | Starts | Paths |
+|---|---|---|
+| 4 | `Text "One" h=fill visible={index == 0} {…` | `bind.visible` |
+| 5 | `Text "Two" h=fill visible={index == 1} {…` | `bind.visible` |
+
+### navigation.md, the block of line 57
+
+| Line | Starts | Paths |
+|---|---|---|
+| 9 | `Button "Close" maxWidth=240 onTap={close…` | `media[].maxWidth`, `media[].patch.layout.constraints.maxWidth`, `media[].patch.layout.flex`, `media[].patch.layout.width.fill`, `media[].patch.layout.width.hug` |
+
 ## Prints that do not read without an issue
 
 Printer bugs: the print gives the document back, but the parser says something reading it. Each block is marked `unchecked` on its page.

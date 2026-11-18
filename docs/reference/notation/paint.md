@@ -26,6 +26,22 @@ box w=200 h=120
 A value is a number, a word, a quoted string, JSON, or `{expression}`; a list may hold expressions among its
 numbers: `c=[{60 + index * 34},48]`.
 
+A chart of your own, drawn from the state: a `repeat` over the data, each copy a bar and its label placed by
+`index`. The `viewBox` is the drawing's own units; `fit=fill` stretches it to the box.
+
+```notation
+state sales=[40,72,55,90,64]
+box h=160
+  customPaint viewBox=[250,120] fit=fill
+    line p1=[0,119] p2=[250,119] stroke=#FFD1D5DB strokeWidth=1
+    repeat count={length(sales)}
+      rrect rect=[{index * 50 + 10},{120 - sales[index]},30,{sales[index]}] radius=4 fill={index == length(sales) - 1 ? '#FF2563EB' : '#FF93C5FD'}
+      paragraph "{sales[index]}" offset=[{index * 50 + 10},{104 - sales[index]}] maxWidth=30 textAlign=center
+```
+
+For a bar, line or donut chart with axes and a legend, the chart words (`BarChart`, `LineChart`, `Donut`) on
+[charts.md](charts.md) are shorter.
+
 <a id="paint-the-painter-s-keys"></a>
 ## The painter's keys
 

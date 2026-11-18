@@ -66,6 +66,41 @@ Row stretch h=fill
     Text "Orders"
 ```
 
+A desktop window of three panes: a rail, the content, an inspector. `Sidebar` is the rail (`w=72` for icons only),
+`Main` takes the room left and scrolls, each `Pane` is a further column as tall as the window (`w=` its width, else
+it shares the room). A key with a size before it changes a pane at that width ([responsive.md](responsive.md)):
+here the inspector leaves at a tablet's width and the rail at a phone's.
+
+```notation width=1280 expands
+state tab="inbox"
+App
+  Sidebar w=72 hide=phone
+    NavItem "Inbox" icon="inbox" selected={tab=="inbox"} onTap={tab="inbox"}
+    NavItem "Sent" icon="send" selected={tab=="sent"} onTap={tab="sent"}
+  Main
+    Text.title "Inbox"
+  Pane w=320 hide=tablet
+    Text.heading "Details"
+```
+
+It reads as:
+
+```notation width=1280
+state tab="inbox"
+Row stretch h=fill
+  Column gap=4 pad=[12,20,12,16] w=72 h=fill border-right=#FFE5E7EB hide=phone
+    Row gap=10 pad=[10,8,10,8] fill={(tab=="inbox")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=inbox}
+      Icon "inbox" color={(tab=="inbox")?"#FF2563EB":"#FF4B5563"} size=18
+      Text.heading "Inbox" weight=500 grow color={(tab=="inbox")?"#FF2563EB":"#FF4B5563"}
+    Row gap=10 pad=[10,8,10,8] fill={(tab=="sent")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=sent}
+      Icon "send" color={(tab=="sent")?"#FF2563EB":"#FF4B5563"} size=18
+      Text.heading "Sent" weight=500 grow color={(tab=="sent")?"#FF2563EB":"#FF4B5563"}
+  Column scroll h=fill grow
+    Text.title "Inbox"
+  Column scroll w=320 h=fill border-right=#FFE5E7EB hide=tablet
+    Text.heading "Details"
+```
+
 <a id="navigation-over-the-page"></a>
 ## Over the page
 
