@@ -272,4 +272,29 @@ define Rows
       expect(sizeOf(r, 'Head'), 48);
     });
   });
+
+  group('C2: a website\'s controls at a page\'s size', () {
+    Map<String, Object?> layoutOf(NotationResult r, String type, [int at = 0]) => ((_nodes(r).values.cast<Map>().where((n) => n['type'] == type).elementAt(at))['layout'] as Map).cast<String, Object?>();
+
+    test('in a Page: buttons, fields and selects 40 high, a hero\'s buttons 44, chips 32, an icon button in a 40 px hairline square', () {
+      final r = _parse(
+          'Page\n  Section\n    Heading "Hero" level=1\n    Button.primary "Start"\n  Section\n    Row gap=8\n      Input "Email"\n      Select "Plan" items=["A"]\n      Button "Go"\n      Chip "Filter" selected=false\n      IconButton "favorite_border"\n',
+          const NotationOptions(width: 1440));
+      expect(layoutOf(r, 'filledButton')['height'], 44);
+      expect(layoutOf(r, 'filledButton', 1)['height'], 40);
+      expect(layoutOf(r, 'textField')['height'], 60, reason: '40 and its label above');
+      expect(layoutOf(r, 'dropdown')['height'], 40);
+      expect(layoutOf(r, 'choiceChip')['height'], 32);
+      final icon = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'iconButton');
+      expect((icon.value as Map)['layout'], containsPair('width', 40));
+      final box = _nodes(r).values.cast<Map>().firstWhere((n) => readStrings(n['children']).contains(icon.key));
+      expect(box['decoration'], containsPair('strokes', isNotEmpty));
+    });
+
+    test('in an App: as they were (Desk\'s 28 px density)', () {
+      final r = _parse('App\n  Main\n    Row\n      Button "Go"\n      IconButton "search"\n', const NotationOptions(width: 1440));
+      expect(layoutOf(r, 'filledButton')['height'], {'hug': 0});
+      expect(layoutOf(r, 'iconButton')['width'], {'hug': 0});
+    });
+  });
 }

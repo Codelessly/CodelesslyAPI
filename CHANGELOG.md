@@ -15,6 +15,10 @@
   Section are 60 px (52 on a tablet, 43 on a phone, by the reflow), `level=2` 36 and `level=3` 22; they were 30, 24
   and 18, a section's title over a 1440 page (round 11: the web's were 48 to 150 px). A theme whose `heading1` or
   `pageTitle` has a size of 32 and up keeps it, a line's own `size=` wins, and an `App`'s titles are as they were.
+- **A website's controls are a web page's size**: in a `Page`, a button, a field and a select that write no height
+  are 40 px (28 before), their type to match (the renderer's step for 40), a chip 32 (24), the buttons of the
+  Section that holds the page's headline (its hero) `size=large` (44), and an `IconButton` in a Section a 40 px square
+  in a hairline (a bare glyph before). A theme's `sizes.control` wins; an `App` (Desk's 28 px density) is as it was.
 
 ### Fixed
 

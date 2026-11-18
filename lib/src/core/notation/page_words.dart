@@ -97,6 +97,10 @@ final class PageWords {
   /// (round 11: the web's were 48 to 150 px).
   final num? siteHeadline;
 
+  /// Whether the text is a website's (its top is a `Page`): its controls are
+  /// a page's size ([NotationOptions.controlHeight] else 40).
+  bool site = false;
+
   /// [siteHeadline]'s size for heading [level] (1 to 3), or null.
   num? _headlineSize(int level) => switch ((siteHeadline, level)) {
         (final num h, 1) => h,
@@ -929,6 +933,7 @@ final class PageWords {
       return out..addAll(_textBox(at, mark, parts));
     }
     if (word == 'Page' && indent == 0) {
+      site = true;
       open(frame: 'Page');
       final fill = parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill';
       return out..add((indent: at, text: 'Column$mark w=fill scroll stretch$fill${parts.all}'));
@@ -1234,8 +1239,30 @@ final class PageWords {
               _ => _variant(const ['heading3', 'heading', 'cardTitle', 'strong']),
             };
       final display = !inApp && _inSiteSection && !parts.has('size') ? _headlineSize(level.clamp(1, 3)) : null;
+      if (level == 1 && !inApp && _inSiteSection) _open.lastWhere((l) => l.frame == 'Section').hero = true;
       open();
       return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${display == null ? '' : ' size=${_n(display.toDouble())}'}${parts.all}'));
+    }
+    // On a website a hero's buttons are large (44), and an icon button has
+    // a hit area that shows (a 40 px square in a hairline): they were a
+    // desktop app's 28 px buttons and a bare glyph (round 11). Its bar's are
+    // the bar's, and a line that shows or hides itself is left as it is.
+    if (site && !inApp && word == 'Button' && _inSiteSection && _open.any((l) => l.hero) && !parts.has('size') && !parts.has('h') && !isComponent('Button')) {
+      open(frame: null);
+      return out..add((indent: at, text: '$text size=large'));
+    }
+    if (site &&
+        !inApp &&
+        word == 'IconButton' &&
+        mark.isEmpty &&
+        _inSiteSection &&
+        !isComponent('IconButton') &&
+        !const ['w', 'h', 'size', 'fill', 'border', 'hide', 'show', 'visible'].any(parts.has) &&
+        !RegExp(r'(^|\s)(hidden|hide=|show=|[a-z]+\.(hidden|visible|w|h)=)').hasMatch(rest)) {
+      open(frame: null);
+      return out
+        ..add((indent: at, text: 'Box w=40 h=40 radius=8 border=$line center middle'))
+        ..add((indent: at + 2, text: '$text w=40 h=40'));
     }
     // A website's headline written as its text style: the same size.
     if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection && !parts.has('size')) {
@@ -1526,6 +1553,9 @@ class _Line {
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.
   bool pageNav = false, ownMenu = false;
+
+  /// A website's Section that holds its headline (a hero): its buttons are large.
+  bool hero = false;
   final links = <({String label, String action, _Line? group, bool direct})>[];
 }
 

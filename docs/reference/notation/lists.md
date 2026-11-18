@@ -180,8 +180,8 @@ Column stretch scroll
   Column center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
       Row gap=8
-        Input "" hint=Search w=280 @search
-        Select w=140 @status items=["All","Paid","Due"]
+        Input "" hint=Search w=280 h=40.0 @search
+        Select w=140 h=40.0 @status items=["All","Paid","Due"]
       Column#orders fill=#FFFFFFFF border=#FFE5E7EB radius=8 clip=antiAlias
         Row#orders-head gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky=0
           Row w=16

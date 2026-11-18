@@ -3265,6 +3265,12 @@ class _Parser {
   /// The nodes written as `Card`.
   final _cards = <String>{};
 
+  /// The height of a button, a field and a select that write none: the
+  /// theme's (`sizes.control`); on a website (a `Page`) 40, a web page's
+  /// control, where an app's are the desktop's compact 28 (round 11: a
+  /// site's buttons, fields and selects were 28 px beside the web's 40 to 48).
+  double? get _controlHeight => options.controlHeight ?? (_top._pages.site ? 40.0 : null);
+
   /// A row whose children's written widths add up to more than the canvas
   /// is wide (a table's columns in a card): the widths become shares of the
   /// row, so the columns keep their proportions and fit. A row that scrolls
@@ -7175,7 +7181,7 @@ class _Parser {
         'small' || 'sm' => 32.0,
         'medium' || 'md' => 36.0,
         'large' || 'lg' => 44.0,
-        _ => options.controlHeight,
+        _ => _controlHeight,
       };
       if (step != null && !layout.containsKey('height')) layout['height'] = step;
     }
@@ -7264,16 +7270,20 @@ class _Parser {
       if (props['label'] case final String l when l.isNotEmpty && !l.endsWith('*')) props['label'] = '$l *';
     }
     // A date or time field is a field: as tall as the text field and the select beside it.
-    if (options.controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
-      layout['height'] = options.controlHeight;
+    if (_controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
+      layout['height'] = _controlHeight;
     }
-    if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
+    // A website's chip is a step under its controls (32): it was 24.
+    if (_controlHeight != null && options.controlHeight == null && const {'chip', 'choiceChip', 'filterChip', 'actionChip', 'inputChip'}.contains(type) && !layout.containsKey('height')) {
+      layout['height'] = 32;
+    }
+    if (_controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
       // A field's label sits above its box, inside its height (11.5 px
       // text and 6 px under it).
       final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
       if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
         // A field that counts its characters (maxLength) has its counter under it.
-        layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0) + (type == 'textField' && props['maxLength'] is int ? 18 : 0);
+        layout['height'] = _controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0) + (type == 'textField' && props['maxLength'] is int ? 18 : 0);
       }
     }
     // (`squeezable=false` on the line keeps the text whole: it was set true
