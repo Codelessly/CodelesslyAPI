@@ -60,7 +60,7 @@ void main() {
     test('a formula that is only a name, bound', () {
       _says(r'Text#t "x" color="${= theme.colors.ink}"', 't', 'bind.props.style.color', r'${= theme.colors.ink}', [r'color="${= theme.colors.ink}"']);
     });
-    test("a validator holds its expression: it runs on the text typed", () {
+    test('a validator holds its expression: it runs on the text typed', () {
       _says(r'''Input#name "Name" validator="${= trim(value) == '' ? 'Enter your name.' : ''}"''', 'name', 'props.validator',
           r"${= trim(value) == '' ? 'Enter your name.' : ''}", [r'validator="${= trim(value)']);
       final doc = _expand(r'''Input#name "Name" validator="${= trim(value) == '' ? 'Enter your name.' : ''}"''');
