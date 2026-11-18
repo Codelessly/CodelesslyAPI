@@ -2,7 +2,7 @@
   "version": "35.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4022
+    "words": 4021
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4022
+      "words": 4021
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 559
+      "words": 558
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -374,7 +374,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 6731
+      "words": 6738
     },
     {
       "topic": "lists-a-list-over-data",
@@ -388,7 +388,7 @@
       "file": "lists.md",
       "anchor": "lists-a-table-of-records",
       "title": "A table of records",
-      "words": 871
+      "words": 878
     },
     {
       "topic": "lists-a-list-of-its-own-line",
@@ -682,14 +682,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 2802
+      "words": 2801
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 376
+      "words": 375
     },
     {
       "topic": "navigation-over-the-page",
