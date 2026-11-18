@@ -4,6 +4,10 @@
 
 ### Documented
 
+- **The names a variable cannot take** (`data`, `route`, `storage`, `screen`, `theme`, `auth`, `drag`, `perf`,
+  `script`, `speech`, which the runtime gives every formula) are in the notation's state.md; only the JSON
+  reference listed them (round 11b: `state perf` in seat-booking, 9 lines renamed; `state script` in
+  story-reader, 5).
 - **An `if` under an `each`** hides what a copy shows, not the copy: the copy keeps its place and its Grid cell
   (round 10, R65, 4 runs). lists.md says so, and how to leave elements out: `each d in filter(days, x => x.open)`.
 
