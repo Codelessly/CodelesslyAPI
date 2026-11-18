@@ -10,7 +10,9 @@ over the page.
 ## Page frames
 
 A page is written once inside a frame that owns the widths, margins and scrolling. A website's bands stack in a
-`Page`; an app window is an `App` of panes. The frame words: `App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`.
+`Page`; an app window is an `App` of panes. Written under another line (`Page grow` under a site's own header, `App
+grow` under a page's), each is that region of the page: its scrolling column of bands, or its panes side by side,
+taking the room its column leaves. The frame words: `App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`.
 
 ```notation width=1280 expands
 Page

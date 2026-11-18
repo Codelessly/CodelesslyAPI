@@ -429,6 +429,23 @@ Column
     expect(_decoration(_parse(printed), 's')['clip'], 'hardEdge', reason: printed);
   });
 
+  test('a Page under a header or in a Stack is the scrolling column of the page there (it was "No node type Page")', () {
+    // docs-site (home.txt:4, 3 pages), restaurant (5 pages), magazine (article.txt:9), scrolly-story.
+    final r = _parse('''
+Column w=fill h=fill
+  Text "header"
+  Page#page grow
+    Section#band
+      Text "hello"
+''');
+    expect(r.issues, isEmpty);
+    expect(_node(r, 'page')['type'], 'column');
+    expect(_props(r, 'page')['scrollable'], true);
+    expect(_layout(r, 'page')['flex'], 1);
+    // Its Sections are a page's: a band with the content's width inside.
+    expect(_layout(r, 'band')['padding'], isNotNull);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

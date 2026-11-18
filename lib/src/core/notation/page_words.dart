@@ -945,6 +945,15 @@ final class PageWords {
       final fill = parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill';
       return out..add((indent: at, text: 'Column$mark w=fill scroll stretch$fill${parts.all}'));
     }
+    // `Page grow` under a site's header, `Page w=fill h=fill` in a Stack: the
+    // page's scrolling column there, taking the room its column leaves, its
+    // Sections a page's, as `App grow` is an app's region (round 11b, 4
+    // builds: "No node type Page", which read as if the word did not exist).
+    if (word == 'Page' && indent > 0 && !isComponent(word) && !declares(word)) {
+      open(frame: 'Page');
+      final sized = parts.has('h') || parts.hasWord('grow');
+      return out..add((indent: at, text: 'Column$mark w=fill scroll stretch${sized ? '' : ' grow'}${parts.all}'));
+    }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
       if (parts.hasWord('keep')) ownDrawer = true;

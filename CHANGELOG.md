@@ -52,6 +52,11 @@
 
 ### Fixed
 
+- **A `Page` under another line** (`Page grow` under a site's own header, `Page w=fill h=fill` in a Stack) is the
+  page's scrolling column there, taking the room its column leaves, its Sections a page's, as `App grow` is an
+  app's region: it was "No node type Page", which read as if the word did not exist (round 11b, 4 builds:
+  docs-site, restaurant, magazine, scrolly-story; the writers' rewrites lost the Sections' bands). navigation.md
+  says so.
 - **`Stack … clipBehavior=hardEdge`** cuts what is in it at its edge (the decoration's `clip`): a stack's own
   `clipBehavior` is its scroll view's, and `hardEdge`, its default, was not even kept, so the children drew past
   the stack (round 11b: clip-editor's timeline, both arms; story-reader's deck). `clip` on a stack is read by the
