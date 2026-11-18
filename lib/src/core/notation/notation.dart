@@ -3269,6 +3269,13 @@ class _Parser {
   void _fitRow(_Open open) {
     final row = nodes[open.id];
     if (open.type != 'row' || row == null || (row['props'] as Map?)?['scrollable'] == true) return;
+    // Nor one in a row that scrolls (a timeline's ruler): there it has all
+    // the width it asks for, and shares of it are nothing (round 11: a
+    // ruler of `Text "00:15" w=126` cells ran together, `00:0000:15…`).
+    for (String? at = _parentOf[open.id]; at != null; at = _parentOf[at]) {
+      final n = nodes[at];
+      if (n?['type'] == 'row' && (n?['props'] as Map?)?['scrollable'] == true) return;
+    }
     final children = [
       for (final c in (row['children'] as List? ?? const []))
         if (nodes[c] case final Json n) (c as String, n),

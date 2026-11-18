@@ -220,6 +220,16 @@ define Rows
   });
 
   group('A4: layout', () {
+    test('texts with widths in a row inside a row that scrolls keep their widths (a ruler ran together as shares)', () {
+      final cells = [for (var i = 0; i < 8; i++) '        Text "0$i:00" w=126'].join('\n');
+      final r = _parse('Column\n  Row#scroller scroll\n    Column\n      Row#ruler h=38\n$cells\n', const NotationOptions(width: 1440));
+      final widths = [for (final id in readStrings(_node(r, 'ruler')!['children'])) (_node(r, id)!['layout'] as Map)['width']];
+      expect(widths, everyElement(126));
+      // Not in a scroll: a table's columns, shares of the row as before.
+      final t = _parse('Column\n  Row#ruler h=38\n$cells\n', const NotationOptions(width: 1440));
+      expect((_node(t, readStrings(_node(t, 'ruler')!['children']).first)!['layout'] as Map)['flex'], 126);
+    });
+
     test('a Column maxw=720 in a centered column is as wide as its place up to 720 (it hugged its content)', () {
       final r = _parse('Column center\n  Column#capped maxw=720 gap=18\n    Text "A flashcard"\n');
       expect((_node(r, 'capped')!['layout'] as Map)['width'], {'fill': 0});

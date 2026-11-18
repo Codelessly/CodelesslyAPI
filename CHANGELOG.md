@@ -30,6 +30,10 @@
 - **A box with the widest it gets in a centered column** (`Column maxw=720` under `Column center`) is as wide as its
   place up to that, centered: it hugged its content (a 270 px flashcard in a 1200 px pane).
 - **A gauge's figure is sized to its shorter side**: a wide gauge `h=100` drew a 44 px figure over its arc.
+- **Texts with widths in a row inside a row that scrolls keep their widths** (`Text "00:15" w=126` cells of a
+  timeline's ruler): they were made shares of a row with all the width it asks for, and ran together. This is the
+  condition behind round 11's "`w=126` on a Text in a Row becomes a flex weight" (a row of 2 or more such texts
+  wider than half the window, under a scrolling row); a row not in a scroll is a table's, its columns shares as before.
 
 ## 36.0.0
 
