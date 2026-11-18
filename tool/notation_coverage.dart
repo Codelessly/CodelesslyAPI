@@ -35,6 +35,7 @@ class _Path {
   int nodes = 0;
   final types = <String, int>{};
   String? example;
+  final files = <String>[];
 }
 
 void main(List<String> args) {
@@ -116,6 +117,9 @@ void main(List<String> args) {
   // node lines with no tail, no JSON value and no dotted path.
   var records = 0, inWords = 0;
   final saidAs = <String, int>{}; // a node line's fields, by how each is said
+  // A field said as JSON, by its shape (`w={"fill":#}`): how often, and one file.
+  final jsonShapes = <String, int>{};
+  final jsonShapeExample = <String, String>{};
   final keyCache = <String, String>{};
 
   for (final file in files) {
@@ -188,7 +192,10 @@ void main(List<String> args) {
       if (word.isNotEmpty && word[0].toLowerCase() == word[0]) wordless[word] = (wordless[word] ?? 0) + 1;
       final at = _tailStart(trimmed);
       // How each field of the line is said.
-      final said = _said(at < 0 ? trimmed : trimmed.substring(0, at), catalog, keyCache);
+      final said = _said(at < 0 ? trimmed : trimmed.substring(0, at), catalog, keyCache, (shape, written) {
+        jsonShapes[shape] = (jsonShapes[shape] ?? 0) + 1;
+        jsonShapeExample.putIfAbsent(shape, () => '$word $written  (${file.path})');
+      });
       for (final s in said) {
         saidAs[s] = (saidAs[s] ?? 0) + 1;
       }
@@ -206,6 +213,7 @@ void main(List<String> args) {
         entry.nodes++;
         entry.types[word] = (entry.types[word] ?? 0) + 1;
         entry.example ??= examples[p];
+        if (entry.files.length < 8 && !entry.files.contains(file.path)) entry.files.add(file.path);
       }
     }
   }
@@ -255,6 +263,18 @@ void main(List<String> args) {
     md.writeln('| $what | ${saidAs[k] ?? 0} | ${_pct(saidAs[k] ?? 0, saidTotal)} |');
   }
   md.writeln();
+  if (jsonShapes.isNotEmpty) {
+    final list = jsonShapes.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    md
+      ..writeln('## JSON as a value: the most frequent shapes')
+      ..writeln()
+      ..writeln('| Shape | Fields | Example |')
+      ..writeln('|---|---:|---|');
+    for (final e in list.take(20)) {
+      md.writeln('| `${e.key.replaceAll('|', r'\|')}` | ${e.value} | `${jsonShapeExample[e.key]!.replaceAll('|', r'\|')}` |');
+    }
+    md.writeln();
+  }
   if (wholeWhy.isNotEmpty) {
     final list = wholeWhy.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     md
@@ -321,6 +341,7 @@ void main(List<String> args) {
     'inWords': inWords,
     'records': records,
     'said': saidAs,
+    'jsonShapes': jsonShapes,
     'tailChars': tailChars,
     'chars': chars,
     'wordless': wordless,
@@ -329,7 +350,7 @@ void main(List<String> args) {
     'families': {
       for (final family in families)
         family: {
-          for (final e in byFamily[family]!) e.key: {'nodes': e.value.nodes, 'types': e.value.types, 'example': e.value.example},
+          for (final e in byFamily[family]!) e.key: {'nodes': e.value.nodes, 'types': e.value.types, 'example': e.value.example, 'files': e.value.files},
         },
     },
     'document': {for (final e in documentPaths.entries) e.key: e.value.nodes},
@@ -348,7 +369,7 @@ final _mediaKey = RegExp(r'^(phone|mobile|tablet|desktop|portrait|landscape|(min
 /// `name` (the field's own name, `letterSpacing=`), `path` (a dotted path,
 /// `props.style.height=`), `json` (a record or a list of records written as
 /// JSON), `event` (an `on…=`), `media` (a rule, `phone.pad=`).
-List<String> _said(String line, Catalog catalog, Map<String, String> cache) {
+List<String> _said(String line, Catalog catalog, Map<String, String> cache, [void Function(String shape, String written)? json]) {
   final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(\.[A-Za-z0-9]+)?(#[A-Za-z0-9_-]+)?').firstMatch(line);
   if (head == null) return const [];
   final written = head[1]!;
@@ -422,6 +443,10 @@ List<String> _said(String line, Catalog catalog, Map<String, String> cache) {
       out.add('media');
     } else if (value.startsWith('{"') || (value.startsWith('[') && value.contains('{"'))) {
       out.add('json');
+      if (json != null) {
+        final written = '$key=$value';
+        json('$key=${_shape(value)}', written.length > 120 ? '${written.substring(0, 117)}…' : written);
+      }
     } else if (key.contains('.')) {
       out.add('path');
     } else {
@@ -432,6 +457,26 @@ List<String> _said(String line, Catalog catalog, Map<String, String> cache) {
     }
   }
   return out;
+}
+
+/// A JSON value's shape: its maps' keys in order, a number `#`, a string
+/// `"…"`, a list by its first element (`[{"color":"…"}…]` for several).
+String _shape(String text) {
+  Object? value;
+  try {
+    value = jsonDecode(text);
+  } on Object {
+    return text.length > 40 ? '${text.substring(0, 37)}…' : text;
+  }
+  String of(Object? v) => switch (v) {
+        Map() => '{${v.entries.map((e) => '"${e.key}":${of(e.value)}').join(',')}}',
+        List() => v.isEmpty ? '[]' : '[${of(v.first)}${v.length > 1 ? '…' : ''}]',
+        num() => '#',
+        String() => '"…"',
+        bool() => 'b',
+        _ => 'null',
+      };
+  return of(value);
 }
 
 String _pct(int a, int b) => b == 0 ? '0%' : '${(100 * a / b).toStringAsFixed(1)}%';

@@ -2973,6 +2973,11 @@ class _Parser {
   /// The item of an `each` → its list, for one that may yet share a row's width.
   final _acrossLists = <String, String>{};
 
+  /// The nodes whose line wrote their height by its full path
+  /// (`layout.height=108`): that height exactly, which a text under a column
+  /// does not make a least height (design 22, 4.8).
+  final _exactHeights = <String>{};
+
   /// Changes a line makes to a node already sent (a grid's row height).
   final _patches = <Json>[];
 
@@ -4242,6 +4247,8 @@ class _Parser {
     // The paths written `key=null`: the field is not there (design 22, 4.7),
     // whatever the line would give it, taken out once the line is read.
     final nulled = <String>[];
+    // The sections written `props=null` (none) and `props={}` (empty).
+    final noSections = <String>{}, emptySections = <String>{};
     void put(String path, Object? value) {
       if (value == null) nulled.add(path);
       final dot = path.indexOf('.');
@@ -5183,8 +5190,11 @@ class _Parser {
         // its look follows as it does a hover (a box: the theme's selected
         // fill).
         if (key == 'selected' && !component && !const {'chip', 'checkbox', 'switch'}.contains(type) && !spec.props.any((p) => p.key == 'selected')) {
-          final e = raw.startsWith('=') ? raw.substring(1) : raw;
-          bind['selected'] = _formula(e.startsWith('{') && e.endsWith('}') ? e.substring(1, e.length - 1) : e);
+          final e = raw.startsWith('=') ? raw.substring(1).trim() : raw;
+          // A quoted string is the binding as a string reads (design 22, 4.8):
+          // `selected="${props.selected}"`, `selected="{on}"`.
+          final quoted = e.startsWith('"') && _literal(e).$2 is String ? _interpolate(_literal(e).$2! as String) : null;
+          bind['selected'] = quoted ?? _formula(e.startsWith('{') && e.endsWith('}') ? e.substring(1, e.length - 1) : e);
           selectedState = true;
           continue;
         }
@@ -5416,6 +5426,27 @@ class _Parser {
             _issue(col, _noKeyName(written));
           } else {
             lineShortcut = (combo: combo, column: col);
+          }
+          continue;
+        }
+        // `props=null`, `props={}`: the node has no props at all, or an empty
+        // record of them, whatever the line's words gave (design 22, 4.8);
+        // the same for `layout` and `decoration`.
+        if (const {'props', 'layout', 'decoration'}.contains(key) && (raw == 'null' || raw == '{}' || raw == '=' || raw == '={}')) {
+          (raw == 'null' ? noSections : emptySections).add(key);
+          continue;
+        }
+        // `node.disabled={…}`: the node's disabled state as it is bound, and
+        // nothing more (design 22, 4.8), where `enabled=` is the type's own
+        // prop (an Input's `enabled`, a block's `disabled` options).
+        if (key == 'node.disabled') {
+          final e = raw.startsWith('=') ? raw.substring(1).trim() : raw;
+          if (e.startsWith('"') && _literal(e).$2 is String) {
+            bind['disabled'] = _interpolate(_literal(e).$2! as String);
+          } else if (raw.startsWith('=')) {
+            bind['disabled'] = _read(e);
+          } else {
+            _issue(col, 'node.disabled is a condition: node.disabled={busy}.');
           }
           continue;
         }
@@ -5661,10 +5692,14 @@ class _Parser {
         }
         if (_typeKeys[type]?[key] case final List<String> paths) {
           for (final path in paths) {
+            final v = raw.startsWith('=') ? null : _value(raw);
             if (raw.startsWith('=')) {
               bind[path] = _read(raw.substring(1));
+            } else if (v is String && v.contains(r'${') && !_holdsExpression(type, path)) {
+              // A string that reads data is bound (`color="${= theme.colors.ink}"`).
+              bind[path] = v;
             } else {
-              put(path, _value(raw));
+              put(path, v);
             }
           }
           continue;
@@ -5786,7 +5821,7 @@ class _Parser {
               _ => base is Map ? _copy(base.cast<String, Object?>()) : base is String ? <String, Object?>{'from': base} : <String, Object?>{},
             };
           }
-          if (v is String && v.contains(r'${') && !(type == 'text' && path == 'props.text')) {
+          if (v is String && v.contains(r'${') && !_holdsExpression(type, path)) {
             // A string that reads data (value="{streak} days") is bound:
             // only a text node reads an expression as written.
             bind[path] = v;
@@ -6446,7 +6481,7 @@ class _Parser {
     if (type == 'text' && parent != null && parent.type == 'column') {
       final box = nodes[parent.id];
       final h = (box?['layout'] as Map?)?['height'];
-      if (box != null && h is num && h > 0 && (box['props'] as Map?)?['scrollable'] != true) {
+      if (box != null && h is num && h > 0 && (box['props'] as Map?)?['scrollable'] != true && !_exactHeights.contains(parent.id)) {
         // At least that high: a tinted block of a given height keeps it.
         final Json patch = {
           'layout': {
@@ -6495,9 +6530,14 @@ class _Parser {
     }
     // A page is as tall as its page view.
     layout['height'] = layout.containsKey('height') ? _size(layout['height']) : parent?.pages != null ? {'fill': 0} : {'hug': 0};
+    // A height written by its full path (`layout.height=108`,
+    // `layout.height=hug`) is that height exactly: no rule of the line or of
+    // a line under it changes it (design 22, 4.8).
+    final exactHeight = pre?.parts.any((p) => p.kind == 'pair' ? p.key == 'layout.height' : p.kind == 'word' && p.raw.startsWith('layout.height=')) ?? false;
+    if (exactHeight) _exactHeights.add(id);
     // A spacer that grows in a column takes the height left (what is under
     // it sits at the column's foot).
-    if (type == 'spacer' && layout.containsKey('flex') && parent?.type == 'column' && !inRow) layout['height'] = {'fill': 0};
+    if (type == 'spacer' && layout.containsKey('flex') && parent?.type == 'column' && !inRow && !exactHeight) layout['height'] = {'fill': 0};
     // A size that follows data (w={…}, h={…}) is a fixed one whose number the
     // binding gives: left to hug or fill, the number would change nothing
     // and an empty box would stay at no size.
@@ -6510,8 +6550,11 @@ class _Parser {
               _ => false,
             }) ??
         false;
-    if (bind.containsKey('layout.width') && !fixed(const {'w', 'layout.width'})) layout['width'] = 0;
-    if (bind.containsKey('layout.height') && !fixed(const {'h', 'layout.height'})) layout['height'] = 0;
+    // (A size written by its full path, `layout.width=fill`, is that size
+    // under its binding too: design 22, 4.8.)
+    bool exact(String k) => pre?.parts.any((p) => p.kind == 'word' && p.raw.startsWith('$k=')) ?? false;
+    if (bind.containsKey('layout.width') && !fixed(const {'w', 'layout.width'}) && !exact('layout.width')) layout['width'] = 0;
+    if (bind.containsKey('layout.height') && !fixed(const {'h', 'layout.height'}) && !exact('layout.height')) layout['height'] = 0;
     // Copies across a row that `grow` share its width: a grid with a column
     // per item, each row as tall as its tallest cell.
     if (parent != null && layout.containsKey('flex')) {
@@ -6615,11 +6658,38 @@ class _Parser {
       }
     }
 
+    // A string with `${…}` that the words put in a field reads data: the
+    // field is bound to it, unless it works its expression out itself
+    // (design 22, 4.8: `color="${= theme.colors.ink}"`).
+    void bindReads(Object? m, String at) {
+      if (m is Map) {
+        for (final k in m.keys.toList()) {
+          final v = m[k];
+          if (v is String && v.contains(r'${') && !_holdsExpression(type, '$at.$k')) {
+            bind.putIfAbsent('$at.$k', () => v);
+            m.remove(k);
+          } else {
+            bindReads(v, '$at.$k');
+          }
+        }
+      } else if (m is List) {
+        for (var i = 0; i < m.length; i++) {
+          bindReads(m[i], '$at[$i]');
+        }
+      }
+    }
+
+    bindReads(props, 'props');
+    bindReads(layout, 'layout');
+    bindReads(decoration, 'decoration');
+    for (final s in {...noSections, ...emptySections}) {
+      (switch (s) { 'props' => props, 'layout' => layout, _ => decoration }).clear();
+    }
     final out = <String, Object?>{
       'type': type,
-      if (!emptied) 'layout': layout,
-      if (props.isNotEmpty) 'props': props,
-      if (decoration.isNotEmpty) 'decoration': decoration,
+      if (!emptied && !noSections.contains('layout')) 'layout': layout,
+      if (props.isNotEmpty || emptySections.contains('props')) 'props': props,
+      if (decoration.isNotEmpty || emptySections.contains('decoration')) 'decoration': decoration,
       if (bind.isNotEmpty) 'bind': bind,
       if (reactions.isNotEmpty) 'actions': reactions,
     };
@@ -6636,7 +6706,7 @@ class _Parser {
             final inner = v.cast<String, Object?>();
             lift(inner, at);
             m[key] = inner;
-          } else if (v is String && v.contains(r'${') && !(type == 'text' && at == 'props.text')) {
+          } else if (v is String && v.contains(r'${') && !_holdsExpression(type, at)) {
             moved[at] = v;
             m.remove(key);
           }
@@ -6876,13 +6946,16 @@ class _Parser {
       };
       ((out['children'] as List<Object?>?) ?? (out['children'] = <Object?>[])).add(pageId);
       _parentOf[pageId] = id;
-      props.putIfAbsent('scrollDirection', () => 'horizontal');
-      // A line with no prop of its own has them now (what a {…} at its end
-      // gave it are its props then).
-      if (out['props'] case final Map<Object?, Object?> given) {
-        given.putIfAbsent('scrollDirection', () => 'horizontal');
-      } else {
-        out['props'] = props;
+      // (`props=null`: none, design 22, 4.8.)
+      if (!noSections.contains('props')) {
+        props.putIfAbsent('scrollDirection', () => 'horizontal');
+        // A line with no prop of its own has them now (what a {…} at its end
+        // gave it are its props then).
+        if (out['props'] case final Map<Object?, Object?> given) {
+          given.putIfAbsent('scrollDirection', () => 'horizontal');
+        } else {
+          out['props'] = props;
+        }
       }
       // With the next page showing at the edge, the first sits at the start
       // and the pages stand apart (gap, 8 unless written).
@@ -8528,9 +8601,14 @@ class _Parser {
     final e = expr.trim();
     // A word that is a value, not a name (enabled={false}): the value.
     if (const {'true', 'false', 'null'}.contains(e)) return _formula(e);
-    // A name is read as it is; anything the formula language spells otherwise (rows.length) is a formula.
-    return _identifier.hasMatch(e) && _natural(e) == e ? '\${$e}' : _formula(e);
+    // A name or a path is read as it is (`kpis[0].value`, an element of a
+    // list by its index: design 22, 4.8); anything the formula language
+    // spells otherwise (rows.length) is a formula.
+    return (_identifier.hasMatch(e) || _indexedPath.hasMatch(e)) && _natural(e) == e ? '\${$e}' : _formula(e);
   }
+
+  /// A path with an element of a list by its index in it: `kpis[0].value`.
+  static final _indexedPath = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*|\[[0-9]+\])*$');
 
   String _formula(String expr) => '\${= ${_natural(_textsRead(_colors(expr)))}}';
 
@@ -8689,8 +8767,13 @@ class _Parser {
     return _formula('(${inner(a)}) && (${inner(b)})');
   }
 
-  /// `{name}` in a string is a read: `${name}`.
+  /// `{name}` in a string is a read: `${name}`. A string with the document's
+  /// own formula, `${= …}`, written in it is kept as written, every `${…}`
+  /// and `{…}` in it (design 22, 4.8): `"${= theme.colors.ink}"`,
+  /// `"$${= price}"`. Elsewhere a `$` before a read is a dollar, as models
+  /// write a price (`"Total ${qty*12}"` is `Total $${= qty*12}`).
   String _interpolate(String s) {
+    if (_writtenRead.hasMatch(s)) return s;
     s = s.replaceAll(r'\$', r'$');
     final out = StringBuffer();
     var at = 0;
@@ -8703,6 +8786,24 @@ class _Parser {
     out.write(s.substring(at));
     return out.toString();
   }
+
+  /// Whether the field at [path] of a node of [type] holds an expression it
+  /// works out itself, so a string with `${…}` in it is its value as written
+  /// rather than a binding (design 22, 4.8): a text's own text, an Input's
+  /// validator (it runs on the text typed, `value`), a drop target's key and
+  /// condition (worked out for each drop), an image paint's URL (filled in
+  /// from the scope, as a text's own text is).
+  static bool _holdsExpression(String type, String path) =>
+      (type == 'text' && path == 'props.text') ||
+      (type == 'textField' && path == 'props.validator') ||
+      path == 'dropTarget.key' ||
+      path == 'dropTarget.acceptIf' ||
+      _imageUrl.hasMatch(path);
+
+  static final _imageUrl = RegExp(r'^decoration\.(fills|foregroundFills)\[\d+\]\.image\.url$');
+
+  /// A `${=` written in a string (not `\${=`): the string is as written.
+  static final _writtenRead = RegExp(r'(?<!\\)\$\{=');
 
   /// The `{…}` of [s] that read a value, outermost only: a brace inside one
   /// (a map written in a formula, `{find([{"id": 1}], …).name}`) belongs to

@@ -308,6 +308,12 @@ final class MediaLineReader {
   /// flag, without its condition), null when they change nothing, and what
   /// was wrong with them.
   ({Json? patch, List<String> issues}) patch(List<String> words) {
+    // A word written by its full path from the node (`props.scrollable=true`,
+    // `layout.width=fill`) patches that path only: what reading it adds
+    // elsewhere on the line (a scrolling row's edge fade, a text's
+    // squeezable) is not the rule's (docs/design/22, 4.8).
+    final exact = [for (final w in words) if (_fullPath.firstMatch(w) != null) w];
+    if (exact.isNotEmpty) return _exactly(words, exact);
     final issues = <String>[];
     final withWords = parse(mediaLineText(parentType, line, words));
     final a = mediaLineNode(_without.document), b = mediaLineNode(withWords.document);
@@ -343,6 +349,42 @@ final class MediaLineReader {
     }
     if (patch.isEmpty) return (patch: null, issues: issues);
     return (patch: dropBindings ? mediaDropBindings(patch, bound) : patch, issues: issues);
+  }
+
+  /// A key that is a full path into a section, no list index in it.
+  static final _fullPath = RegExp(r'^(props|layout|decoration)((?:\.[A-Za-z_][A-Za-z0-9_]*)+)=');
+
+  /// [patch] of [words] where [exact] are written by their full paths: the
+  /// other words' patch, and each of [exact] as the value its path has on
+  /// the line read with it (null where it has none).
+  ({Json? patch, List<String> issues}) _exactly(List<String> words, List<String> exact) {
+    final rest = [for (final w in words) if (!exact.contains(w)) w];
+    final base = rest.isEmpty ? (patch: null, issues: const <String>[]) : patch(rest);
+    final issues = [...base.issues];
+    final out = _copyMap(base.patch ?? const {});
+    final before = [for (final x in _without.issues) x.message];
+    for (final w in exact) {
+      final read = parse(mediaLineText(parentType, line, [w]));
+      for (final x in read.issues) {
+        if (!before.contains(x.message)) issues.add(x.message);
+      }
+      final node = mediaLineNode(read.document);
+      if (node == null) continue;
+      final path = w.substring(0, w.indexOf('=')).split('.');
+      Object? v = node;
+      for (final k in path) {
+        v = v is Map ? v[k] : null;
+      }
+      Json into = out;
+      for (final k in path.take(path.length - 1)) {
+        final cur = into[k];
+        final Json next = cur is Map ? cur.cast<String, Object?>() : <String, Object?>{};
+        into = into[k] = next;
+      }
+      into[path.last] = v;
+    }
+    if (out.isEmpty) return (patch: null, issues: issues);
+    return (patch: dropBindings ? mediaDropBindings(out, bound) : out, issues: issues);
   }
 }
 
