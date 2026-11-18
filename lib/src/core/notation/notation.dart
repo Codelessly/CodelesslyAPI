@@ -6692,6 +6692,16 @@ class _Parser {
       layout['width'] = {'fill': 0};
     }
     final inRow = !cell && parent?.type == 'row';
+    // A Splitter is as long as the panes it divides: as tall as its row (as
+    // wide as its column when it divides one). It hugged, a 44 px stub at
+    // the row's top beside the panes' own full-height borders (test 9, mail
+    // and admin).
+    if (type == 'splitter' && parent != null) {
+      final vertical = props['orientation'] == 'vertical';
+      final along = vertical ? 'width' : 'height';
+      final across = (vertical && parent.type == 'column') || (!vertical && parent.type == 'row');
+      if (across && (layout[along] == null || (layout[along] is Map && (layout[along] as Map).containsKey('hug')))) layout[along] = {'fill': 0};
+    }
     // On a page, cards side by side are one row of panels: equally tall.
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];

@@ -73,6 +73,26 @@ App
     Text.heading "Details"
 ```
 
+A `Splitter` between two panes lets the reader resize one. It keeps that pane's width in a variable (`@listW`) and
+the pane reads it (`w={listW}`); with `pane=after` the variable is the width of the pane after it (an inspector at
+the window's end), so dragging toward the end narrows that pane. It is as tall as the row it is in, a hairline in a
+desktop window (8 px to grab, a grip under the pointer or the keyboard's focus); where the pane beside it draws its
+own border on that side, that border is the line and the splitter draws none. Arrows, Home and End move it.
+
+```notation width=1280 expands
+state listW=360
+state inspectorW=320
+App
+  Pane w={listW} border-right=line
+    Text.heading "Messages"
+  Splitter @listW min=280 max=520 label="Resize the list"
+  Main
+    Text.title "Reading"
+  Splitter @inspectorW min=240 max=480 pane=after label="Resize the details"
+  Pane w={inspectorW} border-left=line
+    Text.heading "Details"
+```
+
 ## Over the page
 
 An overlay is written after the page, at the margin, with an id; its content is indented under it. `open id`
