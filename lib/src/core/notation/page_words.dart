@@ -709,7 +709,7 @@ final class PageWords {
   /// line of a bar): none of them is an unknown word, or an alias.
   static const words = {
     'Page', 'App', 'AppShell', 'Window', 'Section', 'Footer', 'Hero', 'Main', 'Content', 'Pane', 'Panel', 'Brand', 'Logo', 'IconTile', 'Link', 'Heading', 'Title', //
-    'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Menu', 'Dropdown', 'Popover', 'Popup', 'Lightbox', 'Dots', 'SwipeAction', 'Wanted', 'Table',
+    'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Menu', 'Dropdown', 'Popover', 'Popup', 'Lightbox', 'Dots', 'SwipeAction', 'Wanted',
     ..._bars, ..._sides, ..._items,
   };
   static const _bars = {'Nav', 'Navbar', 'NavBar', 'TopBar', 'Topbar', 'Header', 'AppBar'};
