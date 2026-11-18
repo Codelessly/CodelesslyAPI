@@ -349,10 +349,11 @@ void main() {
       ('state on=false\nColumn\n  Text "x" size={on ? 18 : 13}', 'text', 'bind.props.style.fontSize', r'${= on ? 18 : 13}'),
       ('state on=false\nColumn\n  Text "x" weight={on ? 700 : 400}', 'text', 'bind.props.style.fontWeight', r'${= on ? 700 : 400}'),
       ('state on=false\nColumn\n  box w=40 h=40 fill={on ? "#FF16A34A" : "#FFE5E7EB"}', 'box', 'decoration.fills[0].color', '#00000000'),
-      ('state on=false\nColumn\n  box w=40 h=40 fill=#FFE5E7EB fill={on ? "#FF16A34A" : "#FFE5E7EB"}', 'box', 'decoration.fills[0].color', '#FFE5E7EB'),
+      // (A key is written once: the value under a binding of it by the field's whole value or path.)
+      ('state on=false\nColumn\n  box w=40 h=40 fills=[{"color":"#FFE5E7EB"}] fill={on ? "#FF16A34A" : "#FFE5E7EB"}', 'box', 'decoration.fills[0].color', '#FFE5E7EB'),
       ('state on=false\nColumn\n  box w=40 h=40 border={on ? "#FF16A34A" : "#FFE5E7EB"}', 'box', 'bind.decoration.strokes[0].color', r'${= on ? "#FF16A34A" : "#FFE5E7EB"}'),
       ('state on=false\nColumn\n  box w=40 h=40 border=#FFE5E7EB strokeWidth={on ? 2 : 1}', 'box', 'bind.decoration.strokeWidth', r'${= on ? 2 : 1}'),
-      ('state on=false\nColumn\n  box w=40 h=40 radius=8 radius={on ? 8 : 0}', 'box', 'bind.decoration.radius', r'${= on ? 8 : 0}'),
+      ('state on=false\nColumn\n  box w=40 h=40 decoration.radius=8 radius={on ? 8 : 0}','box', 'bind.decoration.radius', r'${= on ? 8 : 0}'),
       ('state shadow=[]\nColumn\n  box w=40 h=40 effects={shadow}', 'box', 'bind.decoration.effects', r'${shadow}'),
       ('state size=40\nColumn\n  box h=40 w={size}', 'box', 'bind.layout.width', r'${size}'),
       ('state at=0\nColumn\n  Stack w=200 h=200\n    box w=40 h=40 x={at}', 'box', 'bind.layout.x', r'${at}'),
@@ -368,16 +369,16 @@ void main() {
   });
 
   group('a control\'s variable', () {
-    _cases('bind=', [
-      ('state volume=0.5\nColumn\n  Slider bind=volume', 'slider', 'bind.props.value', r'${volume}'),
-      ('state wifi=false\nColumn\n  Toggle "Wi-Fi" bind=wifi', 'switch', 'bind.props.value', r'${wifi}'),
-      ('state email=""\nColumn\n  Input "Email" bind=email', 'textField', 'bind.props.initialValue', r'${email}'),
-      ('state size=""\nColumn\n  Select items=["S","M"] bind=size', 'dropdown', 'bind.props.value', r'${size}'),
+    _cases('@name', [
+      ('state volume=0.5\nColumn\n  Slider @volume', 'slider', 'bind.props.value', r'${volume}'),
+      ('state wifi=false\nColumn\n  Toggle "Wi-Fi" @wifi', 'switch', 'bind.props.value', r'${wifi}'),
+      ('state email=""\nColumn\n  Input "Email" @email', 'textField', 'bind.props.initialValue', r'${email}'),
+      ('state size=""\nColumn\n  Select @size items=["S","M"]','dropdown', 'bind.props.value', r'${size}'),
       // The binding and the reaction are one word, the events' (design 22, 4.7).
-    ], skip: 'bind=name is written by the Events family (print_events.dart) from the second wave');
+    ]);
 
-    test('the reaction bind= writes is the one the events leave out', () {
-      final doc = _expand('state volume=0.5\nColumn\n  Slider bind=volume');
+    test('the reaction @name writes is the one the events leave out', () {
+      final doc = _expand('state volume=0.5\nColumn\n  Slider @volume');
       final nodes = readMap(doc['nodes'])!;
       final id = nodes.keys.firstWhere((k) => readMap(nodes[k])?['type'] == 'slider');
       final context = PrintContext(document: doc, catalog: standardCatalog, options: notationOptionsFor(doc));

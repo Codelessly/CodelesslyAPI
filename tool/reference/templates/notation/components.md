@@ -5,8 +5,10 @@ tree. Open it when a UI reuses a part, or you write a component for a site or a 
 
 ## Calling one
 
-A component is written like any word: `Name "text" key=value bind=name onEvent={…}`. Its strings fill its text
-parameters in order; `bind=` is where it keeps its value; its events are `on…` keys by their own names.
+A component is written like any word: `Name "text" @name key=value onEvent={…}`. Its strings fill its text
+parameters in order; `@name` is the variable it keeps its value in (its `value`, else its first variable
+parameter), `key=@name` each further variable parameter (`direction=@dir`); its events are `on…` keys by their own
+names.
 
 ## Writing one
 

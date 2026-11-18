@@ -104,7 +104,9 @@ variable, kept up to date: `state total:decimal={price * qty}`. `saved` keeps a 
 Types: {{variableTypes}}.
 
 - `{name}` in a string, and `key={expression}` on any key, follow the state.
-- `bind=name` keeps a control's value in a variable, both ways: `Slider bind=volume`, `Input "Email" bind=email`.
+- `@name` keeps a control's value in a variable, both ways: `Slider @volume`, `Input "Email" @email`; any other
+  property it binds is named (`selected=@picked`), and a control with two ends takes two (`Slider @low @high`). A
+  bound variable is declared by a `state` line.
 - An action sets a variable: `onTap={count=count+1}`.
 
 ```notation
@@ -113,7 +115,7 @@ state qty=1
 state total:decimal={price * qty}
 Column gap=8
   Text "Total: {total}"
-  Slider bind=qty
+  Slider @qty
 ```
 
 ## Formulas
@@ -172,7 +174,7 @@ Column gap=8
     Text "Some"
 ```
 
-A control bound to a field of the element changes that element: `Checkbox bind=row.done` under `each row in
+A control bound to a field of the element changes that element: `Checkbox @row.done` under `each row in
 rows`. Tables, grids, paging and reordering are on [lists.md](lists.md).
 
 ## Pages at other widths

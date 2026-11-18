@@ -104,11 +104,22 @@ String printNodeLine(String id, Json n, PrintContext context) {
   return b.toString();
 }
 
-/// The reaction of node [n] that its line's `bind=name` writes (a control's
+/// What a line's marks say (design 13, section 3.1): the [word] written
+/// (`@vol`, `@lo @hi`, `@row.done`, `@v direction=@dir`), the [paths] it
+/// binds (a binding's, or a design system control's variable parameter,
+/// `props.value`), and the [index] of the reaction it writes in the node's
+/// `actions` (-1: none, as on a design system's control).
+typedef PrintedBind = ({String word, int index, List<String> paths});
+
+/// The reaction of node [n] that its line's `@name` writes (a control's
 /// value kept in a variable: the binding and the `changed` reaction that
-/// stores it, design 13 section 3), as its index in `n['actions']`; null when
-/// the line writes no `bind=`. The events' words leave that reaction out.
-int? printedBindReaction(String id, Json n, PrintContext context) => context._line(id, n).twoWay?.index;
+/// stores it, design 13 section 3.1), as its index in `n['actions']`; null
+/// when the line writes no mark, or one that writes no reaction. The events'
+/// words leave that reaction out.
+int? printedBindReaction(String id, Json n, PrintContext context) => switch (context._line(id, n).twoWay?.index) {
+      final int i when i >= 0 => i,
+      _ => null,
+    };
 
 /// The print's lines (each node's [id], its text to [get] and [set]) after
 /// the words for what each still differs in where it is: [parsed] is the
@@ -306,8 +317,11 @@ final class _Probes {
         final nodes = readMap(r.document['nodes']) ?? const {};
         final screen = readStrings(r.document['roots']).firstOrNull ?? 'screen';
         final body = readString(readMap(readMap(nodes[screen])?['slots'])?['body']);
-        return (node: readMap(nodes[body]), document: r.document, clean: r.issues.isEmpty);
+        // (A mark the probe binds, `@__v`, is declared by no state line: said, and still read.)
+        return (node: readMap(nodes[body]), document: r.document, clean: r.issues.every((i) => _probeMark.hasMatch(i.message)));
       }();
+
+  static final _probeMark = RegExp(r'^@__[vw] binds a variable nothing declares');
 
   final _lines = <String, ({Json? node, bool clean})>{};
 
@@ -496,7 +510,9 @@ final class _NodeLine {
   /// The words of a text's or an Input's style, chosen with its variant.
   final _style = <String>[];
 
-  ({String name, int index, String path})? twoWay;
+  /// The line's marks (`@vol`, `@lo @hi`, `@v direction=@dir`), what they
+  /// bind and the reaction they write ([PrintedBind]).
+  PrintedBind? twoWay;
 
   _Probes get _probes => c._probes;
   Set<String> get _vars => c.variableNames;
@@ -521,8 +537,8 @@ final class _NodeLine {
     // written; with this line's words it may (`AreaChart` fills under a
     // line chart's series): then the own word.
     final own = _probes.own(type);
-    // (`bind=` is left out: under an each or of a record's field it reads only where the line is.)
-    if (!_typed && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => !w.startsWith('bind=')).join(' '))) {
+    // (The marks are left out: under an each or of a record's field they read only where the line is.)
+    if (!_typed && head == _probes.word(type) && head != own && !_probes.sameLine(head, own, words.where((w) => w != twoWay?.word).join(' '))) {
       words.clear();
       doneProps.clear();
       doneBind.clear();
@@ -531,20 +547,48 @@ final class _NodeLine {
       _writeAs(own);
     }
     _residual();
+    _oneKeyEach();
   }
 
   void _writeAs(String head) {
     this.head = head;
     probe = _probes.node(_asked);
     twoWay = _twoWay() ?? printBind(id, n, head, c);
-    if (twoWay case final t?) bind.containsKey(t.path) ? doneBind.add(t.path) : doneProps.add(t.path.substring('props.'.length));
+    for (final path in twoWay?.paths ?? const <String>[]) {
+      bind.containsKey(path) ? doneBind.add(path) : doneProps.add(path.substring('props.'.length));
+    }
     _main();
     if (_typed) words.add('type=$type');
     _typeWords();
     _layout();
     _decoration();
     _nodeFields();
-    if (twoWay case final t?) words.add('bind=${t.name}');
+    if (twoWay case final t?) words.add(t.word);
+  }
+
+  /// A key is written once on a line (design 13: a key written twice is an
+  /// issue, one of the two lost). A field's value with a binding of it after
+  /// (`radius=8 radius={…}`) has its value written by the field's path
+  /// (`decoration.radius=8`), or left to the line's tail.
+  void _oneKeyEach() {
+    final keyOf = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)=(.*)$', dotAll: true);
+    for (var j = words.length - 1; j > 0; j--) {
+      final later = keyOf.firstMatch(words[j]);
+      if (later == null || !later[2]!.startsWith('{')) continue;
+      final key = later[1]!;
+      for (var i = 0; i < j; i++) {
+        final m = keyOf.firstMatch(words[i]);
+        if (m == null || m[1] != key || m[2]!.startsWith('{')) continue;
+        final path = notationKeyPath(key, type, catalog: c.catalog);
+        if (path != null && path != key && notationKeyPath(path, type, catalog: c.catalog) == path) {
+          words[i] = '$path=${m[2]}';
+        } else {
+          words.removeAt(i);
+          j--;
+        }
+        break;
+      }
+    }
   }
 
   // --- the head --------------------------------------------------------------
@@ -634,25 +678,41 @@ final class _NodeLine {
 
   // --- a control's two-way binding ------------------------------------------
 
-  /// `bind=name`: the control's value bound to a declared variable and its
-  /// first reaction the change stored in it, as `bind=` writes them.
-  ({String name, int index, String path})? _twoWay() {
+  /// `@name` (design 13, section 3.1): the control's value bound to a
+  /// declared variable and its first reaction the change stored in it, as
+  /// the mark writes them; `@low @high` for a control with two ends (a
+  /// slider's range, a calendar's days), one change storing both.
+  PrintedBind? _twoWay() {
     final actions = readList(n['actions']);
-    if (actions == null || actions.isEmpty || _hasProp('bind')) return null;
-    final r = _probes.line('$_asked bind=__v');
-    final pb = readMap(r.node?['bind']);
-    final pa = readList(r.node?['actions']);
-    if (!r.clean || pb == null || pb.length != 1 || pa == null || pa.isEmpty) return null;
-    final path = pb.keys.single;
-    final template = '${pb[path]}';
-    final at = template.indexOf('__v');
-    final value = bind[path];
-    if (at < 0 || value is! String || !value.startsWith(template.substring(0, at)) || !value.endsWith(template.substring(at + 3))) return null;
-    final name = value.substring(at, value.length - (template.length - at - 3));
-    if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(name) || !_vars.contains(name)) return null;
-    final reaction = jsonDecode(jsonEncode(pa.first).replaceAll('__v', name));
-    if (!_equal(reaction, actions.first)) return null;
-    return (name: name, index: 0, path: path);
+    if (actions == null || actions.isEmpty) return null;
+    for (final marks in const [
+      ['__v'],
+      ['__v', '__w'],
+    ]) {
+      final r = _probes.line('$_asked ${marks.map((m) => '@$m').join(' ')}');
+      final pb = readMap(r.node?['bind']);
+      final pa = readList(r.node?['actions']);
+      if (!r.clean || pb == null || pb.length != marks.length || pa == null || pa.isEmpty) continue;
+      final names = <String, String>{};
+      for (final path in pb.keys) {
+        final template = '${pb[path]}';
+        final mark = marks.where(template.contains).firstOrNull;
+        final at = mark == null ? -1 : template.indexOf(mark);
+        final value = bind[path];
+        if (mark == null || value is! String || !value.startsWith(template.substring(0, at)) || !value.endsWith(template.substring(at + mark.length))) break;
+        final name = value.substring(at, value.length - (template.length - at - mark.length));
+        if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(name) || !_vars.contains(name)) break;
+        names[mark] = name;
+      }
+      if (names.length != marks.length) continue;
+      var written = jsonEncode(pa.first);
+      for (final e in names.entries) {
+        written = written.replaceAll(e.key, e.value);
+      }
+      if (!_equal(jsonDecode(written), actions.first)) continue;
+      return (word: [for (final m in marks) '@${names[m]}'].join(' '), index: 0, paths: [...pb.keys]);
+    }
+    return null;
   }
 
   // --- the main string -------------------------------------------------------
@@ -917,7 +977,10 @@ final class _NodeLine {
       final single = fills.length == 1 ? readMap(fills.single) : null;
       final gradient = single == null ? null : _gradient(single);
       if (single != null && single.length == 1 && single['color'] is String && _says('fill')) {
-        if (!(fillExpression != null && single['color'] == '#00000000')) {
+        if (fillExpression != null && single['color'] != '#00000000') {
+          // (`fill=` is the binding's: the color under it is the fill's whole value.)
+          if (_json(fills) case final String j) words.add('fills=$j');
+        } else if (fillExpression == null) {
           if (_value(single['color'], _vars) case final String w) words.add('fill=$w');
         }
       } else if (gradient != null) {
@@ -1195,7 +1258,7 @@ final class _NodeLine {
       final given = readMap(got['bind']) ?? const {};
       for (final e in bind.entries) {
         final path = e.key;
-        if (path == twoWay?.path || said.contains('bind.$path') || _equal(given[path], e.value)) continue;
+        if ((twoWay?.paths.contains(path) ?? false) || said.contains('bind.$path') || _equal(given[path], e.value)) continue;
         final forms = [
           for (final w in _bindWords(path, e.value)) [w],
         ];

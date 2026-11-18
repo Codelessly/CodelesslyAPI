@@ -91,7 +91,7 @@ void main() {
     test('a list\'s data that is no each', () => _says('state items=[]\nColumn\n  ListView data={items}', 'listView', 'bind.data', r'${items}'));
     test('enabled= on a box is its disabled state', () => _says('state on=true\nColumn\n  Row enabled={on}', 'row', 'bind.disabled', r'${= !on}'));
     test('enabled= with more than a name', () => _says('state a=true\nstate b=true\nColumn\n  Row enabled={a && b}', 'row', 'bind.disabled', r'${= !(a && b)}'));
-    test('a size bound beside the number it starts at', () => _says('state n=24\nColumn\n  box w=40 h=24 h={n}', 'box', 'layout.height', 24));
+    test('a size bound beside the number it starts at', () => _says('state n=24\nColumn\n  box w=40 layout.height=24 h={n}','box', 'layout.height', 24));
     test('a stroke\'s field by its path', () => _says('state x=0\nColumn\n  box w=40 h=40 border=#FF000000 strokes[0].visible={x > 0}', 'box', 'bind.decoration.strokes[0].visible', r'${= x > 0}'));
   });
 

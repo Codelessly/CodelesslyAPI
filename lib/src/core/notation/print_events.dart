@@ -19,7 +19,7 @@ import 'print_fields.dart';
 /// The words for node [id]'s events and their actions, each written after
 /// the line's fields: `onTap={…}`, `onKeyDown(key=Enter)={…}`. Empty when it
 /// has none or when one of them has no words (they all stay in the line's
-/// `{…}` tail then). The `changed` reaction a `bind=name` writes is the
+/// `{…}` tail then). The `changed` reaction an `@name` writes is the
 /// line's binding, not an event: it is left to the line's fields.
 List<String> printEvents(String id, Json node, PrintContext context) {
   final reactions = readList(node['actions']);
@@ -63,17 +63,18 @@ List<String> printCanvasEvents(Json document, PrintContext context, {int from = 
 /// timer nor a shortcut.
 String? printCanvasReaction(Json reaction, PrintContext context) => _Printer.of(context).reaction(reaction, 'Box');
 
-/// `bind=` for node [id] written with [head] (design 13 section 3): what it
-/// binds (`name` in `bind=name`: a variable, a field of a record variable or
-/// of the repeated element, `item.done`), the path it binds (a binding, or
-/// a design system control's variable parameter, `props.value`), and the
-/// index of the reaction it writes in the node's `actions` (-1: none, as on
-/// a design system's control). Null when no `bind=` gives exactly the
-/// node's binding and its first reaction; the line's fields and events then
-/// say them as they are. Found by reading `bind=` on the line in the place
-/// the node has (under its `each`), so it is written only where it reads
-/// back as the node.
-({String name, int index, String path})? printBind(String id, Json node, String head, PrintContext context) => _Printer.of(context).bind(id, node, head);
+/// The marks for node [id] written with [head] (design 13, section 3.1):
+/// `@name` for the line's value (a variable, a field of a record variable or
+/// of the repeated element, `@item.done`), and on a design system's control
+/// `key=@name` for each further variable parameter (`direction=@dir`); the
+/// paths they bind (a binding, or a variable parameter, `props.value`), and
+/// the index of the reaction the value's mark writes in the node's `actions`
+/// (-1: none, as on a design system's control). Null when no mark gives
+/// exactly the node's binding and its first reaction; the line's fields and
+/// events then say them as they are. Found by reading the marks on the line
+/// in the place the node has (under its `each`), so they are written only
+/// where they read back as the node.
+PrintedBind? printBind(String id, Json node, String head, PrintContext context) => _Printer.of(context).bind(id, node, head);
 
 /// [document] with what the API reads in two spellings in one of them, the
 /// one the parser writes: a reaction's trigger given as its type alone
@@ -194,7 +195,7 @@ final class _Printer {
 
   static bool _sameSaid(List<String> a, List<String> b) => a.length == b.length && [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((x) => x);
 
-  // --- bind= ------------------------------------------------------------------
+  // --- @name -----------------------------------------------------------------
 
   /// Each node's parent, by its children and slots.
   late final Map<String, String> _parents = {
@@ -231,61 +232,110 @@ final class _Printer {
     return (node: readMap(readMap(r.document['nodes'])?['p']), document: r.document, said: r.said);
   }
 
-  ({String name, int index, String path})? bind(String id, Json node, String head) {
+  PrintedBind? bind(String id, Json node, String head) {
     final spec = context.catalog.widget('${node['type']}');
-    if (spec == null || spec.props.any((p) => p.key == 'bind')) return null;
+    if (spec == null) return null;
     final props = readMap(node['props']) ?? const {}, bound = readMap(node['bind']) ?? const {};
     final reactions = readList(node['actions']) ?? const [];
-    // What `bind=` writes on this line, learnt from a name no document has.
-    final learnt = _line('$head#p bind=__v').node;
-    if (learnt == null) return null;
-    String? path, template;
-    for (final e in (readMap(learnt['bind']) ?? const {}).entries) {
-      if ('${e.value}'.contains('__v')) (path, template) = (e.key, '${e.value}');
-    }
-    for (final e in (readMap(learnt['props']) ?? const {}).entries) {
-      if (e.value == '__v') path = 'props.${e.key}';
-    }
-    if (path == null) return null;
-    // What it would be written with, from what the node holds there.
-    final candidates = <String>[];
-    final value = bound[path];
-    if (template != null && value is String && template.indexOf('__v') == template.lastIndexOf('__v')) {
-      final at = template.indexOf('__v');
-      final before = template.substring(0, at), after = template.substring(at + 3);
-      if (value.length > before.length + after.length && value.startsWith(before) && value.endsWith(after)) {
-        candidates.add(value.substring(before.length, value.length - after.length));
-      }
-    } else if (template == null) {
-      // A design system control's variable parameter: the variable's name or
-      // a field's path (`"draft.title"`), or a field of the repeated element
-      // (`"rows[" + index + "].done"`).
-      final key = path.substring('props.'.length);
-      if (props[key] case final String v) candidates.add(v);
-      if (value is String) {
-        final m = RegExp(r'^\$\{= "[A-Za-z_][A-Za-z0-9_.]*\[" \+ index \+ "\]\.([A-Za-z_][A-Za-z0-9_]*)"\}$').firstMatch(value);
-        if (m != null) candidates.add('item.${m[1]}');
-      }
-    }
     // (In a list in a list, read alone: a variable's or a record's field.)
     final around = _around(id) ?? (lines: '', indent: '');
     final alone = _line('${around.lines}${around.indent}$head#p');
-    for (final e in candidates) {
-      if (!RegExp(r'^[^\s{}"=]+$').hasMatch(e)) continue;
-      final got = _line('${around.lines}${around.indent}$head#p bind=$e');
-      final n = got.node;
-      if (n == null || !_sameSaid(got.said, alone.said) || jsonEncode(got.document['variables']) != _variables) continue;
-      final key = path.substring(path.indexOf('.') + 1);
-      final same = template == null
-          ? jsonEquality.equals(readMap(n['props'])?[key], props[key]) && jsonEquality.equals(readMap(n['bind'])?[path], bound[path])
-          : jsonEquality.equals(readMap(n['bind'])?[path], value);
-      if (!same) continue;
-      final wrote = readList(n['actions']) ?? const [];
-      // (What only shows a value is written as that value, `value={done/total}`, by the line's fields.)
-      if (wrote.isEmpty) return template == null ? (name: e, index: -1, path: path) : null;
-      if (wrote.length == 1 && reactions.isNotEmpty && jsonEquality.equals(wrote.single, reactions.first)) return (name: e, index: 0, path: path);
+
+    // What a mark (`@__v`, or `key=@__v`) writes on this line, learnt from a
+    // name no document has: the path it binds and, for a binding, its
+    // template; null when it binds nothing there.
+    ({String path, String? template})? learn(String mark) {
+      final learnt = _line('$head#p $mark').node;
+      if (learnt == null) return null;
+      String? path, template;
+      for (final e in (readMap(learnt['bind']) ?? const {}).entries) {
+        if ('${e.value}'.contains('__v')) (path, template) = (e.key, '${e.value}');
+      }
+      for (final e in (readMap(learnt['props']) ?? const {}).entries) {
+        if (e.value == '__v') path = 'props.${e.key}';
+      }
+      return path == null ? null : (path: path, template: template);
     }
-    return null;
+
+    // What a mark would be written with, from what the node holds at [path].
+    List<String> candidates(String path, String? template) {
+      final out = <String>[];
+      final value = bound[path];
+      if (template != null && value is String && template.indexOf('__v') == template.lastIndexOf('__v')) {
+        final at = template.indexOf('__v');
+        final before = template.substring(0, at), after = template.substring(at + 3);
+        if (value.length > before.length + after.length && value.startsWith(before) && value.endsWith(after)) {
+          out.add(value.substring(before.length, value.length - after.length));
+        }
+      } else if (template == null) {
+        // A design system control's variable parameter: the variable's name or
+        // a field's path (`"draft.title"`), or a field of the repeated element
+        // (`"rows[" + index + "].done"`).
+        final key = path.substring('props.'.length);
+        if (props[key] case final String v) out.add(v);
+        if (value is String) {
+          final m = RegExp(r'^\$\{= "[A-Za-z_][A-Za-z0-9_.]*\[" \+ index \+ "\]\.([A-Za-z_][A-Za-z0-9_]*)"\}$').firstMatch(value);
+          if (m != null) out.add('item.${m[1]}');
+        }
+      }
+      return [
+        for (final e in out)
+          if (RegExp(r'^[^\s{}"=@]+$').hasMatch(e)) e,
+      ];
+    }
+
+    // [words] read on the line where the node is: the node, when it reads
+    // with no more said than the line alone and no variable of its own.
+    Json? read(String words) {
+      final got = _line('${around.lines}${around.indent}$head#p $words');
+      if (got.node == null || !_sameSaid(got.said, alone.said) || jsonEncode(got.document['variables']) != _variables) return null;
+      return got.node;
+    }
+
+    bool same(Json n, String path, String? template) {
+      final key = path.substring(path.indexOf('.') + 1);
+      return template == null
+          ? jsonEquality.equals(readMap(n['props'])?[key], props[key]) && jsonEquality.equals(readMap(n['bind'])?[path], bound[path])
+          : jsonEquality.equals(readMap(n['bind'])?[path], bound[path]);
+    }
+
+    // The line's value: bare, `@name`.
+    PrintedBind? main;
+    final value = learn('@__v');
+    if (value != null) {
+      for (final e in candidates(value.path, value.template)) {
+        final n = read('@$e');
+        if (n == null || !same(n, value.path, value.template)) continue;
+        final wrote = readList(n['actions']) ?? const [];
+        // (What only shows a value is written as that value, `value={done/total}`, by the line's fields.)
+        if (wrote.isEmpty && value.template == null) {
+          main = (word: '@$e', index: -1, paths: [value.path]);
+        } else if (wrote.length == 1 && reactions.isNotEmpty && jsonEquality.equals(wrote.single, reactions.first)) {
+          main = (word: '@$e', index: 0, paths: [value.path]);
+        }
+        if (main != null) break;
+      }
+    }
+    // A design system control's further variables: `key=@name`
+    // (`direction=@dir`), each kept in its parameter, writing no reaction.
+    final words = [?main?.word];
+    final paths = [...?main?.paths];
+    if (spec.type[0] != spec.type[0].toLowerCase()) {
+      for (final p in spec.props) {
+        if (!p.type.isVariable || paths.contains('props.${p.key}')) continue;
+        final other = learn('${p.key}=@__v');
+        if (other == null || other.template != null || other.path != 'props.${p.key}') continue;
+        for (final e in candidates(other.path, null)) {
+          final n = read([...words, '${p.key}=@$e'].join(' '));
+          if (n == null || !same(n, other.path, null) || (readList(n['actions']) ?? const []).length > (main?.index == 0 ? 1 : 0)) continue;
+          words.add('${p.key}=@$e');
+          paths.add(other.path);
+          break;
+        }
+      }
+    }
+    if (words.isEmpty) return null;
+    return (word: words.join(' '), index: main?.index ?? -1, paths: paths);
   }
 
   /// The actions [text] gives, as the events of a box.

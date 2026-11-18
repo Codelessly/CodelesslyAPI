@@ -247,7 +247,7 @@ void main() {
     });
 
     test('leaves the change a bind writes to the line\x27s binding', () {
-      final r = _parse('Input#q "Search" bind=query onSubmit={toast "Go"}');
+      final r = _parse('state query=""\nInput#q "Search" @query onSubmit={toast "Go"}');
       final n = _node(r, 'q');
       expect(printEvents('q', n, PrintContext(document: r.document, catalog: standardCatalog, options: notationOptionsFor(r.document))), ['onSubmit={toast "Go"}']);
     });
@@ -263,31 +263,36 @@ void main() {
     });
   });
   group('the second pass (design 22, 4.1)', () {
-    test('bind= is printed for every two-way binding: a name, a field of a record, a field of the element under an each', () {
-      const text = 'state rows=[{"id":1,"name":"a","on":true}]\nstate draft={"title":""}\nstate vol=0.5\n'
+    test('@name is printed for every two-way binding: a name, a field of a record, a field of the element under an each, two ends', () {
+      const text = 'state rows=[{"id":1,"name":"a","on":true}]\nstate draft={"title":""}\nstate vol=0.5\nstate pick=""\nstate lo=20\nstate hi=80\n'
           'Column\n'
           '  each item in rows\n'
-          '    Input bind=item.name onSubmit={toast "x"}\n'
-          '    Checkbox bind=item.on\n'
-          '  Input#d bind=draft.title\n'
-          '  Slider#s bind=vol onChange={toast "moved"}\n'
-          '  Select#sel bind=pick items=["a","b"]';
+          '    Input @item.name onSubmit={toast "x"}\n'
+          '    Checkbox @item.on\n'
+          '  Input#d @draft.title\n'
+          '  Slider#s @vol onChange={toast "moved"}\n'
+          '  Select#sel @pick items=["a","b"]\n'
+          '  Slider#r @lo @hi min=0 max=100';
       final printed = _roundTrip(text);
-      for (final line in text.split('\n').skip(5)) {
+      for (final line in text.split('\n').skip(8)) {
         expect(printed, contains(line.trim()));
       }
+      expect(printed, isNot(contains('bind=')));
     });
 
-    test('bind= on every control of the catalog, by a name and under an each, is printed with the control\x27s other events', () {
+    test('@name on every control of the catalog, by a name and under an each, is printed with the control\x27s other events', () {
       final controls = <String>[];
       for (final w in standardCatalog.widgets) {
         final word = '${w.type[0].toUpperCase()}${w.type.substring(1)}';
         for (final (bind, text) in [
-          ('bind=v', 'Column\n  $word#x bind=v onFocus={toast "x"}'),
-          ('bind=item.f', 'state rows=[{"id":1,"f":1}]\nColumn\n  each item in rows\n    $word#x bind=item.f onFocus={toast "x"}'),
+          ('@v', 'Column\n  $word#x @v onFocus={toast "x"}'),
+          ('@item.f', 'state rows=[{"id":1,"f":1}]\nColumn\n  each item in rows\n    $word#x @item.f onFocus={toast "x"}'),
         ]) {
-          final r = _parse(text);
-          // A control: bind= writes the change it stores, before onFocus.
+          var r = _parse(text);
+          // A bound variable is declared: with the state line the issue gives.
+          final declare = r.issues.length == 1 ? RegExp(r'^@v binds a variable nothing declares: add (state v=.*) at the top').firstMatch(r.issues.single.message) : null;
+          if (declare != null) r = _parse('${declare[1]}\n$text');
+          // A control: @name writes the change it stores, before onFocus.
           if (r.issues.isNotEmpty || (_node(r, 'x')['actions'] as List?)?.length != 2) continue;
           controls.add(w.type);
           final line = printNotation(r.document, catalog: standardCatalog).split('\n').firstWhere((l) => l.contains('#x'));
@@ -297,18 +302,18 @@ void main() {
       expect(controls.toSet(), containsAll(['textField', 'checkbox', 'switch', 'slider', 'dropdown', 'radio', 'segmentedButton', 'datePicker']));
     });
 
-    test('bind= on a design system control is its variable parameter, by name and under an each, and its events are its own', () {
+    test('@name on a design system control is its variable parameter, by name and under an each, and its events are its own', () {
       const text = 'state public=true\nstate dirty=false\nstate rows=[{"id":1,"on":true}]\n'
           'Column\n'
-          '  ToggleRow#tr "Public profile" bind=public onChanged={dirty=true}\n'
+          '  ToggleRow#tr "Public profile" @public onChanged={dirty=true}\n'
           '  each item in rows\n'
-          '    ToggleRow "Row" bind=item.on';
+          '    ToggleRow "Row" @item.on';
       final r = parseNotation(text, catalog: _blocks);
       expect(r.issues, isEmpty);
       expect(_node(r, 'tr')['props'], containsPair('value', 'public'));
       final printed = _roundTripWith(text, _blocks);
-      expect(printed, contains('ToggleRow#tr "Public profile" bind=public onChanged={dirty=true}'));
-      expect(printed, contains('ToggleRow "Row" bind=item.on'));
+      expect(printed, contains('ToggleRow#tr "Public profile" @public onChanged={dirty=true}'));
+      expect(printed, contains('ToggleRow "Row" @item.on'));
     });
 
     test('a block\x27s events by their own names, on a block called without what it requires too', () {

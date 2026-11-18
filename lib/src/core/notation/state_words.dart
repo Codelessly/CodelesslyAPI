@@ -28,8 +28,9 @@ final Set<String> notationStateNames = {for (final s in WidgetState.values) s.na
 bool notationStatePatchKey(String key) =>
     !const {'type', 'id', 'name', 'key', 'children', 'slots', 'states', 'media', 'actions', 'component'}.contains(key);
 
-// An id as the parser reads it after `#`: its parts may be joined by `-`.
-final _ownerId = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(-[A-Za-z0-9_]+)*$');
+// An id as the parser reads it after `#`: one word of letters, digits and
+// `_` (design 13, section 3).
+final _ownerId = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
 /// The states whose patch of the node itself the parser gave as a default
 /// (`selected={…}` on a box: the theme's selected fill; `enabled={…}` on a
@@ -162,6 +163,19 @@ extension _StateWords on _Parser {
       per[id] = had == null ? patch : mergePatch(had, patch, keepNulls: true);
       states[state] = per;
       holder['states'] = states;
+      // A line around this one was sent already: what its state now holds
+      // for this line is sent to it as it is read.
+      if (owner != id && _canvas) {
+        ops.add({
+          'op': 'patch',
+          'id': owner,
+          'patch': {
+            'states': {
+              state: {id: per[id]},
+            },
+          },
+        });
+      }
     }
   }
 }

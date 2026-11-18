@@ -1394,7 +1394,7 @@ final class _NotationReference {
       row('Actions', [for (final e in actionLevels.entries) if (e.value == level && placed[ItemKind.action]![e.key] != null) _link(ItemKind.action, e.key)]);
       row('Keys any line takes', [for (final e in behaviorLevels.entries) if (e.value == level && placed[ItemKind.behavior]![e.key] != null) _link(ItemKind.behavior, e.key)]);
       row('Forms', [
-        if (level == Level.state) ...['`key={expression}`', '`bind=name`', '`state` lines', '`each`', '`if`/`else`'],
+        if (level == Level.state) ...['`key={expression}`', '`@name`', '`state` lines', '`each`', '`if`/`else`'],
         if (level == Level.design) ...['media rules (`phone.pad=8`, `hide=phone`)', 'a component call', '`component` blocks'],
         if (level == Level.full) ...['`customPaint` lines', '`animation` and `transition` lines'],
       ]);

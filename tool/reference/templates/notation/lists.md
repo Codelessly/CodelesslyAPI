@@ -42,7 +42,7 @@ Column
 
 ```notation expands
 state page=0
-Pages bind=page h=160
+Pages @page h=160
   Text "One"
   Text "Two"
 ```

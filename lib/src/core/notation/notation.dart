@@ -1220,6 +1220,14 @@ final class NotationStream {
     _buffer.clear();
     if (rest.isNotEmpty) _parser.line(rest);
     _parser.finish();
+    // A text with no line of a node (a print that says its document on the
+    // `document {…}` line): the screen is sent now, as its first line would.
+    if (!_parser._canvas && _parser._widget == null && !_parser._noCanvas) {
+      _parser._canvas = true;
+      _parser.ops
+        ..add({'op': 'roots', 'roots': _parser._rootIds})
+        ..add({'op': 'set', 'id': _parser.options.screen, 'node': _parser._canvasNode..remove('slots')});
+    }
     // What the end of the text does (design 22, 4.7): each line's tail merged
     // again over what later lines added, the nodes a tail took away, the
     // canvas lines' words; sent as patches and removals.
@@ -1244,17 +1252,50 @@ final class NotationStream {
       final d = {...c}..remove('slots')..remove('type');
       if (d.isNotEmpty) patched[p.options.screen] = mergePatch(patched[p.options.screen] ?? const {}, d, keepNulls: true);
     }
-    // A `document {…}` line's nodes: patched, or taken away.
+    // A `document {…}` line's nodes: patched, taken away, or new (a print
+    // that says a whole document on that line: its nodes set, then placed
+    // under their parents as its children and slots say).
+    final known = {
+      for (final p in [_parser, ..._parser._overlays]) ...p.nodes.keys,
+    };
+    final added = <String, Json>{};
+    final placed = <Json>[];
     for (final e in (readMap(_parser._documentPatch?['nodes']) ?? const {}).entries) {
       if (e.value == null) {
         removed.add(e.key);
       } else if (readMap(e.value) case final Json d) {
+        final fresh = !known.contains(e.key) && d['type'] is String;
+        if (fresh) added[e.key] = {...d}..removeWhere((k, _) => k == 'children' || k == 'slots');
+        if (d['children'] case final List c) {
+          for (var i = 0; i < c.length; i++) {
+            if (c[i] is String) placed.add({'op': 'move', 'id': c[i], 'parent': e.key, 'index': i});
+          }
+        }
+        for (final s in (readMap(d['slots']) ?? const {}).entries) {
+          if (s.value is String) placed.add({'op': 'move', 'id': s.value, 'parent': e.key, 'slot': s.key});
+        }
+        if (fresh) continue;
         final p = {...d}..removeWhere((k, _) => const {'children', 'slots', 'type', 'id'}.contains(k));
         if (p.isNotEmpty) patched[e.key] = mergePatch(patched[e.key] ?? const {}, p, keepNulls: true);
       }
     }
+    for (final e in added.entries) {
+      _parser.ops.add({'op': 'set', 'id': e.key, 'node': e.value});
+    }
     for (final e in patched.entries) {
       _parser.ops.add({'op': 'patch', 'id': e.key, 'patch': e.value});
+    }
+    _parser.ops.addAll(placed);
+    if (readList(_parser._documentPatch?['roots']) case final List r when r.every((x) => x is String)) {
+      _parser.ops.add({'op': 'roots', 'roots': r});
+    }
+    // Its variables, declared in their scopes.
+    for (final e in (readMap(_parser._documentPatch?['variables']) ?? const {}).entries) {
+      final set = <String, Object?>{
+        for (final v in readList(e.value) ?? const [])
+          if (readMap(v) case final Json m when m['name'] is String) m['name']! as String: {...m}..remove('name'),
+      };
+      if (set.isNotEmpty) _parser.ops.add({'op': 'vars', 'scope': e.key, 'set': set});
     }
     if (removed.isNotEmpty) _parser.ops.add({'op': 'remove', 'ids': removed});
     return _take();
@@ -4821,7 +4862,9 @@ class _Parser {
         if (named && (key == 'type' || key == 'node.type') && _unquoted(word.substring(eq + 1)) == written) continue;
         // A key written twice (`Progress value={x} value=0.5`): one of the
         // two is lost, whichever it is.
-        if (!keysWritten.add(key)) _issue(col, '$key= is written twice on this line: one of them is lost. Write it once.');
+        // (A line read again with a rule's or a state's words after its own
+        // has them over its own: `hovered.fill=…` is no second fill=.)
+        if (!keysWritten.add(key) && !_mediaLine) _issue(col,'$key= is written twice on this line: one of them is lost. Write it once.');
         if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {
@@ -6459,7 +6502,14 @@ class _Parser {
     // binding gives: left to hug or fill, the number would change nothing
     // and an empty box would stay at no size.
     // A number written beside it is the size it starts at (`h=24 h={…}`).
-    bool fixed(Set<String> keys) => pre?.parts.any((p) => p.kind == 'pair' && keys.contains(p.key) && num.tryParse(p.value!) != null) ?? false;
+    // (`layout.height=24`, a key with a dot, is a word of the line's parts.)
+    bool fixed(Set<String> keys) =>
+        pre?.parts.any((p) => switch (p.kind) {
+              'pair' => keys.contains(p.key) && num.tryParse(p.value!) != null,
+              'word' => keys.any((k) => p.raw.startsWith('$k=') && num.tryParse(p.raw.substring(k.length + 1)) != null),
+              _ => false,
+            }) ??
+        false;
     if (bind.containsKey('layout.width') && !fixed(const {'w', 'layout.width'})) layout['width'] = 0;
     if (bind.containsKey('layout.height') && !fixed(const {'h', 'layout.height'})) layout['height'] = 0;
     // Copies across a row that `grow` share its width: a grid with a column
@@ -7595,6 +7645,9 @@ class _Parser {
       }
       final formula = value != null && _bracedExpression(value);
       if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
+      // Declared: what binds it (`@name`) needs no other line.
+      _top._stated.add(name);
+      _top._unstated.remove(name);
       variables[name] = {
         'name': name,
         'type': type,
