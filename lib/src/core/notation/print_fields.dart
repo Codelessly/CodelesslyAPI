@@ -259,7 +259,7 @@ bool _hasBrace(Object? v) => switch (v) {
     };
 
 final _bare = RegExp(r'^[A-Za-z#][A-Za-z0-9_#-]*$');
-final _name = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
+final _name = RegExp(r'^[A-Za-z_](?:[A-Za-z0-9_.]|\[[0-9]+\])*$');
 
 /// [v] as a value after `key=`: a number, a bare word (an enum's name, a
 /// color), a quoted string, JSON for a list or a map; null when no value
@@ -273,7 +273,7 @@ String? _value(Object? v, Set<String> names) {
       return jsonEncode(v);
     case final String s:
       if (_bare.hasMatch(s) && !const {'true', 'false', 'null', 'item', 'index'}.contains(s) && !names.contains(s)) return s;
-      if (s.contains('{') || s.contains(r'\$')) return null;
+      if (s.contains('{') || s.contains(r'\$')) return _verbatim(s);
       return jsonEncode(s);
     case List() || Map():
       return _json(v);
@@ -330,8 +330,17 @@ String? _formulaOf(Object? v) {
   return '{$e}';
 }
 
+/// [s] as a quoted string kept as written (design 22, 4.8): a string with
+/// the document's formula `${= …}` in it reads back as it is
+/// (`"${= theme.colors.ink}"`); null when [s] has none (its `{…}` would be
+/// read) or has a `\$`.
+String? _verbatim(String s) => _writtenRead.hasMatch(s) && !s.contains(r'\$') ? jsonEncode(s) : null;
+
+final _writtenRead = RegExp(r'(?<!\\)\$\{=');
+
 /// [s], a text that may read values (`Total: ${total}`), as the quoted
-/// string that reads back as it (`"Total: {total}"`); null when none does.
+/// string that reads back as it (`"Total: {total}"`), else as written
+/// ([_verbatim]: `"${= theme.colors.ink}"`); null when none does.
 String? _quoted(String s) {
   final parts = <(String, bool)>[]; // (text, is an expression)
   final literal = StringBuffer();
@@ -340,7 +349,8 @@ String? _quoted(String s) {
     if (c == r'$' && i + 1 < s.length && s[i + 1] == '{') {
       final end = _close(s, i + 1);
       final e = end < 0 ? null : _braced(s.substring(i + 2, end));
-      if (e == null) return null;
+      // A read braces cannot say: the string as written.
+      if (e == null) return _verbatim(s);
       parts
         ..add((literal.toString(), false))
         ..add((e, true));
@@ -348,7 +358,8 @@ String? _quoted(String s) {
       i = end;
       continue;
     }
-    if (c == '{' || (c == r'\' && i + 1 < s.length && s[i + 1] == r'$')) return null;
+    if (c == '{') return _verbatim(s);
+    if (c == r'\' && i + 1 < s.length && s[i + 1] == r'$') return null;
     literal.write(c);
   }
   parts.add((literal.toString(), false));
@@ -1032,8 +1043,26 @@ final class _NodeLine {
         if (_sizeWord(w) case final String s) words.add('w=$s');
       }
     }
-    if (!spacer && free('height') && layout['height'] != null && !_equal(layout['height'], height)) {
-      if (_sizeWord(layout['height']) case final String s) words.add('h=$s');
+    // A height a rule would change (a spacer's in a column, a column's of a
+    // given height with a text under it, which makes it a least height) is
+    // written by its full path: that height exactly (design 22, 4.8).
+    final h = layout['height'];
+    final textUnder = type == 'column' &&
+        h is num &&
+        h > 0 &&
+        props['scrollable'] != true &&
+        readStrings(n['children']).any((k) => readMap(c.nodes[k])?['type'] == 'text');
+    if (spacer && h != null && !_equal(h, height)) {
+      if (_sizeWord(h) case final String s) words.add('layout.height=$s');
+    } else if (!spacer && free('height') && h != null && !_equal(h, height)) {
+      if (_sizeWord(h) case final String s) words.add(textUnder ? 'layout.height=$s' : 'h=$s');
+    }
+    // A fit beside a bound size (a bound size alone is 0): by its full path,
+    // that size exactly (design 22, 4.8).
+    for (final k in const ['width', 'height']) {
+      if (bind.containsKey('layout.$k') && layout[k] is Map && !(inGrid && k == 'width')) {
+        if (_sizeWord(layout[k]) case final String s) words.add('layout.$k=$s');
+      }
     }
     // `squeezable` otherwise is written by name.
   }
@@ -1339,6 +1368,23 @@ final class _NodeLine {
       }
       return out;
     }
+    // `props=null` (no props at all), `props={}` (an empty record of them):
+    // the section whole, where the line gives another (design 22, 4.8).
+    for (final section in const ['props', 'decoration']) {
+      if (said.contains(section)) continue;
+      final g = got[section], w = n[section];
+      // (Where each field has a key, `key=null` says it: `Row crossAxisAlignment=null`.)
+      final unkeyed = g is Map && g.keys.any((k) => _keyFor('$section.$k') == null);
+      if (!n.containsKey(section) && g is Map && unkeyed) {
+        out.add((target: section, forms: [
+          ['$section=null'],
+        ]));
+      } else if (w is Map && w.isEmpty && !(g is Map && g.isEmpty)) {
+        out.add((target: section, forms: [
+          ['$section={}'],
+        ]));
+      }
+    }
     for (final section in const ['layout', 'decoration', 'props']) {
       final g = readMap(got[section]) ?? const {}, w = readMap(n[section]) ?? const {};
       for (final k in {...g.keys, ...w.keys}) {
@@ -1407,19 +1453,39 @@ final class _NodeLine {
   List<String> _bindWords(String path, Object? v) {
     if (path == 'disabled') {
       // `enabled={x}` is disabled `${= !x}` (`!(x)` for more than a name).
+      // `node.disabled={…}`, the state as bound (design 22, 4.8), where
+      // `enabled=` is the type's own prop.
+      final node = switch (v) {
+        final String s => switch (_expression(s) ?? _quoted(s)) { final String w => 'node.disabled=$w', _ => null },
+        _ => null,
+      };
+      final own = _hasProp('enabled') || _hasProp('isEnabled') || _hasProp('disabled');
       final e = v is String && v.startsWith(r'${= !') && _close(v, 1) == v.length - 1 ? v.substring(5, v.length - 1).trim() : null;
-      if (e == null) return const [];
-      final inner = e.startsWith('(') && e.endsWith(')') && _close(e.replaceAll('(', '{').replaceAll(')', '}'), 0) == e.length - 1 ? e.substring(1, e.length - 1) : e;
-      return [if (!inner.contains('\n')) 'enabled={$inner}'];
+      final inner = e == null
+          ? null
+          : e.startsWith('(') && e.endsWith(')') && _close(e.replaceAll('(', '{').replaceAll(')', '}'), 0) == e.length - 1
+              ? e.substring(1, e.length - 1)
+              : e;
+      return [
+        if (!own && inner != null && !inner.contains('\n')) 'enabled={$inner}',
+        if (node != null) node,
+      ];
     }
     final key = _bindKey(path);
     if (key == null || v is! String) return const [];
     final expression = path == 'selected' ? _formulaOf(v) : _expression(v);
     final text = _quoted(v);
-    return [
+    final verbatim = _verbatim(v);
+    return {
       if (expression != null) '$key=$expression',
       if (text != null && text != '"$expression"') '$key=$text',
-    ];
+      // The binding as written (design 22, 4.8); a field that holds its
+      // expression as written (a text's text, a validator) is bound by the
+      // quoted string in braces.
+      if (verbatim != null) '$key=$verbatim',
+      if (text != null && expression == null) '$key={$text}',
+      if (verbatim != null) '$key={$verbatim}',
+    }.toList();
   }
 
   /// The key that binds [path] (`fill` for the first fill's color, `color`

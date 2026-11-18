@@ -216,7 +216,16 @@ final class _StatesPlan {
           : printPatchWords({e.key: e.value}, reader, type) ?? _drag(e.key, node[e.key], reader, type) ?? _whole(e.key, node[e.key], reader) ?? _some(e.key, e.value, reader, type);
       if (words != null) out.addAll(words);
     }
-    return out;
+    // A field the line also binds (`radioGroup.groupValue={budget}`): its value
+    // by its full path from the node, a key written once (design 22, 4.8).
+    final bound = readMap(node['bind'])?.keys.toSet() ?? const <String>{};
+    return [
+      for (final w in out)
+        switch (w.indexOf('=')) {
+          final at when at > 0 && bound.contains(w.substring(0, at)) && !w.substring(at + 1).startsWith('{') => 'node.$w',
+          _ => w,
+        },
+    ];
   }
 
   /// `name=Board`, `name="Search results"`; `node.name=` where the type has

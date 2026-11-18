@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 10330
+      "words": 10407
     },
     {
       "topic": "layout-layout-fields",
@@ -25,7 +25,7 @@
       "anchor": "layout-layout-fields",
       "title": "Layout fields",
       "summary": "A node's `\"layout\"`: its size, spacing and placement in its parent.",
-      "words": 539
+      "words": 548
     },
     {
       "topic": "layout-which-sizing-modes-each-parent-allows",
@@ -617,7 +617,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts.",
-      "words": 6726
+      "words": 6744
     },
     {
       "topic": "state-variables",
@@ -641,7 +641,7 @@
       "anchor": "state-binding-paths",
       "title": "Binding paths",
       "summary": "What each path of `bind` expects.",
-      "words": 498
+      "words": 503
     },
     {
       "topic": "state-conditions",

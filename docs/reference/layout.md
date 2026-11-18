@@ -79,6 +79,8 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 <a id="layout-margin"></a>
 <a id="layout-padding"></a>
 <a id="layout-aspectRatio"></a>
+<a id="layout-widthFactor"></a>
+<a id="layout-heightFactor"></a>
 <a id="layout-flex"></a>
 <a id="layout-squeezable"></a>
 <a id="layout-x"></a>
@@ -98,6 +100,8 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `margin` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
 | `padding` | [EdgeInsets](values.md#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
+| `widthFactor` | double | unset | ≥ 0 | A share of the room the parent gives across (Flutter's `FractionallySizedBox.widthFactor`): a progress bar's fill is `0.6` of its track. Unset: sized by `width`. Bind it (`${= item.pct / 100}`) for a bar that follows data. |
+| `heightFactor` | double | unset | ≥ 0 | A share of the room the parent gives down (Flutter's `FractionallySizedBox.heightFactor`). Unset: sized by `height`. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |
 | `squeezable` | bool | `false` |  | Under a row/column: a hugging child that may shrink (`Flexible`). |
 | `x` | [AxisPosition](values.md#type-AxisPosition) | `{"start":0}` |  | Under a freeform parent (`Positioned` / `Align`). |

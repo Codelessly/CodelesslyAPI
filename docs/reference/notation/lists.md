@@ -607,8 +607,8 @@ Column#col gap=8 pad=16 w={"fill":390} h={"hug":320} crossAxisAlignment=null
     Input#search hint="Search customer" w={"fill":220} h={"hug":28} initialValue={search} onChange={search="{result}"; page="0"}
     Select#pick w=130 h={"hug":28} value={statusFilter} items=["All","Paid","Overdue"] isExpanded=true onChange={statusFilter="{result}"; page="0"}
   Row#head w={"fill":358} h={"hug":20} crossAxisAlignment=null
-    Text#hCust "Customer" color=#FF6B7280 w={"fill":270} h={"hug":18} onTap={desc="{sortKey == 'cust' && !desc}"; sortKey=cust} {"bind":{"props.text":"Customer${= sortKey == 'cust' ? (desc ? ' ↓' : ' ↑') : ''}"}}
-    Text#hAmt "Amount" color=#FF6B7280 w={"hug":80} h={"hug":18} onTap={desc="{sortKey == 'amt' && !desc}"; sortKey=amt} {"bind":{"props.text":"Amount${= sortKey == 'amt' ? (desc ? ' ↓' : ' ↑') : ''}"}}
+    Text#hCust "Customer" color=#FF6B7280 w={"fill":270} h={"hug":18} text={"Customer{sortKey == 'cust' ? (desc ? ' ↓' : ' ↑') : ''}"} onTap={desc="{sortKey == 'cust' && !desc}"; sortKey=cust}
+    Text#hAmt "Amount" color=#FF6B7280 w={"hug":80} h={"hug":18} text={"Amount{sortKey == 'amt' ? (desc ? ' ↓' : ' ↑') : ''}"} onTap={desc="{sortKey == 'amt' && !desc}"; sortKey=amt}
   ListView#list w={"fill":358} h={"hug":108} scrollable=false
     each item in paged
       Text#row "{item.num}  {item.cust}  {item.status}  {item.amt}" size=15 w={"fill":358} h=36
@@ -663,7 +663,7 @@ Column#page gap=16 pad=[20,24,20,24] w={"fill":390} h={"fill":520}
       each item in products
         box#dot w=8 h={"fill":8} fills=[{"color":"#FFD1D5DB"}] fill={index == current ? '#FF111827' : '#FFD1D5DB'} shape=circle onTap={scrollTo node=card item={index} axis=horizontal durationMs=300}
     Stack#track w={"fill":200} h=4 fill=#FFE5E7EB radius=2
-      box#trackFill w=0 h=4 fill=#FF111827 radius=2 {"bind":{"layout.widthFactor":"${progress}"}}
+      box#trackFill w=0 h=4 fill=#FF111827 radius=2 widthFactor={progress}
 ```
 
 <a id="lists-example-lists-md-sections-section"></a>

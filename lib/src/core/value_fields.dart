@@ -350,6 +350,15 @@ abstract final class LayoutFields {
 
   static const aspectRatio = PropDef<double?>('aspectRatio', OptionalDoubleCodec(min: 0, ratio: true), null);
 
+  /// A share of the room its parent gives on an axis (Flutter's
+  /// `FractionallySizedBox`): a progress bar's fill is `widthFactor: 0.6` of
+  /// its track. Null: sized by [width] / [height].
+  static const widthFactor = PropDef<double?>('widthFactor', OptionalDoubleCodec(min: 0), null,
+      doc: "A share of the room the parent gives across (Flutter's `FractionallySizedBox.widthFactor`): a progress bar's fill "
+          'is `0.6` of its track. Unset: sized by `width`. Bind it (`\${= item.pct / 100}`) for a bar that follows data.');
+  static const heightFactor = PropDef<double?>('heightFactor', OptionalDoubleCodec(min: 0), null,
+      doc: "A share of the room the parent gives down (Flutter's `FractionallySizedBox.heightFactor`). Unset: sized by `height`.");
+
   /// Under a row/column: share of the free space (`Expanded.flex`).
   static const flex = PropDef<int>('flex', IntCodec(min: 0), 1);
 
@@ -394,7 +403,7 @@ abstract final class LayoutFields {
       doc: 'CSS `grid-row-start`, under a gridView: the row the item starts in, 1 the first; unset: the next free cell.');
 
   /// The node's own box.
-  static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, aspectRatio];
+  static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, aspectRatio, widthFactor, heightFactor];
 
   /// What a parent reads (Flutter's parent data).
   static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align, order, basis, columnSpan, rowSpan, columnStart, rowStart];

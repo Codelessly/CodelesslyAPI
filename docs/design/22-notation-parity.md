@@ -771,6 +771,77 @@ on a Text print as written, and `style.letterSpacing=…` prints as its shorter 
 (`BarChart values=[…] labels=[…]`, `LineChart values=[…]`, `Donut values=[…]`, `Gauge value=…`), since 34.0.0's
 key-once rule. `draggable=true` is no form: a drag source is `drag=…` or its fields (`draggable.group=…`).
 
+### 4.8 Values: the forms settled
+
+Settled 2026-11-17 by the values family (tests: `test/notation/values_p3_test.dart`).
+
+- **A quoted string with the document's formula in it is kept as written, on every key.** Where a quoted string
+  has `${=` in it, nothing in it is read: it is the text the document holds (`color="${= theme.colors.ink}"`,
+  `validator="${= trim(value) == '' ? 'Enter your name.' : ''}"`, `Text "${= join(…)}"`, in a verb's string too).
+  Without `${=`, `{x}` in a quoted string reads a value as before, and a `$` before a read is a dollar, as models
+  write a price (`"Total ${qty*12}"` is `Total $${= qty*12}`, design 13's "read, not taught"). A trigger's or an
+  action's field and a paint op's value keep any `${…}` as written (4.1 second pass, 4.6); a node's line keeps
+  only the formula's, so that the price stays a price. The printer writes a string as written only where braces
+  cannot say it (`${= name}`, which `{name}` reads as `${name}`).
+- **Where the string goes is the field's.** On a node's line a string that reads data is bound (the field's
+  binding), unless the field works its expression out itself, as the renderer does: a text's own text, an Input's
+  `validator` (it runs on the text typed, `value`), a drop target's `key` and `acceptIf` (worked out for each
+  drop), an image paint's URL (filled in from the scope). Those hold it: `validator="${= …}"` is
+  `props.validator`, `dropTarget.key="{item.name}"` is `dropTarget.key: "${item.name}"`. A quoted string in braces
+  always binds: `text={"${= ok ? 'Saved' : 'Not saved'}"}` on a Text is `bind.props.text`. From the corpus
+  (CodelesslySDK `design_systems/cards/components/TableRow.json`; `tool/reference/examples/form_validated.json`;
+  `examples/showcase/desktop/native/app_board.json`):
+
+  ```
+  Text#c0 "{length(props.cells) > 0 ? at(props.cells, 0) : ""}" … color="${= theme.colors.ink}"
+  Input#name "Name" … validator="${= trim(value) == '' ? 'Enter your name.' : ''}"
+  Column#lane … dropTarget.key="{item.name}"
+  ```
+
+- **A path with an element by its index reads as a path**: `{kpis[0].value}` is `${kpis[0].value}`, as `{name}` is
+  `${name}` (before, a formula `${= kpis[0].value}`, which is now written `"${= kpis[0].value}"`).
+- **`selected="…"`** is the binding as a quoted string reads (`selected="{props.selected}"` is
+  `${props.selected}`); `selected={…}` still always reads a formula.
+- **`node.disabled={…}`** is the node's disabled state as bound and nothing more, where `enabled=` is the type's own
+  prop (an Input's `enabled`, a block's `disabled` options): `Input#field … enabled={props.enabled}
+  node.disabled={!props.enabled}` (CodelesslySDK `design_systems/cards/components/TextInput.json`).
+- **A field the line also binds** is written by its full path from the node, a key once a line:
+  `radioGroup.groupValue={budget} node.radioGroup.groupValue=small`.
+- **`props={}`, `props=null`** (and `layout`, `decoration`): the node's section is an empty record, or the node has
+  none, whatever the line's words gave. Written where `key=null` cannot say it: a design system's call with no
+  parameters given (`AuthPromptBanner#AuthPromptBanner0 w=340 h={"hug":92} props={}`, CodelesslySDK
+  `design_systems/ssui/examples/catalog.json`), a section whose fields have no key.
+- **A size written by its full path is that size exactly**: no rule of the line or of a line under it changes it.
+  `Column layout.height=108` with a text under it is 108 high (`h=108` stays the least height, `{"hug": 108}` and a
+  `minHeight`, design 13); `Spacer grow layout.height=hug` in a column hugs; `w={…} layout.width=fill` keeps the fit
+  under the binding, as a number beside it does. From CodelesslySDK `design_systems/cards/components/BoardColumn.json`:
+  `Column#empty gap=6 middle center pad=[12,12,12,12] layout.height=108 fill=card …`.
+- **In a media rule, a word written by its full path patches that path only**: what reading it adds elsewhere on
+  the line is not the rule's (`maxMobile.props.scrollable=true` without a scrolling row's edge fade,
+  `min700.tablet.layout.width=fill` without a text's `squeezable`), CodelesslySDK
+  `test/tool/fixtures/truth/scroll_by_media.json`.
+- **The catalog declares `layout.widthFactor` and `layout.heightFactor`** (Flutter's `FractionallySizedBox`, which the
+  document reads and CodelesslySDK renders): `box h=8 fill=accent widthFactor={item.pct / 100}`.
+
+Not said, and why (dead data in fixtures: no renderer reads it, so the catalog does not declare it and the parser
+says it, 2.1):
+
+- a box's `props.path` (a box has no props; 12 nodes: CodelesslySDK `examples/relay-pricing/components/*.json`,
+  `design_systems/ssui/examples/gallery.json`), `layout.rotation` (read only by the schema-2 migration), a node's
+  top-level `margin` (the renderer reads `layout.margin`: `examples/showcase/desktop/native-cards/site_product/round1/doc.json`),
+  an empty prop name `props.""` (`examples/showcase/design-pass-runs/inline-cards/approval/before.json`,
+  `examples/showcase/style-pass/approval/before.json`);
+- a decoration on a type that is not `decorated` (4.1 Keys), which its renderer does not draw: a Text's
+  `decoration.fills` (14, `examples/showcase/design-pass-runs/inline-cards*/code_diff*/before.json`), a button's
+  `bind.decoration.radius` (4, `examples/showcase/desktop/reference/site_*.json`), a page view's and a `Media` call's
+  `decoration.radius` (5);
+- a prop the type does not have: a button's `props.size` (6, `examples/showcase/desktop/tier1/*.doc.json`: a
+  button sizes by its height), a Text's `props.decoration` beside its style's (1); an enum value the type does not
+  have: an Input's `keyboardType: "email"` (2, `examples/showcase/desktop/{baseline,tier1}/site_blog.doc.json`;
+  Flutter's is `emailAddress`, which `type=email` writes);
+- a value beside a binding of the same text (`props.icon: "${item.icon}"` and `bind.props.icon` alike): the value
+  is a read the field does not work out, which a line binds.
+
 ## 5. What does not change
 
 The prompt teaches the grammar and the core (design 19). Parity is what the parser reads and the printer

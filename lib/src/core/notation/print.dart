@@ -375,7 +375,8 @@ final class _Printer {
     // The column a `Grid` line makes around the grid of its `each`: the Grid.
     if (_gridOfEach(n) case final grid?) text = _gridLine(text, grid);
     // Under an `if`, the line's own `visible` is the if's.
-    if (condition != null) text = text.replaceFirst(' visible={$condition}', '');
+    // (`visible="${= ready}"` is the binding as written, design 22, 4.8.)
+    if (condition != null) text = text.replaceFirst(' visible={$condition}', '').replaceFirst(' visible=${jsonEncode('\${= $condition}')}', '');
     // A list written with an `each` under it: the each says its data.
     if (_handList(id, n) != null) {
       final at = text.indexOf(' data={');
