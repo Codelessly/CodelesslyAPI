@@ -381,14 +381,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7286
+      "words": 7330
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 523
+      "words": 567
     },
     {
       "topic": "lists-a-table-of-records",

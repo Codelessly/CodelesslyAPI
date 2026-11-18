@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Documented
+
+- **An `if` under an `each`** hides what a copy shows, not the copy: the copy keeps its place and its Grid cell
+  (round 10, R65, 4 runs). lists.md says so, and how to leave elements out: `each d in filter(days, x => x.open)`.
+
 ### Behaviour changes
 
 - **A look written on a component call is said** (`Disc "MR" fill=#… border=#…`, `clip`; round 10, R31, 10 runs): a
