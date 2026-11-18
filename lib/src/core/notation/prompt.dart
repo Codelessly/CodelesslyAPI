@@ -247,7 +247,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
 ''';
   final short = {
     for (final e in notationTypes.entries)
-      if (!const {'Card', 'Image', 'CodeInput', 'Handle', 'DataTable'}.contains(e.key)) e.value.type: e.key,
+      if (!const {'Card', 'Image', 'CodeInput', 'Handle', 'DataTable', 'NumberInput'}.contains(e.key)) e.value.type: e.key,
   };
   String written(String type) => short[type] ?? '${type[0].toUpperCase()}${type.substring(1)}';
   // The types worth naming in a small prompt: the rest of levels 0 and 1

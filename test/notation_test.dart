@@ -3467,7 +3467,27 @@ Page
     final grip = _node(r, 'grip');
     expect(grip['type'], 'iconButton');
     expect(grip['props'], containsPair('icon', 'drag_indicator'));
-    expect(grip['layout'], allOf(containsPair('width', 44), containsPair('height', 44)));
+    // On a page (a desktop) a grip is 24 px, its glyph 16; on a phone a 44 px target; a size written is kept.
+    expect(grip['layout'], allOf(containsPair('width', 24), containsPair('height', 24)));
+    expect(((grip['props'] as Map)['style'] as Map)['iconSize'], 16);
+    Map<String, Object?> gripOf(NotationResult r) => (r.document['nodes'] as Map).values.cast<Map<String, Object?>>().singleWhere((n) => n['reorderHandle'] == true);
+    expect(gripOf(_parse('''
+state rows=["a"]
+Column
+  each row in rows reorder
+    Row
+      Handle
+      Text "{row}"
+'''))['layout'], allOf(containsPair('width', 44), containsPair('height', 44)));
+    expect(gripOf(_parsePage('''
+state rows=["a"]
+Page
+  Section
+    each row in rows reorder
+      Row
+        Handle w=20 h=32
+        Text "{row}"
+'''))['layout'], allOf(containsPair('width', 20), containsPair('height', 32)));
     expect(grip['reorderHandle'], true);
     expect(grip['tooltip'], 'Reorder');
     // An each without the word is as before.
