@@ -10,6 +10,8 @@ export 'src/core/notation/notation.dart'
         NotationStream,
         WantedBlock,
         buttonVariants,
+        notationBuiltInDefinition,
+        notationBuiltInWord,
         defaultTextVariants,
         notationRefusedState,
         notationScreen,

@@ -525,12 +525,18 @@ final class DefinedWords {
     this.variable,
     this.internal,
     this.bindsVariable,
+    this.builtIn,
   })  : counts = counts ?? {},
         page = page ?? {};
 
   /// A variable the expansion makes for a use that binds none of its own
   /// (`value_stepper1`): the use's own, declared by no state line.
   final void Function(String name)? internal;
+
+  /// What is said of a definition of a word the notation already has
+  /// (notationBuiltInDefinition), or null: such a definition read as the
+  /// text arrives is not used, and this is said.
+  final String? Function(String word)? builtIn;
 
   /// A variable of the page a use binds (`Stepper @servings`), at its
   /// column, with what a state line for it would start at (as written).
@@ -721,6 +727,10 @@ final class DefinedWords {
     _definingBody.clear();
     for (final p in problems) {
       issue?.call(1, p);
+    }
+    if ((def == null ? null : builtIn?.call(def.word)) case final said?) {
+      issue?.call(1, 'page:${d.line}: $said');
+      return;
     }
     if (def != null) {
       final all = {..._all, def.word: [def]};

@@ -471,7 +471,21 @@ in every mode; with `--open` it stays a warning. `tool/codelessly render` reads 
 nothing and gives the same as JSON. A `components/<Name>.txt` whose first line is `define` (or `primitive`) is the
 site's definitions, read by every page and component as a define after a page's last line (note 20, section 7);
 one that is neither that nor `component Name`, a second file of one component and a component JSON `site.json` lists
-that nothing writes are said. A page file whose first line is one `### Name` is read without it.
+that nothing writes are said, and fail the expand in every mode, `--open` included (the owner's decision, 2026-11-18;
+a word nobody defined stays a placeholder and, with `--open`, a warning). A page file whose first line is one `###
+Name` is read without it.
+
+**A built-in word wins** (the owner's decision, 2026-11-18). A page's or a site's `define`, `primitive` or component
+named like a word the notation already has (a type of the notation or the catalog, `Card`; a page word, `App`,
+`Rail`; a name the alias table reads as one of those, `Shortcut` as a `key` line) is not used: the built-in word is
+read, and the expand says so at the definition, with what the notation has in one line (`notationBuiltInWord`) and
+that a definition meant as something else needs a name of its own. Before, a page's definition of a core word was not
+used with no word, and one of an alias won over the alias: test 10's kanban board declared `primitive Shortcut`, and
+each of its shortcuts became a labelled box. A component named like a page word was already not called where that
+word is read; that is now the same rule, said once at the component (its calls still say how to call it, `Rail
+type=Rail`). A design system's component is not a built-in word: a page's own definition may still replace it there
+(note 20, section 6). The record keeps such a definition, its word resolved `built-in`, to show what writers
+expected the word to be.
 
 **The harvest.** `notation.sh vocabulary` given site folders (their `drafts/` too), records, or a folder of them,
 expands each run as `expand --open` does and writes one report: every word beyond the core, how many runs and apps
