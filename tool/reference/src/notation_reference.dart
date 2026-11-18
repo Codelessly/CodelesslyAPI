@@ -107,6 +107,7 @@ const List<NotationPage> notationPages = [
   NotationPage('navigation', 'Navigation and overlays', json: ['navigation']),
   NotationPage('components', 'Components', json: ['components']),
   NotationPage('design-systems', 'Design systems', json: ['design-systems']),
+  NotationPage('site', 'The site (site.json)'),
   NotationPage('document', 'The document', json: ['base', 'publish', 'render']),
   NotationPage('values', 'Values', json: ['values']),
   NotationPage('data', 'Data (feature layer)', json: ['data'], layer: true),

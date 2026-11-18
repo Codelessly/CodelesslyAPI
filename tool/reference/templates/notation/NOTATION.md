@@ -262,6 +262,7 @@ A print uses three more forms a writer rarely needs: `key=null` (no such field, 
 
 ## The references
 
-Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md](index.md).
+Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md](index.md). A site's
+`site.json` (its pages, shared variables, theme) is on [site.md](site.md).
 
 {{references}}

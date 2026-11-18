@@ -7,7 +7,8 @@ worked out, kept, or shared, or you need a function's signature.
 
 `state name=value` declares a variable of the screen, its type from its value; `state name:type=value` names the
 type (`state price:decimal=0`; with no value, `state note:text`). Types: {{variableTypes}}. `saved` after the
-value keeps it on the device: `state tab="inbox" saved` (not `state tab saved="inbox"`).
+value keeps it on the device: `state tab="inbox" saved` (not `state tab saved="inbox"`). A variable every page shares
+is the site's, declared in `site.json` (`"favourites": {"value": [], "persist": true}`): [site.md](site.md).
 
 A formula variable is worked out and kept up to date: `state total:decimal={price * qty}`. With parameters it is a
 function the formulas call: `state usd(n):text={'$' + round(n)}`.

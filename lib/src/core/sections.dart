@@ -349,10 +349,24 @@ final class SiteManifest {
     'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts', 'designSystem', //
   };
 
+  /// The page references [json] (a manifest's `pages`) lists: a string as
+  /// written, and a record (`{"id": "home", "file": "pages/home.json"}`, or
+  /// `path`) as its file, else its id. (A loader of files reads `"home"` as
+  /// `home.json`.)
+  static List<String> pageRefs(Object? json) => [
+    for (final p in readList(json) ?? const [])
+      if (switch (p) {
+        final String s => s,
+        final Map m => readString(m['file']) ?? readString(m['path']) ?? readString(m['id']) ?? readString(m['name']),
+        _ => null,
+      } case final String ref when ref.trim().isNotEmpty)
+        ref.trim(),
+  ];
+
   static SiteManifest fromJson(Object? json) {
     final m = readMap(json) ?? const {};
     return SiteManifest(
-      pages: readStrings(m['pages']),
+      pages: pageRefs(m['pages']),
       components: readStrings(m['components']),
       variables: Variable.declarationsFromJson(m['variables']),
       breakpoints: m['breakpoints'],

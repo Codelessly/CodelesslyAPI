@@ -1,0 +1,66 @@
+# The site
+
+The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors,
+text styles, spacing, radii, dark colors), its fonts and its design system. Open it when you write or change
+`site.json`; every page and component of the site reads what it declares by name.
+
+## A whole manifest
+
+```json
+{
+  "schema": 3,
+  "pages": ["home.json", "pricing.json", "account.json"],
+  "designSystem": "../design_systems/desk",
+  "variables": {
+    "cart": [],
+    "plan": "pro",
+    "favourites": {"value": [], "persist": true},
+    "draft": {"type": "text", "value": "", "persist": true}
+  },
+  "theme": {
+    "primary": "#FF2F6B4F",
+    "onPrimary": "#FFFFFFFF",
+    "surface": "#FFFBF8F2",
+    "onSurface": "#FF1F2A24",
+    "colors": {"ink": "#FF1F2A24", "paper": "#FFFBF8F2", "rule": "#FFE3DDD2", "accent": "#FF2F6B4F"},
+    "textStyles": {
+      "body": {"fontSize": 15, "height": 1.5, "color": "ink"},
+      "title": {"fontSize": 28, "fontWeight": 600, "color": "ink"},
+      "caption": {"fontSize": 12, "color": "#FF6B7280"}
+    },
+    "spacing": {"sm": 8, "md": 16, "lg": 32},
+    "radii": {"control": 6, "card": 10},
+    "fontFamily": "Inter",
+    "mode": "system",
+    "dark": {
+      "surface": "#FF141815",
+      "onSurface": "#FFE8EDE9",
+      "colors": {"ink": "#FFE8EDE9", "paper": "#FF141815", "rule": "#FF2C332E"}
+    }
+  },
+  "fonts": [{"family": "Inter", "fonts": [{"asset": "fonts/Inter-Regular.ttf"}, {"asset": "fonts/Inter-SemiBold.ttf", "weight": 600}]}]
+}
+```
+
+## Its keys
+
+- **`pages`**: the site's pages, in order: `"home.json"` (beside `site.json`), `"home"` (the same) or a record
+  `{"id": "home", "file": "home.json"}`. Each `pages/<name>.txt` expands to its page; `go home` goes to it.
+- **`variables`**: what every page and component reads and sets by name, with no `state` line of their own
+  (`{cart}`, `onTap={plan="team"}`; `project cart=[]` on a page says it is the site's). Written by name, a value
+  (`"cart": []`) or a record: `value`, `type` (text, integer, decimal, boolean, list, map: else the value's) and
+  `persist: true`, which keeps it on the device across reloads (a page's own `state … saved` is the same). A list of
+  records (`[{"name": "cart", "type": "list", "value": []}]`) reads too.
+- **`theme`**: the names a line uses for its looks. `colors` by name (`fill=paper`, `color=ink`); `textStyles` by
+  name (`style=title`, `Text.caption`; `body` is a plain Text's); the roles `primary`, `onPrimary`, `surface`,
+  `onSurface`, `error`, `success`, `warning` (built-in controls take them); `spacing`, `radii` and `sizes`, scales by
+  name, read as `{theme.spacing.md}`, `{theme.radii.card}`; `fontFamily` and `titleFontFamily`; `mode` (`light`,
+  `dark` or `system`, the start of `setThemeMode`); `dark`, the colors and roles that differ in dark mode.
+- **`fonts`**: font files shipped beside `site.json`, by family: `{"family": "Inter", "fonts": [{"asset":
+  "fonts/Inter-Regular.ttf"}, {"asset": "…", "weight": 600}]}` (`.ttf`, `.otf`, `.woff`).
+- **`designSystem`**: a design system's folder (relative to `site.json`) or id: its theme is the base the site's
+  is merged over, and its components are called by name ([design-systems.md](design-systems.md)).
+- **`components`**: the expanded components' JSON, when not `components/<Name>.json`; components written in the
+  notation are `components/<Name>.txt` ([components.md](components.md)).
+- **`breakpoints`**: the widths that are a phone, a tablet and a desktop, when not the defaults
+  ([responsive.md](responsive.md)).
