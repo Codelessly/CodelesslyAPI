@@ -357,7 +357,8 @@ Dialog#ask "Reset?" "Really."
         'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock', 'QRCode', 'QrCode',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
-      expect(NotationVocabulary.core.types['RangeSlider']!.parameters, isEmpty);
+      // Its ends by the names a range is written with (test 10: end=@hi).
+      expect(NotationVocabulary.core.types['RangeSlider']!.parameters, {'start': 'low', 'end': 'high', 'rangeEnd': 'high'});
       expect(NotationVocabulary.core.types['RangeSlider']!.requires, ['low', 'high']);
       // The universal words' other names and an Input's (docs/design/21) are
       // tested in notation_universal_test.dart.

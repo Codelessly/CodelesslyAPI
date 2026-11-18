@@ -3897,12 +3897,6 @@ class _Parser {
     if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
     final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
     if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
-    // `RangeSlider @low end=@high min=0 max=90` (test 10: 6 runs) is the
-    // Slider with two variables: `Slider @low @high min=0 max=90`.
-    if (RegExp(r'^RangeSlider(?=[\s#.]|$)').hasMatch(line) && catalog.widget('RangeSlider') == null && !options.components.containsKey('RangeSlider')) {
-      _use('alias', 'RangeSlider', indent + 1, of: 'type', to: 'Slider');
-      line = 'Slider${line.substring('RangeSlider'.length)}'.replaceAllMapped(RegExp(r'(?<=\s)(?:end|rangeEnd|high|upper)=@(?=[A-Za-z_])'), (_) => '@');
-    }
     // `project cart=[]` (or `project cart`): a variable of the whole site
     // (site.json's `variables`), read and set here as any other, with no
     // copy of its own on this screen to hide it.

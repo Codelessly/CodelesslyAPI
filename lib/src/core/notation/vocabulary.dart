@@ -333,7 +333,8 @@ final class NotationVocabulary {
       // each end (`RangeSlider @lo @hi`, `low=@lo high=@hi`). (Most answers
       // bind one list variable, which ours does not take: those stay
       // unknown.)
-      'RangeSlider': TypeAlias(to: 'Slider', requires: ['low', 'high']),
+      // `end=@hi` (test 10: 6 runs) and `start=`, as a range is often written.
+      'RangeSlider': TypeAlias(to: 'Slider', requires: ['low', 'high'], parameters: {'start': 'low', 'end': 'high', 'rangeEnd': 'high'}),
       // A text with what matched a search marked in it.
       'Highlight': TypeAlias(to: 'Text', parameters: {'match': 'mark', 'query': 'mark'}),
       'HighlightText': TypeAlias(to: 'Text', parameters: {'match': 'mark', 'query': 'mark'}),
