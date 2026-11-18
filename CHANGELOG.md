@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **`every 1m`** (and `every 1h`, `every 2min`) is a timer of that many minutes or hours; it was refused (round 10,
+  R22).
 - **An overlay a component writes** after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info
   stops=[0.5,0.9]`; round 10, R28, 11 runs, and R23's stops lost from a component) is kept in its document
   (`screenOverlays`), and every page that calls it has it (once, its nodes with ids of their own, `basket-text1`):

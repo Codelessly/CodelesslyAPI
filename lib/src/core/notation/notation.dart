@@ -4003,9 +4003,11 @@ class _Parser {
       if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'actions': [..._timers]}});
       return;
     }
-    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
+    // `every 1m` and `every 1h` too (round 10, R22: `every 1m` was refused).
+    final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s|m|min|h)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
     if (every != null) {
-      final ms = (double.parse(every[1]!) * (every[2] == 's' ? 1000 : 1)).round();
+      final unit = switch (every[2]) { 's' => 1000, 'm' || 'min' => 60000, 'h' => 3600000, _ => 1 };
+      final ms = (double.parse(every[1]!) * unit).round();
       if (ms < 16) return _issue(column, 'An "every" runs at most once a frame: every 16 or more (milliseconds), or every 1s.');
       _timers.add({
         'trigger': {'type': 'timer', 'intervalMs': ms, if (every[3] != null) 'when': _formula(every[3]!.trim())},
@@ -4035,7 +4037,7 @@ class _Parser {
       return _issue(column, 'A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +).');
     }
     if (line.startsWith('every ')) {
-      return _issue(column, 'An "every" line is: every 1000 onTick={name=value} (milliseconds, or 1s), optionally "every 1s when running onTick={…}".');
+      return _issue(column, 'An "every" line is: every 1000 onTick={name=value} (milliseconds, or 1s, 1m, 1h), optionally "every 1s when running onTick={…}".');
     }
     // `document {…}`: a merge patch over the whole document, for what is
     // not a node of the tree (the printer's last line).

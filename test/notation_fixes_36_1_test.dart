@@ -263,4 +263,13 @@ App
       expect(ok.issues, isEmpty);
     });
   });
+
+  group('R22: an every line in minutes or hours', () {
+    test('every 1m and every 2h are timers of that many milliseconds', () {
+      final r = parseNotation('state n=0\nText "{n}"\nevery 1m onTick={n=n+1}\nevery 2h onTick={n=0}\n', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      final timers = [for (final a in _node(r, 'screen')['actions'] as List) ((a as Map)['trigger'] as Map)['intervalMs']];
+      expect(timers, [60000, 7200000]);
+    });
+  });
 }
