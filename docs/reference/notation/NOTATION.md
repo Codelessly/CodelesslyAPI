@@ -114,7 +114,7 @@ state tab="home"
 state name=""
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=72 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="home")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=home}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="home")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=home}
       Icon "home" color={(tab=="home")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Home" grow weight={(tab=="home")?600:500} color={(tab=="home")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow

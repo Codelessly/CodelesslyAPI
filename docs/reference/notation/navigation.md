@@ -59,7 +59,7 @@ It reads as:
 state tab="orders"
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=248 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="orders")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=orders}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="orders")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=orders}
       Icon "receipt_long" color={(tab=="orders")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Orders" grow weight={(tab=="orders")?600:500} color={(tab=="orders")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow
@@ -107,16 +107,16 @@ Row stretch h=fill
         Text.heading2 "Tenant" size=15 w={"hug":0}
         Text.caption "Admin console" color=#FF6B7280 w={"hug":0}
     Text.success "PEOPLE & ACCESS" size=11 color=#FF6B7280 letterSpacing=0.6 pad=[10,16,10,6]
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="members")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=members}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="members")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=members}
       Icon "group" color={(tab=="members")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Members" grow weight={(tab=="members")?600:500} color={(tab=="members")?"#FF2563EB":"#FF374151"}
       Text.caption "Alt 1"
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="teams")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=teams}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="teams")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=teams}
       Icon "groups" color={(tab=="teams")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Teams" grow weight={(tab=="teams")?600:500} color={(tab=="teams")?"#FF2563EB":"#FF374151"}
       Text.muted "4"
     Text.success "WORKSPACE" size=11 color=#FF6B7280 letterSpacing=0.6 pad=[10,16,10,6]
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="billing")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=billing}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="billing")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=billing}
       Icon "credit_card" color={(tab=="billing")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Billing" grow weight={(tab=="billing")?600:500} color={(tab=="billing")?"#FF2563EB":"#FF374151"}
     Spacer grow
@@ -152,10 +152,10 @@ It reads as:
 state tab="inbox"
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=72 h=fill border-right=#FFE5E7EB hide=phone
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="inbox")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=inbox}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="inbox")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=inbox}
       Icon "inbox" color={(tab=="inbox")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Inbox" grow weight={(tab=="inbox")?600:500} color={(tab=="inbox")?"#FF2563EB":"#FF374151"}
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="sent")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=sent}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="sent")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=sent}
       Icon "send" color={(tab=="sent")?"#FF2563EB":"#FF6B7280"} size=18
       Text "Sent" grow weight={(tab=="sent")?600:500} color={(tab=="sent")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow
