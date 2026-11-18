@@ -139,4 +139,10 @@ void main() {
       expect((_of(r, 'text').single['props']! as Map)['text'], r"${= 'm-' + item.id}");
     });
   });
+
+  test('focus names a component\'s field by the call\'s id and its own', () {
+    final r = _expand('state n=0\nkey k onPress={focus filters/search}\nColumn\n  Text "a"\n');
+    expect(r.issues, isEmpty);
+    expect(jsonEncode(r.document), contains('"node":"filters/search"'));
+  });
 }

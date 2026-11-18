@@ -8528,8 +8528,8 @@ class _Parser {
           final target = s.replaceFirst(RegExp(r'^#'), '').trim();
           if (verb != 'focus' || target.isEmpty) {
             out.add({'type': 'focus', 'unfocus': true});
-          } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(target)) {
-            _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …).');
+          } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*$').hasMatch(target)) {
+            _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …), or a component\'s field by the call\'s id and its own: focus filters/search.');
           } else {
             out.add({'type': 'focus', 'node': target});
           }

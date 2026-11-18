@@ -134,6 +134,10 @@ void main() {
     expect(c.matches('Enter', meta: true), isFalse);
     expect(KeyCombo.tryParse('Esc')!.matches('Escape'), isTrue);
     expect(KeyCombo.tryParse('?')!.matches('?', shift: true), isTrue);
+    // A letter is its own key with Shift or without (key j is not Shift+J).
+    expect(KeyCombo.tryParse('j')!.matches('J', shift: true), isFalse);
+    expect(KeyCombo.tryParse('j')!.matches('j'), isTrue);
+    expect(KeyCombo.tryParse('shift+j')!.matches('J', shift: true), isTrue);
     expect(KeyCombo.tryParse('Hyper+A'), isNull);
     expect(KeyCombo.tryParse('Meta++'), const KeyCombo('+', meta: true));
   });
