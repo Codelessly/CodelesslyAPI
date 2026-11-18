@@ -399,6 +399,15 @@ final class NotationOptions {
       // NOTATION.md lists Text.mono with the others: a theme without its own
       // `mono` has the body's size and ink in a monospace face.
       ..putIfAbsent('mono', () => body()..addAll({'fontFamily': 'monospace', 'color': ink}));
+    // NOTATION.md lists SSUI's names too (Text.pageTitle, Text.heading1…):
+    // a theme that has none of its own has them in its body's face, at
+    // SSUI's sizes and weights, in its ink (they were refused under a site's
+    // theme: test 9, admin 8).
+    for (final e in defaultTextVariants.entries) {
+      final d = (e.value as Map).cast<String, Object?>();
+      final secondary = d['color'] != null && d['color'] != '#FF111827';
+      styles.putIfAbsent(e.key, () => body()..addAll({for (final k in const ['fontSize', 'fontWeight', 'fontFamily']) if (d[k] != null) k: d[k], 'color': secondary ? muted : ink}));
+    }
     (String, String, String) tone(String role, String inkName) =>
         (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
     final error = tone('error', 'error');
@@ -4696,7 +4705,13 @@ class _Parser {
           _issue(col, 'One @name a line is its value${range ? ', two a range (@low @high)' : ''}: name any other (key=@name). A $written ${binds()}.');
           return;
         }
-      } else if (named == 'value' || (range && named == ends.$1) || (mainParam != null && named == mainParam.key)) {
+      } else if (named == 'value' ||
+          (range && named == ends.$1) ||
+          (mainParam != null && named == mainParam.key) ||
+          // The property that is the control's value, by its name
+          // (`FilterChip "Unread" selected=@unread`, as NOTATION.md writes
+          // `selected=@picked`): its value (refused: test 9, mail).
+          (!component && !range && _valueProps[type]?.prop == named)) {
         role = 'value';
       } else if (range && named == ends.$2) {
         role = 'end';
