@@ -2270,7 +2270,7 @@
       "docs": "navigation.md#node-accordion"
     },
     "expansionTile": {
-      "doc": "Flutter `ExpansionTile`.\n\nFlutter `ExpansionTile`. The `tile` slot is a list tile whose `leading`, `title`, `subtitle` and `trailing` slots make the header; the children are shown while expanded.",
+      "doc": "Flutter `ExpansionTile`: its header is the list tile in its `tile` slot (in the notation its strings make it, `ExpansionTile \"Shipping\" \"3 to 5 days\"`: the title and the subtitle), and what is under it shows while it is open.\n\nFlutter `ExpansionTile`. The `tile` slot is a list tile whose `leading`, `title`, `subtitle` and `trailing` slots make the header; the children are shown while expanded.",
       "flutter": "ExpansionTile",
       "children": "list",
       "slots": [

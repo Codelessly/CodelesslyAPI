@@ -9,6 +9,10 @@
 
 ### Behaviour changes
 
+- **The strings of an `ExpansionTile` are its header** (`ExpansionTile "{entry.q}"`): the title (and subtitle) of
+  the list tile in its `tile` slot, as `ListTile "…"` makes them; the lines under it are what it shows open. They
+  were its first children, under a header drawn from the slot alone, blank (round 11b: conference's FAQ, six
+  question rows with only a chevron). The reference says so.
 - **A labelled `Input` of a fixed height is that high in its box, its label above** (round 11b: 8 builds;
   `Input "Street address" "e.g. 11 Canynge Road" @a h=44` beside a `Select h=44`): the reference gives a field's
   height as a step of the control scale, the same on the inputs beside it; the height held the label and the box

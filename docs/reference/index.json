@@ -545,7 +545,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4754
+      "words": 4792
     },
     {
       "topic": "navigation-triggers",

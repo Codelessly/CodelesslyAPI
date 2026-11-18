@@ -522,7 +522,7 @@ abstract final class ExpansionTileProps {
     ],
     children: ChildModel.list,
     slots: ['tile'],
-    doc: 'Flutter `ExpansionTile`.',
+    doc: 'Flutter `ExpansionTile`: its header is the list tile in its `tile` slot (in the notation its strings make it, `ExpansionTile "Shipping" "3 to 5 days"`: the title and the subtitle), and what is under it shows while it is open.',
   );
 }
 

@@ -260,6 +260,24 @@ Column
     expect(((rules.last['patch'] as Map)['bind'] as Map)['props.crossAxisCount'], contains('gridColumns - 4'));
   });
 
+  test('the strings of an ExpansionTile are its header (they were its first children, the header blank)', () {
+    // conference (faq.txt:14): six question rows with only a chevron.
+    final r = _parse('''
+state qs=[{"q":"Q1","a":"A1"}]
+Column
+  each entry in qs
+    ExpansionTile#t "{entry.q}" "More" w=fill
+      Text#body "{entry.a}"
+''');
+    expect(r.issues, isEmpty);
+    final tile = (_node(r, 't')['slots'] as Map)['tile'] as String;
+    final slots = _node(r, tile)['slots'] as Map;
+    expect(_node(r, tile)['type'], 'listTile');
+    expect(_props(r, slots['title'] as String)['text'], r'${item.q}');
+    expect(_props(r, slots['subtitle'] as String)['text'], 'More');
+    expect(_node(r, 't')['children'], ['body']);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

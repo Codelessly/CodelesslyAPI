@@ -267,7 +267,7 @@ An accordion: its first child is the header (with a toggle button over its end),
 <a id="node-expansionTile"></a>
 ### `expansionTile`
 
-Flutter `ExpansionTile`.
+Flutter `ExpansionTile`: its header is the list tile in its `tile` slot (in the notation its strings make it, `ExpansionTile "Shipping" "3 to 5 days"`: the title and the subtitle), and what is under it shows while it is open.
 
 Flutter `ExpansionTile`. The `tile` slot is a list tile whose `leading`, `title`, `subtitle` and `trailing` slots make the header; the children are shown while expanded.
 

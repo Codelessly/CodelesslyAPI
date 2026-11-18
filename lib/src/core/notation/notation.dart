@@ -8560,6 +8560,23 @@ class _Parser {
   }
 
   void _strings(List<String> texts, String type, String id, Json out) {
+    // `ExpansionTile "{entry.q}"`: its strings are its header's, the title
+    // and subtitle of the list tile in its `tile` slot, as `ListTile "…"`
+    // makes them; the lines under it are what it shows open. They were its
+    // first children, and the header, drawn from the slot alone, was blank
+    // (round 11b: conference's FAQ, docs-site's navigation groups).
+    if (type == 'expansionTile' && texts.isNotEmpty && (out['slots'] as Map?)?['tile'] == null) {
+      final tile = '${id}Tile';
+      nodes[tile] = <String, Object?>{
+        'type': 'listTile',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+      };
+      _parentOf[tile] = id;
+      _slotOf[tile] = 'tile';
+      ((out['slots'] as Json?) ?? (out['slots'] = <String, Object?>{}))['tile'] = tile;
+      _strings(texts, 'listTile', tile, nodes[tile]!);
+      return;
+    }
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
       final container = type == 'column' || type == 'row' || type == 'stack';

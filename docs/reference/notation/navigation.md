@@ -415,7 +415,7 @@ Accordion: a header and collapsible content.
 <a id="node-expansionTile"></a>
 ### `ExpansionTile` (`expansionTile`)
 
-Flutter `ExpansionTile`.
+Flutter `ExpansionTile`: its header is the list tile in its `tile` slot (in the notation its strings make it, `ExpansionTile "Shipping" "3 to 5 days"`: the title and the subtitle), and what is under it shows while it is open.
 
 - Written `ExpansionTile`. Level 1 (Widget catalog).
 - Each quoted string is a node under it (a `Text`, its `props.text`): `ExpansionTile "…" "…"` writes two, in order.
