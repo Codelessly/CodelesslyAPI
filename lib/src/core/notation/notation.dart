@@ -2551,7 +2551,9 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     if (_componentLine(raw)) return;
     final indent = raw.length - raw.trimLeft().length;
-    if (_paintLine(indent, raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
+    // (At the indent the page words move the node lines to: a box in a Nav
+    // or a Section is two deeper than written.)
+    if (_paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.

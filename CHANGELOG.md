@@ -35,6 +35,14 @@
 
 ### Fixed
 
+- **A `customPaint` (or `animation`) line under a node in a `Nav`, a `Section`, a `Footer` or another page word is
+  that node's** (round 11b: 6 builds): it was read at the depth written, two shallower than the page word moves the
+  node lines to, so it went to the node above: a logo's mark under `box w=32 h=32` was painted across the row of
+  the wordmark (seat-booking, nonprofit), a hero's console across the hero behind its headline (saas-landing),
+  a route's stops over their names (travel-guide), a floor plan left out of its panel (conference). An
+  `animation#id` as the first line under a `Section` closed the Section's column, so the lines after it went to
+  its band, centred and with no gap (studio-portfolio: the one render error, "BoxConstraints forces an infinite
+  width", at 390).
 - **A Table's sort arrow** is in the theme's accent by its name (a design system's, a site's `primary`), as a
   NavItem's chosen ink is; it was the default blue under any theme (support desk, test 11; round 10, R17).
 - **`every 1m`** (and `every 1h`, `every 2min`) is a timer of that many minutes or hours; it was refused (round 10,

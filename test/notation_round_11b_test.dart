@@ -81,4 +81,57 @@ Column
       expect((_props(r, 't')['decoration'] as Map)['border'], {'type': 'none'});
     });
   });
+
+  test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
+    // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
+    // (the hero's console), travel-guide (the line at a glance), conference.
+    final r = _parse('''
+state stops=[1,2]
+Nav w=fill
+  Row#r1 gap=8 middle
+    box#b1 w=32 h=32 radius=16 border=#FFAE8454
+      customPaint viewBox=[32,32]
+        circle c=[16,16] radius=8 fill=#FFFFFFFF
+    Text "PROSCENIUM"
+Section
+  Row#r2 gap=8
+    box#b2 w=200 h=100 tablet.h=80 radius=14
+      customPaint viewBox=[200,100] fit=fill
+        circle c=[100,50] radius=30 fill=#FFFFFFFF
+    Text "Clear signal."
+  Row#r3 w=fill stretch
+    each s in stops
+      Column#c3 grow gap=4 center
+        box#b3 w=fill h=19
+          customPaint viewBox=[100,19]
+            circle c=[50,9] radius=6 fill=#FF8C5545
+        Text "{s}"
+''');
+    expect(r.issues, isEmpty);
+    for (final id in ['b1', 'b2', 'b3']) {
+      expect(_node(r, id)['customPaint'], isNotNull, reason: id);
+    }
+    for (final id in ['r1', 'r2', 'c3']) {
+      expect(_node(r, id)['customPaint'], isNull, reason: id);
+    }
+  });
+
+  test('an animation as the first line under a Section belongs to the Section and keeps its lines in it', () {
+    // studio-portfolio (project.txt:16): the lines after it went to the band, not the Section's column.
+    final r = _parse('''
+Section#s maxw=1000 gap=22
+  animation#reveal duration=530 curve=easeOutCubic visibleFraction=0.22
+    track path=opacity from=0 to=1
+  Text#t "The brief"
+  Row#row gap=30
+    Text "a"
+''');
+    expect(r.issues, isEmpty);
+    final nodes = r.document['nodes'] as Map;
+    String parentOf(String id) => nodes.entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains(id) ?? false).key as String;
+    expect(parentOf('t'), parentOf('row'));
+    expect(parentOf('t'), isNot('s'), reason: 'under the column of the Section that holds its lines, not its band');
+    final holder = nodes[parentOf('t')] as Map;
+    expect(holder.toString(), contains('reveal'), reason: 'the animation is on the node holding the lines of the Section');
+  });
 }

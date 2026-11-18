@@ -810,6 +810,15 @@ final class PageWords {
   /// already as tall as the window; `Table … radius=0 border=rule`), the
   /// word's is left out and the writer's kept, without a word. A key the
   /// writer wrote twice is still said.
+  /// How far a plain line written at [indent] moves under the lines its
+  /// frames added (a Section's inner column, a Nav's row), as [rewrite]
+  /// moves it, without reading it: a node's custom paint and animation lines
+  /// go under the node they are written under.
+  int shiftAt(int indent) {
+    final parent = _open.lastWhere((l) => l.indent < indent, orElse: () => _Line(-1, null, before: 0));
+    return parent.indent < 0 ? 0 : parent.before + parent.shift;
+  }
+
   List<PageLine> rewrite(int indent, String text) {
     _Parts.handedOut.clear();
     final out = _rewrite(indent, text);
