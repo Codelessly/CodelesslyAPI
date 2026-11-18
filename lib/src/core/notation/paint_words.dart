@@ -39,7 +39,7 @@ final _paintFrames = Expando<List<_PaintFrame>>();
 const notationStrokeWords = {'strokeWidth', 'strokeCap', 'strokeJoin', 'strokeMiterLimit', 'dashPattern', 'scaleStroke'};
 
 /// The first words of the lines [_PaintWords] reads at a node's child depth.
-final _paintHead = RegExp(r'^(customPaint|animation|transition)(?=[\s#{]|$)');
+final _paintHead = RegExp(r'^(customPaint|foregroundPainter|animation|transition)(?=[\s#{]|$)');
 
 /// What the record line [text] reads as, for the printer's check of a line
 /// it writes (print_paint.dart): an op (`kind` `op`), the `customPaint` head,
@@ -96,6 +96,22 @@ extension _PaintWords on _Parser {
       return true;
     }
     text = _paintRenamed(text);
+    if (head[1] == 'foregroundPainter') {
+      // `foregroundPainter` under the node itself (as `customPaint` is): its
+      // ops are drawn over the node's content, beside any painter a
+      // `customPaint` line gives.
+      if (text.trim() != 'foregroundPainter') _issue(column, 'A foregroundPainter line holds only the ops under it; the painter\'s keys (viewBox, fit) go on a customPaint line.');
+      final paint = switch (node['customPaint']) {
+        final Map m => m.cast<String, Object?>(),
+        _ => <String, Object?>{},
+      };
+      node['customPaint'] = paint;
+      _lineTails[open.id]?.remove('customPaint');
+      paint['foregroundPainter'] ??= <Object?>[];
+      frames.add(_PaintFrame(indent, open.id, 'ops', paint, list: 'foregroundPainter'));
+      _paintChanged(open.id, 'customPaint');
+      return true;
+    }
     if (head[1] == 'customPaint') {
       final paint = _paintRecord(text, column, CustomPaintFields.all, head: 'customPaint');
       if (paint == null) {
@@ -104,6 +120,10 @@ extension _PaintWords on _Parser {
       }
       // The block is the node's custom paint, whole: written after the
       // line, it replaces a `customPaint` its `{…}` tail gave.
+      // A foregroundPainter line written before it, under the node, stays.
+      if (node['customPaint'] case final Map before when before['foregroundPainter'] != null && !paint.containsKey('foregroundPainter') && !(_lineTails[open.id]?.containsKey('customPaint') ?? false)) {
+        paint['foregroundPainter'] = before['foregroundPainter'];
+      }
       node['customPaint'] = paint;
       _lineTails[open.id]?.remove('customPaint');
       frames.add(_PaintFrame(indent, open.id, 'customPaint', paint));

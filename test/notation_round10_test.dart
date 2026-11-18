@@ -76,4 +76,34 @@ App
       expect(r.issues.map((i) => i.message), [contains('radius= is written twice')]);
     });
   });
+
+  group('R2: foregroundPainter is written under the node, as customPaint is', () {
+    test('alone, and beside a customPaint written after it', () {
+      final r = _parse('''
+Column
+  Box#c h=100 fill=#FFEEEEEE
+    foregroundPainter
+      circle c=[50,50] radius=20 fill=#FF000000
+  Box#d h=100
+    foregroundPainter
+      circle c=[50,50] radius=20 fill=#FF000000
+    customPaint viewBox=[100,100]
+      rect rect=[0,0,10,10] fill=#FFFF0000
+''');
+      expect(r.issues, isEmpty);
+      final c = _node(r, 'c')['customPaint'] as Map;
+      expect((c['foregroundPainter'] as List).single, containsPair('op', 'circle'));
+      expect(c['painter'], isNull);
+      final d = _node(r, 'd')['customPaint'] as Map;
+      expect((d['foregroundPainter'] as List).single, containsPair('op', 'circle'));
+      expect((d['painter'] as List).single, containsPair('op', 'rect'));
+      expect(d['viewBox'], [100, 100]);
+      // It prints back, and reads as the same document.
+      final printed = printNotation(r.document, catalog: standardCatalog);
+      expect(printed, isNot(contains('{"')));
+      final again = _parse(printed);
+      expect(again.issues, isEmpty);
+      expect(_node(again, 'd')['customPaint'], d);
+    });
+  });
 }
