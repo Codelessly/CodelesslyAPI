@@ -420,7 +420,7 @@ The props that matter most; each type's page lists all of them.
 "variables": {"page_variables": [
   {"name": "annual", "type": "boolean", "value": false},
   {"name": "plans", "type": "list", "value": [{"name": "Team", "monthly": 39}]},
-  {"name": "price", "type": "number", "formula": "annual ? plans[0].monthly * 0.8 : plans[0].monthly"},
+  {"name": "price", "type": "decimal", "formula": "annual ? plans[0].monthly * 0.8 : plans[0].monthly"},
   {"name": "usd", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
 ]}
 ```

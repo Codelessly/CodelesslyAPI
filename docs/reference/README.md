@@ -16,7 +16,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 
 | File | What it is | Words | ≈ tokens |
 |---|---|---|---|
-| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6182 | 12762 |
+| [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6182 | 12763 |
 | [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 6167 | 11785 |
 | [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4580 | 14028 |
 | [layout.md](layout.md) | Feature page. | 10330 | 18828 |
