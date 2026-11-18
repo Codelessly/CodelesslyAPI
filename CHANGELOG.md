@@ -1,7 +1,19 @@
 ## Unreleased
 
+### Behaviour changes
+
+- **A Grid's columns at a narrower width win over a wider one's**, in whatever order they are written: `Grid
+  cols=4 phone.cols=2 tablet.cols=3` gives a phone 2 columns (the rules were kept in the order written and the
+  later, the tablet's, held on a phone too: the phone showed 3). Only a Grid that wrote its phone's columns before
+  its tablet's draws differently, and it now draws what it says.
+
 ### Fixed
 
+- **A Grid of cells written one by one takes its columns at other widths** (`Grid cols=4 phone.cols=2` over four
+  `Stat` lines; round 10, R11, 22 runs, and the support desk): it is the grid an `each` makes, over `range(n)`, each
+  copy showing its own cell (`visible={item == k}`), which a writer could have said with an `each` and an `if`. It
+  was refused ("cells written one by one stay in their rows"). It prints back as written. Inside an `each` it is
+  still said.
 - **`resizable` on a pane** (`Pane w=300 resizable`, `Sidebar … resizable=@w`; round 10, R50, 6 runs) is said with
   the way the base resizes a pane: a `Splitter @listW` beside it, the pane `w={listW}`. It was "Unknown word", or
   with the open vocabulary recorded and ignored. Nothing new is drawn.

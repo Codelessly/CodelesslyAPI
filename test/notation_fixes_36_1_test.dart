@@ -18,6 +18,52 @@ NotationResult _with(Catalog extra, String text, [NotationOptions options = cons
 }
 
 void main() {
+  group('R11: a Grid of cells written one by one takes its columns at other widths', () {
+    test('Grid cols=4 phone.cols=2 tablet.cols=3 over five cells: the grid an each over range(5) makes, a cell a copy', () {
+      final r = parseNotation('''
+Column
+  Grid#g cols=4 phone.cols=2 tablet.cols=3 gap=16
+    Box#a h=40
+      Text "1"
+    Text#b "2"
+    Text#c "3" visible={on}
+    Text#d "4"
+    Text#e "5"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+      expect(r.issues, isEmpty);
+      final list = _node(r, 'gCells');
+      expect(list['type'], 'gridView');
+      expect((list['props'] as Map)['crossAxisCount'], 4);
+      expect((list['bind'] as Map)['data'], r'${= range(5)}');
+      // The narrower width's rule last, so it wins where both hold.
+      expect(list['media'], [
+        {'maxWidth': 1023, 'patch': {'props': {'crossAxisCount': 3}}},
+        {'maxWidth': 699, 'patch': {'props': {'crossAxisCount': 2}}},
+      ]);
+      expect(_node(r, 'gCellsItem')['children'], ['a', 'b', 'c', 'd', 'e']);
+      expect((_node(r, 'a')['bind'] as Map)['visible'], r'${= item == 0}');
+      expect((_node(r, 'c')['bind'] as Map)['visible'], r'${= (item == 2) && (on)}');
+      expect(_node(r, 'g')['children'], ['gCells']);
+      // No rows and no spacers filling the last one.
+      expect((r.document['nodes'] as Map).keys.where((k) => '$k'.startsWith('gRow') || '$k'.startsWith('spacer')), isEmpty);
+    });
+
+    test('it prints back as the Grid line and its cells', () {
+      const text = 'Column\n  Grid#g cols=4 gap=16 tablet.cols=3 phone.cols=2\n    Text "1"\n    Text "2"\n    Text "3" hidden\n';
+      final r = parseNotation(text, catalog: standardCatalog, options: const NotationOptions(width: 1440));
+      final printed = printNotation(r.document, catalog: standardCatalog);
+      expect(printed, contains('  Grid#g cols=4 gap=16 tablet.cols=3 phone.cols=2\n    Text "1"\n    Text "2"\n    Text "3" hidden'));
+      final back = parseNotation(printed, catalog: standardCatalog, options: notationOptionsFor(r.document));
+      expect(back.document, r.document);
+    });
+
+    test('without columns at other widths the cells stay in rows, as before', () {
+      final r = parseNotation('Grid#g cols=2\n  Text "a"\n  Text "b"\n  Text "c"\n', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'g')['children'], ['gRow1', 'gRow2']);
+    });
+  });
+
   group('R41: a string on a component call fills a text parameter the line does not name', () {
     final heading = catalogFromJson({
       'widgets': [

@@ -5066,12 +5066,17 @@ class _Parser {
     // A component's strings fill its text parameters in order.
     void componentString(String raw, int col) {
       final text = _interpolate(raw);
-      bool free(String k) => !props.containsKey(k) && !bind.containsKey('props.$k') && !namedOnLine.contains(k);
+      bool given(String k) => props.containsKey(k) || bind.containsKey('props.$k');
+      bool free(String k) => !given(k) && !namedOnLine.contains(k);
       // Past the strings it is known by, a further string goes to its next
       // text parameter not yet given, in the order they are declared
-      // (CartLine "Bananas" "1 kg" "$2.49": the price).
+      // (CartLine "Bananas" "1 kg" "$2.49": the price). One every text
+      // parameter of which the line names goes to the first (and the key
+      // is then said written twice).
       final key = strings.where(free).firstOrNull ??
-          spec.props.where((p) => p.type.kind == PropKind.string && free(p.key)).firstOrNull?.key;
+          spec.props.where((p) => p.type.kind == PropKind.string && free(p.key)).firstOrNull?.key ??
+          strings.where((k) => !given(k)).firstOrNull ??
+          spec.props.where((p) => p.type.kind == PropKind.string && !given(p.key)).firstOrNull?.key;
       if (key == null) {
         _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key="value".');
       } else if (text.contains(r'${')) {
@@ -5270,6 +5275,14 @@ class _Parser {
                   ..mediaColumn = col;
               }
               grid.mediaCols.add({...m.condition, 'patch': {'props': {'crossAxisCount': n}}});
+              // The narrower width's rule after the wider's, so it wins where
+              // both hold (`phone.cols=2 tablet.cols=3` gave a phone 3).
+              num widest(Json r) => (r['maxWidth'] as num?) ?? double.infinity;
+              final order = [for (var i = 0; i < grid.mediaCols.length; i++) (i, grid.mediaCols[i])]
+                ..sort((a, b) => widest(b.$2).compareTo(widest(a.$2)) != 0 ? widest(b.$2).compareTo(widest(a.$2)) : a.$1.compareTo(b.$1));
+              grid.mediaCols
+                ..clear()
+                ..addAll([for (final e in order) e.$2]);
             }
           } else if (!_mediaLine) {
             mediaWords.add((condition: m.condition, word: ruleWord, column: col));
@@ -8141,6 +8154,14 @@ class _Parser {
   /// Moves [id], just added under a grid, into the grid's current row (a
   /// new row every `cols` cells).
   void _intoRow(_Grid g, String id) {
+    // Cells written one by one with columns at other widths (`Grid cols=4
+    // phone.cols=2`, round 10, R11: 22 runs) are laid out by the grid an
+    // each makes ([_literalGrids]); not inside an each, whose copy that
+    // grid's would hide.
+    if (g.mediaCols.isNotEmpty && !g.mediaSaid && !_stack.any((o) => o.each != null)) {
+      _literalCells.add(g);
+      g.mediaSaid = true;
+    }
     if (g.mediaCols.isNotEmpty && !g.mediaSaid) {
       g.mediaSaid = true;
       if (!_top._quiet) {
@@ -8172,6 +8193,82 @@ class _Parser {
     (nodes[g.row]!['children'] as List<Object?>).add(id);
     _parentOf[id] = g.row!;
     g.inRow++;
+  }
+
+  /// The Grids of cells written one by one whose columns change at other
+  /// widths ([_intoRow]).
+  final _literalCells = <_Grid>[];
+
+  /// Each Grid of [_literalCells], once its cells are all read, is the grid an
+  /// `each k in range(n)` makes: one copy a cell, each copy showing its own
+  /// (`visible={item == k}`), so `tablet.cols` and `phone.cols` are the
+  /// grid's columns at those widths as they are over an each. What a
+  /// writer could say with an each and an if, said for them.
+  void _literalGrids() {
+    for (final g in _literalCells) {
+      final grid = nodes[g.id];
+      if (grid == null) continue;
+      final rows = [for (final k in (grid['children'] as List?) ?? const []) if (_gridRows[k] == g) k as String];
+      final cells = [
+        for (final r in rows) ...[for (final c in (nodes[r]?['children'] as List?) ?? const []) c as String],
+      ];
+      if (cells.isEmpty) continue;
+      final list = _taken('${g.id}Cells') ? _id('gridView') : '${g.id}Cells';
+      final item = '${list}Item';
+      nodes[list] = {
+        'type': 'gridView',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
+        'bind': {
+          'data': _formula('range(${cells.length})'),
+          if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,
+        },
+        'media': [for (final r in g.mediaCols) _copy(r)],
+        'children': <Object?>[item],
+      };
+      nodes[item] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {'crossAxisAlignment': 'start'},
+        'children': <Object?>[...cells],
+      };
+      _parentOf[list] = g.id;
+      _parentOf[item] = list;
+      _gridLists[list] = g.id;
+      for (final r in rows) {
+        nodes.remove(r);
+        _gridRows.remove(r);
+        _parentOf.remove(r);
+      }
+      grid['children'] = [for (final k in (grid['children'] as List?) ?? const []) if (!rows.contains(k)) k, list];
+      for (var k = 0; k < cells.length; k++) {
+        final cell = nodes[cells[k]]!;
+        _parentOf[cells[k]] = item;
+        // A cell takes its copy's width (a row's cell grew to share it).
+        final layout = readMap(cell['layout']);
+        if (layout != null) layout.remove('flex');
+        // One written hidden stays hidden.
+        if (cell['visible'] == false) continue;
+        final bind = readMap(cell['bind']) ?? <String, Object?>{};
+        final own = bind['visible'];
+        final mine = _formula('item == $k');
+        bind['visible'] = own is String ? _and(mine, own) : mine;
+        cell['bind'] = bind;
+      }
+      if (_canvas) {
+        ops
+          ..add({'op': 'set', 'id': list, 'parent': g.id, 'index': (grid['children'] as List).length - 1, 'node': {...nodes[list]!}..remove('children')})
+          ..add({'op': 'set', 'id': item, 'parent': list, 'index': 0, 'node': {...nodes[item]!}..remove('children')})
+          ..addAll([
+            for (var k = 0; k < cells.length; k++) ...[
+              {'op': 'move', 'id': cells[k], 'parent': item, 'index': k},
+              {'op': 'patch', 'id': cells[k], 'patch': {'bind': {'visible': readMap(nodes[cells[k]]!['bind'])?['visible']}, 'layout': {'flex': null}}},
+            ],
+          ])
+          ..add({'op': 'remove', 'ids': rows});
+      }
+    }
+    _literalCells.clear();
   }
 
   /// The stand-ins written so far that may have nothing to draw, by node id,
@@ -8378,7 +8475,8 @@ class _Parser {
     _fitRow(open);
     final g = open.grid;
     if (g == null || open.id != g.id || open.condition != null || g.row == null) return;
-    while (g.inRow < g.cols) {
+    // A grid of cells that becomes a list's ([_literalGrids]) is filled by it.
+    while (g.inRow < g.cols && !_literalCells.contains(g)) {
       final sid = _id('spacer');
       nodes[sid] = {'type': 'spacer', 'layout': {'flex': 1, 'width': {'fill': 0}, 'height': {'hug': 0}}};
       (nodes[g.row]!['children'] as List<Object?>).add(sid);
@@ -8542,6 +8640,7 @@ class _Parser {
       }
       _unstated.clear();
     }
+    _literalGrids();
     _ownLegends();
     _feet();
     _endButtons();
