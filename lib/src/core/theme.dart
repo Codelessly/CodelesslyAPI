@@ -35,6 +35,7 @@ final class ThemeTokens {
     this.titleFontFamily,
     this.radius,
     this.buttonRadius,
+    this.iconStyle,
     this.colors = const {},
     this.textStyles = const {},
     this.dark,
@@ -80,6 +81,11 @@ final class ThemeTokens {
 
   /// Corner radius of buttons.
   final double? buttonRadius;
+
+  /// The style a Material icon written by its bare name is drawn in by a
+  /// UI written in the notation (`outlined`, `rounded`, `sharp`); null:
+  /// filled, as written.
+  final String? iconStyle;
 
   /// Every named color of the project by key ([themeKey] of its name:
   /// "Brand Blue" is `brandBlue`), read as `${theme.colors.brandBlue}`.
@@ -337,6 +343,7 @@ final class ThemeTokens {
       titleFontFamily: titleFontFamily,
       radius: radius,
       buttonRadius: buttonRadius,
+      iconStyle: iconStyle,
       colors: colors,
       textStyles: textStyles,
       dark: dark,
@@ -409,6 +416,7 @@ final class ThemeTokens {
       titleFontFamily: titleFontFamily,
       radius: radius,
       buttonRadius: buttonRadius,
+      iconStyle: iconStyle,
       colors: {...colors, ...d.colors},
       textStyles: textStyles,
       media: media,
@@ -455,6 +463,7 @@ final class ThemeTokens {
       titleFontFamily: readString(m['titleFontFamily']),
       radius: readDouble(m['radius']),
       buttonRadius: readDouble(m['buttonRadius']),
+      iconStyle: readString(m['iconStyle']),
       colors: {
         for (final e in (readMap(m['colors']) ?? const {}).entries)
           if (Color.fromJson(e.value) case final Color c) e.key: c,
@@ -502,6 +511,7 @@ final class ThemeTokens {
     put(j, 'titleFontFamily', titleFontFamily);
     put(j, 'radius', radius?.let(writeDouble));
     put(j, 'buttonRadius', buttonRadius?.let(writeDouble));
+    put(j, 'iconStyle', iconStyle);
     if (colors.isNotEmpty) j['colors'] = {for (final e in colors.entries) e.key: e.value.toJson()};
     if (textStyles.isNotEmpty) j['textStyles'] = {for (final e in textStyles.entries) e.key: e.value.toJson()};
     if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
@@ -530,6 +540,7 @@ final class ThemeTokens {
       other.titleFontFamily == titleFontFamily &&
       other.radius == radius &&
       other.buttonRadius == buttonRadius &&
+      other.iconStyle == iconStyle &&
       jsonEquality.equals(other.colors, colors) &&
       jsonEquality.equals(other.textStyles, textStyles) &&
       other.dark == dark &&
@@ -544,7 +555,7 @@ final class ThemeTokens {
 
   @override
   int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
-      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media), mode,
+      titleFontFamily, radius, Object.hash(buttonRadius, iconStyle), jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, Object.hashAll(media), mode,
       Object.hash(jsonEquality.hash(spacing), jsonEquality.hash(radii), jsonEquality.hash(sizes), jsonEquality.hash(shadows),
           jsonEquality.hash(durations), jsonEquality.hash(curves)));
 }

@@ -183,6 +183,8 @@ final class NotationOptions {
     this.siteFill,
     this.paneFill,
     this.iconTile,
+    this.sideFill,
+    this.iconStyle,
     this.controlHeight,
     this.fieldLabel,
     this.fieldText,
@@ -265,6 +267,8 @@ final class NotationOptions {
         siteFill: siteFill,
         paneFill: paneFill,
         iconTile: iconTile,
+        sideFill: sideFill,
+        iconStyle: iconStyle,
         controlHeight: controlHeight,
         fieldLabel: fieldLabel,
         fieldText: fieldText,
@@ -322,6 +326,8 @@ final class NotationOptions {
       siteFill: base.siteFill,
       paneFill: base.paneFill,
       iconTile: base.iconTile,
+      sideFill: base.sideFill,
+      iconStyle: base.iconStyle,
       controlHeight: base.controlHeight,
       fieldLabel: base.fieldLabel,
       fieldText: base.fieldText,
@@ -495,6 +501,8 @@ final class NotationOptions {
       siteFill: colors['pageFill'] != null ? color('pageFill', '#FFFFFFFF') : null,
       paneFill: colors['card'] != null ? color('card', '#FFFFFFFF') : null,
       iconTile: colors['iconTile'] != null ? color('iconTile', '#1A2563EB') : null,
+      sideFill: colors['sidebar'] != null ? color('sidebar', '#FFFFFFFF') : null,
+      iconStyle: switch (theme['iconStyle']) { final String s when const {'outlined', 'rounded', 'sharp'}.contains(s) => s, _ => null },
       controlHeight: readDouble(sizes['control']),
       fieldLabel: isWide ? styles['fieldLabelWide'] : null,
       fieldText: isWide ? styles['inputTextWide'] : null,
@@ -585,6 +593,8 @@ final class NotationOptions {
         siteFill: siteFill,
         paneFill: paneFill,
         iconTile: iconTile,
+        sideFill: sideFill,
+        iconStyle: iconStyle,
         controlHeight: controlHeight,
         fieldLabel: fieldLabel,
         fieldText: fieldText,
@@ -678,6 +688,18 @@ final class NotationOptions {
   /// on, an app's sidebar and top bar, and the tile behind an icon: a
   /// theme's `colors.band`, `pageFill`, `card` and `iconTile`. Null: none.
   final String? band, siteFill, paneFill, iconTile;
+
+  /// What an app's `Sidebar` (and a drawer's panel) is drawn on: a theme's
+  /// `colors.sidebar`, so the chrome can be a step off the panes and the
+  /// cards (`colors.card`). Null: [paneFill].
+  final String? sideFill;
+
+  /// The style a Material icon written by its bare name is drawn in: a
+  /// theme's `iconStyle` (`outlined`, `rounded`, `sharp`), so every icon of
+  /// the page shares the design system's look (`Icon "inbox"` is
+  /// `inbox_outlined`). A name with a style of its own keeps it. Null: as
+  /// written (filled).
+  final String? iconStyle;
 
   /// The styles of a field's label and of its text on a page: a theme's
   /// `fieldLabelWide` and `inputTextWide`. Null: the control's own.
@@ -2472,6 +2494,7 @@ class _Parser {
     band: options.band,
     siteFill: options.siteFill,
     paneFill: options.paneFill,
+    sideFill: options.sideFill,
     iconTile: options.iconTile,
     accentName: options.accent,
     accentText: options.accentText,
@@ -7076,6 +7099,7 @@ class _Parser {
       }
     }
 
+    if (options.iconStyle case final style?) _styleIcons(props, style);
     bindReads(props, 'props');
     bindReads(layout, 'layout');
     bindReads(decoration, 'decoration');
@@ -9674,3 +9698,27 @@ class _Tokens {
 
 /// The events a line may give, as an issue lists them.
 const _eventsTaught = 'onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop';
+
+/// [props] with every Material icon written by its bare name (`inbox`, at a
+/// key named `icon` or ending in `Icon`, in the props or a record or list in
+/// them: a tab's, a segment's, a menu item's) drawn in [style]
+/// ([NotationOptions.iconStyle]). A name with a style of its own, an
+/// expression and anything else are left as written.
+void _styleIcons(Object? props, String style) {
+  final suffix = '_$style';
+  bool isIconKey(Object? k) => k is String && (k == 'icon' || k.endsWith('Icon'));
+  if (props is Map) {
+    for (final k in props.keys.toList()) {
+      final v = props[k];
+      if (isIconKey(k) && v is String && RegExp(r'^[a-z0-9_]+$').hasMatch(v) && !RegExp(r'_(outlined|outline|rounded|sharp|filled)$').hasMatch(v)) {
+        props[k] = '$v$suffix';
+      } else if (v is Map || v is List) {
+        _styleIcons(v, style);
+      }
+    }
+  } else if (props is List) {
+    for (final e in props) {
+      _styleIcons(e, style);
+    }
+  }
+}

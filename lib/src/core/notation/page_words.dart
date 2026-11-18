@@ -42,6 +42,7 @@ final class PageWords {
     this.band,
     this.siteFill,
     this.paneFill,
+    this.sideFill,
     this.accentName,
     this.accentText,
     this.iconTile,
@@ -73,6 +74,9 @@ final class PageWords {
   /// A tinted section's fill, what a website page is drawn on, and the fill
   /// of an app's sidebar and top bar; null: none is written.
   final String? band, siteFill, paneFill, iconTile;
+
+  /// What an app's sidebar is drawn on (a theme's `colors.sidebar`); null: [paneFill].
+  final String? sideFill;
 
   /// The accent as the theme names it (a selected item's ink); null: [accent].
   final String? accentName;
@@ -351,7 +355,7 @@ final class PageWords {
             if (right) beside,
             // A drawer's edge is the scrim's: no rule at its side (a light
             // line round a dark panel), unless the line writes a border.
-            (indent: 2, text: 'Sidebar w=${_n(w)} pad=$pad gap=$gap${parts.has('fill') || paneFill != null ? '' : ' fill=${overlaySurface ?? surface}'}${parts.hasBorder ? '' : ' border-right=#00000000'}${parts.all}'),
+            (indent: 2, text: 'Sidebar w=${_n(w)} pad=$pad gap=$gap${parts.has('fill') || (sideFill ?? paneFill) != null ? '' : ' fill=${overlaySurface ?? surface}'}${parts.hasBorder ? '' : ' border-right=#00000000'}${parts.all}'),
             if (title != null) (indent: 4, text: 'Text${heading == null ? '' : '.$heading'} $title$_overlayInk'),
           ],
           shift: 2,
@@ -923,7 +927,8 @@ final class PageWords {
       final pad = parts.take('pad') ?? '[12,16,12,12]';
       final gap = parts.take('gap') ?? '2';
       open(frame: framed ? 'Sidebar' : null);
-      final fill = !framed || parts.has('fill') || paneFill == null ? '' : ' fill=$paneFill';
+      final side = sideFill ?? paneFill;
+      final fill = !framed || parts.has('fill') || side == null ? '' : ' fill=$side';
       if (framed && root == 'App' && indent > 0 && !_mainSeen) {
         _panesBefore++;
         _widthBefore += double.tryParse(width) ?? sidebarWidth;
