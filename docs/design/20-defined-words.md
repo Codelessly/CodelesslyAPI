@@ -448,7 +448,34 @@ With no lines under it, a use is the standard labelled box (a quiet bordered col
 string, `h={h}` when the signature has an `h`, the lines written under the use in it); with lines, it is those, as a
 definition's are. Its use is read exactly as a definition's (its parameters and events are its own, nothing is
 unknown on it) and recorded as kind `primitive` (`to` the word), never as `definition`; what it leaves unused is
-expected and not warned on. A design system's file may declare one too (`primitive MapView center=[0,0] …`). The
+expected and not warned on. A design system's file may declare one too (`primitive MapView center=[0,0] …`).
+
+**A stand-in with nothing to draw** (round 11: fourteen of thirty briefs lost a screen to one). A writer names
+behaviours with no picture as primitives, or leaves them undefined: `KeyboardShortcut keys="Ctrl+K" onPress={…}`,
+`LiveStatus @notice`, `Clock onTick`, `ThemePreference mode={appearance}`, `ReviewSound`, `MenuScroll @category`.
+Their labelled box spanned the window, took an App's pane, or, written before the `App`, became a second root that
+pushed the app down and took its window. Now, for a use of a primitive declared with no lines and for a word that
+stands in (open vocabulary):
+
+- **beside the frame**: written at the top of a page whose top holds an `App` or a `Page`, with nothing under it,
+  it draws nothing and takes no room, and the frame stays the page's root (with its window);
+- **a behaviour with no picture**: when the word's parts (split where a capital starts) name one (keys, keyboard,
+  shortcut, bindings, listener, announce, announcement, live, clock, timer, sound, preference, theme, motion,
+  scroll, observer, monitor, watcher, spy, trigger, follow, guard, focus, clipboard, copy, transition, engine,
+  runtime) and none names something seen (button, bar, field, input, picker, chip, row, card, panel, map, slider,
+  dial, grid, canvas, list, tile, tab, menu, badge, label, text, icon, view, sheet, dialog, surface, lane, ruler,
+  chart, scene, image, photo, line, alert, toggle, banner, toast, progress…), and the use gives no size (`w`, `h`,
+  `grow`) and no text (an announcement's text is what it says, not what it shows), it draws nothing and takes no
+  room wherever it is; with lines under its use, it is those lines with no labelled box round them
+  (`CardKeys … / TaskCard …`);
+- anything else keeps its labelled box (`SeatMap h=200`, `SectionPreference "Show weather"`, `PropertyScene`): a
+  picture the notation cannot draw stays visible as missing.
+
+Its use is recorded as before (kind `primitive` or `type`), and the render says it, as drawing nothing (no node) or
+as its lines with no box. The parts are a list read from the round's words, not a rule of the grammar: a word it
+misses still draws its box, which is what it did before.
+
+The
 SDK tool counts a primitive and every word its uses were given as **stand-in**, apart from resolved and unknown,
 and lists the declarations ("Primitives declared"): that list is the work, written by the writers in the shape they
 need. The open prompt teaches it in one sentence of the define paragraph.

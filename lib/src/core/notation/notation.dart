@@ -1590,6 +1590,11 @@ class _ListWords {
   String? value(String word) => words[word]?.value;
 }
 
+/// A stand-in or a primitive's use, as [_Parser._silence] reads it: its
+/// word, whether it is a primitive's (its first child its label), at the top
+/// of the page, and whether its line gives a text or a size.
+typedef _Silent = ({String word, bool primitive, bool top, int said, bool sized});
+
 class _Open {
   _Open(this.indent, this.id, this.type,
       {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot});
@@ -1973,7 +1978,7 @@ class _Parser {
     // word replaces the component there (docs/design/20 section 6).
     used: (d, parts, node, column) => _use(d.primitive ? 'primitive' : 'definition', parts.word, column,
         to: d.label,
-        node: node,
+        node: _bareRoot(d, parts, node),
         parts: parts,
         of: d.file != 'page'
             ? null
@@ -3748,9 +3753,32 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     // A page that writes its own drawer gets none made from its sidebar.
     if (RegExp(r'^Drawer\b', multiLine: true).hasMatch(text)) _pages.ownDrawer = true;
-    const LineSplitter().convert(text).forEach(_readLine);
+    final rows = const LineSplitter().convert(text);
+    _silentTopLines = _topLinesAlone(rows);
+    rows.forEach(_readLine);
     finish();
     return _end();
+  }
+
+  /// The lines (1-based) of [rows] written at the top with nothing under
+  /// them, other than the frame, when the top holds an `App` or a `Page`:
+  /// where a stand-in draws nothing ([_silence]).
+  static Set<int> _topLinesAlone(List<String> rows) {
+    final frame = RegExp(r'^(App|Page)\b');
+    if (!rows.any(frame.hasMatch)) return const {};
+    bool skipped(String l) => l.trim().isEmpty || l.trimLeft().startsWith('//');
+    bool under(String l) => l.startsWith(' ') || l.startsWith('\t');
+    final out = <int>{};
+    for (var i = 0; i < rows.length; i++) {
+      final l = rows[i];
+      if (skipped(l) || under(l) || !RegExp(r'^[A-Z]').hasMatch(l) || frame.hasMatch(l)) continue;
+      var j = i + 1;
+      while (j < rows.length && skipped(rows[j])) {
+        j++;
+      }
+      if (j == rows.length || !under(rows[j])) out.add(i + 1);
+    }
+    return out;
   }
 
   /// The text read so far, for what its brackets say at [finish].
@@ -3776,6 +3804,7 @@ class _Parser {
       for (final e in p._lineTails.entries) {
         if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
       }
+      p._dropped.forEach(p.nodes.remove);
       p._dropOrphans();
       if (before != null) {
         for (final e in before.entries) {
@@ -4714,6 +4743,13 @@ class _Parser {
     }
     if (head[3] != null) _top._idAt.putIfAbsent(id, () => (line: _line, condition: under));
     _lastNode = id;
+    // A stand-in, or the root of a use of a primitive declared with no lines:
+    // what it draws is settled when it closes ([_silence]).
+    if (_bareUse.remove(id) case final bare?) {
+      _silent[id] = bare;
+    } else if (standIn) {
+      _silent[id] = _silentOf(written, LineParts.of(_src.startsWith(written) ? _src : line));
+    }
     if (standIn) {
       final parts = LineParts.of(_src.startsWith(written) ? _src : line);
       final use = _use('type', written, column, node: id, parts: parts);
@@ -7677,7 +7713,16 @@ class _Parser {
         _parentOf[child] = id;
       }
     }
-    if (parent == null) {
+    // A stand-in with nothing to draw at the top of a page beside its App or
+    // Page (a key handler, a clock, a theme switch written before the frame):
+    // not drawn, and the frame stays the page's root (it was a bar above the
+    // app, and the app lost its window). Its use is recorded as before.
+    final silentTop = parent == null && _silentTopLines.contains(_line) && (standIn || _silent.containsKey(id));
+    if (silentTop) {
+      final s = _silent[id]!;
+      _silent[id] = (word: s.word, primitive: s.primitive, said: s.said, sized: s.sized, top: true);
+      _skipEmit.add(id);
+    } else if (parent == null) {
       if (_root != null) {
         // A page written as several top-level sections (a header, the
         // content, a footer): they stack in a column that becomes the root.
@@ -8137,6 +8182,126 @@ class _Parser {
   /// each with its label (the word, and its first string value).
   final _bareStandIns = <String, String>{};
 
+  /// The roots of uses of a primitive declared with no lines, by the id the
+  /// use gives them, before their line is read ([_bareRoot]).
+  final _bareUse = <String, _Silent>{};
+
+  /// The stand-ins and the uses of a primitive declared with no lines, by
+  /// node id: what [_silence] reads when each closes.
+  final _silent = <String, _Silent>{};
+
+  /// The lines (1-based) written at the top of the text with nothing under
+  /// them, in a text whose top also holds an `App` or a `Page` ([parse]).
+  Set<int> _silentTopLines = const {};
+
+  /// The nodes [_silence] took out, left out of the document at its end.
+  final _dropped = <String>{};
+
+  /// [node], the root of a use of [d], noted when [d] is a primitive with no
+  /// lines of its own.
+  String _bareRoot(NotationDefinition d, LineParts parts, String node) {
+    if (d.bare) _bareUse[node] = _silentOf(d.word, parts, primitive: true);
+    return node;
+  }
+
+  /// What a stand-in's line (or a primitive's use) [p] gives: a text, a size.
+  static _Silent _silentOf(String word, LineParts? p, {bool primitive = false}) => (
+        word: word,
+        primitive: primitive,
+        top: false,
+        said: p?.strings.length ?? 0,
+        sized: p?.parts.any((x) =>
+                (x.kind == 'pair' && const {'w', 'h', 'width', 'height', 'minh', 'minw', 'aspect', 'ratio'}.contains(x.key)) ||
+                (x.kind == 'word' && const {'grow', 'expand'}.contains(x.raw))) ??
+            false,
+      );
+
+  /// The parts of a word (split where a capital starts) that name a
+  /// behaviour with no picture: a key or a shortcut, an announcement, a
+  /// clock, a sound, a preference, a watch on the scroll, a guard, a focus,
+  /// a copy (round 11: `KeyboardShortcut`, `LiveStatus`, `Clock`,
+  /// `ReviewSound`, `ThemePreference`, `MenuScroll`, `DraftGuard`).
+  static const _behaviourParts = {
+    'keys', 'keyboard', 'shortcut', 'shortcuts', 'hotkey', 'hotkeys', 'bindings', 'listener', //
+    'announce', 'announcer', 'announcement', 'announcements', 'live', //
+    'clock', 'timer', 'ticker', 'sound', 'sounds', 'chime', 'haptic', 'haptics', //
+    'preference', 'preferences', 'theme', 'motion', //
+    'scroll', 'observer', 'monitor', 'watcher', 'spy', 'trigger', 'follow', 'following', //
+    'guard', 'focus', 'clipboard', 'copy', 'transition', 'engine', 'runtime',
+  };
+
+  /// The parts that name something seen, which a behaviour's part does not
+  /// outweigh (`ClipboardButton`, `ScrollMenu`, `ClockLine`).
+  static const _pictureParts = {
+    'button', 'bar', 'field', 'input', 'picker', 'chip', 'chips', 'row', 'card', 'panel', 'map', 'slider', 'dial', //
+    'grid', 'canvas', 'list', 'tile', 'tab', 'tabs', 'menu', 'badge', 'label', 'text', 'icon', 'view', 'sheet', //
+    'dialog', 'surface', 'lane', 'ruler', 'chart', 'scene', 'image', 'photo', 'avatar', 'cap', 'legend', 'hint', //
+    'line', 'alert', 'action', 'toggle', 'switch', 'banner', 'toast', 'pill', 'indicator', 'meter', 'progress',
+  };
+
+  /// Whether [word] names a behaviour with no picture (its parts:
+  /// `KeyboardShortcut` is keyboard, shortcut).
+  static bool _behaviour(String word) {
+    final parts = [for (final m in RegExp(r'[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+').allMatches(word)) m[0]!.toLowerCase()];
+    return parts.any(_behaviourParts.contains) && !parts.any(_pictureParts.contains);
+  }
+
+  /// A stand-in, or the use of a primitive with no lines, that closes: it
+  /// draws nothing and takes no room when nothing is written under it and it
+  /// stands at the top of the page beside its App or Page, or it names a
+  /// behaviour with no picture and gives no size (nor a text, unless it
+  /// announces it). A use of such a behaviour with lines under it is those
+  /// lines, with no labelled box round them. Its record is kept: the render
+  /// says it. True when the node is gone.
+  bool _silence(_Open open) {
+    if (open.condition != null) return false;
+    final s = _silent.remove(open.id);
+    final node = nodes[open.id];
+    if (s == null || node == null) return false;
+    final kids = readStrings(node['children']);
+    // A primitive's labelled box: its label first, the lines under the use
+    // after it; a stand-in's: its strings' texts first.
+    final first = s.primitive ? 1 : s.said;
+    final own = kids.length > first ? kids.sublist(first) : const <String>[];
+    final parts = [for (final m in RegExp(r'[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+').allMatches(s.word)) m[0]!.toLowerCase()];
+    final announces = parts.any(const {'announce', 'announcer', 'announcement', 'announcements', 'live'}.contains);
+    final behaviour = _behaviour(s.word) && !s.sized && (s.said == 0 || announces);
+    if (own.isEmpty && (s.top || behaviour)) {
+      _bareStandIns.remove(open.id);
+      final gone = <String>[];
+      void walk(String id) {
+        gone.add(id);
+        readStrings(nodes[id]?['children']).forEach(walk);
+      }
+
+      walk(open.id);
+      if (_parentOf.remove(open.id) case final String parent) (nodes[parent]?['children'] as List?)?.remove(open.id);
+      // Left out of the document at its end: the line being read counts
+      // the nodes it adds from those there before it.
+      _dropped.addAll(gone);
+      if (_canvas && !s.top) ops.add({'op': 'remove', 'ids': gone});
+      return true;
+    }
+    // A wrapper of what it holds is named after it (`CardKeys`): its
+    // behaviour's part is enough.
+    if (own.isNotEmpty && s.primitive && parts.any(_behaviourParts.contains)) {
+      final label = kids.first;
+      _dropped.add(label);
+      (node['children'] as List).remove(label);
+      node.remove('decoration');
+      (node['layout'] as Map?)?.remove('padding');
+      (node['props'] as Map?)
+        ?..remove('mainAxisAlignment')
+        ..['crossAxisAlignment'] = 'stretch';
+      if (_canvas) {
+        ops
+          ..add({'op': 'remove', 'ids': [label]})
+          ..add({'op': 'set', 'id': open.id, 'node': {...node}});
+      }
+    }
+    return false;
+  }
+
   /// The ink a container's `color=` gives the texts and icons written in it
   /// that set none (docs/design/21), by node id, as written.
   final _ink = <String, String>{};
@@ -8310,6 +8475,7 @@ class _Parser {
   }
 
   void _close(_Open open) {
+    if (_silence(open)) return;
     _placeholder(open);
     _slotAction(open);
     _removable(open);

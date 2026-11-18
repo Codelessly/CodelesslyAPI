@@ -37,6 +37,7 @@ final class NotationDefinition {
     required this.bindables,
     required this.body,
     this.primitive = false,
+    this.bare = false,
   });
 
   /// Declared with `primitive` (docs/design/20 section 12): a word for what
@@ -44,6 +45,12 @@ final class NotationDefinition {
   /// does (its body, or a labelled box when it has none) and is recorded as a
   /// `primitive`, never as a word we have.
   final bool primitive;
+
+  /// A primitive declared with no lines of its own: its body is the labelled
+  /// box. A use of one that names a behaviour with no picture (a key, a
+  /// sound, a clock), or that stands beside an App or a Page at the top of a
+  /// page, draws nothing (docs/design/20 section 12).
+  final bool bare;
 
   /// The word (`StickyNote`), and the name of this meaning when the word has
   /// several (`Timeline#route`: `route`).
@@ -465,6 +472,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     bindables: bindables,
     body: lines,
     primitive: primitive,
+    bare: primitive && body.isEmpty,
   );
 }
 

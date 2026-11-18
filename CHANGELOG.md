@@ -1,3 +1,15 @@
+## Unreleased
+
+### Behaviour changes (read before upgrading)
+
+- **A stand-in with nothing to draw draws nothing** (round 11: 14 of 30 briefs lost a screen to one): a use of a
+  primitive declared with no lines, or a word that stands in, written at the top of a page beside its `App` or
+  `Page` with nothing under it, is not drawn and the frame stays the root (it was a bar above the app, which lost
+  its window); one whose name is a behaviour with no picture (`KeyboardShortcut`, `LiveStatus`, `Clock`,
+  `ThemePreference`, `MenuScroll`; the parts are listed in docs/design/20 section 12) and that gives no size and
+  no text draws nothing and takes no room anywhere, and with lines under its use it is those lines with no
+  labelled box. Everything else keeps its labelled box. The record keeps every use.
+
 ## 36.0.0
 
 The notation now writes everything a schema-3 document holds (parity: every corpus document prints back in words),
