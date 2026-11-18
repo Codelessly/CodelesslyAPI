@@ -37,6 +37,7 @@ final class NotationDefinition {
     required this.bindables,
     required this.body,
     this.primitive = false,
+    this.bare = false,
   });
 
   /// Declared with `primitive` (docs/design/20 section 12): a word for what
@@ -44,6 +45,12 @@ final class NotationDefinition {
   /// does (its body, or a labelled box when it has none) and is recorded as a
   /// `primitive`, never as a word we have.
   final bool primitive;
+
+  /// A primitive declared with no lines of its own: its body is the labelled
+  /// box. A use of one that names a behaviour with no picture (a key, a
+  /// sound, a clock), or that stands beside an App or a Page at the top of a
+  /// page, draws nothing (docs/design/20 section 12).
+  final bool bare;
 
   /// The word (`StickyNote`), and the name of this meaning when the word has
   /// several (`Timeline#route`: `route`).
@@ -416,13 +423,18 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     }
   }
   // A body that starts with a statement (`if done` and its `else`, `each
-  // row in rows`) stands for a Column holding its lines: a use is one node.
+  // row in rows`), or that is several lines side by side, is its lines
+  // written where the use is (a macro: the copies an each makes are cells
+  // of a Grid around the use, and take the gap of the Column around it). A
+  // use that gives its root words of its own (`#id`, `hide=phone`, `grow`)
+  // gets a Column holding them ([notationSplice]).
   final firstRoot = lines.where((l) => l.indent == 0 && !_preamble(l.text)).firstOrNull;
-  if (firstRoot != null && const {'if', 'each', 'for'}.contains(LineParts.of(firstRoot.text)?.word)) {
+  final tops = lines.where((l) => l.indent == 0 && !_preamble(l.text)).length;
+  if (firstRoot != null && (const {'if', 'each', 'for'}.contains(LineParts.of(firstRoot.text)?.word) || tops > 1)) {
     final at = lines.indexOf(firstRoot);
     lines = [
       ...lines.sublist(0, at),
-      (indent: 0, text: 'Column', line: firstRoot.line),
+      (indent: 0, text: notationSplice, line: firstRoot.line),
       for (final l in lines.sublist(at))
         if (l.indent == 0 && _preamble(l.text)) l else (indent: l.indent + 2, text: l.text, line: l.line),
     ];
@@ -431,7 +443,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     for (final l in lines)
       if (l.indent == 0 && !_preamble(l.text)) l,
   ];
-  if (roots.isEmpty || LineParts.of(roots.first.text) == null || const {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'define'}.contains(LineParts.of(roots.first.text)!.word)) {
+  if (roots.isEmpty || (roots.first.text != notationSplice && (LineParts.of(roots.first.text) == null || const {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'define'}.contains(LineParts.of(roots.first.text)!.word)))) {
     problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.');
     return null;
   }
@@ -465,8 +477,15 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     bindables: bindables,
     body: lines,
     primitive: primitive,
+    bare: primitive && body.isEmpty,
   );
 }
+
+/// The line a definition's body starts with when it is a statement or
+/// several lines side by side: its lines are written where the use is, in
+/// the node around it. A use that gives its root words of its own reads it
+/// as a Column holding the lines.
+const notationSplice = 'Column~splice';
 
 /// The events the actions on [text] forward: a name `on…` written where an
 /// action starts (`onTap={onPick(c)}`, `{on ? onA : onB}`, `{x=1; onDone}`).
@@ -1038,7 +1057,9 @@ final class DefinedWords {
       if (t == null) continue;
       if (!rooted && l.indent == 0 && !_preamble(l.text)) {
         rooted = true;
-        t = _rooted(t, uid, root);
+        // Lines written where the use is, when it gives the root nothing of
+        // its own; else a Column with the use's id and words.
+        t = t == notationSplice ? (root.isEmpty && p.id.isEmpty ? t : _rooted('Column', uid, root)) : _rooted(t, uid, root);
       }
       lines.add((indent: l.indent, text: t, line: l.line));
     }
@@ -1426,6 +1447,7 @@ final class _Substitution {
 
   /// One line of the body with the use's values put in (null: nothing left).
   String? line(String text) {
+    if (text == notationSplice) return text;
     if (text.startsWith('...')) {
       // A slot's holding column reads the use's values too.
       final slot = slotOf(text);

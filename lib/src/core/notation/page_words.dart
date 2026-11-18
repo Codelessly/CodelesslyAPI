@@ -48,6 +48,8 @@ final class PageWords {
     this.accentText,
     this.iconTile,
     this.accent = '#FF2563EB',
+    this.siteHeadline,
+    this.quietInks,
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
@@ -94,6 +96,37 @@ final class PageWords {
 
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
+
+  /// The size of a website's headline (`Heading level=1`, `Text.pageTitle`,
+  /// `Text.heading1` in a Page's Section), its second and third levels in
+  /// proportion; null where the theme gives its headline a display size of
+  /// its own. A 30 px headline over a 1440 page read as a section's title
+  /// (round 11: the web's were 48 to 150 px).
+  final num? siteHeadline;
+
+  /// A dark theme's inks for items at rest, their icons and what is fainter
+  /// ([NotationOptions.quietInks]); null: a light theme's greys.
+  final (String, String, String)? quietInks;
+
+  /// The indent of the plain Section just written under a Page (no ground,
+  /// no bleed), while nothing else has been written beside it.
+  int? _plainSectionAt;
+
+  /// Whether the text is a website's (its top is a `Page`): its controls are
+  /// a page's size ([NotationOptions.controlHeight] else 40).
+  bool site = false;
+
+  /// [siteHeadline]'s size for heading [level] (1 to 3), or null.
+  num? _headlineSize(int level) => switch ((siteHeadline, level)) {
+        (final num h, 1) => h,
+        (final num h, 2) => (h * 0.6).roundToDouble(),
+        (final num h, 3) => (h * 0.37).roundToDouble(),
+        _ => null,
+      };
+
+  /// Whether a line is in a website's Section (not in its bar or its foot).
+  bool get _inSiteSection =>
+      _open.isNotEmpty && _open.first.frame == 'Page' && _open.any((l) => l.frame == 'Section') && !_open.any((l) => l.frame == 'Nav' || l.frame == 'Foot');
 
   /// The names `Text.<name>` takes: a heading picks the first it finds.
   final Set<String> textVariants;
@@ -910,6 +943,7 @@ final class PageWords {
       return out..add((indent: at, text: text));
     }
     final parts = _Parts(rest);
+    if (parent?.frame == 'Page' && word != 'Section') _plainSectionAt = null;
     // `TopBar "…" type=TopBar`: the design system's component, by its own
     // name (design 22, 4.2), no page word.
     if ((isComponent(word) || declares(word)) && parts.value('type') == word) {
@@ -923,9 +957,13 @@ final class PageWords {
       return out..addAll(_textBox(at, mark, parts));
     }
     if (word == 'Page' && indent == 0) {
+      site = true;
       open(frame: 'Page');
       final fill = parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill';
-      return out..add((indent: at, text: 'Column$mark w=fill scroll stretch$fill${parts.all}'));
+      // As tall as the window it is shown in (where it has one), so that its
+      // ground reaches the foot and its Footer sits there on a short page
+      // (round 11: white under the footer).
+      return out..add((indent: at, text: 'Column${_role('page')}$mark w=fill h=fill scroll stretch$fill${parts.all}'));
     }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;
@@ -975,14 +1013,25 @@ final class PageWords {
       final tight = parts.word('compact') | parts.word('tight');
       final v = _n(tight ? (sectionPad / 2).roundToDouble() : sectionPad);
       // bleed: what is in it runs from edge to edge (a wide picture, a map).
+      // With no ground of its own it is that picture, top to bottom: a hero
+      // meets the bar above it (it sat 64 px below it on white, round 11).
       final bleed = parts.word('bleed');
-      final pad = parts.take('pad') ?? (bleed ? '[0,$v,0,$v]' : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
+      final grounded = tint || parts.has('fill');
+      // A plain Section after a plain Section starts half its space down:
+      // two sections' padding made 128 px of white between them.
+      final plain = !grounded && !bleed && !footer && parent?.frame == 'Page';
+      final top = plain && _plainSectionAt == indent ? _n((sectionPad / 2).roundToDouble()) : v;
+      _plainSectionAt = plain && !parts.has('pad') ? indent : null;
+      final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$top,$g,$v]');
       final banded = tint && band != null && !parts.has('fill') ? ' fill=$band border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
       open(frame: 'Section', shift: 2);
+      // A page's Footer sits at the window's foot when the page is short: what
+      // is left goes above it (nothing, on a page longer than the window).
+      if (footer && parent?.frame == 'Page') out.add((indent: at, text: 'Spacer'));
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
         ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded${parts.all}'))
@@ -1085,7 +1134,7 @@ final class PageWords {
       final ink = accentName ?? accent;
       // Every item at rest has one ink and its icon a quieter one: only the
       // chosen item stands out (the accent, a heavier weight, the selected fill).
-      const quiet = '#FF374151', quietIcon = '#FF6B7280', faint = '#FF9CA3AF';
+      final (quiet, quietIcon, faint) = quietInks ?? ('#FF374151', '#FF6B7280', '#FF9CA3AF');
       // The chosen item's fill is a state of its row, so that the tint under
       // the pointer (a state too) never replaces it: selected is the later one.
       final fill = selected != null
@@ -1125,7 +1174,7 @@ final class PageWords {
       return out
         ..add((
           indent: at,
-          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]${_railHide()}${parts.all}'
+          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=${quietInks?.$2 ?? '#FF6B7280'} w=fill pad=[10,16,10,6]${_railHide()}${parts.all}'
         ));
     }
     if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) {
@@ -1172,7 +1221,7 @@ final class PageWords {
           if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700$railed'),
           if (under != null) (indent: at + 2, text: 'Column gap=0$railed'),
           if (under != null) (indent: at + 4, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
-          if (under != null) (indent: at + 4, text: 'Text $under size=11 color=#FF6B7280'),
+          if (under != null) (indent: at + 4, text: 'Text $under size=11 color=${quietInks?.$2 ?? '#FF6B7280'}'),
         ]);
     }
     // A field in a bar has no room for a label above it: its label is its hint.
@@ -1217,11 +1266,14 @@ final class PageWords {
       if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
         return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
       }
+      // The theme's accent by its name where the document names its colors
+      // (a site): a fixed blue showed on every site (round 11).
+      final ink = accentText ?? accentName ?? accent;
       if (_looks(parts)) {
-        final color = parts.has('color') ? '' : ' color=${accentText ?? accent}';
+        final color = parts.has('color') ? '' : ' color=$ink';
         return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
       }
-      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color=${accentText ?? accent}'}${parts.props}$action'));
+      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color=$ink'}${parts.props}$action'));
     }
     if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
       final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;
@@ -1240,8 +1292,38 @@ final class PageWords {
               2 => _variant(const ['heading2', 'title', 'sectionTitle']),
               _ => _variant(const ['heading3', 'heading', 'cardTitle', 'strong']),
             };
+      final display = !inApp && _inSiteSection && !parts.has('size') ? _headlineSize(level.clamp(1, 3)) : null;
+      if (level == 1 && !inApp && _inSiteSection) _open.lastWhere((l) => l.frame == 'Section').hero = true;
       open();
-      return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${parts.all}'));
+      return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${display == null ? '' : ' size=${_n(display.toDouble())}'}${parts.all}'));
+    }
+    // On a website a hero's buttons are large (44), and an icon button has
+    // a hit area that shows (a 40 px square in a hairline): they were a
+    // desktop app's 28 px buttons and a bare glyph (round 11). Its bar's are
+    // the bar's, and a line that shows or hides itself is left as it is.
+    if (site && !inApp && word == 'Button' && _inSiteSection && _open.any((l) => l.hero) && !parts.has('size') && !parts.has('h') && !isComponent('Button')) {
+      open(frame: null);
+      return out..add((indent: at, text: '$text size=large'));
+    }
+    if (site &&
+        !inApp &&
+        word == 'IconButton' &&
+        mark.isEmpty &&
+        _inSiteSection &&
+        !isComponent('IconButton') &&
+        !const ['w', 'h', 'size', 'fill', 'border', 'hide', 'show', 'visible'].any(parts.has) &&
+        !RegExp(r'(^|\s)(hidden|hide=|show=|[a-z]+\.(hidden|visible|w|h)=)').hasMatch(rest)) {
+      open(frame: null);
+      return out
+        ..add((indent: at, text: 'Box w=40 h=40 pad=0 radius=8 border=$line center middle'))
+        ..add((indent: at + 2, text: '$text w=40 h=40'));
+    }
+    // A website's headline written as its text style: the same size.
+    if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection && !parts.has('size')) {
+      if (_headlineSize(1) case final num display) {
+        open(frame: null);
+        return out..add((indent: at, text: '$text size=${_n(display.toDouble())}'));
+      }
     }
     // `Row … phone.direction=vertical`: a row that is a column at some width
     // is a Flex, which has a direction to change.
@@ -1525,6 +1607,9 @@ class _Line {
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.
   bool pageNav = false, ownMenu = false;
+
+  /// A website's Section that holds its headline (a hero): its buttons are large.
+  bool hero = false;
   final links = <({String label, String action, _Line? group, bool direct})>[];
 }
 

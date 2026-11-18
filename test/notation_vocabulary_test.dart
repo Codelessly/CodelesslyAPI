@@ -662,15 +662,20 @@ Page
         expect(taught(1280), contains(kept), reason: kept);
       }
       // No behaviour word, no escape to JSON, no reference pages.
-      for (final left in ['Also, on a page', 'CodeInput', 'SwipeAction', 'DataTable', 'Splitter', 'Calendar @arrival', 'Slider @low @high', 'reorder', 'key mod+k', 'fuzzy(', 'BEYOND THESE WORDS', 'node {', 'ui_docs', 'confirm "', 'announce "']) {
+      for (final left in ['Also, on a page', 'CodeInput', 'SwipeAction', 'DataTable', 'Splitter', 'Calendar @arrival', 'Slider @low @high', 'reorder', 'fuzzy(', 'BEYOND THESE WORDS', 'node {', 'ui_docs', 'confirm "']) {
         expect(page, isNot(contains(left)), reason: left);
         expect(taught(1280), contains(left), reason: 'the taught prompt has "$left"');
+      }
+      // What round 11's writers invented words for is said, in a line each:
+      // the screen's shortcut, announcing, the time, a search field.
+      for (final said in ['- key mod+k onPress={focus search}', 'announce "{n} results"', 'now() (the time)', 'Input#search "Search" icon="search"']) {
+        expect(page, contains(said), reason: said);
       }
     });
 
     test('is smaller than the taught page prompt; the taught prompts are as they were', () {
       expect(plain(1280).length, lessThan(taught(1280).length - 2000));
-      expect(plain(1280).length, lessThan(19000), reason: 'about 4,700 tokens');
+      expect(plain(1280).length, lessThan(19500), reason: 'about 4,800 tokens (round 11 added four lines of what the notation has)');
       expect(open(1280).length, plain(1280).length + notationDefinePreface.length);
       expect(taught(390).length, lessThan(9000));
       expect(plain(390).length, lessThan(taught(390).length + notationOpenPreface.length));

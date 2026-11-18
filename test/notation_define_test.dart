@@ -128,10 +128,10 @@ void main() {
         'Two.txt': 'Two\n  Text "a"\n  Text "b"\n',
         'lower.txt': 'lower x=1\n  Text "a"\n',
       });
-      expect(read.words, isEmpty);
+      // Two lines side by side are read: written where the use is (round 11).
+      expect(read.words.keys, ['Two']);
       expect(read.problems, [
         'Bad.txt:1: Bad stands for no lines: write them indented under its signature.',
-        'Two.txt:3: Two stands for one line and the lines under it; this one is beside it (indent it under Text).',
         'lower.txt:1: a signature starts with the word it defines, capitalised (StickyNote "text" fill=#FFFDE68A).',
       ]);
     });
@@ -833,7 +833,7 @@ define Pick on=false onA onB
       expect(r.issues.map((i) => i.message).single, allOf(contains('"onWobble" is not an event the notation has here'), contains('onSubmit')));
     });
 
-    test('a body that starts with if (and its else) or each is a Column holding them', () {
+    test('a body that starts with if (and its else) or each is its lines where the use is (round 11)', () {
       final r = parseNotation('''
 state done=false
 Column
@@ -846,8 +846,9 @@ define Status done=false
     Text "Open"
 ''', catalog: standardCatalog);
       expect(r.issues, isEmpty);
-      expect(_node(r, 'status1')['type'], 'column');
-      expect((_node(r, 'status1')['children'] as List), hasLength(2));
+      final root = (r.document['nodes'] as Map).values.cast<Map>().firstWhere((n) => n['type'] == 'column');
+      expect([for (final c in root['children'] as List) _node(r, c as String)['type']], ['text', 'text', 'text', 'text']);
+      expect((r.document['nodes'] as Map).containsKey('status1'), isFalse);
       expect(readPageDefinitions('define Status\n  else\n    Text "x"\n').problems.single.message, endsWith('write the lines indented under a Column.'));
     });
 

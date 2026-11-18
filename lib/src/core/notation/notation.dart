@@ -195,6 +195,8 @@ final class NotationOptions {
     this.fieldText,
     this.reflow = true,
     this.displaySizes = const {},
+    this.themeTextStyles = const {},
+    this.quietInks,
     this.projectVariables = const {},
     this.accentText,
     this.openVocabulary = false,
@@ -283,6 +285,8 @@ final class NotationOptions {
         fieldText: fieldText,
         reflow: reflow ?? this.reflow,
         displaySizes: displaySizes,
+        themeTextStyles: themeTextStyles,
+        quietInks: quietInks,
         projectVariables: projectVariables,
         accentText: accentText,
         openVocabulary: openVocabulary,
@@ -350,6 +354,8 @@ final class NotationOptions {
       fieldText: base.fieldText,
       reflow: base.reflow,
       displaySizes: base.displaySizes,
+      themeTextStyles: base.themeTextStyles,
+      quietInks: base.quietInks,
       projectVariables: projectVariables,
       accentText: base.accentText,
       themeColors: base.themeColors,
@@ -406,15 +412,53 @@ final class NotationOptions {
       return named ? name : c;
     }
 
-    final ink = color('primaryText', color('onSurface', '#FF111827'));
+    // The theme's ground and ink by the names the notation's prompt teaches
+    // (`paper`, `ink`), when it has no design system's names for them; a
+    // dark ground's tones (its lines, fills, cards) derived from its ink and
+    // its ground, not a light theme's (round 11: dark sites kept grey-on-white
+    // dividers and white cards).
+    String? hexOf(String name) {
+      Object? c = colors[name] ?? theme[name];
+      for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+        c = colors[c] ?? theme[c];
+      }
+      return c is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(c) ? c : null;
+    }
+
+    final groundName = const ['paper', 'background', 'bg', 'ground'].where((n) => hexOf(n) != null).firstOrNull;
+    final groundHex = hexOf('page') ?? hexOf('surface') ?? hexOf('primaryBackground') ?? (groundName == null ? null : hexOf(groundName));
+    double lum(String hex) {
+      final v = [for (var i = 3; i < 9; i += 2) int.parse(hex.substring(i, i + 2), radix: 16) / 255];
+      return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+    }
+
+    final dark = groundHex != null && lum(groundHex) < 0.35;
+    final inkHex = hexOf('primaryText') ?? hexOf('onSurface') ?? hexOf('ink') ?? (dark ? '#FFF3F4F6' : '#FF111827');
+    String tint(int alpha) => '#${alpha.toRadixString(16).padLeft(2, '0').toUpperCase()}${inkHex.substring(3)}';
+    String lift(String hex, double t) =>
+        '#FF${[for (var i = 3; i < 9; i += 2) (int.parse(hex.substring(i, i + 2), radix: 16) + (255 - int.parse(hex.substring(i, i + 2), radix: 16)) * t).round().toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
+    final lineTone = dark ? tint(0x29) : '#FFE5E7EB';
+    final fillTone = dark ? tint(0x1A) : '#FFE5E7EB';
+    final cardTone = dark ? lift(groundHex, 0.06) : '#FFFFFFFF';
+    final groundTone = groundName == null ? '#FFFFFFFF' : color(groundName, '#FFFFFFFF');
+    final ink = color('primaryText', color('onSurface', color('ink', dark ? '#FFF3F4F6' : '#FF111827')));
     final muted = color('secondaryText', ink), faint = color('tertiaryText', muted);
     final styles = <String, Object>{};
     for (final e in (readMap(theme['textStyles']) ?? const {}).entries) {
       final s = readMap(e.value);
       if (s == null) continue;
+      // A style named as one of the notation's text variants changes only the
+      // keys it sets: `heading1: {fontFamily, fontWeight}` keeps the
+      // variant's size (round 11: 13 px page titles, a 12 px heading).
+      final variant = (defaultTextVariants[e.key] as Map?)?.cast<String, Object?>() ?? const <String, Object?>{};
+      final kept = {
+        for (final k in [...const ['fontSize', 'fontWeight'], if (e.key == 'mono') 'fontFamily'])
+          if (s[k] == null && variant[k] != null) k: variant[k],
+      };
       styles[e.key] = named
-          ? {'from': e.key, if (s['color'] == null) 'color': ink}
+          ? {'from': e.key, ...kept, if (s['color'] == null) 'color': ink}
           : {
+              ...kept,
               for (final k in const ['fontSize', 'fontWeight', 'fontFamily', 'letterSpacing', 'height'])
                 if (s[k] != null) k: s[k],
               'color': s['color'] is String ? color(s['color'] as String, ink) : ink,
@@ -444,8 +488,27 @@ final class NotationOptions {
       final secondary = d['color'] != null && d['color'] != '#FF111827';
       styles.putIfAbsent(e.key, () => body()..addAll({for (final k in const ['fontSize', 'fontWeight', 'fontFamily']) if (d[k] != null) k: d[k], 'color': secondary ? muted : ink}));
     }
-    (String, String, String) tone(String role, String inkName) =>
-        (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+    // A tone the theme has no tint for: a tenth of the tone's own color, a
+    // hairline of it at 28 % (SSUI's), or SSUI's tone when the theme has
+    // none of that name (a site's theme names a primary and its own colors:
+    // Badge.success drew as the neutral grey, round 11).
+    String? hex(String name) {
+      Object? c = colors[name] ?? theme[name];
+      for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+        c = colors[c] ?? theme[c];
+      }
+      return c is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(c) ? c : null;
+    }
+
+    (String, String, String) tone(String role, String inkName) {
+      if (role == 'neutral' || hex('${role}Tint') != null) {
+        return (color('${role}Tint', dark ? tint(0x1A) : '#FFF3F4F6'), color('${role}TintBorder', lineTone), color(inkName, ink));
+      }
+      if (hex(inkName) case final String base) {
+        return ('#1A${base.substring(3)}', '#47${base.substring(3)}', color(inkName, ink));
+      }
+      return badgeVariants[role] ?? (color('${role}Tint', '#FFF3F4F6'), color('${role}TintBorder', '#FFE5E7EB'), color(inkName, ink));
+    }
     final error = tone('error', 'error');
     // A design system's own words for the look of plain parts, each read
     // only when the theme has it (SSUI has none of them): `radii.card`,
@@ -495,10 +558,10 @@ final class NotationOptions {
       card: {
         'decoration': {
           'fills': [
-            {'color': color('card', color('primaryBackground', '#FFFFFFFF'))},
+            {'color': color('card', color('primaryBackground', cardTone))},
           ],
           'strokes': [
-            {'color': color('primaryBorder', '#FFE5E7EB')},
+            {'color': color('primaryBorder', lineTone)},
           ],
           'radius': radii['card'] ?? radii['panel'] ?? theme['radius'] ?? 8,
           if (cardShadow is List && cardShadow.isNotEmpty) 'effects': jsonDecode(jsonEncode(cardShadow)),
@@ -521,8 +584,8 @@ final class NotationOptions {
       cardGap: spacing['cardGap'] is num ? spacing['cardGap'] as num : null,
       ringStroke: sizes['ring'] is num ? sizes['ring'] as num : null,
       contentWidth: readDouble(sizes['content']) ?? 1120,
-      line: color('line', color('primaryBorder', '#FFE5E7EB')),
-      selectedFill: color('activeTint', color('primaryTint', color('subtleFill', '#FFE5E7EB'))),
+      line: color('line', color('primaryBorder', lineTone)),
+      selectedFill: color('activeTint', color('primaryTint', color('subtleFill', fillTone))),
       narrowWidth: readDouble(sizes['narrow']) ?? 720,
       sidebarWidth: readDouble(sizes['sidebar']) ?? 248,
       sidebarRail: readDouble(sizes['rail']),
@@ -541,6 +604,11 @@ final class NotationOptions {
       // A link in running text: the accent where it is read as text on a
       // light page (a bright accent is for fills).
       accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
+      quietInks: dark ? (tint(0xCC), tint(0x99), tint(0x66)) : null,
+      themeTextStyles: {
+        for (final e in textStyles.entries)
+          if (readMap(e.value) case final Json s) e.key: s,
+      },
       displaySizes: {
         for (final e in textStyles.entries)
           if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
@@ -555,7 +623,7 @@ final class NotationOptions {
               if (theme['fontFamily'] is String) 'labelFontFamily': theme['fontFamily'],
               'labelFontSize': 11,
               'labelColor': color('secondaryText', ink),
-              'gridColor': color('primaryBorder', '#FFE5E7EB'),
+              'gridColor': color('primaryBorder', lineTone),
             },
       sectionRadius: radii['card'] != null && radii['panel'] is num ? radii['panel'] as num : null,
       tile: radii['tile'] == null
@@ -563,10 +631,10 @@ final class NotationOptions {
           : {
               'decoration': {
                 'fills': [
-                  {'color': color('card', color('primaryBackground', '#FFFFFFFF'))},
+                  {'color': color('card', color('primaryBackground', cardTone))},
                 ],
                 'strokes': [
-                  {'color': color('primaryBorder', '#FFE5E7EB')},
+                  {'color': color('primaryBorder', lineTone)},
                 ],
                 'radius': radii['tile'],
               },
@@ -581,10 +649,10 @@ final class NotationOptions {
         'error': error,
         'danger': error,
       },
-      surface: color('page', color('surface', color('primaryBackground', '#FFFFFFFF'))),
+      surface: color('page', color('surface', color('primaryBackground', groundTone))),
       // A theme calls its one strong color primary, accent or brand.
       accent: color('primary', color('accent', color('brand', '#FF2563EB'))),
-      track: color('track', '#FFE5E7EB'),
+      track: color('track', fillTone),
     );
   }
 
@@ -637,6 +705,8 @@ final class NotationOptions {
         // nothing else of it is laid out again.
         reflow: reflow && width < 700,
         displaySizes: displaySizes,
+        themeTextStyles: themeTextStyles,
+        quietInks: quietInks,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
         ownComponents: ownComponents,
@@ -796,6 +866,15 @@ final class NotationOptions {
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.
   final Map<String, num> displaySizes;
+
+  /// The inks of a sidebar's or a bar's items at rest, of their icons and of
+  /// what is fainter still, on a dark ground: its ink at 80, 60 and 40 %.
+  /// Null: a light theme's greys.
+  final (String, String, String)? quietInks;
+
+  /// The theme's text styles as it writes them, by name: a line's
+  /// `style=serif` over a variant changes only the keys that style sets.
+  final Map<String, Json> themeTextStyles;
 
   /// The height of a button, a field and a select that write none: a
   /// theme's `sizes.control`. Null: the control's own (its compact step).
@@ -1248,6 +1327,38 @@ const _resizable = 'A pane is resized by a Splitter beside it, which keeps its w
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
 
+/// The colors of a chart's slices or series from the theme's [accent]: the
+/// accent, then lighter steps of it toward white, then darker ones (round 11:
+/// a donut drew in colors no theme had). A name that is no color value
+/// gives the fixed palette after it.
+List<String> notationChartShades(String accent) {
+  final m = RegExp(r'^#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$').firstMatch(accent);
+  if (m == null) return [accent, ..._chartColors];
+  final rgb = [for (var i = 2; i <= 4; i++) int.parse(m[i]!, radix: 16)];
+  String mix(double t, int to) => '#FF${[for (final c in rgb) (c + (to - c) * t).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
+  return [accent, mix(0.35, 255), mix(0.6, 255), mix(0.78, 255), mix(0.3, 0), mix(0.5, 0), mix(0.88, 255)];
+}
+
+/// A step of a chart's axis for values up to [max] in [lines] steps: 1, 2,
+/// 2.5 or 5 times a power of ten, the smallest that reaches [max].
+num _axisStep(num max, int lines) {
+  if (max <= 0) return 1;
+  final raw = max / lines;
+  var p = 1.0;
+  while (p * 10 <= raw) {
+    p *= 10;
+  }
+  while (p > raw) {
+    p /= 10;
+  }
+  for (final f in const [1, 2, 2.5, 5, 10]) {
+    if (p * f * lines >= max) return p * f;
+  }
+  return p * 10;
+}
+
+String _axisLabel(num v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1);
+
 /// The verbs an action is written with (design 13 section 3), beside
 /// `name=value` and `cond ? a : b`; every other action is its type and its
 /// fields by name. The reference documents each (tool/reference).
@@ -1622,9 +1733,18 @@ class _ListWords {
   String? value(String word) => words[word]?.value;
 }
 
+/// A stand-in or a primitive's use, as [_Parser._silence] reads it: its
+/// word, whether it is a primitive's (its first child its label), at the top
+/// of the page, and whether its line gives a text or a size.
+typedef _Silent = ({String word, bool primitive, bool top, int said, bool sized});
+
 class _Open {
   _Open(this.indent, this.id, this.type,
-      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot});
+      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot, this.splice = false});
+
+  /// The lines of a defined word written where its use is ([notationSplice]):
+  /// they go in the node around it, [id].
+  final bool splice;
 
   /// A `slot name` line under node [id]: the line under it goes in that slot.
   final String? slot;
@@ -1763,6 +1883,11 @@ class _Parser {
   Json get _canvasNode {
     final o = _overlay;
     Json look() {
+      // A website's canvas is its Page's ground, to the window's foot (white
+      // showed under a short page, round 11).
+      if (o == null && _root != null && _roles[_root] == 'page') {
+        if (readList(readMap(nodes[_root]?['decoration'])?['fills']) case final List fills when fills.isNotEmpty) return {'fills': _copyValue(fills)};
+      }
       if (o == null || o.kind == 'canvas') return _surface;
       if (!o.surface) {
         return {
@@ -2013,7 +2138,7 @@ class _Parser {
     // word replaces the component there (docs/design/20 section 6).
     used: (d, parts, node, column) => _use(d.primitive ? 'primitive' : 'definition', parts.word, column,
         to: d.label,
-        node: node,
+        node: _bareRoot(d, parts, node),
         parts: parts,
         of: d.file != 'page'
             ? null
@@ -2586,9 +2711,13 @@ class _Parser {
       final page = dots.page, count = dots.count.startsWith('{') ? dots.count.substring(1, dots.count.length - 1).trim() : dots.count;
       _bindsVariable(page, indent + 1 + raw.trim().indexOf('@'), () => 0);
       variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
-      _lineAt(indent, 'Row${dots.id} gap=6 center middle h=16${dots.rest}', indent + 1);
-      _lineAt(indent + 2, 'each dot in range($count)', indent + 3);
-      _lineAt(indent + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
+      // Where the page's frames put the line (a Section moves its lines in):
+      // read at the line's own place, the line after it was taken for one of
+      // its dots' row (round 11: a carousel's next button 16 px high).
+      final at = _pages.rewrite(indent, 'Row').first.indent;
+      _lineAt(at, 'Row${dots.id} gap=6 center middle h=16${dots.rest}', indent + 1);
+      _lineAt(at + 2, 'each dot in range($count)', indent + 3);
+      _lineAt(at + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
     } else {
       _from = null;
       for (var (l, from) in _definedLines(indent, raw.trim())) {
@@ -2612,7 +2741,7 @@ class _Parser {
           }
         }
         _lastNode = null;
-        _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
+        _lineAt(l.indent, role == null ? l.text : role[2] == 'splice' ? notationSplice : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
         // The lines a defined word stands for: each line's nodes are sent
         // before the next line's, which may patch them.
@@ -2648,6 +2777,10 @@ class _Parser {
     accentName: options.accent,
     accentText: options.accentText,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
+    // A website's headline at a display size, unless the theme gives its
+    // own headline one (a heading1 or pageTitle of 32 and up).
+    siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
+    quietInks: options.quietInks,
     selectedFill: options.selectedFill,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
@@ -3406,7 +3539,10 @@ class _Parser {
     // The root as tall as what holds it: the window (an app's panes).
     if (id != null && _parentOf[id] == null && !_windowed && id != 'pageRoot') {
       final height = (nodes[id]?['layout'] as Map?)?['height'];
-      if (_pages.app || (height is Map && height.containsKey('fill'))) {
+      // A website's page is as tall as the window it is shown in where it has
+      // one, and as tall as its content in a host that scrolls it: its canvas
+      // hugs (C3).
+      if (_pages.app || (height is Map && height.containsKey('fill') && _roles[id] != 'page')) {
         _windowed = true;
         // The canvas may be there already (a `state` line came first).
         if (_canvas) _patches.add({'op': 'patch', 'id': options.screen, 'patch': {'layout': {'height': _canvasHeight}}});
@@ -3463,6 +3599,12 @@ class _Parser {
   /// The nodes written as `Card`.
   final _cards = <String>{};
 
+  /// The height of a button, a field and a select that write none: the
+  /// theme's (`sizes.control`); on a website (a `Page`) 40, a web page's
+  /// control, where an app's are the desktop's compact 28 (round 11: a
+  /// site's buttons, fields and selects were 28 px beside the web's 40 to 48).
+  double? get _controlHeight => options.controlHeight ?? (_top._pages.site ? 40.0 : null);
+
   /// A row whose children's written widths add up to more than the canvas
   /// is wide (a table's columns in a card): the widths become shares of the
   /// row, so the columns keep their proportions and fit. A row that scrolls
@@ -3470,6 +3612,13 @@ class _Parser {
   void _fitRow(_Open open) {
     final row = nodes[open.id];
     if (open.type != 'row' || row == null || (row['props'] as Map?)?['scrollable'] == true) return;
+    // Nor one in a row that scrolls (a timeline's ruler): there it has all
+    // the width it asks for, and shares of it are nothing (round 11: a
+    // ruler of `Text "00:15" w=126` cells ran together, `00:0000:15…`).
+    for (String? at = _parentOf[open.id]; at != null; at = _parentOf[at]) {
+      final n = nodes[at];
+      if (n?['type'] == 'row' && (n?['props'] as Map?)?['scrollable'] == true) return;
+    }
     final children = [
       for (final c in (row['children'] as List? ?? const []))
         if (nodes[c] case final Json n) (c as String, n),
@@ -4010,9 +4159,32 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     // A page that writes its own drawer gets none made from its sidebar.
     if (RegExp(r'^Drawer\b', multiLine: true).hasMatch(text)) _pages.ownDrawer = true;
-    const LineSplitter().convert(text).forEach(_readLine);
+    final rows = const LineSplitter().convert(text);
+    _silentTopLines = _topLinesAlone(rows);
+    rows.forEach(_readLine);
     finish();
     return _end();
+  }
+
+  /// The lines (1-based) of [rows] written at the top with nothing under
+  /// them, other than the frame, when the top holds an `App` or a `Page`:
+  /// where a stand-in draws nothing ([_silence]).
+  static Set<int> _topLinesAlone(List<String> rows) {
+    final frame = RegExp(r'^(App|Page)\b');
+    if (!rows.any(frame.hasMatch)) return const {};
+    bool skipped(String l) => l.trim().isEmpty || l.trimLeft().startsWith('//');
+    bool under(String l) => l.startsWith(' ') || l.startsWith('\t');
+    final out = <int>{};
+    for (var i = 0; i < rows.length; i++) {
+      final l = rows[i];
+      if (skipped(l) || under(l) || !RegExp(r'^[A-Z]').hasMatch(l) || frame.hasMatch(l)) continue;
+      var j = i + 1;
+      while (j < rows.length && skipped(rows[j])) {
+        j++;
+      }
+      if (j == rows.length || !under(rows[j])) out.add(i + 1);
+    }
+    return out;
   }
 
   /// The text read so far, for what its brackets say at [finish].
@@ -4038,6 +4210,7 @@ class _Parser {
       for (final e in p._lineTails.entries) {
         if (p.nodes[e.key] case final Json node) _merge(node, _settled(e.value));
       }
+      p._dropped.forEach(p.nodes.remove);
       p._dropOrphans();
       if (before != null) {
         for (final e in before.entries) {
@@ -4136,6 +4309,17 @@ class _Parser {
     var line = source;
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
+    }
+    // A defined word's lines written where its use is: they go in the node
+    // around it (a Grid's cells, a Column's lines with its gap). At the top
+    // of a page there is none: a Column holds them.
+    if (line == notationSplice) {
+      final around = _stack.reversed.where((o) => !o.leaf).firstOrNull;
+      if (around != null) {
+        _stack.add(_Open(indent, around.id, around.type, condition: around.condition, grid: around.grid, slot: around.slot, splice: true));
+        return;
+      }
+      line = 'Column';
     }
     // Inside an `each x in …`, x is the document's `item`.
     // In an `each` inside an `each` (a board's cards in its columns), the
@@ -4994,6 +5178,13 @@ class _Parser {
     }
     if (head[3] != null) _top._idAt.putIfAbsent(id, () => (line: _line, condition: under));
     _lastNode = id;
+    // A stand-in, or the root of a use of a primitive declared with no lines:
+    // what it draws is settled when it closes ([_silence]).
+    if (_bareUse.remove(id) case final bare?) {
+      _silent[id] = bare;
+    } else if (standIn) {
+      _silent[id] = _silentOf(written, LineParts.of(_src.startsWith(written) ? _src : line));
+    }
     if (standIn) {
       final parts = LineParts.of(_src.startsWith(written) ? _src : line);
       final use = _use('type', written, column, node: id, parts: parts);
@@ -6831,6 +7022,25 @@ class _Parser {
             // A string that reads data (value="{streak} days") is bound:
             // only a text node reads an expression as written.
             bind[path] = v;
+          } else if (type == 'text' && path == 'props.style' && v is String && props['style'] is Map && options.themeTextStyles[v] != null) {
+            // `Text.heading2 "…" style=serif`: the theme's style over the
+            // variant, changing only the keys it sets (it replaced the
+            // variant: a heading lost its size and its ink, round 11).
+            final sets = options.themeTextStyles[v]!;
+            final under = (props['style'] as Map).cast<String, Object?>();
+            final from = under['from'];
+            // What the variant draws: its theme style's keys, under its own.
+            final base = {...?(from is String ? options.themeTextStyles[from] : null), ...under}..remove('from');
+            final own = options.textStyles[v];
+            props['style'] = {
+              for (final e in base.entries)
+                if (!sets.containsKey(e.key)) e.key: e.value,
+              if (own is Map && own['from'] == v)
+                'from': v
+              else
+                for (final k in sets.keys)
+                  if ((own is Map ? own[k] : null) ?? sets[k] case final Object x) k: x,
+            };
           } else {
             put(path, v);
           }
@@ -6977,7 +7187,7 @@ class _Parser {
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
-      final palette = [_accentValue, ..._chartColors];
+      final palette = notationChartShades(_accentValue);
       props['chartType'] = 'donut';
       if (values is List) {
         props['data'] = [
@@ -7020,8 +7230,10 @@ class _Parser {
         if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
       ];
       if (all.isNotEmpty) {
-        final palette = [_accentValue, ..._chartColors];
+        final palette = notationChartShades(_accentValue);
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
+        // Its axis fitted to the data (from 0, a line of 812 to 851 was flat).
+        props.putIfAbsent('fitMinY', () => true);
         type = 'chart';
         props
           ..remove('lineColor')
@@ -7063,9 +7275,39 @@ class _Parser {
         for (final e in options.barChart.entries) {
           props.putIfAbsent(e.key, () => e.value);
         }
+        // With no look of the theme's: bars apart, rounded, over a light
+        // axis with its figures (round 11: bars touched, with no axis).
+        if (options.barChart.isEmpty) {
+          props
+            ..putIfAbsent('barRadius', () => 4)
+            ..putIfAbsent('maxBarWidth', () => 40)
+            ..putIfAbsent('barGap', () => 8)
+            ..putIfAbsent('gridColor', () => options.line)
+            ..putIfAbsent('baselineColor', () => options.line);
+          if (props['values'] case final List values when values.isNotEmpty && values.every((v) => v is num) && !props.containsKey('max') && !props.containsKey('gridLabels')) {
+            final top = values.cast<num>().reduce((a, b) => a > b ? a : b);
+            final lines = props['gridLines'] is int ? props['gridLines'] as int : 3;
+            if (top > 0 && lines > 0) {
+              final step = _axisStep(top, lines);
+              props
+                ..['max'] = step * lines
+                ..['gridLabels'] = [for (var i = 0; i <= lines; i++) i == lines ? '' : _axisLabel(step * i)]
+                ..putIfAbsent('gridLabelsLeft', () => true);
+            }
+          }
+        }
       }
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
+        // Its axis fitted to the data, not from 0.
+        if (values.isNotEmpty && values.every((v) => v is num) && !props.containsKey('yMin')) {
+          final nums = values.cast<num>();
+          final lo = nums.reduce((a, b) => a < b ? a : b), hi = nums.reduce((a, b) => a > b ? a : b);
+          if (lo > 0 && hi > lo) {
+            final step = _axisStep(hi - lo, 4);
+            props['yMin'] = ((lo - (hi - lo) * 0.1) / step).floor() * step;
+          }
+        }
         props.remove('labels');
         props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
         props['xField'] = 'x';
@@ -7424,7 +7666,7 @@ class _Parser {
         'small' || 'sm' => 32.0,
         'medium' || 'md' => 36.0,
         'large' || 'lg' => 44.0,
-        _ => options.controlHeight,
+        _ => _controlHeight,
       };
       if (step != null && !layout.containsKey('height')) layout['height'] = step;
     }
@@ -7513,16 +7755,20 @@ class _Parser {
       if (props['label'] case final String l when l.isNotEmpty && !l.endsWith('*')) props['label'] = '$l *';
     }
     // A date or time field is a field: as tall as the text field and the select beside it.
-    if (options.controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
-      layout['height'] = options.controlHeight;
+    if (_controlHeight != null && const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type) && !layout.containsKey('height')) {
+      layout['height'] = _controlHeight;
     }
-    if (options.controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
+    // A website's chip is a step under its controls (32): it was 24.
+    if (_controlHeight != null && options.controlHeight == null && const {'chip', 'choiceChip', 'filterChip', 'actionChip', 'inputChip'}.contains(type) && !layout.containsKey('height')) {
+      layout['height'] = 32;
+    }
+    if (_controlHeight != null && const {'textField', 'dropdown', 'segmentedButton'}.contains(type)) {
       // A field's label sits above its box, inside its height (11.5 px
       // text and 6 px under it).
       final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
       if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
         // A field that counts its characters (maxLength) has its counter under it.
-        layout['height'] = options.controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0) + (type == 'textField' && props['maxLength'] is int ? 18 : 0);
+        layout['height'] = _controlHeight! + (label ? (options.fieldLabel == null ? 20 : 23) : 0) + (type == 'textField' && props['maxLength'] is int ? 18 : 0);
       }
     }
     // (`squeezable=false` on the line keeps the text whole: it was set true
@@ -7590,9 +7836,18 @@ class _Parser {
       final placed = parent?.type == 'stack' &&
           const {'text', 'row', 'column'}.contains(type) &&
           (layout.containsKey('x') || layout.containsKey('y') || bind.containsKey('layout.x') || bind.containsKey('layout.y'));
+      // A box with the widest it gets (`Column maxw=720` in a centered
+      // column: a card of a page) is as wide as its place up to that, where
+      // its parent centers it: it hugged its content (a 270 px flashcard in
+      // a 1200 px pane, round 11).
+      final capped = const {'column', 'row', 'stack'}.contains(type) &&
+          readMap(layout['constraints'])?['maxWidth'] != null &&
+          !inRow &&
+          !(parentWidth is Map && parentWidth.containsKey('hug'));
       // An icon is as big as it is: it does not stretch across a column.
       final fills = !placed && layout.containsKey('flex') ||
           spread ||
+          !placed && capped ||
           !placed && !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
@@ -8014,6 +8269,10 @@ class _Parser {
       final body = options.textStyles['body'];
       Json figure(Object? base, Json over) => {...(base is Map ? _copy(base.cast<String, Object?>()) : const <String, Object?>{}), ...over};
       final arcLayout = (out['layout']! as Map).cast<String, Object?>();
+      final gaugeSide = [
+        for (final k in const ['width', 'height'])
+          if (arcLayout[k] case final num v) v,
+      ].fold<num?>(null, (a, b) => a == null || b < a ? b : a);
       nodes[id] = {
         'type': 'stack',
         'layout': {...arcLayout},
@@ -8029,8 +8288,10 @@ class _Parser {
           'text': value is num ? (value == value.roundToDouble() ? '${value.round()}' : '$value') : '',
           // The theme's style for a gauge's figure (`gaugeValue`), else a
           // heavy 44; smaller in a small gauge.
-          'style': arcLayout['width'] is num && (arcLayout['width']! as num) < 200
-              ? figure(body, {'fontSize': ((arcLayout['width']! as num) / 6).clamp(18, 40).round(), 'fontWeight': 700})
+          // Its side is the shorter of its width and height: a wide gauge
+          // 100 high drew a 44 px figure over its arc (round 11).
+          'style': gaugeSide != null && gaugeSide < 200
+              ? figure(body, {'fontSize': (gaugeSide / 6).clamp(18, 40).round(), 'fontWeight': 700})
               : options.textStyles['gaugeValue'] ?? figure(body, {'fontSize': 44, 'fontWeight': 700}),
         },
         if (bound != null) 'bind': {'props.text': bound},
@@ -8046,7 +8307,16 @@ class _Parser {
         _parentOf[child] = id;
       }
     }
-    if (parent == null) {
+    // A stand-in with nothing to draw at the top of a page beside its App or
+    // Page (a key handler, a clock, a theme switch written before the frame):
+    // not drawn, and the frame stays the page's root (it was a bar above the
+    // app, and the app lost its window). Its use is recorded as before.
+    final silentTop = parent == null && _silentTopLines.contains(_line) && (standIn || _silent.containsKey(id));
+    if (silentTop) {
+      final s = _silent[id]!;
+      _silent[id] = (word: s.word, primitive: s.primitive, said: s.said, sized: s.sized, top: true);
+      _skipEmit.add(id);
+    } else if (parent == null) {
       if (_root != null) {
         // A page written as several top-level sections (a header, the
         // content, a footer): they stack in a column that becomes the root.
@@ -8649,6 +8919,146 @@ class _Parser {
   /// each with its label (the word, and its first string value).
   final _bareStandIns = <String, String>{};
 
+  /// The roots of uses of a primitive declared with no lines, by the id the
+  /// use gives them, before their line is read ([_bareRoot]).
+  final _bareUse = <String, _Silent>{};
+
+  /// The stand-ins and the uses of a primitive declared with no lines, by
+  /// node id: what [_silence] reads when each closes.
+  final _silent = <String, _Silent>{};
+
+  /// The lines (1-based) written at the top of the text with nothing under
+  /// them, in a text whose top also holds an `App` or a `Page` ([parse]).
+  Set<int> _silentTopLines = const {};
+
+  /// The nodes [_silence] took out, left out of the document at its end.
+  final _dropped = <String>{};
+
+  /// [node], the root of a use of [d], noted when [d] is a primitive with no
+  /// lines of its own.
+  String _bareRoot(NotationDefinition d, LineParts parts, String node) {
+    if (d.bare) _bareUse[node] = _silentOf(d.word, parts, primitive: true);
+    return node;
+  }
+
+  /// What a stand-in's line (or a primitive's use) [p] gives: a text, a size.
+  static _Silent _silentOf(String word, LineParts? p, {bool primitive = false}) => (
+        word: word,
+        primitive: primitive,
+        top: false,
+        said: p?.strings.length ?? 0,
+        sized: p?.parts.any((x) =>
+                (x.kind == 'pair' && const {'w', 'h', 'width', 'height', 'minh', 'minw', 'aspect', 'ratio'}.contains(x.key)) ||
+                (x.kind == 'word' && const {'grow', 'expand'}.contains(x.raw))) ??
+            false,
+      );
+
+  /// The parts of a word (split where a capital starts) that name a
+  /// behaviour with no picture: a key or a shortcut, an announcement, a
+  /// clock, a sound, a preference, a watch on the scroll, a guard, a focus,
+  /// a copy (round 11: `KeyboardShortcut`, `LiveStatus`, `Clock`,
+  /// `ReviewSound`, `ThemePreference`, `MenuScroll`, `DraftGuard`).
+  static const _behaviourParts = {
+    'keys', 'keyboard', 'shortcut', 'shortcuts', 'hotkey', 'hotkeys', 'bindings', 'listener', //
+    'announce', 'announcer', 'announcement', 'announcements', 'live', //
+    'clock', 'timer', 'ticker', 'sound', 'sounds', 'chime', 'haptic', 'haptics', //
+    'preference', 'preferences', 'theme', 'motion', //
+    'scroll', 'observer', 'monitor', 'watcher', 'spy', 'trigger', 'follow', 'following', //
+    'guard', 'focus', 'clipboard', 'copy', 'transition', 'engine', 'runtime',
+  };
+
+  /// The parts that name something seen, which a behaviour's part does not
+  /// outweigh (`ClipboardButton`, `ScrollMenu`, `ClockLine`).
+  static const _pictureParts = {
+    'button', 'bar', 'field', 'input', 'picker', 'chip', 'chips', 'row', 'card', 'panel', 'map', 'slider', 'dial', //
+    'grid', 'canvas', 'list', 'tile', 'tab', 'tabs', 'menu', 'badge', 'label', 'text', 'icon', 'view', 'sheet', //
+    'dialog', 'surface', 'lane', 'ruler', 'chart', 'scene', 'image', 'photo', 'avatar', 'cap', 'legend', 'hint', //
+    'line', 'alert', 'action', 'toggle', 'switch', 'banner', 'toast', 'pill', 'indicator', 'meter', 'progress',
+  };
+
+  /// Whether [word] names a behaviour with no picture (its parts:
+  /// `KeyboardShortcut` is keyboard, shortcut).
+  static bool _behaviour(String word) {
+    final parts = [for (final m in RegExp(r'[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+').allMatches(word)) m[0]!.toLowerCase()];
+    return parts.any(_behaviourParts.contains) && !parts.any(_pictureParts.contains);
+  }
+
+  /// A stand-in, or the use of a primitive with no lines, that closes: it
+  /// draws nothing and takes no room when nothing is written under it and it
+  /// stands at the top of the page beside its App or Page, or it names a
+  /// behaviour with no picture and gives no size (nor a text, unless it
+  /// announces it). A use of such a behaviour with lines under it is those
+  /// lines, with no labelled box round them. Its record is kept: the render
+  /// says it. True when the node is gone.
+  bool _silence(_Open open) {
+    if (open.condition != null) return false;
+    final s = _silent.remove(open.id);
+    final node = nodes[open.id];
+    if (s == null || node == null) return false;
+    final kids = readStrings(node['children']);
+    // A primitive's labelled box: its label first, the lines under the use
+    // after it; a stand-in's: its strings' texts first.
+    final first = s.primitive ? 1 : s.said;
+    final own = kids.length > first ? kids.sublist(first) : const <String>[];
+    final parts = [for (final m in RegExp(r'[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+').allMatches(s.word)) m[0]!.toLowerCase()];
+    final announces = parts.any(const {'announce', 'announcer', 'announcement', 'announcements', 'live'}.contains);
+    final behaviour = _behaviour(s.word) && !s.sized && (s.said == 0 || announces);
+    if (own.isEmpty && (s.top || behaviour)) {
+      _bareStandIns.remove(open.id);
+      final gone = <String>[];
+      void walk(String id) {
+        gone.add(id);
+        readStrings(nodes[id]?['children']).forEach(walk);
+      }
+
+      walk(open.id);
+      if (_parentOf.remove(open.id) case final String parent) (nodes[parent]?['children'] as List?)?.remove(open.id);
+      // Left out of the document at its end: the line being read counts
+      // the nodes it adds from those there before it.
+      _dropped.addAll(gone);
+      if (_canvas && !s.top) ops.add({'op': 'remove', 'ids': gone});
+      return true;
+    }
+    // A wrapper of what it holds is named after it (`CardKeys`): its
+    // behaviour's part is enough.
+    if (own.isNotEmpty && s.primitive && parts.any(_behaviourParts.contains)) {
+      final label = kids.first;
+      _dropped.add(label);
+      (node['children'] as List).remove(label);
+      node.remove('decoration');
+      (node['layout'] as Map?)?.remove('padding');
+      (node['props'] as Map?)
+        ?..remove('mainAxisAlignment')
+        ..['crossAxisAlignment'] = 'stretch';
+      if (_canvas) {
+        ops
+          ..add({'op': 'remove', 'ids': [label]})
+          ..add({'op': 'set', 'id': open.id, 'node': {...node}});
+      }
+    }
+    return false;
+  }
+
+  /// An app's Main with no ground of its own whose content is a column with
+  /// one (`Column pad=24 fill=canvas scroll`) takes it, so the ground reaches
+  /// the pane's foot: it stopped where the content did (round 11).
+  void _paneGround(_Open open) {
+    if (open.condition != null || _roles[open.id] != 'main') return;
+    final main = nodes[open.id];
+    if (main == null || readMap(main['decoration'])?['fills'] != null) return;
+    final kids = readStrings(main['children']);
+    final content = kids.isEmpty ? null : nodes[kids.last];
+    final fills = readList(readMap(content?['decoration'])?['fills']);
+    // The content that scrolls or takes the pane's room, not a bar at its foot.
+    final takesPane = readMap(content?['props'])?['scrollable'] == true || readMap(content?['layout'])?['flex'] != null;
+    if (content == null || content['type'] != 'column' || !takesPane || fills == null || fills.isEmpty) return;
+    final patch = {
+      'decoration': {'fills': _copyValue(fills)},
+    };
+    nodes[open.id] = mergePatch(main, patch);
+    _patches.add({'op': 'patch', 'id': open.id, 'patch': patch});
+  }
+
   /// The ink a container's `color=` gives the texts and icons written in it
   /// that set none (docs/design/21), by node id, as written.
   final _ink = <String, String>{};
@@ -8822,6 +9232,8 @@ class _Parser {
   }
 
   void _close(_Open open) {
+    if (open.splice || _silence(open)) return;
+    _paneGround(open);
     _placeholder(open);
     _slotAction(open);
     _removable(open);

@@ -25,12 +25,12 @@ It reads as:
 ```notation
 Column gap=12
   Progress value=0.6
-  barChart h=160 color=#FF2563EB values=[3,5,4] labels=["Mon","Tue","Wed"]
-  lineChart h=120 lineColor=#FF2563EB values=[10,12,11,14]
-  Chart w=160 h=160 chartType=donut donutThickness=0.22 showYAxis=false showXAxis=false gridLines=0 series=[{"field":"value","colorField":"color"}] data=[{"label":"Rent","value":60,"color":"#FF2563EB"},{"label":"Food","value":25,"color":"#FF0891B2"},{"label":"Other","value":15,"color":"#FF9333EA"}]
+  barChart h=160 color=#FF2563EB barRadius=4 maxBarWidth=40 barGap=8 gridColor=#FFE5E7EB baselineColor=#FFE5E7EB max=6.0 gridLabelsLeft=true values=[3,5,4] labels=["Mon","Tue","Wed"] gridLabels=["0","2","4",""]
+  lineChart h=120 lineColor=#FF2563EB yMin=9.0 values=[10,12,11,14]
+  Chart w=160 h=160 chartType=donut donutThickness=0.22 showYAxis=false showXAxis=false gridLines=0 series=[{"field":"value","colorField":"color"}] data=[{"label":"Rent","value":60,"color":"#FF2563EB"},{"label":"Food","value":25,"color":"#FF719AF2"},{"label":"Other","value":15,"color":"#FFA8C1F7"}]
   Stack#radialGauge1 h=164
     RadialGauge#radialGauge1Arc h=fill x=0 y=0 value=72 min=0 max=180 target=100 colorByZone=false segments=0 roundCaps=true thickness=16 majorTicks=0 minorTicks=0 showNeedle=false labels=[]
-    Text.heading2#radialGauge1Value "72" size=44 x={"align":0} y={"align":0.05}
+    Text.heading2#radialGauge1Value "72" size=27 x={"align":0} y={"align":0.05}
     Text.muted#radialGauge1Unit "km/h" x={"align":0} y={"align":0.5}
 ```
 

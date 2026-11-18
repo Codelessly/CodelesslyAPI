@@ -618,7 +618,8 @@ Card gap=12
     expect((_node(plain, 'row1')['decoration'] as Map)['radius'], 5);
     expect((_node(plain, 'column1')['decoration'] as Map)['radius'], 8);
     expect((_node(plain, 'column4')['decoration'] as Map)['radius'], 8);
-    expect((_node(plain, 'barChart1')['props'] as Map).containsKey('barRadius'), isFalse);
+    // With no theme's look a bar chart has the notation's: bars apart and rounded (round 11).
+    expect((_node(plain, 'barChart1')['props'] as Map)['barRadius'], 4);
     expect((_node(plain, 'big')['props'] as Map)['style'], {'fontSize': 24, 'fontWeight': 700, 'color': '#FF111827'},
         reason: 'a sized text keeps the body ink: with no color it shows nothing');
   });

@@ -26,18 +26,20 @@ Page
 It reads as:
 
 ```notation width=1280
-Column stretch scroll
+canvas layout.height.hug=0 layout.height.fill=null
+Column stretch scroll h=fill
   Column center pad=[24,14,24,14]
     Row gap=24 between maxWidth=1120
       Row gap=10
         Column middle center w=28 h=28 fill=#FF2563EB radius=8
           Icon "waves" size=16 color=#FFFFFFFF
         Text.heading2 "Tidewater" size=17
-      Button.ghost "Pricing"
+      Button.ghost "Pricing" h=40.0
   Divider
   Column center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
-      Text.heading1 "Fill every room"
+      Text.heading2 "Fill every room" size=60
+  Spacer grow
   Divider
   Column center pad=[24,40,24,40]
     Column gap=24 w=fill maxWidth=1120

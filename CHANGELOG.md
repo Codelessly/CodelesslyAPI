@@ -116,6 +116,70 @@ notation and as a web app and the notation's composers, steppers and toolbar fie
 
 - The grammar prompt teaches the composer in one sentence, after the text area.
 - The reference's `Input` section says what `fill`, `border` and `radius` do on it, and the composer.
+### Behaviour changes (read before upgrading)
+
+- **A stand-in with nothing to draw draws nothing** (round 11: 14 of 30 briefs lost a screen to one): a use of a
+  primitive declared with no lines, or a word that stands in, written at the top of a page beside its `App` or
+  `Page` with nothing under it, is not drawn and the frame stays the root (it was a bar above the app, which lost
+  its window); one whose name is a behaviour with no picture (`KeyboardShortcut`, `LiveStatus`, `Clock`,
+  `ThemePreference`, `MenuScroll`; the parts are listed in docs/design/20 section 12) and that gives no size and
+  no text draws nothing and takes no room anywhere, and with lines under its use it is those lines with no
+  labelled box. Everything else keeps its labelled box. The record keeps every use.
+- **`Section bleed` with no ground of its own has no padding**: what is in it (a hero picture) meets the bar above
+  it; it sat 64 px below on the page's white. A bleed band with a `fill` or a tint keeps its padding.
+- **A website's headline is at a display size**: `Heading level=1`, `Text.pageTitle` and `Text.heading1` in a `Page`'s
+  Section are 60 px (52 on a tablet, 43 on a phone, by the reflow), `level=2` 36 and `level=3` 22; they were 30, 24
+  and 18, a section's title over a 1440 page (round 11: the web's were 48 to 150 px). A theme whose `heading1` or
+  `pageTitle` has a size of 32 and up keeps it, a line's own `size=` wins, and an `App`'s titles are as they were.
+- **A website's controls are a web page's size**: in a `Page`, a button, a field and a select that write no height
+  are 40 px (28 before), their type to match (the renderer's step for 40), a chip 32 (24), the buttons of the
+  Section that holds the page's headline (its hero) `size=large` (44), and an `IconButton` in a Section a 40 px square
+  in a hairline (a bare glyph before). A theme's `sizes.control` wins; an `App` (Desk's 28 px density) is as it was.
+- **A website's ground reaches the foot**: a `Page` is as tall as the window it is shown in (as tall as its content
+  in a host that scrolls it: its canvas still hugs), its canvas is its ground (`Page fill=…`), and its `Footer` sits at
+  the window's foot on a short page (a `Spacer` before it takes what is left); white showed under short pages. Two
+  plain Sections one after the other have one section's space between them (96 px, was 128). An app's `Main` with no
+  ground of its own takes its content column's (`Column pad=24 fill=canvas scroll`), so the ground reaches the
+  pane's foot.
+- **Charts with no look of the theme's are drawn as a designer would**: a `BarChart`'s bars are apart (at most 40
+  wide, 8 between) and rounded (4) over a light grid with its figures on the left (written values: a nice top, `0`,
+  `10`, `20`…); a `Donut`'s slices and a multi-series line's colors are steps of the theme's primary (they were a
+  fixed palette no theme had); a `LineChart`'s axis is fitted to its data (it started at 0 and flattened it).
+- **A theme's `ink` and `paper` (the names the prompt teaches) are its text's ink and its ground** where it has no
+  design system's names for them (`primaryText`, `surface`…, which win): texts were `#FF111827` and the canvas white
+  whatever the site said. **A dark ground** (its luminance under 0.35) derives its tones from its ink and ground: cards
+  6 % lighter than the ground, hairlines and dividers its ink at 16 %, a selected or neutral fill its ink at 10 %, a
+  sidebar's or a bar's items at rest its ink at 80 % (their icons 60 %); they kept a light theme's white cards,
+  grey lines and grey items. (A control's accent colours are left as they were.)
+- **The open prompt says what the notation has for what round 11's writers invented words for**, in a line or a
+  phrase each: `key mod+k onPress={…}` (a shortcut of the whole screen), `announce "…"` and `Text … live` (a screen
+  reader), `now()` (the time), `Input#search "Search" icon="search" @q` (a search field; its example of a link that
+  stays in the bar is no longer a search). Nothing new is taught: each was there, left out of the open prompt.
+
+### Fixed
+
+- **A definition of several lines side by side is read** (it was refused and its uses drew placeholders: round 11's
+  admin console lost its sidebar), and **one that starts with an `if` or an `each` is its lines where the use is**,
+  as design note 20 has a use stand for its body's lines: the copies an `each` makes are the cells of a `Grid`
+  around the use (they were all in one cell) and take the gap of a `Column` around it. A use that gives the root
+  words of its own (`#id`, `hide=phone`, `grow`) has a `Column` holding the lines, as before.
+- **A Link is in the theme's accent** where the site names its colors: it drew a fixed blue (`#FF2563EB`) on every
+  site whatever its primary (round 11: 11 briefs).
+- **`Badge.success`, `.warning`, `.info`, `.primary`, `.error` under a theme with no tints of its own** (a site's
+  theme) are a tint of the tone's color (the theme's, else SSUI's): they all drew as the neutral grey badge.
+- **A theme text style changes only the keys it sets.** A style named as a text variant (`heading1: {fontFamily,
+  fontWeight}` in site.json) keeps the variant's size, and a line's `style=serif` over a variant
+  (`Text.heading2 "…" style=serif`) keeps the variant's size and ink where the style sets none: it replaced the
+  variant (round 11: 12 to 13 px headings and page titles).
+- **A box with the widest it gets in a centered column** (`Column maxw=720` under `Column center`) is as wide as its
+  place up to that, centered: it hugged its content (a 270 px flashcard in a 1200 px pane).
+- **A gauge's figure is sized to its shorter side**: a wide gauge `h=100` drew a 44 px figure over its arc.
+- **Texts with widths in a row inside a row that scrolls keep their widths** (`Text "00:15" w=126` cells of a
+  timeline's ruler): they were made shares of a row with all the width it asks for, and ran together. This is the
+  condition behind round 11's "`w=126` on a Text in a Row becomes a flex weight" (a row of 2 or more such texts
+  wider than half the window, under a scrolling row); a row not in a scroll is a table's, its columns shares as before.
+- **`Dots` in a page's Section**: the line after it is beside it, not one of its dots' row (a carousel's next button
+  sat in the 16 px row of dots). Found while checking round 11's builds.
 
 ## 36.0.0
 

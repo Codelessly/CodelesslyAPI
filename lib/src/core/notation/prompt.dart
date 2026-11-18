@@ -560,6 +560,15 @@ String _openPrompt(String taught, {bool define = true}) {
       beyond = l.isNotEmpty;
       continue;
     }
+    // What the notation has for what round 11's writers invented words for
+    // (a KeyboardShortcut, a LiveStatus, a Clock, a search written as a
+    // Link): said in a line each, where the lines it belongs with are.
+    if (l.startsWith('- every 1000 onTick=')) {
+      out
+        ..add(line)
+        ..add('- key mod+k onPress={focus search} on its own line (top level) is a shortcut of the whole screen (mod: Ctrl, ⌘ on a Mac).');
+      continue;
+    }
     if (l.startsWith('- Beyond these words:') ||
         l.startsWith('  key mod+k onPress=') ||
         l.startsWith('  device.hover is true') ||
@@ -577,8 +586,12 @@ String _openPrompt(String taught, {bool define = true}) {
       continue;
     }
     out.add(line
-        .replaceFirst('; confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text', '')
+        .replaceFirst('; confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text',
+            '; announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search')
+        .replaceFirst('(Link "Search" menu=false onTap={open search} is a link that stays in the bar and out of the menu;',
+            '(Link "Sign in" menu=false onTap={go account} is a link that stays in the bar and out of the menu; Input#search "Search" icon="search" @q is a search field, in a bar too;')
         .replaceFirst(' (stops=[0.5,0.9]: heights it rests at)', '')
+        .replaceFirst(' today(), formatDate(', ' today(), now() (the time), formatDate(')
         .replaceFirst('; Popover#bio arrow points at it', '')
         .replaceFirst(', ${notationPageFunctions.join(', ')}', ''));
   }
