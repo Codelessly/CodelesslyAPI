@@ -170,9 +170,10 @@ extension on PageWords {
       (
         indent: at + 6,
         // A chosen row is tinted with the accent (a selectable list's row is
-        // in its `selected` state).
+        // in its `selected` state). Under a theme's names it is the theme's
+        // selected tint (`activeTint`), which follows dark mode.
         text: 'Row${sub('row')} w=fill minHeight=$rowH pad=[16,6,16,6] gap=16 border-bottom=$line hovered.fill=$head'
-            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${_mix(surface, accent, .1)}'}',
+            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedFill.startsWith('#') ? _mix(surface, accent, .1) : selectedFill}'}',
       ),
       if (select != null) ...[
         (indent: at + 8, text: 'Row w=16'),
