@@ -53,6 +53,11 @@
 
 ### Changed
 
+- **Notation**: a formula whose brackets do not match is an issue of its line, open vocabulary or not, wherever it
+  is written (an `each` list, an `if` condition, a `state` value, a `{…}` value or action, a text's `{…}`): a `)` or
+  `]` that closes nothing (saying where the formula ends and what is not read), one that closes the other kind, and
+  a `(` or `[` the line never closes (`notationBracketIssues`). Before, the formula was kept as written and the engine
+  read nothing from it, with no word: test 10's kanban board wrote one `)` too many in its list and drew no cards.
 - **Notation**: an id may have hyphens (the owner's decision: ids are written as JSON and HTML ids are). An id is
   letters, digits and `_`, its parts joined by single hyphens (`Text#m-title`, `Dialog#live-image`, `hero-cta-2`),
   read as written, with no issue, after `#`, after `open`, `scroll` and `focus`, and as the owner before a state

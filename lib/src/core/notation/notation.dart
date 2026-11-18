@@ -21,6 +21,7 @@ import '../props.dart';
 import '../suggest.dart' show didYouMean;
 import '../triggers.dart' show KeyCombo;
 import 'bind_form.dart';
+import 'brackets.dart';
 import 'declared.dart';
 import 'define.dart';
 import 'formula_names.dart';
@@ -1340,14 +1341,14 @@ final class NotationStream {
     _buffer
       ..clear()
       ..write(text.substring(end + 1));
-    text.substring(0, end).split('\n').forEach(_parser.line);
+    text.substring(0, end).split('\n').forEach(_parser._readLine);
     return _take();
   }
 
   List<Json> close() {
     final rest = _buffer.toString();
     _buffer.clear();
-    if (rest.isNotEmpty) _parser.line(rest);
+    if (rest.isNotEmpty) _parser._readLine(rest);
     _parser.finish();
     // A text with no line of a node (a print that says its document on the
     // `document {…}` line): the screen is sent now, as its first line would.
@@ -3587,9 +3588,21 @@ class _Parser {
       issues.add(NotationIssue(p.line, 1, p.message));
     }
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
-    const LineSplitter().convert(text).forEach(line);
+    const LineSplitter().convert(text).forEach(_readLine);
     finish();
     return _end();
+  }
+
+  /// The text read so far, for what its brackets say at [finish].
+  final _rawText = StringBuffer();
+
+  /// Reads [raw], a line of the text, kept for [finish] to say what its
+  /// brackets leave unread (brackets.dart): a formula with a `)` that closes
+  /// nothing was kept as written and read as nothing, with no word (test 10,
+  /// kanban).
+  void _readLine(String raw) {
+    _rawText.writeln(raw);
+    line(raw);
   }
 
   /// The end of the text, read whole or as it arrived ([NotationStream]):
@@ -8078,6 +8091,13 @@ class _Parser {
 
   /// The end of the text: what is still open closes.
   void finish() {
+    // What the text's brackets leave unread (brackets.dart), once it is all
+    // here: a line a list or a JSON escape carries over the next is read
+    // joined, as [line] reads it.
+    if (!_mediaLine && _rawText.isNotEmpty) {
+      issues.addAll(notationBracketIssues(_rawText.toString()));
+      _rawText.clear();
+    }
     if (_host == null) {
       _closeBlock();
       // The viewer a gallery of the page opens its photos in, over the window.
