@@ -193,6 +193,20 @@ Column
     expect(_node(r, 'b')['transformGesture'], containsPair('wheel', 'zoom'));
   });
 
+  test('a paint paragraph takes a quoted value at a dotted key (style.fontFamily="monospace")', () {
+    // saas-landing (home.txt:28, 10 lines), seat-booking (ShowArtwork.txt:16, 5 lines).
+    final r = _parse('''
+Column
+  box#b w=100 h=100
+    customPaint viewBox=[100,100]
+      paragraph "relay / incident desk" offset=[6,9] style.fontSize=12 style.fontFamily="monospace"
+''');
+    expect(r.issues, isEmpty);
+    final op = (((_node(r, 'b')['customPaint'] as Map)['painter'] as List).single as Map);
+    expect(op['text'], 'relay / incident desk');
+    expect(op['style'], {'fontSize': 12, 'fontFamily': 'monospace'});
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

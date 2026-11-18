@@ -524,6 +524,14 @@ final class LineParts {
           i = closeOfBalanced(i + 1);
           break;
         }
+        // `style.fontFamily="Georgia"`: a dotted key's quoted value is the
+        // key's (round 11b: a paint paragraph's style, 15 lines in 2 builds,
+        // read as a word and a second text).
+        if (c == '"' && key == null && RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+=$').hasMatch(text.substring(start, i))) {
+          key = text.substring(start, i - 1);
+          i = closeOfString(i);
+          break;
+        }
         if (c == '"' && key == null) break;
         i++;
       }

@@ -41,6 +41,9 @@
 
 ### Fixed
 
+- **A dotted key with a quoted value** (`style.fontFamily="monospace"` on a paint `paragraph`; round 11b:
+  saas-landing 10 lines, seat-booking 5) is one key: it was read as a word and a second text, "A paragraph has
+  no style.fontFamily=" and "A paragraph takes one text". The reference (paint.md) teaches dotted paths.
 - **A field's own word at a dotted key** (`transformGesture.wheel=zoom` on a page with `state zoom`; round 11b:
   photo-library, team-chat) is that word, as a prop's own word is; it was "A value read from the state is
   written in braces: transformGesture.wheel={zoom}", the wrong fix.
