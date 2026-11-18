@@ -41,6 +41,9 @@ Json? notationTypeJson(String word) {
     'bool' => {'kind': 'boolean', 'flutter': 'bool'},
     'double' => {'kind': 'number', 'flutter': 'double'},
     'int' => {'kind': 'integer', 'flutter': 'int'},
+    // A record or anything (`List<Map>` of records, a `Map` of options):
+    // free-form JSON, as Flutter's `dynamic` and `Map<String, dynamic>`.
+    'dynamic' || 'Object' || 'Object?' || 'Map' || 'Map<String, dynamic>' || 'Map<String,dynamic>' || 'Map<String, Object?>' => {'kind': 'json', 'flutter': word},
     _ => null,
   };
 }
@@ -63,6 +66,7 @@ String? _typeName(Json type) {
     'list' => switch (_typeName(readMap(type['item']) ?? const {})) { final String w => 'List<$w>', _ => null },
     'variable' => switch (_typeName(readMap(type['of']) ?? const {})) { final String w => 'ValueNotifier<$w>', _ => null },
     'enumeration' => readStrings(type['values']).join('|'),
+    'json' => readString(type['flutter']) ?? 'dynamic',
     _ => null,
   };
   if (word == null) return null;
@@ -79,6 +83,9 @@ String notationTypeOf(Object? value) => switch (value) {
       num _ => 'double',
       final List l when l.every((e) => e is String) => 'List<String>',
       final List l when l.every((e) => e is num) => 'List<double>',
+      // A list of records (or of mixed values), a record: JSON.
+      List _ => 'List<dynamic>',
+      Map _ => 'Map',
       _ => 'String',
     };
 

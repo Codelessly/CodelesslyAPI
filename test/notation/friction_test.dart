@@ -145,4 +145,33 @@ void main() {
     expect(r.issues, isEmpty);
     expect(jsonEncode(r.document), contains('"node":"filters/search"'));
   });
+
+  group('components', () {
+    test('emit "…{result}…" sends the value, not the braces', () {
+      final r = _expand('component Nav "x"\n  event onNavigate:String\nColumn#n\n  Button "a" onTap={emit onNavigate "{result}"}\n  Button "b" onTap={emit onNavigate "page-{result}"}\n');
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains(r'"value":"${result}"'));
+      expect(jsonEncode(r.document), contains(r'"value":"page-${result}"'));
+    });
+
+    test('a parameter of records: List<Map>, Map, dynamic, and a default list of maps', () {
+      final r = _expand('component Code "x"\n  param snippets:List<Map>=[]\n  param opts:Map={}\n  param any:dynamic=null\n  param rows=[{"a":1}]\nColumn#c\n  Text "x"\n');
+      expect(r.issues, isEmpty);
+      final props = {for (final p in ((r.document['widget']! as Map)['props']! as List).cast<Map>()) p['key']: p['type']};
+      expect(props['snippets'], {'kind': 'list', 'flutter': 'List<Map>', 'item': {'kind': 'json', 'flutter': 'Map'}});
+      expect(props['opts'], {'kind': 'json', 'flutter': 'Map'});
+      expect((props['rows']! as Map)['item'], {'kind': 'json', 'flutter': 'dynamic'});
+      final printed = printNotation(r.document, catalog: standardCatalog);
+      expect(printed, contains('param snippets:List<Map>'));
+    });
+
+    test('an Avatar of a name read from state shows its initials', () {
+      final r = _expand('state name="Ada Lovelace"\nColumn\n  Avatar "{name}"\n  Avatar "Maya Reyes"\n');
+      expect(r.issues, isEmpty);
+      final texts = [for (final t in _of(r, 'text')) (t['props']! as Map)['text']];
+      expect(texts.first, contains('left(w, 1)'));
+      expect(texts.first, contains('name'));
+      expect(texts.last, 'MR');
+    });
+  });
 }

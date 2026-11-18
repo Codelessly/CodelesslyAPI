@@ -3172,7 +3172,7 @@ class _Parser {
           return true;
         }
         final type = head[2] == null ? notationTypeJson(notationTypeOf(first!.value)) : notationTypeJson(head[2]!);
-        if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
+        if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, Map or dynamic (a record, anything), List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
         final p = <String, Object?>{'key': head[1], 'type': type ?? notationTypeJson('String'), 'default': first!.value};
         for (final w in words.skip(1)) {
           if (w.key == 'required' && w.value == null) {
@@ -3196,7 +3196,7 @@ class _Parser {
           if (notationTypeJson(t) case final Json json) {
             e['payload'] = json;
           } else {
-            _issue(indent + 1, 'No type "$t": String, bool, double, int, List<…>, or an enum\x27s values joined by |.');
+            _issue(indent + 1, 'No type "$t": String, bool, double, int, Map or dynamic, List<…>, or an enum\x27s values joined by |.');
           }
         }
         for (final w in words.skip(1)) {
@@ -6980,10 +6980,19 @@ class _Parser {
     }
     if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
     if (avatarName != null) {
-      // "Maya Reyes" is MR; a value read from state is shown as it is.
+      // "Maya Reyes" is MR; a name read from state (`Avatar "{item.name}"`)
+      // is its initials too, worked out as it shows (its first two words'
+      // first letters); a text with more in it is shown as it is.
       final reads = avatarName.contains(r'${') || avatarName.contains('{');
       final words = avatarName.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-      final initials = reads || words.isEmpty ? avatarName : words.length == 1 ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase() : '${words.first[0]}${words.last[0]}'.toUpperCase();
+      final whole = RegExp(r'^\$?\{(?:=\s*)?([^{}]+)\}$').firstMatch(avatarName.trim());
+      final initials = whole != null
+          ? _formula("upper(join(map(take(split(trim(text(${whole[1]!.trim()})), ' '), 2), w => left(w, 1)), ''))")
+          : reads || words.isEmpty
+              ? avatarName
+              : words.length == 1
+                  ? words.first.substring(0, words.first.length.clamp(0, 2)).toUpperCase()
+                  : '${words.first[0]}${words.last[0]}'.toUpperCase();
       final size = switch ((out['layout'] as Map)['width']) { final num w => w, _ => avatarSize ?? 40 };
       final base = options.textStyles['strong'] ?? options.textStyles['body'];
       nodes['${id}Text'] = {
@@ -8460,7 +8469,7 @@ class _Parser {
             // Plain words after the event are its value as text
             // (`emit choose plan A`); anything else is read as a value.
             if (value != null && value.isNotEmpty)
-              'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _valueOrRead(value),
+              'value': RegExp(r'^[A-Za-z][A-Za-z0-9]*( [A-Za-z0-9]+)+$').hasMatch(value) ? value : _emitted(value),
           });
         case 'open':
           // An overlay written in this text (Dialog#id, Menu#id…) opens as
@@ -8662,6 +8671,14 @@ class _Parser {
     final braced = (_Tokens(t.s)..at = t.at).balanced();
     if (braced.length < 3 || !braced.endsWith('}')) return null;
     return _bracedValue.hasMatch(braced) || _bracedExpression(braced) ? braced : null;
+  }
+
+  /// An emitted value: a quoted text with values in it (`"{result}"`,
+  /// `"page-{id}"`) reads them, as a text does; else [_valueOrRead].
+  Object? _emitted(String raw) {
+    final l = _literal(raw);
+    if (l.$1 && l.$2 is String && raw.trimLeft().startsWith('"') && (l.$2! as String).contains('{')) return _interpolate(l.$2! as String);
+    return _valueOrRead(raw);
   }
 
   Object? _valueOrRead(String raw) {
