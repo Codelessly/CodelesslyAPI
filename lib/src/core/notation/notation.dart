@@ -23,6 +23,7 @@ import '../triggers.dart' show KeyCombo;
 import 'bind_form.dart';
 import 'declared.dart';
 import 'define.dart';
+import 'formula_names.dart';
 import 'keys.dart';
 import 'media_words.dart';
 import 'page_words.dart';
@@ -8120,6 +8121,12 @@ class _Parser {
       }
       final formula = value != null && _bracedExpression(value);
       if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
+      // A call reaches the engine's function of that name first: this one
+      // would never run (formula_names.dart).
+      if (typed[2] != null && notationFormulaFunctionNames.contains(name)) {
+        final other = 'my${name[0].toUpperCase()}${name.substring(1)}';
+        _issue(column, 'state $name(${typed[2]}): $name is one of the formula functions ($name(…) calls that one, never this): name it otherwise, as state $other(${typed[2]}):$type={…}, and call $other(…).');
+      }
       // Declared: what binds it (`@name`) needs no other line.
       _top._stated.add(name);
       _top._typedStates.add(name);
