@@ -20,6 +20,18 @@ Column gap=4
 A theme color or text style is written by its name (`color=primary`, `color=onSurface`): the document's theme
 gives it. The theme itself is in the site's files ([design-systems.md](design-systems.md)).
 
+A line that names a theme text style and sets a field of it keeps the rest of the style, in any order and at any
+width: `Text "SEV1" style=label size=10.5` is the `label` style at 10.5, `Text "Ep. 42" style=title phone.size=13`
+keeps the title's weight and colour on a phone. `from=label` is the same as `style=label` with fields over it; no
+`=null` is needed beside it.
+
+```notation expands
+Column gap=4
+  Text "SEV1" style=label size=10.5
+  Text "Ep. 42" style=title phone.size=13
+  Text "In the accent" from=label color=primary
+```
+
 ```notation
 Button "Dark mode" onTap={setThemeMode mode=dark}
 ```

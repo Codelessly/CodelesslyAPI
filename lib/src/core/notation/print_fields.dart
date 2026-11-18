@@ -1522,6 +1522,9 @@ final class _NodeLine {
     if (want is Map && got is Map && declared != null && declared.kind == PropKind.object && declared.fields.isNotEmpty) {
       split = true;
       for (final k in {...got.keys, ...want.keys}) {
+        // A text's `from=` starts from the style it names, with nothing of the
+        // body's under it: a field only the body gave needs no `=null`.
+        if (path == 'props.style' && type == 'text' && want['from'] is String && got['from'] != want['from'] && !want.containsKey(k)) continue;
         final inner = _forms('$path.$k', got[k], want[k]);
         if (inner.isEmpty) continue;
         parts.addAll(inner.first);

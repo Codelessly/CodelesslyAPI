@@ -10,6 +10,14 @@ parameters in order; `@name` is the variable it keeps its value in (its `value`,
 parameter), `key=@name` each further variable parameter (`direction=@dir`); its events are `on…` keys by their own
 names.
 
+A site's own components are known to the expander with nothing more said: a file in a site's folder (a
+`site.json` beside it or above it, as `site.json` or `site/site.json`) calls every component written in the
+notation in its `components/*.txt` and every expanded one `site.json` lists, reads the site's variables by name
+(a component that writes one does not make its own) and takes the site's theme. `tool/notation/notation.sh expand
+<site folder>` expands the whole site, each component after the ones it calls, then every page. A component named
+like a word of the notation (`Footer`, `Sidebar`, `Card`) is not called where that word is read: the expander says
+so; write `Footer type=Footer`, or give the component a name of its own (`SiteFooter`).
+
 ## Writing one
 
 A component's document is its head, then its tree (no canvas):
