@@ -448,6 +448,13 @@ final class PageWords {
     final written = parts.take('photos') ?? parts.take('images') ?? parts.take('items');
     final thumbs = (parts.take('thumbs') ?? 'true') != 'false';
     final max = num.tryParse(parts.take('max') ?? '') ?? 4;
+    // It is the whole window, its picture contained in it: a size written on
+    // its line (`Lightbox#gallery "…" w=960 h=665`, as a Dialog's) has nothing
+    // to size. It was "h= is written twice on this line", said of a line that
+    // wrote it once (round 11b, property-listings).
+    parts
+      ..take('w')
+      ..take('h');
     // Its variables are named after it, an id's hyphens as `_` (a name).
     final word = id.replaceAll('-', '_');
     final zoom = '${word}Zoom';

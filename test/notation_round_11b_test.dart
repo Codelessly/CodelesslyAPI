@@ -321,6 +321,18 @@ Column
     expect(r.issues.map((i) => i.line), [9]);
   });
 
+  test('a Lightbox with a size on its line: no "written twice" (it is the whole window)', () {
+    // property-listings (listing.txt:89).
+    final r = _parse('''
+Column
+  Text "a"
+Lightbox#gallery "Property gallery" w=960 h=665
+  Column gap=11
+    Text "b"
+''');
+    expect(r.issues, isEmpty);
+  });
+
   test('a customPaint under a box in a Nav, a Section or an each is on the box (it went to the row holding it)', () {
     // seat-booking (HouseMasthead), nonprofit (CanopyNav), saas-landing
     // (the hero's console), travel-guide (the line at a glance), conference.

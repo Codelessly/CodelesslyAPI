@@ -52,6 +52,9 @@
 
 ### Fixed
 
+- **A `Lightbox` with a size on its line** (`Lightbox#gallery "Property gallery" w=960 h=665`, as a Dialog is
+  written; round 11b, property-listings): no "h= is written twice on this line", said of a line that wrote it once.
+  A lightbox is the whole window, its picture contained in it: the size has nothing to size and is not read.
 - **Copies that grow, in a row that turns down the page at a width, may say `phone.grow=0` or `phone.w=fill`
   there** (round 11b: restaurant, nonprofit): where the row is a column the grid of the copies has one column and
   each copy is its whole width, which is what those words say. They were refused ("a width of their own at another
