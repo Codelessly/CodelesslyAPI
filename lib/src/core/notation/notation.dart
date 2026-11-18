@@ -3428,12 +3428,19 @@ class _Parser {
       case 'param':
         // `param title="Action" required doc="The title."`, `param size:small|medium|large=medium`.
         final first = words.firstOrNull;
-        final head = first == null ? null : RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
+        // `param @selected=""`: a variable parameter, as `@name` on a call
+        // keeps a variable (round 10, R20); its type is its default's.
+        final kept = first != null && first.key.startsWith('@') && !first.key.contains(':');
+        final head = first == null ? null : RegExp(r'^@?([A-Za-z_][A-Za-z0-9_]*)(?::(.+))?$').firstMatch(first.key);
         if (head == null) {
           _issue(indent + 1, 'A parameter is written: param name=default, its type after a colon where the default does not say it (param count:int=3), then required and doc="…".');
           return true;
         }
-        final type = head[2] == null ? notationTypeJson(notationTypeOf(first!.value)) : notationTypeJson(head[2]!);
+        final type = kept
+            ? notationTypeJson('ValueNotifier<${notationTypeOf(first.value)}>')
+            : head[2] == null
+                ? notationTypeJson(notationTypeOf(first!.value))
+                : notationTypeJson(head[2]!);
         if (type == null) _issue(indent + 1, 'No type "${head[2]}": String, bool, double, int, Map or dynamic (a record, anything), List<…>, ValueNotifier<…>, or an enum\x27s values joined by | (small|medium|large).');
         final p = <String, Object?>{'key': head[1], 'type': type ?? notationTypeJson('String'), 'default': first!.value};
         for (final w in words.skip(1)) {
@@ -3454,7 +3461,8 @@ class _Parser {
           return true;
         }
         final e = <String, Object?>{'key': head[1]};
-        if (head[2] case final String t) {
+        // `event onPick:void` (round 10, R20): an event that passes nothing.
+        if (head[2] case final String t when t != 'void') {
           if (notationTypeJson(t) case final Json json) {
             e['payload'] = json;
           } else {
@@ -9230,6 +9238,24 @@ class _Parser {
       }
       if (a.startsWith('confirm ') || a == 'confirm') {
         if (_confirm(a, column) case final Json c) out.add(c);
+        continue;
+      }
+      // `props.selected=m.id` in a component (round 10, R20: refused as an
+      // unknown action): its variable parameter set, which the caller's
+      // `@name` then holds (`setVariable variable=props.selected`).
+      if (RegExp(r'^props\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a) case final m? when _top._widget != null) {
+        final param = [
+          for (final p in (_top._widget!['props'] as List?) ?? const [])
+            if (readMap(p) case final Json j when j['key'] == m[1]) j,
+        ].firstOrNull;
+        if (param == null || readMap(param['type'])?['kind'] != 'variable') {
+          _issue(column,
+              '${param == null ? 'The component has no parameter "${m[1]}"' : 'The parameter "${m[1]}" is given by the call, not kept'}: a parameter the component sets is a variable one, param @${m[1]}=… (or param ${m[1]}:ValueNotifier<String>=…), and the call binds it (@name).');
+          continue;
+        }
+        final v = m[2]!.trim();
+        final literal = _literal(v);
+        out.add({'type': 'setVariable', 'variable': 'props.${m[1]}', 'value': literal.$1 && literal.$2 is String ? _interpolate(literal.$2! as String) : _formula(v)});
         continue;
       }
       final set = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);

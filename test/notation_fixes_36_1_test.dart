@@ -71,4 +71,37 @@ void main() {
       expect((_node(n, 'a')['props'] as Map)['size'], 'small');
     });
   });
+  group('R20: what the head and the tree of a component may say of its parameters', () {
+    test('param @selected, a bare List, event …:void and props.selected=… in the tree', () {
+      final r = parseNotation('''
+component Picker "Choose one."
+  param @selected=""
+  param items:List=[]
+  event onPick:void
+Column#picker gap=4
+  each it in props.items
+    Text#row "{it}" onTap={props.selected=it; emit onPick}
+''', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      final widget = r.document['widget'] as Map;
+      final props = {for (final p in widget['props'] as List) (p as Map)['key']: p['type']};
+      expect(props['selected'], {'kind': 'variable', 'of': {'kind': 'string', 'flutter': 'String'}});
+      expect((props['items'] as Map)['kind'], 'list');
+      expect(widget['events'], [
+        {'key': 'onPick'},
+      ]);
+      final tap = ((_node(r, 'row')['actions'] as List).single as Map)['actions'] as List;
+      expect(tap.first, {'type': 'setVariable', 'variable': 'props.selected', 'value': r'${= item}'});
+    });
+
+    test('props.x=… on a parameter the call gives (not a variable one) is said, with how to keep it', () {
+      final r = parseNotation('''
+component Picker "Choose one."
+  param selected=""
+Column#picker
+  Text#row "x" onTap={props.selected="a"}
+''', catalog: standardCatalog);
+      expect(r.issues.single.message, contains('param @selected'));
+    });
+  });
 }

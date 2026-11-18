@@ -2,6 +2,11 @@
 
 ### Fixed
 
+- **A component's parameters** (round 10, R20, 15 runs): `param @selected=""` is a variable parameter of its
+  default's type; `props.selected=m.id` in its tree sets it (it was "Unknown action"; one on a parameter the call only
+  gives is said, with how to keep it); `param items:List=[]` is a list of anything and `event onPick:void` passes
+  nothing (both were "No type"). Each was already said by `setVariable variable=props.selected`,
+  `List<dynamic>` and an event with no type.
 - **A string on a component call** fills a text parameter the line does not name: `GuideSection "01"
   label="Installation"` is the label and `01` the next text parameter (it took the label, then said `label` was
   written twice; round 10, R41, 9 runs).

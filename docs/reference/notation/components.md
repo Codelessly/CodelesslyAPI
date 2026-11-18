@@ -48,9 +48,11 @@ Row#pill gap=4
 ```
 
 - `param name[:Type]=default`: a parameter, its type in Flutter's names (`String`, `bool`, `double`, `int`, `Map`
-  or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
-  not say it; `required` and `doc="…"` after it.
-- `event name:Type`: an event and the type of its payload; `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
+  or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records; `List` alone: anything), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
+  not say it; `required` and `doc="…"` after it. `param @selected=""` is a variable parameter of its default's type:
+  the tree reads it as `props.selected` and sets it with `props.selected=…`, and the call keeps it in its own
+  variable (`Picker @choice`). A parameter the call only gives cannot be set from inside.
+- `event name:Type`: an event and the type of its payload (`event onPick:void`, or no type: it passes nothing); `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
 - `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them).
 - `preview "Name" 340x66 key=value …`: a preview, its size and the call's values.
 
