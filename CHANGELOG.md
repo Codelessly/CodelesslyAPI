@@ -7,6 +7,11 @@
 
 ### Behaviour changes
 
+- **A site's `primary` re-accents a design system's dark accent too** (`ThemeTokens.withSiteTheme`): Desk's dark
+  `accent`, a lighter indigo than its dark `primary`, stayed indigo under a site's green (the SideButton, the brand
+  tile, the chosen view, the cursor bar), with `dark.primary` given or not, though Desk's README says naming
+  `primary` re-accents it (support desk, test 11). Now it is the site's hue at the lightness Desk gives it. Only a
+  re-accented site in dark mode draws differently; a dark accent the site names itself is its own.
 - **A look written on a component call is said** (`Disc "MR" fill=#… border=#…`, `clip`; round 10, R31, 10 runs): a
   call has no look of its own, its definition has, and the call's size, place, margin, `maxw` and widths at other
   sizes (`phone.w=fill`) are what it takes. A fill or a border was left out with no word; `radius`, `shadow` and

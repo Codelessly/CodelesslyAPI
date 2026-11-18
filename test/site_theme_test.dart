@@ -79,6 +79,36 @@ void main() {
     expect(_c(t, 'success'), '#FF16A34A', reason: 'another hue stays');
   });
 
+  test('dark mode: an accent the design system gives apart from its dark primary follows the site\'s primary too (Desk)', () {
+    // Desk's dark `accent` is a lighter indigo than its dark `primary`; under a site's green it stayed indigo (the
+    // SideButton, the brand tile, the chosen view: support desk, test 11), with `dark.primary` named or not.
+    final desk = ThemeTokens.fromJson({
+      'primary': '#FF4F46E5',
+      'colors': {'accent': '#FF4F46E5', 'success': '#FF16A34A'},
+      'dark': {
+        'primary': '#FF6D70F0',
+        'colors': {'accent': '#FF7C7FF7', 'success': '#FF22C55E'},
+      },
+    });
+    for (final site in [
+      {'primary': '#FF16804A'},
+      {'primary': '#FF16804A', 'dark': {'primary': '#FF34B26F'}},
+    ]) {
+      final dark = desk.withSiteTheme(ThemeTokens.fromJson(site)).forBrightness(dark: true);
+      final accent = dark.color('accent')!;
+      expect(accent.green, greaterThan(accent.blue), reason: 'green now: ${accent.toJson()} ($site)');
+      expect(_c(dark, 'success'), '#FF22C55E', reason: 'another hue stays');
+    }
+    // A site that names the dark accent keeps its own.
+    final own = desk.withSiteTheme(ThemeTokens.fromJson({
+      'primary': '#FF16804A',
+      'dark': {
+        'colors': {'accent': '#FFFF0000'},
+      },
+    }));
+    expect(_c(own.forBrightness(dark: true), 'accent'), '#FFFF0000');
+  });
+
   test('dark mode: the accent is made from the override, not left the design system\'s blue', () {
     final t = _base.withSiteTheme(ThemeTokens.fromJson({
       'primary': '#FFB45309',
