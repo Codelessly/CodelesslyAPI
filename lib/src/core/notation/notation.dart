@@ -3927,7 +3927,8 @@ class _Parser {
         return;
       }
       // In a row the copies go across, each at its own width.
-      final across = g == null && parent.type == 'row';
+      // (A horizontal Flex is a row too.)
+      final across = g == null && (parent.type == 'row' || (parent.type == 'flex' && (nodes[parent.id]?['props'] as Map?)?['direction'] == 'horizontal'));
       if (follows && (g != null || across)) return _issue(column, 'A list that follows its end runs down a Column, a Card or a Section, not across a Row or in a Grid.');
       final listName = each[2]!.trim();
       if (reorders && (g != null || across)) return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid.');
@@ -6650,10 +6651,17 @@ class _Parser {
       // A row that spreads its children (between, around, evenly) has to be
       // as wide as its place to spread them over: in a centered column too.
       final spread = type == 'row' && !inRow && !inTile && const {'spaceBetween', 'spaceAround', 'spaceEvenly'}.contains(props['mainAxisAlignment']);
+      // A text or a row placed in a stack by its x or y (a label at a point,
+      // a marker on a ruler) is as wide as its content, as a positioned box
+      // is on the web: filling, it would run from its x across the stack (and
+      // a text drew at 0,0 under the others).
+      final placed = parent?.type == 'stack' &&
+          const {'text', 'row', 'column'}.contains(type) &&
+          (layout.containsKey('x') || layout.containsKey('y') || bind.containsKey('layout.x') || bind.containsKey('layout.y'));
       // An icon is as big as it is: it does not stretch across a column.
-      final fills = layout.containsKey('flex') ||
+      final fills = !placed && layout.containsKey('flex') ||
           spread ||
-          !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
+          !placed && !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
       layout['width'] = _size(layout['width']);

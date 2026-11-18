@@ -174,4 +174,21 @@ void main() {
       expect(texts.last, 'MR');
     });
   });
+
+  group('lists and placing', () {
+    test('each in a horizontal Flex runs across, as in a Row', () {
+      final r = _expand('state ps:list=[]\nColumn\n  Flex direction=horizontal gap=12\n    each p in ps\n      Column w=200\n        Text "{p}"\n');
+      expect(r.issues, isEmpty);
+      expect((_of(r, 'listView').single['props']! as Map)['scrollDirection'], 'horizontal');
+    });
+
+    test('a text or a row placed in a stack by x or y hugs; one under an each too', () {
+      final r = _expand('state ms:list=[]\nStack w=600 h=40\n  Text#t x=100 y=20 "label"\n  each m in ms\n    Row#flag x={m.t * 5} y=0 h=14\n      Text "B"\n  box#bg x=0 y=0 h=4\n');
+      expect(r.issues, isEmpty);
+      Object? w(String id) => ((_nodes(r)[id]! as Map)['layout']! as Map)['width'];
+      expect(w('t'), {'hug': 0});
+      expect(w('flag'), {'hug': 0});
+      expect(w('bg'), {'fill': 0}, reason: 'a box with nothing in it still fills');
+    });
+  });
 }
