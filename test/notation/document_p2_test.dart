@@ -67,8 +67,8 @@ void main() {
     });
   });
 
-  test('what the screen does on load is a word of its canvas line', () {
-    final doc = _roundTrip('state n=0\ncanvas onLoad={n=1}\nColumn\n  Text "{n}"', same: ['canvas onLoad={n=1}']);
+  test('what the screen does on load reads as a word of its canvas line and prints as an on line', () {
+    final doc = _roundTrip('state n=0\non load={n=1}\nColumn\n  Text "{n}"', same: ['on load={n=1}']);
     expect(((_node(doc, 'screen')['actions'] as List).single as Map)['trigger'], {'type': 'load'});
   });
 

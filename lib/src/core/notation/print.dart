@@ -18,7 +18,7 @@ import '../catalog.dart';
 import '../json.dart';
 import 'declared.dart';
 import 'notation.dart';
-import 'print_events.dart' show printCanvasEvents, printCanvasReaction, printNormalized;
+import 'print_events.dart' show printCanvasEvents, printNormalized;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
 
@@ -173,17 +173,11 @@ final class _Printer {
     // What the screen does that is neither a timer nor a shortcut (`onLoad`,
     // `onBackPressed`): words of its canvas line, before its `every` and
     // `key` lines.
-    var said = 0;
-    final events = StringBuffer();
+    // One printed form (design 22, 4.1 second pass): the screen's reactions
+    // are `on` lines after the tree; `canvas onLoad={…}` still reads.
+    const said = 0;
     if (first['type'] == 'canvas') {
-      for (final r in readList(first['actions']) ?? const []) {
-        final type = readMap(readMap(r)?['trigger'])?['type'];
-        final word = type == 'timer' || type == 'keyDown' || readMap(r) == null ? null : printCanvasReaction(readMap(r)!, context);
-        if (word == null) break;
-        events.write(' $word');
-        said++;
-      }
-      _canvasEvents = '$events';
+      _canvasEvents = '';
       final line = _Line(0, _canvasEvents.isEmpty ? '' : 'canvas$_canvasEvents');
       _canvases[screen] = (line: line, head: 'canvas');
       _lines.add(line);
@@ -376,6 +370,18 @@ final class _Printer {
     var text = printNodeLine(id, n, context);
     // Under an `if`, the line's own `visible` is the if's.
     if (condition != null) text = text.replaceFirst(' visible={$condition}', '');
+    // A list written with an `each` under it: the each says its data.
+    if (_handList(id, n) != null) {
+      final at = text.indexOf(' data={');
+      if (at >= 0) {
+        var depthOf = 0, end = at + 6;
+        for (; end < text.length; end++) {
+          if (text[end] == '{') depthOf++;
+          if (text[end] == '}' && --depthOf == 0) break;
+        }
+        if (end < text.length) text = text.substring(0, at) + text.substring(end + 1);
+      }
+    }
     _lines.add(_Line(depth, _withoutId(text, id, '${n['type']}'), id));
     // Its ordered records (paint ops, animations, transitions): lines of
     // their own under it, before its children.

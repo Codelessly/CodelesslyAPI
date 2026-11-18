@@ -271,7 +271,7 @@ void main() {
           '    Checkbox bind=item.on\n'
           '  Input#d bind=draft.title\n'
           '  Slider#s bind=vol onChange={toast "moved"}\n'
-          '  Select#sel items=["a","b"] bind=pick';
+          '  Select#sel bind=pick items=["a","b"]';
       final printed = _roundTrip(text);
       for (final line in text.split('\n').skip(5)) {
         expect(printed, contains(line.trim()));

@@ -544,6 +544,7 @@ final class _NodeLine {
     _layout();
     _decoration();
     _nodeFields();
+    if (twoWay case final t?) words.add('bind=${t.name}');
   }
 
   // --- the head --------------------------------------------------------------
