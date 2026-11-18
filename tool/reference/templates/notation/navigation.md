@@ -67,7 +67,7 @@ draft?"` asks that first (a yes runs `onDiscard={…}` and closes); `onBackPress
 With no design system the panel is drawn in the theme's `surface` and its title in `onSurface`, so it follows the
 site's theme and its dark mode; a `Drawer` has no rule at its side unless its line writes a `border`.
 
-```notation width=1280 expands
+```notation width=1280
 state draft=""
 Column gap=12
   Button "Compose" onTap={open compose}
