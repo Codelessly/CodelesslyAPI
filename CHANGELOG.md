@@ -1,6 +1,36 @@
-## Unreleased
+## 36.0.0
+
+The notation now writes everything a schema-3 document holds (parity: every corpus document prints back in words),
+and takes the fixes found by tests 9 and 10, where standalone writers built 6 and then 116 apps and sites from the
+reference alone. With CodelesslySDK 36.0.0 (the renderer, the tools and Desk, a desktop design system).
+
+### Behaviour changes (read before upgrading)
+
+- **A built-in word wins** over a text's own `define` or `primitive` of the same word, with an issue at its line.
+- **A formula whose brackets do not match fails the line** (an issue), in every mode; it was kept and read as
+  nothing.
+- **A components file that cannot be loaded fails the expand** (exit 1), open vocabulary or not.
+- **Overlays per page**: an overlay two pages of a site write with one id and draw differently is each page's own
+  (`nav--board`); steps, the outline and `print` name it as the page wrote it.
+- **Custom paint order**: a node's `painter` is drawn over its own fill and border, under its children.
+- **Reflow**: a `Table` is left as written (a column says where it is left out); a Row of copies an `each` repeats
+  wraps on a tablet and a phone; an app's window and the writer's own rules are left alone.
+- **Chips chosen from show no check mark** unless written (`showCheckmark` defaults to false).
+- **Sticky tops**: a table's header and a `…Head` / `Mast` / `Masthead` line stick at 0 (they sat 16 px down).
+- **A key the writer wrote wins** over a page word's own; **a bare word on an `Icon` line is the icon's name**
+  (a variable is braced: `Icon {glyph}`).
+- **Ids may have hyphens** and are read as written (34.0.0 read a hyphen as `_`).
+- **A horizontal Flex lays its children out as a row's**; a text beside a Spacer keeps its own width.
 
 ### Added
+
+- **Desktop apps in words**: `App`, `Sidebar` (with `Brand`, `NavSection`, `NavItem`, `Footer`), `Main`, `Pane`,
+  `Splitter`, `Table`, `NumberInput`, `Dialog` and `Drawer` as a web desktop app draws them; a design system's own
+  definition of one comes first; a site's `primary` re-accents them. See `docs/reference/notation/`.
+- **The vocabulary record**: every expand records each word written and how it resolved (`notationBuiltInWord`,
+  `notationBuiltInDefinition`); a word with no definition stands in as a placeholder and is said.
+- **A site's definitions**: a `components/<Name>.txt` that begins with `define` or `primitive` is read by every page.
+- **`notationBracketIssues`**, and a quoted text a line ends inside is said (the parser no longer throws).
 
 - **Notation parity** (docs/design/22-notation-parity.md): anything a schema-3 document holds is written in the
   notation's words and `printNotation` prints it back in them. Over the corpus (the reference's examples and
