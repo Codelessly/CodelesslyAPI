@@ -1,0 +1,38 @@
+// Form A, as a writer would write it:
+//   Row#bar w=fill between middle pad=[24,14,24,14]
+//     Text#brand "Acme" size=18 weight=700
+//     Row#links gap=24 phone.direction=vertical phone.gap=2
+//       Button.ghost "Pricing" onTap={navMenu=false; scroll pricing}
+//       Button.ghost "Docs" onTap={navMenu=false; scroll docs}
+//       Button.ghost "Blog" onTap={navMenu=false; scroll blog}
+//     at phone
+//       Column w=fill gap=4
+//         Row w=fill between middle
+//           ...#brand
+//           IconButton "menu" onTap={navMenu=!navMenu}
+//         if navMenu
+//           ...#links
+// What it expands to (written here by hand in today's words):
+state navMenu=false
+Column w=fill
+  Row#bar w=fill between middle pad=[24,14,24,14] border-bottom=#FFE5E7EB
+    Text#brand "Acme" size=18 weight=700 hide=phone
+    Row#links gap=24 hide=phone
+      Button.ghost#pricingLink "Pricing" onTap={navMenu=false; scroll pricing}
+      Button.ghost#docsLink "Docs" onTap={navMenu=false; scroll docs}
+      Button.ghost#blogLink "Blog" onTap={navMenu=false; scroll blog}
+    Column#bar_phone w=fill gap=4 show=phone
+      Row w=fill between middle
+        Text#brand_phone "Acme" size=18 weight=700
+        IconButton "menu" onTap={navMenu=!navMenu}
+      if navMenu
+        Row#links_phone gap=24 phone.direction=vertical phone.gap=2
+          Button.ghost#pricingLink_phone "Pricing" onTap={navMenu=false; scroll pricing}
+          Button.ghost#docsLink_phone "Docs" onTap={navMenu=false; scroll docs}
+          Button.ghost#blogLink_phone "Blog" onTap={navMenu=false; scroll blog}
+  Column#pricing w=fill pad=48
+    Text "Pricing"
+  Column#docs w=fill pad=48
+    Text "Docs"
+  Column#blog w=fill pad=48
+    Text "Blog"

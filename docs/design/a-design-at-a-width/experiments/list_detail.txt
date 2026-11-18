@@ -1,0 +1,45 @@
+// Form A, as a writer would write it (the window's phone design, one pane at a time):
+//   state reading=false
+//   Row#window w=fill h=fill
+//     Column#side w=240 h=fill pad=12 gap=2 border-right=#FFE5E7EB
+//       ...
+//     Column#list w=380 h=fill scroll
+//       each m in mails
+//         Row pad=12 onTap={openId=m.id; reading=true}
+//           Text "{m.from}"
+//     Column#reader grow h=fill pad=24
+//       Text "{find(mails, 'id', openId).subject}"
+//     at phone
+//       if !reading
+//         ...#list
+//       else
+//         Column w=fill h=fill
+//           Row pad=8
+//             IconButton "arrow_back" tooltip="Back" onTap={reading=false}
+//           ...#reader
+// What it expands to (by hand, in today's words; ids of copies get _phone):
+state mails:list=[{"id":"a","from":"Maya","subject":"Roadmap"},{"id":"b","from":"Dev","subject":"Invoice"}]
+state openId="a"
+state reading=false
+Row#window w=fill h=fill
+  Column#side w=240 h=fill pad=12 gap=2 border-right=#FFE5E7EB hide=phone
+    Text "Inbox"
+    Text "Sent"
+  Column#list w=380 h=fill scroll hide=phone
+    each m in mails
+      Row pad=12 onTap={openId=m.id; reading=true}
+        Text "{m.from}"
+  Column#reader grow h=fill pad=24 hide=phone
+    Text "{find(mails, 'id', openId).subject}"
+  Column#window_phone w=fill h=fill show=phone
+    if !reading
+      Column#list_phone w=fill h=fill scroll
+        each m in mails
+          Row pad=12 onTap={openId=m.id; reading=true}
+            Text "{m.from}"
+    else
+      Column w=fill h=fill
+        Row pad=8
+          IconButton "arrow_back" tooltip="Back" onTap={reading=false}
+        Column#reader_phone grow pad=24
+          Text "{find(mails, 'id', openId).subject}"

@@ -1,0 +1,5 @@
+Column w=fill gap=16 pad=32
+  Row gap=16 hide=phone
+    Text#title "Projects"
+  Column gap=8 show=phone
+    Text#title "Projects"
