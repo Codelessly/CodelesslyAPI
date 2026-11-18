@@ -1212,6 +1212,11 @@ bool notationShowsValue(String type) => _shownValue.containsKey(type);
 /// notation does not teach).
 const notationComponentFirst = {'Tabs'};
 
+/// What `resizable` on a pane is said with: the base has a Splitter, which
+/// keeps the pane's width in a variable the pane reads (round 10, R50).
+const _resizable = 'A pane is resized by a Splitter beside it, which keeps its width in a variable the pane reads: '
+    'state listW=300, Pane w={listW}, then Splitter @listW min=240 max=480 after it (pane=after when the pane comes after the Splitter).';
+
 /// The colors of a chart's series or slices that write none, after the
 /// accent.
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
@@ -5409,6 +5414,11 @@ class _Parser {
           } else if (word == 'clearable' && component && spec.events.any((e) => e.key == 'onClear')) {
             // A block with a clear of its own (a SearchBar's x) is clearable.
             universal.add((word: word, column: col, of: 'flag'));
+          } else if (word == 'resizable' && !component && !standIn) {
+            // Round 10, R50 (6 runs): accepted and ignored, or refused as an
+            // unknown word. A Splitter says it (once: a pane's line is read
+            // again as the lines it writes).
+            if (!_quiet && _top._said.add('resizable')) _issue(col, _resizable);
           } else if (word == 'live' && !standIn) {
             // Read out as it changes: a Text's (and a block's that takes live).
             _issue(col, 'live is a Text\x27s: the Text whose words change is read out when they do. Put it on that Text (Text "{status}" live), or say the change with announce "…" in the action that makes it.');
@@ -5442,6 +5452,12 @@ class _Parser {
         final written2 = withFields == null ? key : '$key(${withFields.$2.replaceAll(' ', '')})';
         if (!keysWritten.add(written2) && !_mediaLine) _issue(col, '$written2= is written twice on this line: one of them is lost. Write it once.');
         if (written == 'CodeInput' && (key == 'length' || key == 'digits')) key = key == 'length' ? 'otpLength' : 'otpDigitsOnly';
+        // `Sidebar w={railWidth} resizable=@railWidth` (round 10, R50): a Splitter says it.
+        if (key == 'resizable' && !component && !standIn && spec.prop('resizable') == null) {
+          if (!_quiet && _top._said.add('resizable')) _issue(col, _resizable);
+          if (word.length == eq + 1 && (t.peek == '{' || t.peek == '[')) t.balanced();
+          continue;
+        }
         // key={expression}, onTap={…}: the colon is not the grammar's.
         if (key.contains(':')) {
           final name = key.substring(0, key.indexOf(':'));
@@ -7849,6 +7865,10 @@ class _Parser {
 
   /// The components whose screen lines this screen has taken.
   final _screensOf = <String>{};
+
+  /// What was said once (by its kind and line), where a line is read again
+  /// as the lines a page word writes.
+  final _said = <String>{};
 
   /// The reactions taken from components (a key the screen writes itself
   /// replaces the component's).

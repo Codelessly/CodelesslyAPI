@@ -104,4 +104,37 @@ Column#picker
       expect(r.issues.single.message, contains('param @selected'));
     });
   });
+
+  group('R50: resizable on a pane is said with the Splitter that does it', () {
+    test('Pane … resizable and Sidebar … resizable=@w: an issue naming Splitter; the Splitter form reads', () {
+      final r = parseNotation('''
+state w=300
+App
+  Sidebar w={w} resizable=@w
+    Text "a"
+  Main
+    Text "b"
+  Pane w=300 resizable
+    Text "c"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(r.issues, hasLength(1));
+      expect(r.issues.every((i) => i.message.contains('Splitter @listW')), isTrue);
+      final open = parseNotation('''
+App
+  Pane w=300 resizable
+    Text "c"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280).open());
+      expect(open.issues.single.message, contains('Splitter'));
+      final ok = parseNotation('''
+state w=300
+App
+  Pane w={w}
+    Text "a"
+  Splitter @w min=240 max=480
+  Main
+    Text "b"
+''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+      expect(ok.issues, isEmpty);
+    });
+  });
 }

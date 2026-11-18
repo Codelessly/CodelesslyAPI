@@ -2,6 +2,9 @@
 
 ### Fixed
 
+- **`resizable` on a pane** (`Pane w=300 resizable`, `Sidebar … resizable=@w`; round 10, R50, 6 runs) is said with
+  the way the base resizes a pane: a `Splitter @listW` beside it, the pane `w={listW}`. It was "Unknown word", or
+  with the open vocabulary recorded and ignored. Nothing new is drawn.
 - **A component's parameters** (round 10, R20, 15 runs): `param @selected=""` is a variable parameter of its
   default's type; `props.selected=m.id` in its tree sets it (it was "Unknown action"; one on a parameter the call only
   gives is said, with how to keep it); `param items:List=[]` is a list of anything and `event onPick:void` passes
