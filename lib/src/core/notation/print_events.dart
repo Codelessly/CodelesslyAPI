@@ -148,7 +148,8 @@ final class _Printer {
     final screen = context.options.screen;
     _state = [
       for (final v in readList(readMap(context.document['variables'])?[screen]) ?? const [])
-        if (v is Map && v['name'] is String) 'state ${v['name']}=${jsonEncode(v['value'])}',
+        // (A name the runtime gives a scope has no state line: notationRefusedState.)
+        if (v is Map && v['name'] is String && !notationRefusedState(v['name'] as String)) 'state ${v['name']}=${jsonEncode(v['value'])}',
     ].join('\n');
     _variables = jsonEncode(_parse('')?['variables']);
   }

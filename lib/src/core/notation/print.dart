@@ -272,10 +272,13 @@ final class _Printer {
   /// where the value does not say it (`state count:decimal=2`), a formula
   /// variable as `state total:decimal={price*qty}`, a function as
   /// `state clamp(v):decimal={min(1, max(0, v))}`, one kept on the device
-  /// with `saved`.
+  /// with `saved`. A variable named as the runtime names a scope (`storage`,
+  /// `theme`: notationRefusedState) has no state line (34: one is an issue):
+  /// it stays on the `document {…}` line.
   List<_Line> _stateLines(String scope) => [
         for (final v in readList(readMap(document['variables'])?[scope]) ?? const [])
-          if (readMap(v) case final Json v when v['name'] is String && _printable.hasMatch(v['name'] as String)) _Line(0, _stateLine(v)),
+          if (readMap(v) case final Json v when v['name'] is String && _printable.hasMatch(v['name'] as String) && !notationRefusedState(v['name'] as String))
+            _Line(0, _stateLine(v)),
       ];
 
   String _stateLine(Json v) {

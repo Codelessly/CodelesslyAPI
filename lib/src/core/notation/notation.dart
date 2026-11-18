@@ -7648,6 +7648,11 @@ class _Parser {
       // Declared: what binds it (`@name`) needs no other line.
       _top._stated.add(name);
       _top._unstated.remove(name);
+      // (A name the runtime gives a scope is refused typed as untyped.)
+      if (name == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
+      if (_screenScopes.contains(name)) {
+        return _issue(column, '$name is a name the runtime gives every expression (${_screenScopes.join(', ')}): name the state otherwise (state ${name}Text=…).');
+      }
       variables[name] = {
         'name': name,
         'type': type,

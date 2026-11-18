@@ -67,6 +67,25 @@ Column
       ]);
     });
 
+    test('a variable named as the runtime names a scope stays on the document line, and the events still print', () {
+      final r = parseNotation('state n=0\nColumn\n  Button#b "Add" onTap={n=n+1}', catalog: standardCatalog);
+      expect(r.issues, isEmpty);
+      final doc = {
+        ...r.document,
+        'variables': {
+          'screen': [..._vars(r.document), {'name': 'storage', 'type': 'text', 'value': 'a'}],
+        },
+      };
+      final printed = printNotation(doc, catalog: standardCatalog);
+      expect(printed, isNot(contains('state storage')));
+      expect(printed, contains('onTap={n=n+1}'));
+      final back = parseNotation(printed, catalog: standardCatalog, options: notationOptionsFor(doc));
+      expect(back.issues, isEmpty, reason: printed);
+      expect(jsonEncode(_sorted(back.document)), jsonEncode(_sorted(doc)));
+      // (Typed or not, a state line of that name is said.)
+      expect(parseNotation('state storage:text="a"\nColumn', catalog: standardCatalog).issues.single.message, startsWith('storage is a name the runtime gives'));
+    });
+
     test('a typed formula keeps its single quotes; a type the document has not is said', () {
       final doc = _roundTrip('''
 state status:text={coalesce(find(rows, 'id', sel), 'none')}
