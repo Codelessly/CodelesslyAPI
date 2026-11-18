@@ -7331,9 +7331,18 @@ class _Parser {
       final placed = parent?.type == 'stack' &&
           const {'text', 'row', 'column'}.contains(type) &&
           (layout.containsKey('x') || layout.containsKey('y') || bind.containsKey('layout.x') || bind.containsKey('layout.y'));
+      // A box with the widest it gets (`Column maxw=720` in a centered
+      // column: a card of a page) is as wide as its place up to that, where
+      // its parent centers it: it hugged its content (a 270 px flashcard in
+      // a 1200 px pane, round 11).
+      final capped = const {'column', 'row', 'stack'}.contains(type) &&
+          readMap(layout['constraints'])?['maxWidth'] != null &&
+          !inRow &&
+          !(parentWidth is Map && parentWidth.containsKey('hug'));
       // An icon is as big as it is: it does not stretch across a column.
       final fills = !placed && layout.containsKey('flex') ||
           spread ||
+          !placed && capped ||
           !placed && !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
@@ -7755,6 +7764,10 @@ class _Parser {
       final body = options.textStyles['body'];
       Json figure(Object? base, Json over) => {...(base is Map ? _copy(base.cast<String, Object?>()) : const <String, Object?>{}), ...over};
       final arcLayout = (out['layout']! as Map).cast<String, Object?>();
+      final gaugeSide = [
+        for (final k in const ['width', 'height'])
+          if (arcLayout[k] case final num v) v,
+      ].fold<num?>(null, (a, b) => a == null || b < a ? b : a);
       nodes[id] = {
         'type': 'stack',
         'layout': {...arcLayout},
@@ -7770,8 +7783,10 @@ class _Parser {
           'text': value is num ? (value == value.roundToDouble() ? '${value.round()}' : '$value') : '',
           // The theme's style for a gauge's figure (`gaugeValue`), else a
           // heavy 44; smaller in a small gauge.
-          'style': arcLayout['width'] is num && (arcLayout['width']! as num) < 200
-              ? figure(body, {'fontSize': ((arcLayout['width']! as num) / 6).clamp(18, 40).round(), 'fontWeight': 700})
+          // Its side is the shorter of its width and height: a wide gauge
+          // 100 high drew a 44 px figure over its arc (round 11).
+          'style': gaugeSide != null && gaugeSide < 200
+              ? figure(body, {'fontSize': (gaugeSide / 6).clamp(18, 40).round(), 'fontWeight': 700})
               : options.textStyles['gaugeValue'] ?? figure(body, {'fontSize': 44, 'fontWeight': 700}),
         },
         if (bound != null) 'bind': {'props.text': bound},

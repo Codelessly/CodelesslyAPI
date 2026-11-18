@@ -218,4 +218,23 @@ define Rows
       expect(styleOf(r, 'Ingredients'), allOf(containsPair('fontSize', 24), containsPair('fontWeight', 700), containsPair('fontFamily', 'Georgia'), containsPair('color', '#FF234535')));
     });
   });
+
+  group('A4: layout', () {
+    test('a Column maxw=720 in a centered column is as wide as its place up to 720 (it hugged its content)', () {
+      final r = _parse('Column center\n  Column#capped maxw=720 gap=18\n    Text "A flashcard"\n');
+      expect((_node(r, 'capped')!['layout'] as Map)['width'], {'fill': 0});
+      expect(((_node(r, 'capped')!['layout'] as Map)['constraints'] as Map)['maxWidth'], 720);
+    });
+
+    test('a gauge\'s figure is sized to its shorter side (a 44 px figure over a 100 px arc)', () {
+      final r = _parse('Column\n  Gauge#g 71 min=55 max=85 unit="°F" h=100\n');
+      expect(((_node(r, 'gValue')!['props'] as Map)['style'] as Map)['fontSize'], 18);
+    });
+
+    test('Section bleed with no ground of its own has no padding: a hero meets the bar above it', () {
+      final r = _parse('Page\n  Section#hero bleed\n    Box h=200 w=fill fill=#FF884422\n  Section#band bleed fill=#FF223344\n    Text "x"\n', const NotationOptions(width: 1440));
+      expect((_node(r, 'hero')!['layout'] as Map)['padding'], anyOf(0, isNull));
+      expect((_node(r, 'band')!['layout'] as Map)['padding'], [0, 64, 0, 64]);
+    });
+  });
 }

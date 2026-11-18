@@ -961,10 +961,13 @@ final class PageWords {
       final tight = parts.word('compact') | parts.word('tight');
       final v = _n(tight ? (sectionPad / 2).roundToDouble() : sectionPad);
       // bleed: what is in it runs from edge to edge (a wide picture, a map).
+      // With no ground of its own it is that picture, top to bottom: a hero
+      // meets the bar above it (it sat 64 px below it on white, round 11).
       final bleed = parts.word('bleed');
-      final pad = parts.take('pad') ?? (bleed ? '[0,$v,0,$v]' : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
+      final grounded = tint || parts.has('fill');
+      final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$v,$g,$v]');
       final banded = tint && band != null && !parts.has('fill') ? ' fill=$band border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});

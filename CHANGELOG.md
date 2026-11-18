@@ -9,6 +9,8 @@
   `ThemePreference`, `MenuScroll`; the parts are listed in docs/design/20 section 12) and that gives no size and
   no text draws nothing and takes no room anywhere, and with lines under its use it is those lines with no
   labelled box. Everything else keeps its labelled box. The record keeps every use.
+- **`Section bleed` with no ground of its own has no padding**: what is in it (a hero picture) meets the bar above
+  it; it sat 64 px below on the page's white. A bleed band with a `fill` or a tint keeps its padding.
 
 ### Fixed
 
@@ -25,6 +27,9 @@
   fontWeight}` in site.json) keeps the variant's size, and a line's `style=serif` over a variant
   (`Text.heading2 "…" style=serif`) keeps the variant's size and ink where the style sets none: it replaced the
   variant (round 11: 12 to 13 px headings and page titles).
+- **A box with the widest it gets in a centered column** (`Column maxw=720` under `Column center`) is as wide as its
+  place up to that, centered: it hugged its content (a 270 px flashcard in a 1200 px pane).
+- **A gauge's figure is sized to its shorter side**: a wide gauge `h=100` drew a 44 px figure over its arc.
 
 ## 36.0.0
 
