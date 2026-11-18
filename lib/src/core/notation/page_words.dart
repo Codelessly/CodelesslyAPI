@@ -1282,7 +1282,7 @@ final class PageWords {
         !RegExp(r'(^|\s)(hidden|hide=|show=|[a-z]+\.(hidden|visible|w|h)=)').hasMatch(rest)) {
       open(frame: null);
       return out
-        ..add((indent: at, text: 'Box w=40 h=40 radius=8 border=$line center middle'))
+        ..add((indent: at, text: 'Box w=40 h=40 pad=0 radius=8 border=$line center middle'))
         ..add((indent: at + 2, text: '$text w=40 h=40'));
     }
     // A website's headline written as its text style: the same size.
