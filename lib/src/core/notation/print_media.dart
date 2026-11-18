@@ -121,7 +121,20 @@ List<({List<String> path, Object? value})> _leaves(Json patch) {
   void walk(Object? v, List<String> at) {
     final whole = at.length == 2 && at.first == 'layout' && const {'width', 'height', 'x', 'y'}.contains(at.last);
     if (v is Map && v.isNotEmpty && !whole) {
-      v.forEach((k, e) => walk(e, [...at, '$k']));
+      // A layout's fields in the line's order (4.1 Fields: pad, w, h, grow,
+      // margin, x, y, the rest A to Z, the constraints), whatever the JSON's
+      // (a size and the flex a rule of the parser gives in one order, its
+      // words read back in another): a print printed again is the same text
+      // (design 22, 4.8).
+      final keys = v.keys.map((k) => '$k').toList();
+      if (at.length == 1 && at.first == 'layout') {
+        const first = ['padding', 'width', 'height', 'flex', 'margin', 'x', 'y'];
+        int rank(String k) => k == 'constraints' ? first.length + 1 : (first.contains(k) ? first.indexOf(k) : first.length);
+        keys.sort((a, b) => rank(a) != rank(b) ? rank(a) - rank(b) : a.compareTo(b));
+      }
+      for (final k in keys) {
+        walk(v[k], [...at, k]);
+      }
     } else {
       out.add((path: at, value: v));
     }
