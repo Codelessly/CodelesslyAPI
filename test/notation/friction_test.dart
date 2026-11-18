@@ -201,4 +201,12 @@ void main() {
     expect(jsonEncode(words.document), jsonEncode(short.document));
     expect(jsonEncode(titled.document), jsonEncode(short.document));
   });
+
+  test('a side border follows data: border-bottom={…}', () {
+    final r = _expand('state on=true\nColumn\n  Column#c border-bottom={on ? accent : transparent}\n    Text "a"\n');
+    expect(r.issues, isEmpty);
+    final c = _nodes(r)['c']! as Map;
+    expect((c['decoration']! as Map)['strokeSides'], 'bottom');
+    expect((c['bind']! as Map)['decoration.strokes[0].color'], isNotNull);
+  });
 }

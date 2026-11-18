@@ -5472,6 +5472,15 @@ class _Parser {
           decoration['strokeSides'] = side;
           continue;
         }
+        // …one that follows data: border-bottom={active ? accent : transparent}.
+        if (_borderSides[key] case final String side when raw.startsWith('=')) {
+          decoration['strokes'] = [
+            {'color': '#00000000'},
+          ];
+          decoration['strokeSides'] = side;
+          bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
+          continue;
+        }
         // A border's width and colour, together or apart: `border=2` (the
         // theme's line, 2 wide), `border="#FF2563EB 2"`, `border=2
         // borderColor=accent`, `border={on ? 2 : 0}`, and the names models
