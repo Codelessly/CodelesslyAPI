@@ -58,12 +58,75 @@ It reads as:
 ```notation width=1280
 state tab="orders"
 Row stretch h=fill
-  Column gap=4 pad=[12,20,12,16] w=248 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[10,8,10,8] fill={(tab=="orders")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=orders}
-      Icon "receipt_long" color={(tab=="orders")?"#FF2563EB":"#FF4B5563"} size=18
-      Text.heading "Orders" weight=500 grow color={(tab=="orders")?"#FF2563EB":"#FF4B5563"}
+  Column gap=2 pad=[12,16,12,12] w=248 h=fill border-right=#FFE5E7EB
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="orders")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=orders}
+      Icon "receipt_long" color={(tab=="orders")?"#FF2563EB":"#FF6B7280"} size=18
+      Text "Orders" grow weight={(tab=="orders")?600:500} color={(tab=="orders")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow
     Text "Orders"
+```
+
+<a id="navigation-a-sidebar"></a>
+### A sidebar
+
+Write a sidebar with its own words and it is finished without styling: `Brand "Name" "line under it" icon="…"` at
+its head; `NavSection "People & access"` over a group of items (small spaced capitals in a quiet ink, with room over
+it); `NavItem "Members" icon="group"` for each item, with `selected={…}` for the chosen one (the accent and a tint
+of it; the others share one ink and tint under the pointer), `badge="4"` for a count and `shortcut="Alt 1"` for a
+key shown at its end; and `Footer` for what stays at the sidebar's end whatever is above it (the signed-in person,
+help, shortcuts): the lines under it are pinned there, with a rule over them. In a column written by hand, a
+`Spacer` (or an empty `box grow`) between two lines pushes the second to the end, as `margin-top: auto` does on the
+web; the column needs a height (`h=fill`).
+
+```notation width=1280 expands
+state tab="members"
+App
+  Sidebar
+    Brand "Tenant" "Admin console" icon="hub"
+    NavSection "People & access"
+    NavItem "Members" icon="group" selected={tab=="members"} onTap={tab="members"} shortcut="Alt 1"
+    NavItem "Teams" icon="groups" badge="4" selected={tab=="teams"} onTap={tab="teams"}
+    NavSection "Workspace"
+    NavItem "Billing" icon="credit_card" selected={tab=="billing"} onTap={tab="billing"}
+    Footer
+      NavItem "Keyboard shortcuts" icon="keyboard" shortcut="?"
+  Main
+    Text "Members"
+```
+
+It reads as:
+
+```notation width=1280
+state tab="members"
+Row stretch h=fill
+  Column gap=2 pad=[12,16,12,12] w=248 h=fill border-right=#FFE5E7EB
+    Row gap=10 pad=[8,6,8,10]
+      Column middle center w=28 h=28 fill=#FF2563EB radius=8
+        Icon "hub" size=16 color=#FFFFFFFF
+      Column gap=0
+        Text.heading2 "Tenant" size=15 w={"hug":0}
+        Text.caption "Admin console" color=#FF6B7280 w={"hug":0}
+    Text.success "PEOPLE & ACCESS" size=11 color=#FF6B7280 letterSpacing=0.6 pad=[10,16,10,6]
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="members")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=members}
+      Icon "group" color={(tab=="members")?"#FF2563EB":"#FF6B7280"} size=18
+      Text "Members" grow weight={(tab=="members")?600:500} color={(tab=="members")?"#FF2563EB":"#FF374151"}
+      Text.caption "Alt 1"
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="teams")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=teams}
+      Icon "groups" color={(tab=="teams")?"#FF2563EB":"#FF6B7280"} size=18
+      Text "Teams" grow weight={(tab=="teams")?600:500} color={(tab=="teams")?"#FF2563EB":"#FF374151"}
+      Text.muted "4"
+    Text.success "WORKSPACE" size=11 color=#FF6B7280 letterSpacing=0.6 pad=[10,16,10,6]
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="billing")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=billing}
+      Icon "credit_card" color={(tab=="billing")?"#FF2563EB":"#FF6B7280"} size=18
+      Text "Billing" grow weight={(tab=="billing")?600:500} color={(tab=="billing")?"#FF2563EB":"#FF374151"}
+    Spacer grow
+    Column gap=2 pad=[0,8,0,0] border-top=#FFE5E7EB
+      Row gap=10 pad=[10,7,10,7] radius=6 hovered.fill=#0F111827
+        Icon "keyboard" size=18 color=#FF6B7280
+        Text "Keyboard shortcuts" weight=500 color=#FF374151 grow
+        Text.caption "?"
+  Column scroll h=fill grow
+    Text "Members"
 ```
 
 A desktop window of three panes: a rail, the content, an inspector. `Sidebar` is the rail (`w=72` for icons only),
@@ -88,13 +151,13 @@ It reads as:
 ```notation width=1280
 state tab="inbox"
 Row stretch h=fill
-  Column gap=4 pad=[12,20,12,16] w=72 h=fill border-right=#FFE5E7EB hide=phone
-    Row gap=10 pad=[10,8,10,8] fill={(tab=="inbox")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=inbox}
-      Icon "inbox" color={(tab=="inbox")?"#FF2563EB":"#FF4B5563"} size=18
-      Text.heading "Inbox" weight=500 grow color={(tab=="inbox")?"#FF2563EB":"#FF4B5563"}
-    Row gap=10 pad=[10,8,10,8] fill={(tab=="sent")?"#FFE5E7EB":"#00000000"} radius=8 onTap={tab=sent}
-      Icon "send" color={(tab=="sent")?"#FF2563EB":"#FF4B5563"} size=18
-      Text.heading "Sent" weight=500 grow color={(tab=="sent")?"#FF2563EB":"#FF4B5563"}
+  Column gap=2 pad=[12,16,12,12] w=72 h=fill border-right=#FFE5E7EB hide=phone
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="inbox")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=inbox}
+      Icon "inbox" color={(tab=="inbox")?"#FF2563EB":"#FF6B7280"} size=18
+      Text "Inbox" grow weight={(tab=="inbox")?600:500} color={(tab=="inbox")?"#FF2563EB":"#FF374151"}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="sent")} selected.fill=#1F2563EB hovered.fill=#0F111827 onTap={tab=sent}
+      Icon "send" color={(tab=="sent")?"#FF2563EB":"#FF6B7280"} size=18
+      Text "Sent" grow weight={(tab=="sent")?600:500} color={(tab=="sent")?"#FF2563EB":"#FF374151"}
   Column scroll h=fill grow
     Text.title "Inbox"
   Column scroll w=320 h=fill border-right=#FFE5E7EB hide=tablet
