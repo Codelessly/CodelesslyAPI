@@ -1,0 +1,74 @@
+// The fix pass after 36.0.0 (fixes-36-1): what round 10's register
+// (FRICTION-dsl-api-10.md, in the editor repository) and a fresh build on
+// the release (support desk, test 11) left open. Each is read as meant, or
+// said where it is written.
+import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/src/core/catalog_json.dart' show catalogFromJson;
+import 'package:test/test.dart';
+
+Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
+
+Map<String, Object?> _string(String key, [String def = '']) => {'key': key, 'type': {'kind': 'string', 'flutter': 'String'}, 'default': def};
+Map<String, Object?> _number(String key, num def) => {'key': key, 'type': {'kind': 'number', 'flutter': 'double'}, 'default': def};
+
+NotationResult _with(Catalog extra, String text, [NotationOptions options = const NotationOptions()]) {
+  final catalog = standardCatalog + extra;
+  return Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: options));
+}
+
+void main() {
+  group('R41: a string on a component call fills a text parameter the line does not name', () {
+    final heading = catalogFromJson({
+      'widgets': [
+        {
+          'type': 'GuideSection',
+          'props': [_string('label'), _string('note')],
+        },
+      ],
+    });
+
+    test('GuideSection "01" label="Installation": the string is the next text parameter, label the named one', () {
+      final r = _with(heading, 'Column\n  GuideSection#g "01" label="Installation"\n');
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'g')['props'], {'label': 'Installation', 'note': '01'});
+    });
+
+    test('strings alone fill the text parameters in their order, as before', () {
+      final r = _with(heading, 'Column\n  GuideSection#g "Installation" "01"\n');
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'g')['props'], {'label': 'Installation', 'note': '01'});
+    });
+  });
+
+  group('support desk: a component\'s own size is its parameter', () {
+    test('Avatar "…" size=32 on an Avatar whose size is a number keeps 32; one that sizes by name takes the nearest', () {
+      final desk = catalogFromJson({
+        'widgets': [
+          {
+            'type': 'Avatar',
+            'props': [_string('name'), _number('size', 28)],
+          },
+        ],
+      });
+      final r = _with(desk, 'Column\n  Avatar#a "Maya Chen" size=32\n  Avatar#b name="Jo Park" size=20\n');
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'a')['props'], {'name': 'Maya Chen', 'size': 32});
+      expect((_node(r, 'b')['props'] as Map)['size'], 20);
+
+      final named = catalogFromJson({
+        'widgets': [
+          {
+            'type': 'Avatar',
+            'props': [
+              _string('name'),
+              {'key': 'size', 'type': {'kind': 'enumeration', 'flutter': 'String', 'values': ['xs', 'small', 'medium', 'large']}, 'default': 'medium'},
+            ],
+          },
+        ],
+      });
+      final n = _with(named, 'Column\n  Avatar#a "Maya Chen" size=32\n');
+      expect((_node(n, 'a')['props'] as Map)['size'], 'small');
+    });
+  });
+}

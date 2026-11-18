@@ -2,6 +2,12 @@
 
 ### Fixed
 
+- **A string on a component call** fills a text parameter the line does not name: `GuideSection "01"
+  label="Installation"` is the label and `01` the next text parameter (it took the label, then said `label` was
+  written twice; round 10, R41, 9 runs).
+- **A component's own `size`** is its parameter: `Avatar "Maya Chen" size=32` on an Avatar whose size is a number
+  (Desk's) keeps 32; it was read as the step `small` and the disc was not drawn (support desk, test 11). An Avatar
+  that sizes by name still takes the nearest name.
 - **The open prompt's glossary** keeps a description that is a whole clause whole: Desk's `Breadcrumb`, `Empty` and
   `SaveBar` read `where a page`, `what a list`, `what a page` (a clause starting with a question word was cut at its
   comma or its `with` and lost its verb); they read `where a page is`, `what a list with nothing in it says`, `what a

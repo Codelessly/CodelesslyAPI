@@ -5041,17 +5041,24 @@ class _Parser {
     var given = 0;
     var afterKey = false;
     final keysWritten = <String>{};
+    // The keys the line names (`label="Installation"`): a string on it is
+    // not one of those (test 10, R41: `GuideSection "01" label="…"` put
+    // "01" in the label, then said label was written twice).
+    late final namedOnLine = component
+        ? {
+            for (final p in LineParts.of(line)?.parts ?? const <LinePart>[])
+              if (p.kind == 'pair' && p.key != null) p.key!.startsWith('props.') ? p.key!.substring(6) : p.key!,
+          }
+        : const <String>{};
     // A component's strings fill its text parameters in order.
     void componentString(String raw, int col) {
       final text = _interpolate(raw);
+      bool free(String k) => !props.containsKey(k) && !bind.containsKey('props.$k') && !namedOnLine.contains(k);
       // Past the strings it is known by, a further string goes to its next
       // text parameter not yet given, in the order they are declared
       // (CartLine "Bananas" "1 kg" "$2.49": the price).
-      final key = strings.where((k) => !props.containsKey(k) && !bind.containsKey('props.$k')).firstOrNull ??
-          spec.props
-              .where((p) => p.type.kind == PropKind.string && !props.containsKey(p.key) && !bind.containsKey('props.${p.key}'))
-              .firstOrNull
-              ?.key;
+      final key = strings.where(free).firstOrNull ??
+          spec.props.where((p) => p.type.kind == PropKind.string && free(p.key)).firstOrNull?.key;
       if (key == null) {
         _issue(col, 'A $written takes ${strings.isEmpty ? 'no string' : 'no more strings (${strings.join(', ')})'}: write the rest as key="value".');
       } else if (text.contains(r'${')) {
@@ -5753,8 +5760,14 @@ class _Parser {
           continue;
         }
         if (key == 'color' && type == 'lineChart') key = 'lineColor';
-        // A design system's Avatar sizes by name: a number is the nearest.
-        if (key == 'size' && component && written == 'Avatar' && num.tryParse(raw) != null) {
+        // A design system's Avatar that sizes by name: a number is the
+        // nearest. One whose size is a number (Desk's diameter) takes the
+        // number (a fresh build's `Avatar "…" size=32` drew no disc).
+        if (key == 'size' &&
+            component &&
+            written == 'Avatar' &&
+            num.tryParse(raw) != null &&
+            !const {PropKind.number, PropKind.integer}.contains(spec.prop('size')?.type.kind)) {
           final n = num.parse(raw);
           props['size'] = n <= 24 ? 'xs' : n <= 32 ? 'small' : n <= 44 ? 'medium' : 'large';
           continue;
