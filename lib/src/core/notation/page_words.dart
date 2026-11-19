@@ -1351,7 +1351,11 @@ final class PageWords {
       final name = mark.startsWith('.') ? mark.substring(1).split('#').first : 'body';
       if (siteType[name] case final num size) {
         open(frame: null);
-        return out..add((indent: at, text: '$text size=${_n(size.toDouble())}'));
+        // A small heading is a phone's size on a phone (18): a card of a set
+        // height written for it holds it there. (A headline of 32 and up is
+        // made smaller by the reflow.)
+        final phone = size > 18 && size < 32 && !RegExp(r'(^|\s)(phone|mobile)\.size=').hasMatch(rest) ? ' phone.size=18' : '';
+        return out..add((indent: at, text: '$text size=${_n(size.toDouble())}$phone'));
       }
     }
     // `Row … phone.direction=vertical`: a row that is a column at some width

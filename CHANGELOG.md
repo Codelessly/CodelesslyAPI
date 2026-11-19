@@ -63,7 +63,8 @@ the first section before upgrading.
 - **Under a `Page` a Text takes a website's size wherever it is written** (a `Section`, a column of the page's
   own, a card), not in its bar: `heading1` and `pageTitle` 64 (they were 60, and 30 outside a Section), `heading2`
   38 (24), `heading3` 24 (18), `title` 22, `heading` 18, a plain Text and `bodySecondary`, `muted`, `strong` 16
-  (13 and 12), `small` and `mono` 14, `caption` 13. A line that says its size or style, a style the theme gives a
+  (13 and 12), `small` and `mono` 14, `caption` 13. On a phone `heading3` and `title` are 18, and the headlines
+  smaller in proportion as before. A line that says its size or style, a style the theme gives a
   size, and every style drawn from a `body` the theme sizes are as before. An app's sizes are unchanged.
 - **A `Section tint` has a ground when the theme names no `band`**: a tenth of grey over the page.
 - **A Column, Row or Stack written `maxw=` straight in the column that scrolls the page** stands in the middle of

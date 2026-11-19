@@ -461,6 +461,9 @@ Page
 ''');
       expect([for (final t in ['Hero', 'Lead', 'Two', 'Three', 'Body', 'Small', 'Caption', 'Strong', 'Own']) sizeOf(r, t)], [64, 16, 38, 24, 16, 14, 13, 16, 13]);
       expect(sizeOf(r, 'Brand'), 20, reason: 'a bar\'s text is the bar\'s');
+      expect(((_at(r, _idOf(r, 'Three'), 390)['props'] as Map)['style'] as Map)['fontSize'], 18, reason: 'a small heading is a phone\'s size on a phone');
+      expect(((_at(r, _idOf(r, 'Two'), 390)['props'] as Map)['style'] as Map)['fontSize'], 27);
+      expect(_at(r, _idOf(r, 'Body'), 390), isEmpty);
     });
 
     test('an app\'s text is an app\'s', () {
