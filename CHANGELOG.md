@@ -1,3 +1,93 @@
+## 40.0.0
+
+What a page written once draws on a phone and a tablet, and what a plain line draws by default: rows that stack
+where they have no room, one rule for a bar on a phone, a table's and a grid's columns, a website's type scale, and
+words the notation refused. With CodelesslySDK 40.0.0. Most of this changes how an existing document draws: read
+the first section before upgrading.
+
+### Behaviour changes (read before upgrading)
+
+**Rows on a phone and a tablet**
+
+- **A Row whose child is written as wide as its place at a width is laid out down the page there.** `Column w=345
+  phone.w=fill` beside `Column grow`, or `Select w=180 phone.w=fill` in a filter row: on a phone each such child,
+  and each child that grows, takes a line of its own; buttons and labels between them share a line; a `Spacer`
+  goes. The row kept its line and the child that grows had no width left. A Row that says its own `wrap` or
+  `direction` there, has a height of its own, scrolls or is written `keep` is as written; `phone.grow` on two
+  buttons still shares one line.
+- **What grows in a row keeps a width its words can be read at on a phone.** A column of text that grows keeps up to
+  200 (a text alone 160): two columns of paragraphs take a line each, where each had half a phone. In an app's pane
+  a column that grows counts for up to 120 when a row is fitted to a phone, so a heading beside a box of figures
+  goes above it. A label of two short lines beside a button keeps its line, as does a list's row.
+- **Copies that grow from a least width in a row written `wrap`** (`Row wrap` over an `each` of `Card basis=265
+  grow`) are a grid of as many equal columns as fit at that width (`minCrossAxisExtent`), and the copy's
+  `phone.basis=` is the least width there. They were one column to a copy at every width.
+- **The cells of a `Grid` that are as tall as their row hug where the grid wraps**: a board's lanes had no height
+  on a tablet and a phone.
+- **A `Grid` whose columns are worked out (`cols={zoom}`) shows at most three on a phone.**
+
+**Bars**
+
+- **A page's bar is one line on a phone**: its brand, its icon buttons and the menu button. Its other labelled
+  buttons (`Button.outline "Get a valuation"`) are in the menu with its links, each as its own kind of button as
+  wide as the menu, where they stayed in the bar and pushed it onto two lines. A bar whose links are in its menu
+  does not wrap. A bar with no links is unchanged. A button that says where it shows, or stands under an `if`,
+  stays where it is.
+- **A second `Nav` in a page is a strip**: it keeps its items at every width and scrolls sideways on a phone. It
+  folded to a lone menu button.
+- **A `Nav` among the lines of a defined word** (`define ShopHeader` / a notice / `Nav`) is the page's bar where the
+  word is used: the page's gutter and width, its links in a menu on a phone. It was a bare row from edge to edge.
+- **`maxw` on a `Nav` in a component** is how wide its items spread, in the middle of the bar; it was the bar's own
+  width, anchored at the left.
+- **A quiet button in a bar that goes to the page shown is drawn selected** (`Button.ghost "Speakers" onTap={go
+  speakers}` on the speakers page), unless the line says `selected=`. On a website a bar's quiet buttons are 15
+  semibold.
+- **An app's sidebar button**: where Main's `Nav` is written after a line that draws nothing, the button is in that
+  bar and the slim bar made for it is not drawn (there were two bars). Where the page writes its own button for a
+  narrow window (`IconButton "menu" show=phone onTap={open …}`), no button, bar or drawer is made for the sidebar.
+- **The menu of a bar that is the last thing written** (a component whose body is a `Nav`) starts closed; it was
+  drawn open.
+
+**Panes, tables**
+
+- **A `Sidebar` or `Pane` whose width is kept in a variable** (`w={sidebarWidth}`) is hidden on a phone, and on a
+  tablet where a second pane has no room, as one of a written width is.
+- **A `Table` fits its columns to a phone and a tablet also where a column is left out by hand** (`"hide":
+  "phone"`): the columns that still have no room beside the one that grows are left out, and on a phone a column
+  of data narrows to 90 first. The column that grows had no width.
+- **A row with a part that grows, written in a `Table` cell,** is as wide as the cell.
+
+**A website's type**
+
+- **Under a `Page` a Text takes a website's size wherever it is written** (a `Section`, a column of the page's
+  own, a card), not in its bar: `heading1` and `pageTitle` 64 (they were 60, and 30 outside a Section), `heading2`
+  38 (24), `heading3` 24 (18), `title` 22, `heading` 18, a plain Text and `bodySecondary`, `muted`, `strong` 16
+  (13 and 12), `small` and `mono` 14, `caption` 13. A line that says its size or style, a style the theme gives a
+  size, and every style drawn from a `body` the theme sizes are as before. An app's sizes are unchanged.
+- **A `Section tint` has a ground when the theme names no `band`**: a tenth of grey over the page.
+- **A Column, Row or Stack written `maxw=` straight in the column that scrolls the page** stands in the middle of
+  the room left, unless the line or that column says a side. `maxWidth=` by its field's name is the bound alone.
+
+**Controls**
+
+- **A Toggle, Checkbox or Radio in a row that already shows its string as a text** draws no label of its own: the
+  string is its spoken name (`semanticLabel`).
+- **An `Input type=number` with no width in a row is 96 wide** (240 before).
+- **A field's label is its hint** beside chips in a row, and in a row of a set height under 56 (a formula bar), as
+  it is beside buttons.
+
+### Added
+
+- **`radius` on `Button` and `IconButton`**: the corners of the button's shape (`Button "Donate" h=44 radius=22`).
+  It was refused.
+- **`phone.axis=vertical` and `phone.direction=column`** on a Row or Column read as `phone.direction=vertical`.
+  `axis` was refused.
+
+### Documentation
+
+- The reference's responsive page states each rule above; its pages for navigation, forms and charts state the
+  website's type scale, a bar's links, the label rules and a bar chart's widest bar.
+
 ## 39.0.0
 
 Schema 3 is the only schema the package reads, and three things a page could not say: which stop an open sheet

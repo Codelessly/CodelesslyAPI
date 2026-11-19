@@ -25550,8 +25550,8 @@
       },
       {
         "name": "money",
-        "signature": "money(value, symbol, decimals) or money(value, decimals)",
-        "example": "money(price) → $1,234.50"
+        "signature": "money(value, symbol, decimals) or money(value, decimals); a currency code as the symbol is that currency's symbol",
+        "example": "money(price) → $1,234.50; money(9, \"USD\") → $9.00"
       },
       {
         "name": "currency",
@@ -25790,27 +25790,27 @@
       },
       {
         "name": "fuzzy",
-        "signature": "fuzzy(list, query, item => text)",
-        "example": "fuzzy(episodes, q, e => e.title)"
+        "signature": "fuzzy(list, query, item => text, tolerance, \"keep\")",
+        "example": "fuzzy(episodes, q, e => e.title) (best first; fuzzy(people, q, p => p.name, 3, \"keep\"): 3 letters off per word, in list order)"
       },
       {
         "name": "fuzzyScore",
-        "signature": "fuzzyScore(text, query)",
+        "signature": "fuzzyScore(text, query, tolerance)",
         "example": "fuzzyScore(title, q) → 100"
       },
       {
         "name": "matchRanges",
-        "signature": "matchRanges(text, query)",
+        "signature": "matchRanges(text, query, tolerance)",
         "example": "matchRanges(title, q) → [[0, 5]]"
       },
       {
         "name": "matchRuns",
-        "signature": "matchRuns(text, query)",
+        "signature": "matchRuns(text, query, tolerance)",
         "example": "matchRuns(title, q) → text runs"
       },
       {
         "name": "matchReason",
-        "signature": "matchReason(text, query)",
+        "signature": "matchReason(text, query, tolerance)",
         "example": "matchReason(title, q) → Exact phrase"
       },
       {

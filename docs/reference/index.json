@@ -617,7 +617,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts.",
-      "words": 6744
+      "words": 6781
     },
     {
       "topic": "state-variables",
@@ -689,7 +689,7 @@
       "anchor": "state-money-and-number-formatting",
       "title": "Money and number formatting",
       "summary": "",
-      "words": 146
+      "words": 160
     },
     {
       "topic": "state-lists",
@@ -697,7 +697,7 @@
       "anchor": "state-lists",
       "title": "Lists",
       "summary": "(Continues: state.md#state-lists.)",
-      "words": 456
+      "words": 455
     },
     {
       "topic": "state-objects",

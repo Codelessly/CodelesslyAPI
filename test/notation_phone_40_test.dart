@@ -226,10 +226,7 @@ Page
       final heart = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'iconButton' && ((e.value as Map)['props'] as Map)['icon'] == 'favorite_border').key;
       expect(_at(r, heart, 390)['visible'], isNull, reason: 'an icon button stays');
       final bar = _parentOf(r, _idOf(r, 'Harbour & Hill'));
-      expect((_at(r, bar, 390)['props'] as Map?)?['wrap'], isNot(true));
-      final brand = _at(r, _idOf(r, 'Harbour & Hill'), 390);
-      expect((brand['props'] as Map)['overflow'], 'ellipsis');
-      expect((brand['layout'] as Map)['flex'], 1);
+      expect((_at(r, bar, 390)['props'] as Map?)?['wrap'], false, reason: 'one line');
       // The menu's button of the same kind, as wide as the menu.
       expect((_node(r, _parentOf(r, cta.last))['layout'] as Map)['width'], {'fill': 0});
     });

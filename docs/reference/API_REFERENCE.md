@@ -792,7 +792,7 @@ section's anchor is its topic.
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13979 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8037 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4976 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6744 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6781 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6342 |
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4742 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3820 |
@@ -6569,7 +6569,7 @@ change), or have the host app pass the offset in (a variable it sets).
 
 | Function | Signature | Example |
 |---|---|---|
-| <a id="fn-money"></a>`money` | `money(value, symbol, decimals) or money(value, decimals)` | `money(price) → $1,234.50` |
+| <a id="fn-money"></a>`money` | `money(value, symbol, decimals) or money(value, decimals); a currency code as the symbol is that currency's symbol` | `money(price) → $1,234.50; money(9, "USD") → $9.00` |
 | <a id="fn-currency"></a>`currency` | `currency(value, code, options?)` | `currency(-1234.5, "EUR") → −1.234,50 €; currency(42, "USD", "signed") → +$42.00` |
 | <a id="fn-parseAmount"></a>`parseAmount` | `parseAmount(text, code)` | `parseAmount("1.234,50", "EUR") → 1234.5` |
 | <a id="fn-formatAmount"></a>`formatAmount` | `formatAmount(text, code)` | `formatAmount("12345.6", "USD") → 12,345.6` |
@@ -6597,11 +6597,11 @@ change), or have the host app pass the offset in (a variable it sets).
 | <a id="fn-sortByDesc"></a>`sortByDesc` | `sortByDesc(list, field or item => key, more keys…)` | `sortByDesc(records, "year")` |
 | <a id="fn-findIndex"></a>`findIndex` | `findIndex(list, item => condition) or findIndex(list, field, value)` | `findIndex(records, r => r.id == selectedId) → 2 (-1 when none)` |
 | `findIndex` | `findIndex(list, item => condition) or findIndex(list, field, value)` | `findIndex(tasks, "id", id) → 2 (-1 when missing)` |
-| <a id="fn-fuzzy"></a>`fuzzy` | `fuzzy(list, query, item => text)` | `fuzzy(episodes, q, e => e.title)` |
-| <a id="fn-fuzzyScore"></a>`fuzzyScore` | `fuzzyScore(text, query)` | `fuzzyScore(title, q) → 100` |
-| <a id="fn-matchRanges"></a>`matchRanges` | `matchRanges(text, query)` | `matchRanges(title, q) → [[0, 5]]` |
-| <a id="fn-matchRuns"></a>`matchRuns` | `matchRuns(text, query)` | `matchRuns(title, q) → text runs` |
-| <a id="fn-matchReason"></a>`matchReason` | `matchReason(text, query)` | `matchReason(title, q) → Exact phrase` |
+| <a id="fn-fuzzy"></a>`fuzzy` | `fuzzy(list, query, item => text, tolerance, "keep")` | `fuzzy(episodes, q, e => e.title) (best first; fuzzy(people, q, p => p.name, 3, "keep"): 3 letters off per word, in list order)` |
+| <a id="fn-fuzzyScore"></a>`fuzzyScore` | `fuzzyScore(text, query, tolerance)` | `fuzzyScore(title, q) → 100` |
+| <a id="fn-matchRanges"></a>`matchRanges` | `matchRanges(text, query, tolerance)` | `matchRanges(title, q) → [[0, 5]]` |
+| <a id="fn-matchRuns"></a>`matchRuns` | `matchRuns(text, query, tolerance)` | `matchRuns(title, q) → text runs` |
+| <a id="fn-matchReason"></a>`matchReason` | `matchReason(text, query, tolerance)` | `matchReason(title, q) → Exact phrase` |
 | <a id="fn-groupBy"></a>`groupBy` | `groupBy(list, field or item => key) → [{key, items, count}]` | `groupBy(txns, "date") → one entry per day, in order of first appearance` |
 | <a id="fn-unique"></a>`unique` | `unique(list, field or item => key)` | `unique(tags) or unique(tasks, "category")` |
 | <a id="fn-without"></a>`without` | `without(list, other or item) or without(map, keys)` | `without(held, 64) or without(task, ["draft", "tmp"])` |

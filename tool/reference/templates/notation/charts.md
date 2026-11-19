@@ -17,7 +17,8 @@ Column gap=12
   Gauge 72 min=0 max=180 limit=100 unit="km/h"
 ```
 
-Give a chart a height; its colors default to the accent and a set after it.
+Give a chart a height; its colors default to the accent and a set after it. A bar chart's bars are at most 56
+wide each in the middle of their columns unless the line says `maxBarWidth=`.
 
 {{reference}}
 

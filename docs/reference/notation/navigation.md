@@ -33,17 +33,29 @@ Column stretch scroll h=fill
   Column center pad=[24,14,24,14]
     Row gap=24 between maxWidth=1120
       Text.strong "Tidewater"
-      Button.ghost "Pricing" h=40.0 onTap={scroll pricing}
+      Button.ghost "Pricing" style={"textStyle":{"fontSize":15,"fontWeight":600}} h=40.0 onTap={scroll pricing}
   Divider
   Column#pricing center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
-      Text.heading2 "Fill every room" size=60
+      Text.heading2 "Fill every room" size=64
   Spacer grow
   Divider
   Column center pad=[24,40,24,40]
     Column gap=24 w=fill maxWidth=1120
-      Text.muted "© 2026"
+      Text.muted "© 2026" size=16
 ```
+
+A website's text is a website's size. Under a `Page`, outside its bar, a `Text` whose line says no size takes:
+`heading1` and `pageTitle` 64, `heading2` 38, `heading3` 24, `title` 22, `heading` 18, running text (`Text`,
+`bodySecondary`, `muted`, `strong`) 16, `small` and `mono` 14, `caption` 13; a phone's headline is smaller
+(reflow). A style the site's theme gives a size keeps it, and a theme that sizes `body` sizes the styles drawn
+from it. An app's sizes are the theme's own (`heading1` 30, body 13). A quiet button in a bar
+(`Button.ghost "Pricing" onTap={go pricing}`) is a link: 15 semibold on a website, and drawn selected (the
+accent's tint and ink) on the page it goes to, unless the line says `selected=` itself. A `Section tint` stands
+on the theme's `band`, or a step off the page's ground when the theme names none. A `Nav` takes `maxw` for how
+wide its items spread, in the middle of the bar. A Column (Row, Stack) written `maxw=` straight in the column
+that scrolls the page (an app's `Main`, a `Column scroll`) is the page's content and stands in its middle, unless
+the line or that column says a side.
 
 ```notation width=1280 expands
 state tab="orders"

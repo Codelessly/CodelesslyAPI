@@ -29,7 +29,15 @@ Words a writer reaches for, and what they read as:
 
 - `RangeSlider @low end=@high min=0 max=90` is `Slider @low @high min=0 max=90`, a slider with two thumbs.
 - `semanticLabel="Wi-Fi"` on a Toggle, Checkbox, Radio or Slider is the name a screen reader says, not shown (a
-  `label` is drawn beside it).
+  `label` is drawn beside it). A Toggle, Checkbox or Radio in a Row that already shows its string as a text (a
+  settings row: `Text "Single sign-on"` … `Toggle "Single sign-on"`) keeps the string as that spoken name and
+  draws no second label.
+- An `Input type=number` with no width in a Row is 96 wide (a stepper's field between its buttons); a field for
+  words is 240.
+- A field's label goes above it. Where it has no room there (beside buttons or chips in a row, in a row of a set
+  height under 56) the label is its hint; `label="…"` by name keeps it above.
+- `Button "Donate" h=44 radius=22` and `IconButton "play_arrow" radius=20`: `radius` is the corners of a
+  button's shape.
 - `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
 
 ```notation expands

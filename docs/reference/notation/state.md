@@ -152,7 +152,7 @@ Button "Add" onTap={cart=append(cart,"Tea")}
 
 | Function | Signature | Example |
 |---|---|---|
-| <a id="fn-money"></a>`money` | `money(value, symbol, decimals) or money(value, decimals)` | `money(price) → $1,234.50` |
+| <a id="fn-money"></a>`money` | `money(value, symbol, decimals) or money(value, decimals); a currency code as the symbol is that currency's symbol` | `money(price) → $1,234.50; money(9, "USD") → $9.00` |
 | <a id="fn-currency"></a>`currency` | `currency(value, code, options?)` | `currency(-1234.5, "EUR") → −1.234,50 €; currency(42, "USD", "signed") → +$42.00` |
 | <a id="fn-parseAmount"></a>`parseAmount` | `parseAmount(text, code)` | `parseAmount("1.234,50", "EUR") → 1234.5` |
 | <a id="fn-formatAmount"></a>`formatAmount` | `formatAmount(text, code)` | `formatAmount("12345.6", "USD") → 12,345.6` |
@@ -180,11 +180,11 @@ Button "Add" onTap={cart=append(cart,"Tea")}
 | <a id="fn-sortByDesc"></a>`sortByDesc` | `sortByDesc(list, field or item => key, more keys…)` | `sortByDesc(records, "year")` |
 | <a id="fn-findIndex"></a>`findIndex` | `findIndex(list, item => condition) or findIndex(list, field, value)` | `findIndex(records, r => r.id == selectedId) → 2 (-1 when none)` |
 | `findIndex` | `findIndex(list, item => condition) or findIndex(list, field, value)` | `findIndex(tasks, "id", id) → 2 (-1 when missing)` |
-| <a id="fn-fuzzy"></a>`fuzzy` | `fuzzy(list, query, item => text)` | `fuzzy(episodes, q, e => e.title)` |
-| <a id="fn-fuzzyScore"></a>`fuzzyScore` | `fuzzyScore(text, query)` | `fuzzyScore(title, q) → 100` |
-| <a id="fn-matchRanges"></a>`matchRanges` | `matchRanges(text, query)` | `matchRanges(title, q) → [[0, 5]]` |
-| <a id="fn-matchRuns"></a>`matchRuns` | `matchRuns(text, query)` | `matchRuns(title, q) → text runs` |
-| <a id="fn-matchReason"></a>`matchReason` | `matchReason(text, query)` | `matchReason(title, q) → Exact phrase` |
+| <a id="fn-fuzzy"></a>`fuzzy` | `fuzzy(list, query, item => text, tolerance, "keep")` | `fuzzy(episodes, q, e => e.title) (best first; fuzzy(people, q, p => p.name, 3, "keep"): 3 letters off per word, in list order)` |
+| <a id="fn-fuzzyScore"></a>`fuzzyScore` | `fuzzyScore(text, query, tolerance)` | `fuzzyScore(title, q) → 100` |
+| <a id="fn-matchRanges"></a>`matchRanges` | `matchRanges(text, query, tolerance)` | `matchRanges(title, q) → [[0, 5]]` |
+| <a id="fn-matchRuns"></a>`matchRuns` | `matchRuns(text, query, tolerance)` | `matchRuns(title, q) → text runs` |
+| <a id="fn-matchReason"></a>`matchReason` | `matchReason(text, query, tolerance)` | `matchReason(title, q) → Exact phrase` |
 | <a id="fn-groupBy"></a>`groupBy` | `groupBy(list, field or item => key) → [{key, items, count}]` | `groupBy(txns, "date") → one entry per day, in order of first appearance` |
 | <a id="fn-unique"></a>`unique` | `unique(list, field or item => key)` | `unique(tags) or unique(tasks, "category")` |
 | <a id="fn-without"></a>`without` | `without(list, other or item) or without(map, keys)` | `without(held, 64) or without(task, ["draft", "tmp"])` |

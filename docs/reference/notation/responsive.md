@@ -35,7 +35,11 @@ Column gap=24 pad=48 phone.pad=16
 
 `hide=phone` leaves a line out on a phone, `hide=tablet` on a tablet and a phone; `show=phone` shows it on a
 phone only. `tablet.hidden=true` (or `tablet.hidden`) is `hide=tablet`. A Row that is a column at some width is
-written `Row … phone.direction=vertical` (it is read as a `Flex`, which takes `scroll` and the alignment words too).
+written `Row … phone.direction=vertical` (it is read as a `Flex`, which takes `scroll` and the alignment words too;
+`phone.axis=vertical` and `phone.direction=column` are the same rule). A child of a Row written as wide as its place
+at a width (`Column w=345 phone.w=fill`, `Select w=180 phone.w=fill`) says the same of its row: there the row is
+laid out down the page, each such child and each child that grows on a line of its own, the buttons and labels
+between them sharing a line.
 A line shown only on a phone under a bar (`Row#phoneSearch show=phone` for the field the bar hides there) is a band of
 its own: give it the bar's `fill=` and move the bar's `border-bottom` onto it, or write it inside the bar's column,
 so the field sits in the bar and not on the page's background.
@@ -176,20 +180,41 @@ A page written for a desktop (expanded at 700 wide or more) is given rules of it
 and a phone (up to 699): reflow is on unless the expander is run with `--no-reflow`. It works like a website's
 defaults:
 
-- A band of blocks (cards beside cards, content beside a rail) wraps; a grid takes fewer columns; a headline gets
+- A band of blocks (cards beside cards, content beside a rail) wraps; a grid takes fewer columns (one whose
+  columns are worked out, `Grid cols={zoom}`, at most three on a phone); a headline gets
   smaller; a box wider than a phone fits it; a table's columns share the row, and a phone keeps the ones it has
-  room for; a `Nav` hides its links on a phone. A Row of copies an `each` repeats (`Row gap=5` over `each d in
+  room for. A Row of copies an `each` repeats (`Row gap=5` over `each d in
   days` / `ChoiceChip …`) wraps them onto further lines on a tablet or a phone, on the page and in a dialog over it
   (`Row scroll` keeps them on one line that scrolls; `keep` as written). A Row written `wrap` with an `each` and
   other lines (chips of labels, chips of people, a count) wraps them all there, each list a group of its copies.
+- A row never squeezes what grows in it to nothing. On a phone a column of text that grows keeps the width its
+  words need (up to 200; a text alone up to 160): two columns of paragraphs side by side take a line each, a
+  heading beside a box of figures goes above it. Copies that grow from a least width in a row written `wrap`
+  (`Row wrap` over an `each` of `Card basis=265 grow`) are as many equal columns as fit at that width, at every
+  window; `phone.basis=300` on the copy is the least width there. The cells of a `Grid` that are as tall as their
+  row are as tall as themselves where the grid wraps.
+- A page's bar (its first `Nav`) is one line on a phone: the brand, the icon buttons, and a menu button that
+  opens its links and its other labelled buttons in a column under the bar (a button keeps its kind there, as wide
+  as the menu). The bar never wraps: its brand gives way, its text ending in an ellipsis. A bar with no links
+  folds nothing and has no menu button. A button that says where it shows (`hide=tablet`) or stands under an `if`
+  is left to that; a line written `show=phone` in the bar is your own menu, and none is made. A `Nav` written
+  among the lines of a defined word is the page's bar all the same. A second `Nav` in a page is a strip of the
+  page's own (an article's tabs): it keeps what is in it and scrolls sideways where that has no room.
 - A `Table` leaves out, at a tablet's and at a phone's width, the columns its row has no room for, from the last
   back (beside the app's sidebar as wide as it is there); its first column, the row's checkbox and a narrow column
-  with no label (a row's menu) stay. A width at which you leave a column out yourself (`"hide":"phone"`) is yours.
+  with no label (a row's menu) stay; on a phone a column of data narrows to 90 before it is left out. A column
+  you leave out yourself (`"hide":"phone"`) is out there, and the others are still fitted to the room left, so
+  the column that grows always has its width. A row written in a cell with a part that grows (`Row` /
+  `Column grow` / `Icon`) is as wide as the cell.
 - An app's window stays a window. A Row that fills the height (`h=fill`, or `grow` in a column) with one pane that
   grows beside panes of a fixed width (a sidebar, a list, an inspector) is laid out as `App` is: a tablet drops
   the fixed panes after the one that grows, a phone shows that one alone. It is never wrapped or stacked. A list
   written as `Main w=380` beside the `Pane` that shows what its rows select is a list beside its detail: both
   where there is room, one at a time on a phone with a back button (with no tap that selects, the list alone).
+  A `Sidebar` or `Pane` whose width is kept in a variable (`Sidebar w={sidebarWidth}`, sized by a `Splitter`) is
+  a pane of a width of its own, hidden where one of a written width is. The button that opens the sidebar's
+  drawer goes in Main's own bar wherever that is written under Main; where you write a button of your own for a
+  narrow window (`IconButton "menu" show=phone onTap={open nav}`), no button, bar or drawer is made.
 - A Row keeps its line when it has a height of its own (a toolbar, `h=56`), is a row of a list (under an `each`,
   in a `ListView`), sits in something of a fixed width a phone holds (a 232 sidebar, a 96 track head) or in a Row
   that scrolls sideways, or holds only labels and buttons inside an app's window. A row of an app's pane whose
@@ -201,7 +226,12 @@ defaults:
   is bound (`w={listW} phone.w=fill`) holds where it says: the binding is the desktop's.
 - A design system with a rail (`sizes.rail` in its theme, Desk's 64) makes an app's `Sidebar` written with no
   rule for other widths a rail that wide on a tablet, its words folded to their icons, and the drawer on a phone.
-- `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width.
+- `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width (a child written
+  `phone.w=fill` still turns its row there: that is what the line says).
+- A text never breaks inside a word. Where its box is narrower than its longest word the text is drawn smaller so
+  that the word fits, down to 65 % of its size; a word still too long keeps its line and fades out at the box's
+  edge. A text of one line with `overflow=ellipsis` ends in the ellipsis as before. The label of a button, a tab
+  or a chip is one line and is never broken.
 - An `App` whose first pane is a `Sidebar` and that has a `Main` gets a menu button at the start of Main's top bar
   (a slim bar of its own when it has none), shown where the sidebar is not, and a drawer that repeats the
   Sidebar's lines (its look, none of its rules for one width: `tablet.w=64 hide=phone` stay the rail's). A page

@@ -212,7 +212,7 @@ Column stretch scroll h=fill
                   Row gap=10 squeezable=true
                     Column middle center w=28 layout.height=28 fill=#FFE5E7EB radius=14.0
                       Text.strong#column4Text "AB" size=11.0
-                    Text.strong "{item.name}"
+                    Text.strong "{item.name}" size=16
                 Row gap=8 w=120
                   Row center pad=[8,0,8,0] h=20 fill=#FFF3F4F6 border=#FFE5E7EB radius=5
                     Text.muted "{item.status}" size=11 weight=500 w=hug

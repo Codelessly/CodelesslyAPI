@@ -126,14 +126,6 @@ final class PageWords {
   /// a page's size ([NotationOptions.controlHeight] else 40).
   bool site = false;
 
-  /// [siteHeadline]'s size for heading [level] (1 to 3), or null.
-  num? _headlineSize(int level) => switch ((siteHeadline, level)) {
-        (final num h, 1) => h,
-        (final num h, 2) => (h * 0.6).roundToDouble(),
-        (final num h, 3) => (h * 0.37).roundToDouble(),
-        _ => null,
-      };
-
   /// Whether a line is in a website's Section (not in its bar or its foot).
   bool get _inSiteSection =>
       _open.isNotEmpty && _open.first.frame == 'Page' && _open.any((l) => l.frame == 'Section') && !_open.any((l) => l.frame == 'Nav' || l.frame == 'Foot');
