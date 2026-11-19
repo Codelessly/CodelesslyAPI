@@ -211,4 +211,14 @@ define Hotkey "keys" key hint onPress
       expect(_nodes(r, 'text'), hasLength(1));
     });
   });
+
+  group('what stopped definitions', () {
+    test('a dotted key in a body reads the use\'s values (hovered.fill={p}, a state\'s look)', () {
+      final r = _read('Column\n  Chip2 tint=#FFDC2626\ndefine Chip2 tint=#FF2563EB\n  Row pad=8 hovered.fill={tint} selected.fills=[{"color":"{tint}","opacity":0.12}] selected=true\n    Text "x"\n');
+      expect(r.issues, isEmpty);
+      final states = jsonEncode(_node(r, 'chip21')['states']);
+      expect(states, contains('#FFDC2626'));
+      expect(states, isNot(contains('tint')));
+    });
+  });
 }

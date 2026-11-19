@@ -501,7 +501,14 @@ final class LineParts {
       String? key;
       while (i < n && text[i] != ' ') {
         final c = text[i];
-        if (c == '=' && key == null && i > start && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(text.substring(start, i))) {
+        // `hovered.fill={…}`, `motion.translateY={p}`: a dotted key whose value
+        // is braced or a list is a key=value too (a word, its value would end
+        // at its first space).
+        if (c == '=' &&
+            key == null &&
+            i > start &&
+            (RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(text.substring(start, i)) ||
+                (i + 1 < n && (text[i + 1] == '{' || text[i + 1] == '[') && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*(\.[A-Za-z_][A-Za-z0-9_-]*)+$').hasMatch(text.substring(start, i))))) {
           key = text.substring(start, i);
           i++;
           // `x=@0.5`, `x=@"text"`, `x=@[0, 100]`: a signature's bound
