@@ -100,7 +100,8 @@ existing document draws: read the first section before upgrading.
 - **The prompt (`notationPrompt`, open and full) no longer teaches `Wanted`, `List` or `Content`**: its list of
   types names `Row` and `Column` (it gave `Badge` and `Wanted` as their names), "Only Row, Column, … take
   children" no longer names `List`, and the word `Content` is gone from its text. The words still expand as before;
-  `notationPrompt(wanted: true)` still asks for a missing component with a `Wanted` line.
+  `notationPrompt(wanted: true)` still asks for a missing component with a `Wanted` line. Its text no longer
+  writes `Link` or `Dots` either, two of the shorthand words above.
 
 ### Added
 
