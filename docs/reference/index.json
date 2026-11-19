@@ -1,9 +1,9 @@
 {
-  "version": "38.0.0",
+  "version": "39.0.0",
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6187
+      "words": 6191
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
@@ -545,7 +545,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4792
+      "words": 4976
     },
     {
       "topic": "navigation-triggers",
@@ -577,7 +577,7 @@
       "anchor": "navigation-modals-and-toasts",
       "title": "Modals and toasts",
       "summary": "`{\"type\": \"openModal\", \"to\": \"<canvas id>\"}` shows another canvas over the screen, at its design size (`presentation`: `dialog`, `bottomSheet`, `fullScreen`, a popover anchored to a node...).",
-      "words": 74
+      "words": 187
     },
     {
       "topic": "navigation-overlays-and-the-keyboard",
@@ -1169,7 +1169,7 @@
       "anchor": "page-data",
       "title": "Data: APIs, cloud data, storage and form submission",
       "summary": "The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms.",
-      "words": 2308
+      "words": 2311
     },
     {
       "topic": "data-call-an-api-and-show-the-result",
@@ -1248,8 +1248,8 @@
       "file": "media.md",
       "anchor": "page-media",
       "title": "Media: video, audio, web views, speech and sound",
-      "summary": "The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images.",
-      "words": 1998
+      "summary": "The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file, picking a file, sharing and preloading images.",
+      "words": 2550
     },
     {
       "topic": "media-control-a-player-from-state",
@@ -1266,6 +1266,22 @@
       "title": "Save a file",
       "summary": "`{\"type\": \"downloadFile\", \"fileName\": \"trip.txt\", \"text\": \"${brief}\", \"mimeType\": \"text/plain\"}` offers the text as a file (the browser's download, a save dialog elsewhere); `${result.saved}` says whether it was saved.",
       "words": 46
+    },
+    {
+      "topic": "media-pick-a-file-without-uploading-it",
+      "file": "media.md",
+      "anchor": "media-pick-a-file-without-uploading-it",
+      "title": "Pick a file without uploading it",
+      "summary": "`{\"type\": \"pickFile\", \"accept\": \"image/*,.pdf\"}` opens the device's file chooser; `${result}` is the picked file's record, `{\"name\", \"size\", \"type\", \"data\"}` (`data` a `data:` URL: an image's `url`, or a `cloudFiles` action's `source` when it is uploaded after all).",
+      "words": 69
+    },
+    {
+      "topic": "media-share",
+      "file": "media.md",
+      "anchor": "media-share",
+      "title": "Share",
+      "summary": "`{\"type\": \"share\", \"title\": \"${story.title}\", \"url\": \"${screen.url}\"}` opens the device's share panel; `${result.shared}` says whether it took it.",
+      "words": 43
     },
     {
       "topic": "media-read-along-text",
@@ -1393,7 +1409,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 1537
+      "words": 1564
     },
     {
       "topic": "render-what-it-does",
@@ -1441,7 +1457,7 @@
       "anchor": "render-what-a-run-keeps",
       "title": "What a run keeps",
       "summary": "Storage, variables and the clipboard live in memory for one run: steps and `--navigate` see what earlier steps wrote, and each size starts afresh, as does each run (nothing persists between runs, so a \"restored on reload\" state is captured by writing it first: `--tap save --navigate home`).",
-      "words": 75
+      "words": 102
     },
     {
       "topic": "render-comparing-with-a-reference",
@@ -1457,7 +1473,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13596
+      "words": 13652
     },
     {
       "topic": "values-value-types",
@@ -2158,6 +2174,8 @@
       "playSound": "media.md#action-playSound",
       "captureScreenshot": "media.md#action-captureScreenshot",
       "downloadFile": "media.md#action-downloadFile",
+      "pickFile": "media.md#action-pickFile",
+      "share": "media.md#action-share",
       "emitEvent": "engage.md#action-emitEvent"
     },
     "valueType": {
@@ -2338,6 +2356,7 @@
       "ParticleShape": "values.md#enum-ParticleShape",
       "PathOrient": "values.md#enum-PathOrient",
       "PaywallOperation": "values.md#enum-PaywallOperation",
+      "PickedFileContent": "values.md#enum-PickedFileContent",
       "PlotChartGridAnchor": "values.md#enum-PlotChartGridAnchor",
       "PlotChartMarkerPosition": "values.md#enum-PlotChartMarkerPosition",
       "PlotChartMarkerShape": "values.md#enum-PlotChartMarkerShape",

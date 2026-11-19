@@ -184,6 +184,8 @@
             "playSound",
             "captureScreenshot",
             "downloadFile",
+            "pickFile",
+            "share",
             "emitEvent"
           ]
         },
@@ -370,6 +372,9 @@
                 "items": {
                   "type": "number"
                 }
+              },
+              "stopVariable": {
+                "type": "string"
               },
               "cover": {
                 "type": "boolean"
@@ -1696,6 +1701,53 @@
           "if": {
             "properties": {
               "type": {
+                "const": "pickFile"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "accept": {
+                "type": "string"
+              },
+              "multiple": {
+                "type": "boolean"
+              },
+              "content": {
+                "$ref": "#/$defs/enum.PickedFileContent"
+              },
+              "maxSizeMB": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "share"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
                 "const": "emitEvent"
               }
             }
@@ -2549,6 +2601,13 @@
         "closePaywall",
         "openLegalLink",
         "openPaywall"
+      ]
+    },
+    "enum.PickedFileContent": {
+      "enum": [
+        "dataUrl",
+        "text",
+        "none"
       ]
     },
     "enum.PlotChartGridAnchor": {

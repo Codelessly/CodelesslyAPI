@@ -1,6 +1,6 @@
 {
   "package": "codelessly_api",
-  "version": "38.0.0",
+  "version": "39.0.0",
   "schema": 3,
   "document": {
     "keys": [
@@ -13276,6 +13276,14 @@
             "doc": "Bottom sheet height stops as increasing fractions of available height, e.g. [0.5, 0.9]."
           },
           {
+            "key": "stopVariable",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The name of a variable: the stop of snapHeights the open sheet rests at (0.5, 1), read and written. The sheet writes it as it opens and when it is moved to another stop; setting it moves the open sheet to the nearest stop; a sheet opened while it holds one of the stops opens there. 0 while the sheet is closed."
+          },
+          {
             "key": "cover",
             "type": "bool",
             "kind": "boolean",
@@ -15113,7 +15121,7 @@
             "values": [
               "local"
             ],
-            "doc": "Only `local` is offered: `FormService.unsupported` marks old data."
+            "doc": "Only `local` is offered: `FormService.unsupported` is any other, which sends nothing."
           },
           {
             "key": "payload",
@@ -15616,6 +15624,84 @@
           }
         ],
         "docs": "media.md#action-downloadFile"
+      },
+      "pickFile": {
+        "label": "Pick file",
+        "class": "PickFileAction",
+        "doc": "Opens the device's file chooser and gives the page what was picked, uploading nothing. `${result}` is the file's record, `{\"name\", \"size\" (bytes), \"type\" (its MIME type, \"\" when unknown), \"data\"}`: `data` is the file as a `data:` URL, which an image shows as its `url` and a `cloudFiles` action uploads as its `source` (the record itself is a source too). With `multiple` `${result}` is a list of records. With `content` `text` the record has `text` (the file read as UTF-8) in place of `data`; with `none` neither. When the person picks nothing the chain stops there: the actions after it do not run. `accept` names the kinds offered, as HTML's `accept` does: MIME types (`image/*`, `application/pdf`) and extensions (`.csv`), separated by commas; a file of another kind, or one over `maxSizeMB`, fails the action (`invalid-file-type`, `file-too-large`). JSON: `{\"type\": \"pickFile\", \"accept\": \"image/*,.pdf\"}`; written `pickFile accept=\"image/*,.pdf\"; files=append(files, result)`.",
+        "fields": [
+          {
+            "key": "accept",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The kinds of file offered, as HTML accept: MIME types (image/*, application/pdf) and extensions (.csv), separated by commas; an expression. Empty: any file."
+          },
+          {
+            "key": "multiple",
+            "type": "bool",
+            "kind": "boolean",
+            "default": false,
+            "nullable": false,
+            "doc": "Several files: the result is a list of records."
+          },
+          {
+            "key": "content",
+            "type": "PickedFileContent",
+            "kind": "enumeration",
+            "default": "dataUrl",
+            "nullable": false,
+            "enum": "PickedFileContent",
+            "values": [
+              "dataUrl",
+              "text",
+              "none"
+            ],
+            "doc": "What the record holds of the file: data (a data: URL), text (read as UTF-8), or neither."
+          },
+          {
+            "key": "maxSizeMB",
+            "type": "double",
+            "kind": "number",
+            "default": 10,
+            "nullable": false,
+            "doc": "The largest file taken, in megabytes."
+          }
+        ],
+        "docs": "media.md#action-pickFile"
+      },
+      "share": {
+        "label": "Share",
+        "class": "ShareAction",
+        "doc": "Opens the device's share panel with a `text`, a `url` and a `title` (each an expression; at least a text or a URL). `${result}` is `{\"shared\", \"copied\"}`: `shared` when the panel took it; where the platform has no share panel (or the app gives none) the URL, or with no URL the text, is copied to the clipboard instead and `copied` is true; both false when the person closed the panel. `${screen.url}` is the address of the page it runs on. JSON: `{\"type\": \"share\", \"title\": \"${story.title}\", \"url\": \"${screen.url}\"}`; written `share title={story.title} url={screen.url}; result.copied ? toast \"Link copied\"`.",
+        "fields": [
+          {
+            "key": "text",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The text shared, an expression."
+          },
+          {
+            "key": "url",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "The link shared, an expression: \"${screen.url}\" is this page."
+          },
+          {
+            "key": "title",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "A title for the share panel, an expression."
+          }
+        ],
+        "docs": "media.md#action-share"
       },
       "emitEvent": {
         "label": "Emit event",
@@ -23853,6 +23939,20 @@
       {
         "value": "openPaywall",
         "doc": "Opens a placement, or acts inside a paywall screen."
+      }
+    ],
+    "PickedFileContent": [
+      {
+        "value": "dataUrl",
+        "doc": "As a `data:` URL (`data`): an image's `url`, a `cloudFiles` action's `source`."
+      },
+      {
+        "value": "text",
+        "doc": "As text (`text`): the file read as UTF-8."
+      },
+      {
+        "value": "none",
+        "doc": "Not at all: the record has the name, the size and the type only."
       }
     ],
     "PlotChartGridAnchor": [
