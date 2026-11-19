@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  stateValueTests();
   overlayGoTests();
   group('a defined word whose body is an overlay', () {
     const drawer = '''
@@ -175,14 +176,15 @@ Column
       expect(_action(r, 'b')['to'], r'${= item}');
     });
 
-    test('a page and a text variable of one name after go: the page, and the braces said', () {
+    test('a page and a variable of one name after go: the page (section="news"; go section)', () {
       final r = _parse('''
-state settings="profile"
+state section="profile"
 Column
-  Button#b "Open" onTap={go settings}
-''', options: const NotationOptions().withScreens(const ['settings', 'profile']));
-      expect(r.issues.single.message, contains('go {settings}'));
-      expect(_action(r, 'b')['to'], 'settings');
+  Button#b "Open" onTap={section="news"; go section}
+''', options: const NotationOptions().withScreens(const ['section', 'profile']));
+      expect(r.issues, isEmpty);
+      final actions = ((_node(r, 'b')['actions'] as List).first as Map)['actions'] as List;
+      expect(actions.last, {'type': 'navigate', 'to': 'section'});
     });
   });
 }
@@ -199,5 +201,51 @@ Dialog#add "Add to playlist"
     expect(r.issues, isEmpty);
     final actions = ((_node(r, 'b')['actions'] as List).first as Map)['actions'] as List;
     expect(actions.last, {'type': 'navigate', 'to': 'playlists'});
+  });
+}
+
+void stateValueTests() {
+  group('a state whose value reads an element by a key', () {
+    String text(NotationResult r) => '${_props(r, 't')['text']}';
+
+    test('computed piece=stories[story] is the formula, not its text', () {
+      final r = _parse('''
+state story="a"
+state stories={"a":{"title":"One"}}
+computed piece=stories[story]
+Column
+  Text#t "{piece.title}"
+''');
+      expect(r.issues, isEmpty);
+      expect(_variables(r).map((v) => v['name']), ['story', 'stories']);
+      expect(text(r), r'${= (stories[story]).title}');
+    });
+
+    test('state too, in braces or not, by a number or a name, with a field after', () {
+      final r = _parse('''
+state at=1
+state rows=[{"name":"a"},{"name":"b"}]
+state first={rows[0]}
+state second=rows[1].name
+state current=rows[at].name
+Column
+  Text#t "{first.name} {second} {current}"
+''');
+      expect(r.issues, isEmpty);
+      expect(_variables(r).map((v) => v['name']), ['at', 'rows']);
+      expect(text(r), r'${= (rows[0]).name} ${= (rows[1].name)} ${= (rows[at].name)}');
+    });
+
+    test('a quoted text with brackets, and a list, stay values', () {
+      final r = _parse('''
+state label="rows[0]"
+state rows=[1,2]
+Column
+  Text#t "{label}"
+''');
+      expect(r.issues, isEmpty);
+      expect(_variables(r).firstWhere((v) => v['name'] == 'label')['value'], 'rows[0]');
+      expect(_variables(r).firstWhere((v) => v['name'] == 'rows')['value'], [1, 2]);
+    });
   });
 }

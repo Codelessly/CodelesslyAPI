@@ -2675,9 +2675,6 @@ class _Parser {
   /// ([_mediaRules]): its own rules are not read again.
   bool _mediaLine = false;
 
-  /// The words after `go` said to be a page and a text variable both.
-  final _goSaid = <String>{};
-
   /// Whether a state named item read inside an each was said.
   bool _itemSaid = false;
 
@@ -10473,14 +10470,22 @@ class _Parser {
     // `state shown={filter(rows,r=>r.open)}`: a formula in braces, as an
     // expression is written everywhere else, is that formula (a map names
     // a key first: {"a": 1}).
-    if (_bracedExpression(written)) written = written.substring(1, written.length - 1).trim();
+    final braced = _bracedExpression(written);
+    if (braced) written = written.substring(1, written.length - 1).trim();
     // One formula may read another (`state total=subtotal-discount`).
     for (final d in _derived.entries) {
       if (written.contains(d.key)) written = _rename(' $written', d.key, '(${d.value})').substring(1);
     }
     // Text in quotes is not an operator: `"a + b"` is a value, `"Total " + n` a formula.
     final code = written.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
-    if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(code)) {
+    // An element or a field read by a key that is worked out
+    // (`stories[story]`, `rows[at].name`) of state already declared is a
+    // formula too, as is whatever is written in braces that is no value
+    // (`{list[0]}`): each was kept as the text of the expression, and what
+    // read it drew nothing.
+    final indexed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\.[A-Za-z_][A-Za-z0-9_]*)*\[[^\[\]"]+\](?:\.[A-Za-z_][A-Za-z0-9_]*|\[[^\[\]]+\])*$').firstMatch(code);
+    final reads = indexed != null && (variables.containsKey(indexed[1]) || _derived.containsKey(indexed[1]));
+    if (!_literal(written).$1 && (RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads || (braced && code.contains('[')))) {
       _derived[m[1]!] = written;
       return;
     }
@@ -11089,12 +11094,6 @@ class _Parser {
           // a list called recipes).
           final screen = braced || arg.startsWith('"') ? null : notationScreen(s, options.screens);
           if (screen != null) {
-            // A text variable of the page's name could be meant too (the
-            // page it holds): the page is gone to, and the other way said.
-            if (variables[s] case {'type': 'text'} when !_top._goSaid.contains(s)) {
-              _top._goSaid.add(s);
-              _issue(column, 'go $s goes to the page "$screen". $s is also a text variable: the page it holds is go {$s}; to keep them apart give the variable another name.');
-            }
             out.add({'type': 'navigate', 'to': screen});
             continue;
           }
