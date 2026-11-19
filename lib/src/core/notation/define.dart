@@ -327,7 +327,7 @@ int restMarkAt(String text) {
 }
 
 /// A line of a body before its root: the word's own state and timers.
-bool _preamble(String text) => RegExp(r'^(state|every|key)\s').hasMatch(text);
+bool _preamble(String text) => RegExp(r'^(state|every|key|on)\s').hasMatch(text);
 
 /// The definitions written in one text.
 List<NotationDefinition> _read(String file, String text, List<String> problems) {
@@ -611,7 +611,7 @@ bool definedPassThrough(String key, [String? value]) {
 /// Whether a use's bare word goes on its root: a universal flag.
 bool definedPassThroughWord(String word) => notationUniversal[word]?.kind == UniversalKind.flag;
 
-const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived', 'computed'};
+const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'on', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived', 'computed'};
 
 /// A line the expansion gives: its indent, its text, and where it was
 /// written when it comes from a definition (`StickyNote.txt:3`; null: the
@@ -1775,6 +1775,11 @@ final class _Substitution {
       // there is no variable to write the order to, so it is shown in order.
       final reorder = m[3] != null && _identifier.hasMatch(list) ? m[3]! : '';
       return 'each ${renamed[m[1]!] ?? m[1]} in $list$reorder';
+    }
+    // `on valueChanged(variable=x)={onSeen}`: a reaction of the screen, the
+    // use's actions where it names the word's events.
+    if (RegExp(r'^on\s+([A-Za-z]+(?:\([^()]*\))?)=\{(.*)\}\s*$').firstMatch(text) case final m?) {
+      return 'on ${_fields(m[1]!)}={${actionsOf(m[2]!)}}';
     }
     if (RegExp(r'^(every|key)\s+(.*?)\s+(on[A-Z][A-Za-z0-9]*)=\{(.*)\}\s*$').firstMatch(text) case final m?) {
       return '${m[1]} ${_statementWords(m[2]!)} ${m[3]}={${actionsOf(m[4]!)}}';

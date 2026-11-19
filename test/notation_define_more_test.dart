@@ -298,5 +298,11 @@ define Hotkey "keys" key hint onPress
       expect(a, contains('held_pad1'));
       expect(r.vocabulary.where((u) => u.kind == 'verb'), isEmpty);
     });
+
+    test('an on line in a body forwards the use\'s events, before the root or under it', () {
+      final r = _read('state n=0\nstate x=0\nColumn\n  Watch2 onSeen={n=n+1}\ndefine Watch2 onSeen\n  on valueChanged(variable=x)={onSeen}\n  Text "w"\n');
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(r.document), contains('"variable":"n"'));
+    });
   });
 }
