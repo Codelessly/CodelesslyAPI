@@ -504,6 +504,12 @@ final class LineParts {
         // `hovered.fill={…}`, `motion.translateY={p}`: a dotted key whose value
         // is braced or a list is a key=value too (a word, its value would end
         // at its first space).
+        // `onKeyDown(key=c)={…}`: an event of a trigger with fields.
+        if ((key == null && i == start ? RegExp(r'on[A-Z][A-Za-z0-9]*\([^()]*\)=[{]').matchAsPrefix(text, start) : null) case final ev?) {
+          key = text.substring(start, ev.end - 2);
+          i = closeOfBalanced(ev.end - 1);
+          break;
+        }
         if (c == '=' &&
             key == null &&
             i > start &&

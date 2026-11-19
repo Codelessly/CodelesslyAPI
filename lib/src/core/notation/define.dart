@@ -585,7 +585,7 @@ const notationSplice = 'Column~splice';
 /// The events the actions on [text] forward: a name `on…` written where an
 /// action starts (`onTap={onPick(c)}`, `{on ? onA : onB}`, `{x=1; onDone}`).
 Iterable<String> _forwarded(String text) sync* {
-  for (final m in RegExp(r'(?<![A-Za-z0-9_])on[A-Z][A-Za-z0-9]*=\{').allMatches(text)) {
+  for (final m in RegExp(r'(?<![A-Za-z0-9_])(?:on[A-Z][A-Za-z0-9]*|on\s+[A-Za-z]+)(?:\([^()]*\))?=\{').allMatches(text)) {
     final open = m.end - 1, close = _braceEnd(text, open);
     if (close - 1 <= open + 1) continue;
     final inner = text.substring(open + 1, close - 1);
@@ -1802,9 +1802,11 @@ final class _Substitution {
           if (v.startsWith('@')) {
             // `open=@open`: the variable the use binds, or the use's own.
             parts.add('$k=${_mark(v)}');
-          } else if (x.isEvent && whole != null) {
+          } else if ((x.isEvent || RegExp(r'^on[A-Z][A-Za-z0-9]*\(').hasMatch(k)) && whole != null) {
+            // An event (`onTap={onPick}`, and one of a trigger with fields:
+            // `onKeyDown(key=c)={onCompose}`): the use's actions put in.
             final a = actionsOf(whole);
-            if (a.isNotEmpty) parts.add('$k={$a}');
+            if (a.isNotEmpty) parts.add('${_fields(k)}={$a}');
           } else if (whole != null && _identifier.hasMatch(whole) && renamed[whole] == null && _isParameter(whole)) {
             var given = _value(whole);
             // A string that is one value read from the state is that value.
@@ -1891,6 +1893,19 @@ final class _Substitution {
       i = end;
     }
     return out.toString();
+  }
+
+  /// An event's name with its trigger's fields (`onHold(holdMs=300)`,
+  /// `valueChanged(variable=x)`): each field's value read as the body's (a
+  /// state of the word's own is the use's), its name kept.
+  String _fields(String k) {
+    final open = k.indexOf('(');
+    if (open < 0 || !k.endsWith(')')) return k;
+    final fields = [
+      for (final f in k.substring(open + 1, k.length - 1).split(','))
+        if (RegExp(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$').firstMatch(f) case final m?) '${m[1]}=${renamed[m[2]] ?? (m[2]!.startsWith('"') ? _string(m[2]!) : m[2])}' else f.trim(),
+    ];
+    return '${k.substring(0, open)}(${fields.join(',')})';
   }
 
   /// A body's `@name` (or `@row.done`): the variable the use binds, the

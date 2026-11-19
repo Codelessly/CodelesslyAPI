@@ -289,5 +289,14 @@ define Hotkey "keys" key hint onPress
       expect(a, allOf(contains('"text"'), contains('hello'), contains('ding')));
       expect(a, isNot(contains('"hello":')));
     });
+
+    test('an event of a trigger with fields in a body is forwarded, and the word\'s state in it is its own', () {
+      final r = _read('state n=0\nColumn\n  Pad onCompose={n=n+1}\ndefine Pad onCompose\n  state held=false\n  Column w=40 h=40 onKeyDown(key=c)={onCompose} onHold(holdMs=300)={held=true}\n');
+      expect(r.issues, isEmpty);
+      final a = jsonEncode(actionsOf(r, 'pad1'));
+      expect(a, contains('"variable":"n"'));
+      expect(a, contains('held_pad1'));
+      expect(r.vocabulary.where((u) => u.kind == 'verb'), isEmpty);
+    });
   });
 }
