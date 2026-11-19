@@ -381,6 +381,16 @@ Row#window w=fill h=fill
       expect(_shown(r, 'list_phone', 834), isFalse);
     });
 
+    test('what the reflow gives the part to fit its own lines is undone where a block holds', () {
+      final r = _parse('Column\n  Row#hero w=fill gap=48 middle\n    Column#copy grow gap=16\n      Text "A headline for the hero"\n      Text "And a line under it"\n    Box#art w=480 h=320 fill=#FFDBEAFE\n    at phone\n      Column w=fill\n        ...#art\n        ...#copy', width: 1440);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'hero')['media'], [
+        {'maxWidth': 1023, 'patch': {'props': {'wrap': true, 'runSpacing': 48}}},
+        {'maxWidth': 699, 'patch': {'props': {'wrap': null, 'runSpacing': null}}},
+      ]);
+      _roundTrip(r);
+    });
+
     test('the expander\'s own hide rules print as the block, the reflow\'s as words', () {
       final r = _parse(text, width: 1440);
       final printed = _roundTrip(r);

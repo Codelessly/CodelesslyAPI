@@ -3496,7 +3496,6 @@ class _Parser {
       listDetailState: _host == null ? _listDetailName : null,
       variableStart: (name) => variables[name]?['value'],
       kept: {..._keep, ?_componentRootKept(), ..._at.tops},
-      alone: _atAlone(),
     );
     // A narrow canvas (a dialog, a sheet, a component) keeps its layout; only
     // its rows of copies wrap where the window is narrower still.
@@ -3510,6 +3509,7 @@ class _Parser {
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
     }
+    _atAfterReflow(rules.keys);
     if (reflow.listDetail case final ListDetail ld) _listDetail(ld);
   }
 

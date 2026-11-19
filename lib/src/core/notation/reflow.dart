@@ -82,17 +82,11 @@ final class PageReflow {
     this.listDetailState,
     this.variableStart = _none,
     this.kept = const {},
-    this.alone = const {},
   });
 
   /// The nodes written `keep` (on a Grid: its columns hold): the reflow
   /// leaves each, and what is in it, as written.
   final Set<String> kept;
-
-  /// The nodes given no rule of their own, whose children are still read:
-  /// a part with a design at a width (at_width.dart), which lays out its
-  /// own lines and its blocks' as written.
-  final Set<String> alone;
 
   /// The nodes whose lines say what they do at other widths (their own
   /// media rules, read before any is added): never reflowed over.
@@ -210,7 +204,7 @@ final class PageReflow {
   final _handled = <String>{};
 
   void _add(String id, int max, Json patch, {bool force = false}) {
-    if (!force && (_own.contains(id) || _underKept(id) || alone.contains(id))) return;
+    if (!force && (_own.contains(id) || _underKept(id))) return;
     final at = _rules.putIfAbsent(id, () => {});
     at[max] = at[max] == null ? patch : mergePatch(at[max]!, patch, keepNulls: true);
   }

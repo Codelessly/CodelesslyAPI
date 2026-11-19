@@ -94,6 +94,9 @@ final class _AtWidths {
   final tops = <String>{};
   final ours = <String, List<Json>>{};
 
+  /// Each part's media rules before the reflow.
+  final holderMedia = <String, List<Object?>>{};
+
   /// While a block's line is read again through [_Parser.line].
   bool feeding = false;
 
@@ -542,14 +545,41 @@ extension _AtRead on _Parser {
     }
   }
 
-  /// The parts with blocks, which the reflow gives no rule of their own
-  /// (their lines and their blocks' are laid out as written), but for the
-  /// panes of a window (a Sidebar that is a drawer on a phone is hidden
-  /// there).
-  Set<String> _atAlone() => {
-        for (final e in _at.blocks.values)
-          if (e.first.holder case final String h when !const {'sidebar', 'main', 'pane'}.contains(_roles[h])) h,
-      };
+  /// After the reflow, which fits a part's own lines where no block holds
+  /// (and gives the part rules for that: a row that wraps): each rule it
+  /// gave a part (not a pane of a window: a Sidebar that is a drawer on a
+  /// phone stays hidden there) is undone where a block holds, so that the
+  /// part lays its blocks' lines out as written. The undoing rules go after
+  /// the reflow's, before the part's own.
+  void _atAfterReflow(Iterable<String> ruled) {
+    final at = _at;
+    final ruledIds = ruled.toSet();
+    for (final blocks in at.blocks.values) {
+      final holder = blocks.first.holder;
+      if (holder == null || !ruledIds.contains(holder) || const {'sidebar', 'main', 'pane'}.contains(_roles[holder])) continue;
+      final n = nodes[holder];
+      if (n == null) continue;
+      final media = [...?(n['media'] as List?)];
+      final own = at.holderMedia[holder] ?? const [];
+      final added = media.length - own.length;
+      if (added <= 0) continue;
+      Object? undo(Object? patch, Object? value) => patch is Map
+          ? {
+              for (final k in patch.keys)
+                '$k': value is Map && value.containsKey(k) ? (patch[k] is Map && value[k] is Map ? undo(patch[k], value[k]) : _copyValue(value[k])) : null,
+            }
+          : _copyValue(value);
+      final undone = <Json>[
+        for (final r in media.take(added).whereType<Map>())
+          for (final b in blocks)
+            if ((b.condition['minWidth'] as num? ?? 0) <= (r['maxWidth'] as num? ?? double.infinity))
+              {...b.condition, 'patch': undo(r['patch'], n)},
+      ];
+      if (undone.isEmpty) continue;
+      n['media'] = [...media.take(added), ...undone, ...media.skip(added)];
+      if (_canvas) ops.add({'op': 'patch', 'id': holder, 'patch': {'media': n['media']}});
+    }
+  }
 
   /// The nodes as the reflow reads them: a block's lines are not there (it
   /// leaves them as written: they are [_AtWidths.tops], kept), and the hide
@@ -557,6 +587,9 @@ extension _AtRead on _Parser {
   /// still fits them where no block holds.
   Map<String, Json> _atReflowView() {
     final at = _at;
+    for (final blocks in at.blocks.values) {
+      if (blocks.first.holder case final String h) at.holderMedia[h] = [...?(nodes[h]?['media'] as List?)];
+    }
     if (at.tops.isEmpty && at.ours.isEmpty) return nodes;
     final out = {...nodes};
     for (final e in nodes.entries) {
@@ -573,6 +606,41 @@ extension _AtRead on _Parser {
       }
       out[e.key] = {...n}..remove('media');
       if (media.isNotEmpty) out[e.key]!['media'] = media;
+    }
+    // A rule of a part's own line (or of a line under it) that holds only
+    // where a block holds is the copies' (`phone.w=fill` on a list a phone
+    // shows by `...#list`): the line itself is hidden there, so the rule
+    // does not make it the writer's to lay out.
+    for (final e in at.blocks.entries) {
+      final conditions = [for (final b in e.value) b.condition];
+      void walk(String id) {
+        final n = out[id];
+        if (n == null) return;
+        final media = n['media'];
+        if (media is List && media.isNotEmpty) {
+          bool theCopies(Object? r) {
+            final rule = r is Map ? r.cast<String, Object?>() : null;
+            if (rule == null) return false;
+            final c = {...rule}..remove('patch');
+            if (c.isEmpty || c.values.any((v) => v is String && v != 'portrait' && v != 'landscape')) return false;
+            return conditions.any((b) => atCovers(b, c));
+          }
+
+          final kept = [for (final r in media) if (!theCopies(r)) r];
+          if (kept.length != media.length) {
+            out[id] = {...n}..remove('media');
+            if (kept.isNotEmpty) out[id]!['media'] = kept;
+          }
+        }
+        for (final k in (n['children'] as List? ?? const [])) {
+          if (k is String) walk(k);
+        }
+        for (final k in ((n['slots'] as Map?) ?? const {}).values) {
+          if (k is String) walk(k);
+        }
+      }
+
+      at.defaults[e.key]?.forEach(walk);
     }
     return out;
   }
