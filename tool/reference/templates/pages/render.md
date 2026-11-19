@@ -51,7 +51,9 @@ component's). A step on a node hidden at one size (a media rule, a binding, anot
 component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
-not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
+not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()` (with none, a site's `"now"` in
+`site.json` does: the date its seed data is written for; with neither, the run starts at the real time and `--wait`
+moves it). A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
 diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
 `--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A

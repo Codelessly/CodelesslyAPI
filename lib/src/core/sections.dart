@@ -307,6 +307,7 @@ final class SiteManifest {
     this.fonts = const [],
     this.designSystem,
     this.dictionary = const [],
+    this.now,
     this.extra = const {},
   });
 
@@ -353,11 +354,19 @@ final class SiteManifest {
   /// does. Empty: none.
   final List<String> dictionary;
 
+  /// The instant the site's seed data is written for (`"now":
+  /// "2026-11-16T09:00:00"`, an ISO 8601 time): what `now()` and `today()`
+  /// give where the site is previewed (the render and states commands read
+  /// it as their `--now` when none is passed), so a calendar, a countdown
+  /// or a "due today" is drawn on the day its data means. A running app
+  /// does not read it: its clock is the device's. Null: none.
+  final String? now;
+
   /// Keys it doesn't model, kept.
   final Json extra;
 
   static const Set<String> keys = {
-    'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts', 'designSystem', 'dictionary', //
+    'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts', 'designSystem', 'dictionary', 'now', //
   };
 
   /// The page references [json] (a manifest's `pages`) lists: a string as
@@ -388,6 +397,7 @@ final class SiteManifest {
         final String one when one.trim().isNotEmpty => [one.trim()],
         final other => readStrings(other),
       },
+      now: readString(m['now']),
       extra: {
         for (final e in m.entries)
           if (!keys.contains(e.key)) e.key: e.value,
@@ -405,6 +415,7 @@ final class SiteManifest {
     if (fonts.isNotEmpty) 'fonts': [for (final f in fonts) f.toJson()],
     'designSystem': ?designSystem,
     if (dictionary.isNotEmpty) 'dictionary': dictionary,
+    'now': ?now,
     ...extra,
   };
 }

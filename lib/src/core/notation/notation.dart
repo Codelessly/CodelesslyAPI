@@ -2721,7 +2721,7 @@ class _Parser {
     if (parts == null || !_defined.has(parts.word) || !_definesOverlay(parts.word)) return null;
     NotationDefinition? read;
     final words = DefinedWords({...options.vocabulary.dictionary, ...options.vocabulary.definitions, ..._defined.page},
-        open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), used: (d, p, node, column) => read = d);
+        open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), counts: _top._defined.counts, used: (d, p, node, column) => read ??= d);
     final out = [...words.rewrite(0, head), ...words.finish()];
     final id = out.isEmpty ? null : RegExp('^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#($notationId)').firstMatch(out.first.text)?[1];
     if (id == null) return null;
