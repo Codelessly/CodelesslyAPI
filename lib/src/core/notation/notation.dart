@@ -11477,7 +11477,11 @@ class _Parser {
         final parts = <String>[];
         var at = 0;
         for (final (start, end) in _spans(s)) {
-          if (start > at) parts.add(jsonEncode(s.substring(at, start)));
+          // `"${p.mapX}"`, a value read as a document writes it: the `$` is
+          // the reading's, not a character of the text (it was kept, and
+          // the text read "$0.6": no number where one was meant).
+          final before = start > at && s[start - 1] == r'$' ? start - 1 : start;
+          if (before > at) parts.add(jsonEncode(s.substring(at, before)));
           parts.add('(${_natural(s.substring(start + 1, end - 1).trim())})');
           at = end;
         }

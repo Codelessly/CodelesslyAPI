@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  valueTextTests();
   drawingTests();
   gridWidthTests();
   wordOverParameterTests();
@@ -432,5 +433,36 @@ Row
       expect(_node(r, 'a')['decoration'], isNull);
       expect((_node(r, 'b')['bind'] as Map)['props.style.backgroundColor'], contains('playing'));
     });
+  });
+}
+
+void valueTextTests() {
+  test('a value read in a text inside a braced value, written as a document writes it ("\${p.x}"), is the value', () {
+    final r = _parse(r'''
+state pins=[{"id":"a","mapX":-0.5,"mapY":0.5}]
+Stack w=400 h=200
+  each p in pins
+    Box#pin x={"align":"${p.mapX}"} y={"align":"{p.mapY}"} w=66 h=28
+''');
+    expect(r.issues, isEmpty);
+    final bind = _node(r, 'pin')['bind'] as Map;
+    expect(bind['layout.x'], isNot(contains(r'"$"')));
+    expect(bind['layout.x'], contains('item.mapX'));
+    expect(bind['layout.y'], contains('item.mapY'));
+  });
+
+  test('a state\'s fill on a Text keeps the text: the look only, and the box to write is said', () {
+    final r = _parse('''
+state sample=0
+state samples=[{"label":"One"},{"label":"Two"}]
+Row
+  each demo in samples
+    Text#tab "{demo.label}" size=12 pad=[10,6,10,6] radius=5 selected={sample == index} selected.fill=#FFFFFFFF onTap={sample=index}
+''');
+    expect(r.issues.single.message, contains('write the box'));
+    final states = '${_node(r, 'tab')['states']}';
+    expect(states, isNot(contains('text: null')));
+    expect(states, isNot(contains('style: null')));
+    expect(_props(r, 'tab')['text'], r'${item.label}');
   });
 }

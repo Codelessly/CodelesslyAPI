@@ -339,7 +339,9 @@ final class MediaLineReader {
     }
     final other = mediaOtherChanges(a, b, keys: keys);
     if (other.isNotEmpty) {
-      issues.add(keys == null ? 'A media rule changes ${MediaRule.patchKeys.join(', ')}: not ${other.join(', ')}.' : '$rule changes fields of the node: not its ${other.join(', ')}.');
+      issues.add(keys == null ? 'A media rule changes ${MediaRule.patchKeys.join(', ')}: not ${other.join(', ')}.' : other.contains('type')
+              ? '$rule changes fields of the node, and these words make it another kind of node (a Text with a fill or a border is drawn in a box of its own): write the box, with the state and its look on it (Box selected={â€¦} selected.fill=â€¦ and the Text in it).'
+              : '$rule changes fields of the node: not its ${other.join(', ')}.');
     }
     var patch = mediaPatchBetween(a, b, props, keys: keys) ?? <String, Object?>{};
     if (_headAlone case final Json alone) {
@@ -351,6 +353,17 @@ final class MediaLineReader {
     // leaves in its place (`w={…}`: a width of 0) is not the rule's.
     for (final e in (readMap(patch['bind']) ?? const {}).entries) {
       if (e.value != null && '${e.key}'.contains('.')) patch = _removed(patch, '${e.key}'.split('.'));
+    }
+    // A state's words that make the line another kind of node (a Text given
+    // a fill is drawn in a box of its own) are not a change of the node's
+    // fields: what was worked out between the two (the text's own text and
+    // style taken away) is not kept, only the look. (The label of a
+    // selected tab vanished: `Text â€¦ selected={â€¦} selected.fill=tint`.)
+    if (keys != null && other.contains('type')) {
+      patch = {
+        for (final k in const ['decoration', 'opacity'])
+          if (patch[k] != null) k: patch[k],
+      };
     }
     if (patch.isEmpty) return (patch: null, issues: issues);
     return (patch: dropBindings ? mediaDropBindings(patch, bound) : patch, issues: issues);
