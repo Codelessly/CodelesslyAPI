@@ -805,7 +805,7 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 681 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1564 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1660 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 16062 |
 
 <a id="index-a-z"></a>
@@ -6506,7 +6506,7 @@ change), or have the host app pass the offset in (a variable it sets).
 | `substring` | `substring(text, start, end?)` | `substring("EX-102", 3) → 102` |
 | <a id="fn-replace"></a>`replace` | `replace(text, from, to)` | `replace("a-b-c", "-", " ") → a b c` |
 | `replace` | `replace(text, from, to)` | `replace("1,402", ",", "") → 1402` |
-| <a id="fn-regexReplace"></a>`regexReplace` | `regexReplace(text, pattern, to)` | `regexReplace("WILLOW PHARMACY 044", " [0-9]+$", "") → WILLOW PHARMACY; \$1 in to inserts a group` |
+| <a id="fn-regexReplace"></a>`regexReplace` | `regexReplace(text, pattern, to)` | `regexReplace("WILLOW PHARMACY 044", " [0-9]+$", "") → WILLOW PHARMACY; $1 in to inserts a group` |
 | <a id="fn-titleCase"></a>`titleCase` | `titleCase(text)` | `titleCase("SQ *KESTREL FLOWERS") → Sq *Kestrel Flowers` |
 | <a id="fn-split"></a>`split` | `split(text, separator)` | `split("rock, jazz", ", ") → [rock, jazz]` |
 | `split` | `split(text, separator?)` | `split("2481") → [2, 4, 8, 1]` |
@@ -10993,7 +10993,9 @@ component's). A step on a node hidden at one size (a media rule, a binding, anot
 component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
-not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
+not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()` (with none, a site's `"now"` in
+`site.json` does: the date its seed data is written for; with neither, the run starts at the real time and `--wait`
+moves it). A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
 diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
 `--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A
@@ -11018,7 +11020,10 @@ The render step reports what rendering shows: `render_exception` (naming the nod
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
+`component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have),
+`paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran:
+the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout`
+(a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
 notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it). Links to a screen that is missing are one
 `unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
 one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are
