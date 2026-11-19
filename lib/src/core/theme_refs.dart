@@ -177,6 +177,31 @@ final class ThemeRefs {
   }
 }
 
+/// The color names [doc]'s nodes are written with that [theme] does not
+/// have (neither one of its colors, nor a role, nor one of the notation's
+/// roles), each with the ids of the nodes that name it: such a field draws
+/// nothing (`"color": "amberTint"` where the theme has no amberTint). For a
+/// tool that says what a document names wrongly; a renderer leaves the
+/// name as written.
+Map<String, List<String>> unknownThemeColors(LayoutDocument doc, ThemeTokens theme) {
+  final out = <String, List<String>>{};
+  String? at;
+  final refs = ThemeRefs._((name) {
+    final color = theme.color(name) ?? theme.notationRole(name);
+    if (color == null && at != null) {
+      final ids = out[name] ??= [];
+      if (!ids.contains(at)) ids.add(at!);
+    }
+    return color;
+  }, theme.textStyle);
+  WidgetSpec? specOf(String id) => doc[id]?.spec;
+  for (final e in doc.nodes.entries) {
+    at = e.key;
+    refs.node(e.value.toJson(), e.value.spec, specOf: specOf);
+  }
+  return out;
+}
+
 /// [doc] resolved against [theme] ([ThemeRefs.document]); [doc] itself when
 /// it names nothing of it.
 LayoutDocument resolveThemeRefs(LayoutDocument doc, ThemeTokens theme) => ThemeRefs(theme).document(doc);
