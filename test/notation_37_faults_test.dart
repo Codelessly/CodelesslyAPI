@@ -254,4 +254,41 @@ $bar
       expect(title(r), isNull);
     });
   });
+
+  group('a flip card of more than two lines', () {
+    test('lines shown by an if and its else are its two faces, said at the line', () {
+      final r = _parse('''
+state opened=false
+Column w=fill
+  Column#card w=fill h=344 center middle gap=12 flip.axis=y flip.variable=opened
+    if !opened
+      Text "ESPANOL"
+      Text "la sobremesa" size=62 scaleDown
+      Text "Tap to flip"
+    else
+      Text "ENGLISH"
+      Text "after-dinner talk"
+''');
+      expect(r.issues.single.message, contains('two faces'));
+      final faces = _children(r, 'card');
+      expect(faces, hasLength(2));
+      expect(_children(r, faces.first), hasLength(3));
+      expect(_children(r, faces.last), hasLength(2));
+      expect((_node(r, faces.first)['bind'] as Map)['visible'], r'${= !opened}');
+      expect(_props(r, faces.first), containsPair('spacing', 12));
+    });
+
+    test('lines with no faces to read in them are said and left as written', () {
+      final r = _parse('''
+state opened=false
+Column w=fill
+  Column#card w=fill flip.axis=y flip.variable=opened
+    Text "one"
+    Text "two"
+    Text "three"
+''');
+      expect(r.issues.single.message, contains('two faces'));
+      expect(_children(r, 'card'), hasLength(3));
+    });
+  });
 }

@@ -21,6 +21,9 @@
 - **An app's bar shows the page's name beside its menu button** where the sidebar is a drawer and nothing in the
   bar names the page at that width (a `Breadcrumb … hide=phone`): the name its `canvas` line gives, taking the
   bar's room. The bar had the menu button alone.
+- **A flip card (`flip.axis=…`) of more than two lines is said at its line**: its first line is the front and its
+  second the back, so a second of three lines was hidden as the back (the word on a study card). Where its lines
+  are shown by an `if` and its `else`, they are read as the two faces, a column of each.
 
 ### Added
 

@@ -8793,6 +8793,7 @@ class _Parser {
           slots: component && spec.children == ChildModel.none ? spec.slots : const [],
           written: written));
       if (type == 'listView' && !component) _listLines[id] = (line: _line, column: column);
+      if (out['flip'] != null && !component) _flipLines[id] = (line: _line, column: column);
     }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
@@ -9697,6 +9698,67 @@ class _Parser {
     _patches.add({'op': 'set', 'id': id, 'parent': navId, 'index': kids.indexOf(menu) + 1, 'node': nodes[id]});
   }
 
+  /// The lines that turn a node into a flip card, by node id, with where
+  /// each was written ([_flipFaces]).
+  final _flipLines = <String, ({int line, int column})>{};
+
+  /// A flip card's first line is its front and its second its back; any
+  /// further line is drawn on neither turned face (the second of three
+  /// lines was hidden as the back, the word on a study card). Said at the
+  /// line. Where its lines are shown by one condition and its opposite
+  /// (`if !opened` and its `else`, on the card's own variable), they are
+  /// the two faces: a column of each, in that order.
+  void _flipFaces(String id) {
+    final at = _flipLines.remove(id);
+    final card = nodes[id];
+    final kids = readStrings(card?['children']);
+    if (at == null || card == null || kids.length <= 2) return;
+    String? shownWhen(String k) => readString(readMap(nodes[k]?['bind'])?['visible']);
+    final conditions = <String>[];
+    for (final k in kids) {
+      final c = shownWhen(k);
+      if (c == null) {
+        conditions.clear();
+        break;
+      }
+      if (!conditions.contains(c)) conditions.add(c);
+    }
+    final faces = conditions.length == 2;
+    if (!_top._quiet) {
+      issues.add(NotationIssue(at.line, at.column,
+          '${_from == null ? '' : '$_from: '}A flip card has two faces: its first line is the front and its second the back. Write a Column of the front\'s lines and a Column of the back\'s under it${faces ? ' (read so here: the lines its if shows, then those its else shows)' : ''}.'));
+    }
+    if (!faces) return;
+    final props = readMap(card['props']) ?? const <String, Object?>{};
+    final ids = <String>[];
+    for (final c in conditions) {
+      final faceId = _id('column');
+      final lines = [for (final k in kids) if (shownWhen(k) == c) k];
+      for (final k in lines) {
+        final bind = readMap(nodes[k]!['bind'])!..remove('visible');
+        if (bind.isEmpty) nodes[k]!.remove('bind');
+        _parentOf[k] = faceId;
+      }
+      nodes[faceId] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {
+          if (props['spacing'] case final Object gap) 'spacing': gap,
+          'crossAxisAlignment': props['crossAxisAlignment'] ?? 'start',
+        },
+        'bind': {'visible': c},
+        'children': lines,
+      };
+      _parentOf[faceId] = id;
+      ids.add(faceId);
+    }
+    card['children'] = ids;
+    _patches.add({'op': 'set', 'id': id, 'node': {...card}});
+    for (final f in ids) {
+      _patches.add({'op': 'set', 'id': f, 'node': {...nodes[f]!}});
+    }
+  }
+
   /// Where a cell of a grid goes (CSS grid's placement).
   static const _cellPlace = ['columnStart', 'rowStart', 'columnSpan', 'rowSpan'];
 
@@ -9841,6 +9903,7 @@ class _Parser {
     if (open.each != null) _gridPlace(open.id);
     if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
     if (_roles[open.id] == 'nav') _barTitle(open.id);
+    if (open.each == null && open.condition == null) _flipFaces(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {
