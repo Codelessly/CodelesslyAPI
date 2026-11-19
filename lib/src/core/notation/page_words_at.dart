@@ -26,7 +26,6 @@ extension PageWordsAt on PageWords {
     if (i < 0) return (lines: const [], refused: null, wholeFrame: false);
     final l = _open[i];
     _Line again({int? shift}) => _Line(l.indent, l.frame, before: l.before, shift: shift ?? l.shift, after: l.after)
-      ..rail = l.rail
       ..hero = l.hero;
     if (l.table case final _Table t) {
       // Its lines go in its frame, beside its header and its rows.

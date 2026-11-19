@@ -8,6 +8,8 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import '../notation_words.dart';
+
 Object? _sorted(Object? v) => switch (v) {
       final Map m => {for (final k in m.keys.map((k) => '$k').toList()..sort()) k: _sorted(m[k])},
       final List l => [for (final e in l) _sorted(e)],
@@ -16,7 +18,7 @@ Object? _sorted(Object? v) => switch (v) {
     };
 
 NotationResult _parse(String text, {double width = 390}) =>
-    Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: NotationOptions(width: width)));
+    Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions(width: width))));
 
 Map<String, Object?> _nodes(NotationResult r) => (r.document['nodes'] as Map).cast<String, Object?>();
 Map<String, Object?> _node(NotationResult r, String id) => (_nodes(r)[id] as Map).cast<String, Object?>();
@@ -41,7 +43,7 @@ List<String> _said(NotationResult r) => [for (final i in r.issues) i.message];
 /// same document.
 String _roundTrip(NotationResult r) {
   final text = Catalog.run(standardCatalog, () => printNotation(r.document, catalog: standardCatalog));
-  final back = Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: notationOptionsFor(r.document)));
+  final back = Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: withTestWords(notationOptionsFor(r.document))));
   expect(back.issues, isEmpty, reason: text);
   expect(jsonEncode(_sorted(back.document)), jsonEncode(_sorted(r.document)), reason: text);
   return text;
@@ -300,15 +302,15 @@ void main() {
 
   group('the page words', () {
     test('a Nav\'s block is the bar on a phone: no menu of the Nav\'s own is written', () {
-      final r = _parse('Page\n  Nav\n    Brand "Acme"\n    Link "Pricing" href="#pricing"\n    Link "Docs" href="#docs"\n    at phone\n      Row w=fill between\n        Text "Acme"\n        IconButton "menu"', width: 1440);
+      final r = _parse('Page\n  Nav\n    Text.strong "Acme"\n    Button.ghost "Pricing" onTap={link "https://acme.dev/pricing"}\n    Button.ghost "Docs" onTap={link "https://acme.dev/docs"}\n    at phone\n      Row w=fill between\n        Text "Acme"\n        IconButton "menu"', width: 1440);
       expect(r.issues, isEmpty);
       expect(r.document['variables'], isNull, reason: 'no navMenu');
       final menus = _nodes(r).values.where((n) => ((n as Map)['props'] as Map?)?['icon'] == 'menu');
       expect(menus, hasLength(1));
-      final plain = _parse('Page\n  Nav\n    Brand "Acme"\n    Link "Pricing" href="#pricing"\n    Link "Docs" href="#docs"', width: 1440);
+      final plain = _parse('Page\n  Nav\n    Text.strong "Acme"\n    Button.ghost "Pricing" onTap={link "https://acme.dev/pricing"}\n    Button.ghost "Docs" onTap={link "https://acme.dev/docs"}', width: 1440);
       expect(_nodes(plain).values.where((n) => ((n as Map)['props'] as Map?)?['icon'] == 'menu'), hasLength(1));
       expect((plain.document['variables'] as Map).values.single.toString(), contains('navMenu'));
-      expect(_said(_parse('Page\n  Nav\n    Link "A" href="#a"\n    at desktop\n      Text "A"', width: 1440)).single,
+      expect(_said(_parse('Page\n  Nav\n    Button.ghost "A" onTap={link "https://acme.dev/a"}\n    at desktop\n      Text "A"', width: 1440)).single,
           startsWith('at desktop: a block under a Nav is read where it holds on a phone'));
     });
 
@@ -441,7 +443,7 @@ Row#window w=fill h=fill
       final text = Catalog.run(standardCatalog, () => printNotation(doc, catalog: standardCatalog));
       expect(text, isNot(contains('\n  at phone')));
       expect(text, contains('show=phone'));
-      final back = Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: notationOptionsFor(doc)));
+      final back = Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: withTestWords(notationOptionsFor(doc))));
       expect(jsonEncode(_sorted(back.document)), jsonEncode(_sorted(doc)));
     });
   });

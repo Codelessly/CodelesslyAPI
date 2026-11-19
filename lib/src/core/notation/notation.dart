@@ -26,7 +26,6 @@ import 'bind_form.dart';
 import 'brackets.dart';
 import 'declared.dart';
 import 'define.dart';
-import 'dictionary.dart';
 import 'formula_names.dart';
 import 'keys.dart';
 import 'media_words.dart';
@@ -303,6 +302,13 @@ final class NotationOptions {
   /// its name, `StickyNote.txt`; docs/design/20-defined-words.md) added to
   /// [vocabulary]. A defined word is a word we have, open or not.
   NotationOptions define(Map<String, String> texts) => _copy(openVocabulary: openVocabulary, vocabulary: vocabulary.define(texts));
+
+  /// These options with the dictionary [name] (a folder of definition files,
+  /// [texts] by file name): its words are words we have, after a page's own
+  /// definitions and the design system's or site's, over the dictionaries
+  /// given before it.
+  NotationOptions dictionary(Map<String, String> texts, {required String name}) =>
+      _copy(openVocabulary: openVocabulary, vocabulary: vocabulary.withDictionary(texts, name: name));
 
   /// These options with [screens] as the ids of the app's screens.
   NotationOptions withScreens(Iterable<String> screens) => _copy(openVocabulary: openVocabulary, vocabulary: vocabulary, screens: {...screens});
@@ -1619,28 +1625,12 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
   if (word.isEmpty) return null;
   final c = catalog ?? Catalog.current;
-  // A word of the built-in dictionary, unless the design system defines it.
-  if (notationDictionary[word] case final defs? when !vocabulary.definitions.containsKey(word)) {
-    final d = defs.first;
-    return switch (d.statement ? RegExp(r'^[a-z]+').stringMatch(d.body.first.text) : null) {
-      'state' => '$word, read as a state line: state total={…}',
-      'key' => '$word, read as the notation\'s shortcut line: key mod+k onPress={…}',
-      _ => '$word, a word of the notation\'s dictionary: ${d.signature}',
-    };
-  }
   if (PageWords.words.contains(word)) return '$word, a word of the page (its frames and their lines: App, Sidebar, Rail, Main, Nav, Section, Footer, Dialog…): $word …';
-  if (RegExp(r'^H[1-4]$').hasMatch(word)) return '$word, a heading: $word "text"';
   final lower = '${word[0].toLowerCase()}${word.substring(1)}';
   final type = notationTypes[word]?.type ?? (c.widget(lower) != null ? lower : null);
   if (type != null) return '$word, a word of the notation (a $type): $word "text" key=value …';
   if (vocabulary.types[word] case final a? when !vocabulary.definitions.containsKey(word)) {
-    return switch (a.line) {
-      'shortcut' => '$word, read as the notation\'s shortcut line: key mod+k onPress={…}',
-      'computed' => '$word, read as a state line: state total={…}',
-      'confirmDialog' => '$word, read as a Dialog with a Cancel and a Confirm button: $word#id "Title" "Message" onConfirm={…}',
-      final String l => '$word, read as the notation\'s $l line',
-      null => '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}',
-    };
+    return '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}';
   }
   return null;
 }
@@ -1677,18 +1667,18 @@ Map<String, Object?> notationThemeReads(NotationOptions options) => {
       'style': options.textStyles.keys.toSet(),
     };
 
-/// Where the notation's meaning of [word] (a line's first word) is written:
-/// `base` (a node type of the notation or the catalog, a statement: the
-/// renderer and the parser implement it), `dictionary` (a definition of the
-/// built-in dictionary, written in base words: docs/design/23), `code` (a
-/// word the expander still rewrites into other lines in Dart: a page word, a
-/// heading, a line of another shape the alias table names), or null (no word
-/// of the notation's: a design system's, a writer's, unknown).
+/// Where the meaning of [word] (a line's first word) is written: `base` (a
+/// node type of the notation or the catalog, a statement: the renderer and
+/// the parser implement it), `code` (a word of the page's frames the expander
+/// writes out in Dart: App, Section, Nav…, or a line of another shape the
+/// alias table names), the name of the dictionary [vocabulary] has it from
+/// (a folder of definitions a caller gave: [NotationVocabulary.dictionary]),
+/// or null (no word of the notation's: a design system's, a writer's,
+/// unknown).
 String? notationWordOrigin(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
   if (word.isEmpty) return null;
-  if (notationDictionary.containsKey(word)) return 'dictionary';
-  if (PageWords.words.contains(word) || RegExp(r'^H[1-4]$').hasMatch(word)) return 'code';
-  if (vocabulary.types[word]?.line != null) return 'code';
+  if (vocabulary.dictionary[word] case final defs? when defs.isNotEmpty && !vocabulary.definitions.containsKey(word)) return defs.first.dictionary;
+  if (PageWords.words.contains(word)) return 'code';
   const statements = {'state', 'project', 'if', 'else', 'each', 'for', 'key', 'every', 'node', 'document', 'let', 'derived', 'const', 'var', 'define', 'primitive', 'component'};
   if (statements.contains(word)) return 'base';
   final c = catalog ?? Catalog.current;
@@ -2286,7 +2276,8 @@ class _Parser {
   /// while those lines are read, where they are written (`StickyNote.txt:3`).
   late final DefinedWords _defined = DefinedWords(
     // The built-in dictionary's words, under the design system's.
-    {...notationDictionary, ...options.vocabulary.definitions},
+    // The dictionaries' words, under the design system's and the site's.
+    {...options.vocabulary.dictionary, ...options.vocabulary.definitions},
     theme: notationThemeReads(options),
     open: options.openVocabulary,
     record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
@@ -2315,7 +2306,7 @@ class _Parser {
         node: d.statement ? null : _bareRoot(d, parts, node),
         parts: parts,
         of: d.file != 'page'
-            ? (isDictionaryDefinition(d) ? 'dictionary' : null)
+            ? d.dictionary
             : options.vocabulary.definitions[d.word] != null
                 ? 'page, over ${options.vocabulary.definitions[d.word]!.first.file}'
                 : _componentNames(d.word) != null && d.name == null
@@ -2439,15 +2430,14 @@ class _Parser {
       notationTypes.containsKey(word) ||
       catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') != null ||
       catalog.widget(word) != null ||
-      PageWords.words.contains(word) ||
-      RegExp(r'^H[1-4]$').hasMatch(word);
+      PageWords.words.contains(word);
 
   /// The names the design system's component [word] takes (its props, its
   /// events, `@` when it keeps a value, `onChange` for its `onChanged`);
   /// null when [word] is no component, or is a type of the notation or the
   /// page words.
   Set<String>? _componentNames(String word) {
-    if (notationTypes.containsKey(word) || PageWords.words.contains(word) || RegExp(r'^H[1-4]$').hasMatch(word)) return null;
+    if (notationTypes.containsKey(word) || PageWords.words.contains(word)) return null;
     if (catalog.widget('${word[0].toLowerCase()}${word.substring(1)}') != null) return null;
     final spec = catalog.widget(word);
     if (spec == null) return null;
@@ -2501,12 +2491,6 @@ class _Parser {
     if (!_ownType(written)) {
       final alias = table.types[written];
       if (alias == null) return [text];
-      if (alias.line != null) {
-        final lines = lineRewrites[alias.line]?.call(parts, text);
-        if (lines == null || lines.isEmpty) return [text];
-        _use('alias', written, column, of: 'line', to: lines.first);
-        return lines;
-      }
       if (alias.to == null || !_knowsType(alias.to!)) return [text];
       if (!alias.holdsOn(parts)) return [text];
       parts.word = alias.to!;
@@ -2701,6 +2685,24 @@ class _Parser {
     return rules;
   }
 
+  /// [head], a line at the margin with an id whose word is defined (a page's,
+  /// a site's, a design system's or a dictionary's) and whose definition
+  /// writes an overlay (`ConfirmDialog#ask "Delete?"` as `Dialog#ask …` and
+  /// its buttons): the lines it stands for, the overlay's head first and the
+  /// lines that close it after (the lines written under the use go before
+  /// them, as an overlay's do). Null for any other line.
+  List<String>? _overlayDefined(String head) {
+    final parts = LineParts.of(head);
+    if (parts == null || parts.id.isEmpty || !_defined.has(parts.word)) return null;
+    NotationDefinition? read;
+    final words = DefinedWords({...options.vocabulary.dictionary, ...options.vocabulary.definitions, ..._defined.page},
+        open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), used: (d, p, node, column) => read = d);
+    final out = [...words.rewrite(0, head), ...words.finish()];
+    if (out.isEmpty || !RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#').hasMatch(out.first.text)) return null;
+    if (read case final d?) _use(d.primitive ? 'primitive' : 'definition', parts.word, 1, to: d.label, node: parts.id.substring(1), parts: parts, of: d.dictionary);
+    return [for (final l in out) '${' ' * l.indent}${l.text}'];
+  }
+
   /// Whether [text] (indented, with an id) is the head of an overlay: a
   /// word the page layer reads as one, itself or through an alias.
   bool _overlayInside(String text) {
@@ -2716,10 +2718,7 @@ class _Parser {
     if (_knowsType(word)) return false;
     final alias = options.vocabulary.types[word];
     if (alias == null) return false;
-    if (alias.to != null) return overlays.contains(alias.to);
-    final parts = LineParts.of(text);
-    final lines = parts == null ? null : lineRewrites[alias.line]?.call(parts, text);
-    return lines != null && lines.isNotEmpty && overlays.contains(RegExp(r'^[A-Za-z][A-Za-z0-9]*').stringMatch(lines.first));
+    return alias.to != null && overlays.contains(alias.to);
   }
 
   /// The edit operations of the lines read so far, not yet taken ([take]).
@@ -2785,7 +2784,7 @@ class _Parser {
         final above = [..._srcStack];
         _track(indent, raw.trim());
         var head = raw.trim();
-        final lines = _aliased(head, indent + 1);
+        final lines = _overlayDefined(head) ?? _aliased(head, indent + 1);
         // An unknown word at the margin with an id, after the page: what is
         // written there is over the page, so it stands in as a dialog.
         VocabularyUse? standIn;
@@ -2878,34 +2877,12 @@ class _Parser {
     if (_aliased(raw.trim(), indent + 1) case [final String one] when one != raw.trim()) {
       raw = '${' ' * indent}$one';
     }
-    // `Dots @page count=n`: a dot per page, the current one long and in the
-    // accent; a tap on a dot goes to its page. Written out as the three
-    // lines it stands for.
     // An answer that opens with `if` or `each` has several top-level parts
     // and no root to hold them: they stack in a column of their own.
     if (_root == null && indent == 0 && RegExp(r'^(if|each)\s').hasMatch(raw.trim())) {
       _lineAt(-1, 'Column gap=12', 0);
     }
-    final dots = _dotsOf(raw.trim());
-    if (dots == null && RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?\s.*\bbind=').hasMatch(raw.trim())) {
-      _issue(indent + 1, 'A variable is bound with @: @name is the control\'s value, key=@name another property. Write: ${notationBindForm(raw.trim(), catalog: catalog)}');
-    } else if (dots != null) {
-      String look(String c) => c.startsWith('#')
-          ? '"$c"'
-          : const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(c)
-              ? 'theme.$c'
-              : 'theme.colors.$c';
-      final page = dots.page, count = dots.count.startsWith('{') ? dots.count.substring(1, dots.count.length - 1).trim() : dots.count;
-      _bindsVariable(page, indent + 1 + raw.trim().indexOf('@'), () => 0);
-      variables.putIfAbsent(page, () => {'name': page, 'type': 'decimal', 'value': 0});
-      // Where the page's frames put the line (a Section moves its lines in):
-      // read at the line's own place, the line after it was taken for one of
-      // its dots' row (round 11: a carousel's next button 16 px high).
-      final at = _pages.rewrite(indent, 'Row').first.indent;
-      _lineAt(at, 'Row${dots.id} gap=6 center middle h=16${dots.rest}', indent + 1);
-      _lineAt(at + 2, 'each dot in range($count)', indent + 3);
-      _lineAt(at + 4, 'Box w={index==$page?16:6} h=6 radius=3 fill={index==$page?${look(options.accent)}:${look(options.track)}} onTap={$page=index}', indent + 5);
-    } else {
+    {
       _from = null;
       for (var (l, from) in _definedLines(indent, raw.trim())) {
         if (_atInDefinition(l, from)) continue;
@@ -2961,14 +2938,11 @@ class _Parser {
     siteFill: options.siteFill,
     paneFill: options.paneFill,
     sideFill: options.sideFill,
-    iconTile: options.iconTile,
     accentName: options.accent,
-    accentText: options.accentText,
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     // A website's headline at a display size, unless the theme gives its
     // own headline one (a heading1 or pageTitle of 32 and up).
     siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
-    quietInks: options.quietInks,
     selectedFill: options.selectedFill,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
@@ -11328,20 +11302,6 @@ class _Parser {
   /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
   final Map<int, String> _ifAt = {};
 
-  /// `Dots @page count=n` (in any order, `value=@page` the same): its id,
-  /// its page's variable, its count and the rest of the line, or null.
-  static ({String id, String page, String count, String rest})? _dotsOf(String line) {
-    final head = RegExp(r'^Dots(#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?(?=\s|$)').firstMatch(line);
-    if (head == null) return null;
-    var rest = line.substring(head.end);
-    final page = RegExp(r'\s(?:value=)?@([A-Za-z_][A-Za-z0-9_]*)(?=\s|$)').firstMatch(rest);
-    if (page == null) return null;
-    rest = rest.replaceRange(page.start, page.end, '');
-    final count = RegExp(r'\scount=(\{[^{}]*\}|\S+)').firstMatch(rest);
-    if (count == null) return null;
-    rest = rest.replaceRange(count.start, count.end, '');
-    return (id: head[1] ?? '', page: page[1]!, count: count[1]!, rest: rest.trimRight());
-  }
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
   /// An expression as a binding reads it: a name, or a formula.

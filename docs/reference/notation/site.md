@@ -3,7 +3,7 @@
 # The site
 
 The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors,
-text styles, spacing, radii, dark colors), its fonts and its design system. Open it when you write or change
+text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. Open it when you write or change
 `site.json`; every page and component of the site reads what it declares by name.
 
 <a id="site-a-whole-manifest"></a>
@@ -64,6 +64,9 @@ text styles, spacing, radii, dark colors), its fonts and its design system. Open
   "fonts/Inter-Regular.ttf"}, {"asset": "…", "weight": 600}]}` (`.ttf`, `.otf`, `.woff`).
 - **`designSystem`**: a design system's folder (relative to `site.json`) or id: its theme is the base the site's
   is merged over, and its components are called by name ([design-systems.md](design-systems.md)).
+- **`dictionary`**: folders of definitions (a `<Word>.txt` each, a `define`), relative to `site.json`, or one as a
+  string: a word the page, the site and its design system do not define is read from the first of them that does
+  ([components.md](components.md#components-calling-one)).
 - **`components`**: the expanded components' JSON, when not `components/<Name>.json`; components written in the
   notation are `components/<Name>.txt` ([components.md](components.md)).
 - **`breakpoints`**: the widths that are a phone, a tablet and a desktop, when not the defaults

@@ -27,7 +27,7 @@ Type[.variant][#id] ["text"] [key=value ...] [on<Event>={actions} ...]
   expressions: `${name}` there is `{name}` here, and `${= formula}` is `{formula}`.
 - **`on<Event>={actions}`** runs actions on an event, `;` between them.
 - **A bare word** after the text is a flag: `grow`, `hidden`, `scroll`, `center`. An icon's name is a word too:
-  `Icon download`, and `icon=download` on a Button, NavItem or MenuItem, whatever a variable is called; an icon
+  `Icon download`, and `icon=download` on a Button, Chip or IconButton, whatever a variable is called; an icon
   chosen by data is braced (`Icon {glyph}`, `icon={done ? "check" : "add"}`).
 - **Your key wins over a word's own**: `Sidebar w=240 h=fill` and `Table … radius=0 border=rule` keep what you
   wrote over what the word would give; a key written twice on one line is still said.
@@ -76,8 +76,8 @@ Column gap=8
   `{date, label}`: a short text under it); `Barcode "text" symbology=qrCode` draws a QR code of the text
   (`code128`, `ean13`: bars).
 - An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector). In
-  the sidebar write `Brand`, `NavSection "Group"`, `NavItem "Label" icon=… selected={…}` and a `Footer` (pinned at
-  its end) instead of styling rows by hand ([navigation.md](navigation.md#navigation-a-sidebar)). A
+  the sidebar write a row per item (`selected={…}` with a `selected.fill=` for the chosen one) and a `Footer`
+  (pinned at its end) ([navigation.md](navigation.md#navigation-a-sidebar)). A
   website is a `Page` of `Nav`, `Section` and `Footer` bands. Over the page: `Dialog#id`, `Sheet#id`, `Drawer#id`,
   `Menu#id`, written after the page at the margin with their lines under them; `open id` shows one, `close` closes
   it:
@@ -87,7 +87,7 @@ state tab="home"
 state name=""
 App
   Sidebar w=72
-    NavItem "Home" icon="home" selected={tab == "home"} onTap={tab="home"}
+    IconButton "home" selected={tab == "home"} onTap={tab="home"}
   Main
     Button "New" onTap={open create}
   Pane w=280 hide=tablet

@@ -32,9 +32,6 @@ says them instead). They are listed so you know them when you read them, not as 
 
 | Also read | As a | Is | On |
 |---|---|---|---|
-| `Shortcut`, `shortcut` | word | a `key` line of the screen (`key mod+k onPress={…}`) |  |
-| `computed` | word | a formula variable (`state total:decimal={price*qty}`) |  |
-| `ConfirmDialog` | word | a `Dialog` block with its two buttons |  |
 | `RangeSlider` | word | `Slider`, `start=` as `low=`, `end=` as `high=`, `rangeEnd=` as `high=` (with `low=`, `high=`) |  |
 | `Highlight`, `HighlightText` | word | `Text`, `match=` as `mark=`, `query=` as `mark=` |  |
 | `MiniCalendar`, `CalendarMonth`, `MonthGrid` | word | `Calendar` |  |

@@ -1,7 +1,0 @@
-// A sheet that rises from the foot of the window, opened by `open <id>`: its handle, its title with a close button. It does not say: that it is a block of its own (another canvas, written after the page) shown as a bottom sheet (its width, its radius, its handle, the heights it rests at with stops=): what `open` shows it as is the canvas's, kept by the code.
-Sheet "title" pad=[20,8,20,24] gap=16
-  Column w=fill pad={pad} gap={gap}
-    Row w=fill between middle gap=12
-      Text.heading3 "{title}" grow
-      IconButton "close" onTap={close}
-    ...

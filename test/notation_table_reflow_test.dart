@@ -8,6 +8,8 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 void main() {
@@ -16,7 +18,7 @@ void main() {
 state rows:list=[{"id":"a","title":"x","email":"e","due":"d","seats":3}]
 Column
   Table#t r in rows columns=[{"key":"id","label":"Id","w":80},{"key":"title","label":"Title"},{"key":"email","label":"Email","w":240,"hide":"phone"},{"key":"due","label":"Due","w":120,"hide":"tablet"},{"key":"seats","label":"Seats","w":64,"align":"end"}]
-''', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+''', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1440)));
     expect(r.issues, isEmpty);
     final nodes = (r.document['nodes'] as Map).cast<String, Object?>();
     // The header and the row: only their cells' own hide rules.
@@ -31,7 +33,7 @@ Column
   group('a table whose columns say nothing of other widths', () {
     // Each cell's widths at which it is left out ('-': none), the header's and the row's alike.
     List<String> hides(String page, {double width = 1440}) {
-      final r = parseNotation('state rows:list=[]\nstate chosen:list=[]\n$page\n', catalog: standardCatalog, options: NotationOptions(width: width));
+      final r = parseNotation('state rows:list=[]\nstate chosen:list=[]\n$page\n', catalog: standardCatalog, options: withTestWords(NotationOptions(width: width)));
       expect(r.issues, isEmpty);
       final nodes = (r.document['nodes'] as Map).cast<String, Object?>();
       final head = (_node(r, 't-head')['children'] as List).cast<String>();
@@ -81,13 +83,13 @@ Row#rowBody gap=12 pad=[16,10,16,10]
     Text "Maya Reyes"
     Text "Q4 roadmap review moved to Thursday"
   Text "9:42 AM" size=12
-''', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+''', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1440)));
     expect(r.issues, isEmpty);
     expect(_node(r, 'rowBody')['media'], isNull);
   });
 
   test("a table's header pins at the very top while the page scrolls (it pinned 16 px down, a row showing above it)", () {
-    final r = parseNotation('state rows:list=[]\nColumn\n  Table#t r in rows columns=["Name"]\n', catalog: standardCatalog, options: const NotationOptions(width: 1440));
+    final r = parseNotation('state rows:list=[]\nColumn\n  Table#t r in rows columns=["Name"]\n', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1440)));
     expect(_node(r, 't-head')['sticky'], {'offset': 0});
   });
 }

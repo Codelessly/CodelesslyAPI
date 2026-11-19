@@ -1,8 +1,0 @@
-// A dialog over the page, opened by `open <id>`: a panel 480 wide, its title with a close button, a note under it. It does not say: that it is a block of its own (another canvas, written after the page), not a node where it is written; how `open` shows it (as a dialog, its insets, its width) is the canvas's, kept by the code for the open action; guard=, guardText= and onBackPressed= (what Escape and a tap outside do).
-Dialog "title" "note" pad=24 gap=16
-  Column w=fill pad={pad} gap={gap}
-    Row w=fill between middle gap=12
-      Text.heading3 "{title}" grow
-      IconButton "close" onTap={close}
-    Text.muted "{note}"
-    ...

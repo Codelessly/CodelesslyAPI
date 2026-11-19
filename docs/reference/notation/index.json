@@ -2,7 +2,7 @@
   "version": "38.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4362
+    "words": 4340
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4362
+      "words": 4340
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 623
+      "words": 599
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -95,7 +95,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-the-references",
       "title": "The references",
-      "words": 997
+      "words": 999
     },
     {
       "topic": "layout",
@@ -717,21 +717,21 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3884
+      "words": 3822
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 1024
+      "words": 939
     },
     {
       "topic": "navigation-over-the-page",
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 516
+      "words": 539
     },
     {
       "topic": "navigation-screens",
@@ -774,14 +774,21 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2123
+      "words": 2747
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 365
+      "words": 523
+    },
+    {
+      "topic": "components-the-shorthand-words-of-earlier-versions",
+      "file": "components.md",
+      "anchor": "components-the-shorthand-words-of-earlier-versions",
+      "title": "The shorthand words of earlier versions",
+      "words": 457
     },
     {
       "topic": "components-writing-one",
@@ -845,8 +852,8 @@
       "file": "site.md",
       "anchor": "page-site",
       "title": "The site",
-      "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts and its design system.",
-      "words": 468
+      "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries.",
+      "words": 511
     },
     {
       "topic": "site-a-whole-manifest",
@@ -860,7 +867,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 271
+      "words": 312
     },
     {
       "topic": "document",
@@ -904,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 13924
+      "words": 13881
     },
     {
       "topic": "values-writing-a-value",
@@ -918,7 +925,7 @@
       "file": "values.md",
       "anchor": "values-other-spellings-also-read",
       "title": "Other spellings (also read)",
-      "words": 357
+      "words": 314
     },
     {
       "topic": "values-value-types",

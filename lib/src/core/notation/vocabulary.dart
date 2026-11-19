@@ -147,7 +147,7 @@ String universalKindOf(String word) => RegExp(r'^on[A-Z]').hasMatch(word) ? 'eve
 /// A type read as another: `RangeSlider` is a `Slider`, with its own names
 /// for that type's parameters; `GoKey` is a `Button.primary` with `size=lg`.
 final class TypeAlias {
-  const TypeAlias({this.to, this.variant, this.parameters = const {}, this.add, this.line, this.requires = const []});
+  const TypeAlias({this.to, this.variant, this.parameters = const {}, this.add, this.requires = const []});
 
   /// `"to"` may name a variant after the type (`Button.primary`).
   factory TypeAlias.fromJson(Object? json) {
@@ -158,7 +158,6 @@ final class TypeAlias {
       to: dot < 0 ? to : to!.substring(0, dot),
       variant: dot < 0 ? null : to!.substring(dot + 1),
       add: readString(m['add']),
-      line: readString(m['line']),
       requires: [
         for (final k in (m['requires'] as List?) ?? const <Object?>[])
           if (k is String) k,
@@ -201,15 +200,10 @@ final class TypeAlias {
   /// writes itself is the line's.
   final String? add;
 
-  /// The line is of another shape altogether: the name of the rewrite in
-  /// code that reads it ([lineRewrites]: `shortcut`, `confirmDialog`).
-  final String? line;
-
-  Object toJson() => to != null && parameters.isEmpty && add == null && line == null && requires.isEmpty
+  Object toJson() => to != null && parameters.isEmpty && add == null && requires.isEmpty
       ? '$to${variant == null ? '' : '.$variant'}'
       : {
           if (to != null) 'to': '$to${variant == null ? '' : '.$variant'}',
-          if (line != null) 'line': line,
           if (requires.isNotEmpty) 'requires': requires,
           if (parameters.isNotEmpty) 'parameters': parameters,
           if (add != null) 'add': add,
@@ -246,6 +240,7 @@ final class NotationVocabulary {
     this.events = const {},
     this.verbs = const {},
     this.definitions = const {},
+    this.dictionary = const {},
   });
 
   factory NotationVocabulary.fromJson(Json json) {
@@ -279,6 +274,11 @@ final class NotationVocabulary {
   /// one word are its meanings, the one a use fits best read.
   final Map<String, List<NotationDefinition>> definitions;
 
+  /// The words of the dictionaries a caller gave (a folder of definition
+  /// files each, [withDictionary]): words we have, read after a page's own
+  /// definitions and a design system's or a site's ([definitions]), by word.
+  final Map<String, List<NotationDefinition>> dictionary;
+
   /// No aliases ([definitions] aside).
   bool get isEmpty => types.isEmpty && parameters.isEmpty && flags.isEmpty && events.isEmpty && verbs.isEmpty;
 
@@ -295,6 +295,7 @@ final class NotationVocabulary {
       events: both(events, other.events),
       verbs: {...verbs, ...other.verbs},
       definitions: {...definitions, ...other.definitions},
+      dictionary: {...dictionary, ...other.dictionary},
     );
   }
 
@@ -302,6 +303,13 @@ final class NotationVocabulary {
   /// name: `StickyNote.txt`) over its own; what could not be read is left out
   /// ([readDefinitions] says what).
   NotationVocabulary define(Map<String, String> texts) => merge(NotationVocabulary(definitions: readDefinitions(texts).words));
+
+  /// This table with the dictionary [name] (a folder of definition files,
+  /// [texts] by file name): its words under the ones [definitions] has, and
+  /// over any dictionary given before it. What could not be read is left
+  /// out ([readDefinitions] says what).
+  NotationVocabulary withDictionary(Map<String, String> texts, {required String name}) =>
+      merge(NotationVocabulary(dictionary: readDefinitions(texts, dictionary: name).words));
 
   Json toJson() => {
         'types': {for (final e in types.entries) e.key: e.value.toJson()},
@@ -320,13 +328,6 @@ final class NotationVocabulary {
   /// beside our own spelling.
   static const core = NotationVocabulary(
     types: {
-      // A keyboard shortcut of the screen (13 of 20 apps): ours is the line
-      // `key mod+k onPress={…}`.
-      'Shortcut': TypeAlias(line: 'shortcut'),
-      'shortcut': TypeAlias(line: 'shortcut'),
-      // A question with a yes and a no, over the page: a Dialog with its two
-      // buttons.
-      'ConfirmDialog': TypeAlias(line: 'confirmDialog'),
       // A slider with two thumbs: ours when the line binds a variable for
       // each end (`RangeSlider @lo @hi`, `low=@lo high=@hi`). (Most answers
       // bind one list variable, which ours does not take: those stay
@@ -587,76 +588,3 @@ String negatedValue(String value) {
   return '{!($v)}';
 }
 
-/// The lines a word of another shape is read as (a [TypeAlias.line]), or
-/// null when this line is not one the rewrite reads. Each is given the line
-/// split into its parts, and the line as written.
-typedef LineRewrite = List<String>? Function(LineParts parts, String text);
-
-/// The rewrites [TypeAlias.line] names.
-final Map<String, LineRewrite> lineRewrites = {
-  'shortcut': _shortcutLine,
-  'confirmDialog': _confirmDialogLines,
-};
-
-/// `Shortcut "ctrl+k" onPress={open search}`, `Shortcut key="?" onPress={…}`,
-/// `shortcut key=t onPress={…}`, `Shortcut "r" when openId!=0 onPress={…}`:
-/// the `key` line. What only describes it (hint, description, label) is not
-/// kept: a shortcut shows nothing.
-List<String>? _shortcutLine(LineParts p, String text) {
-  final event = p.parts.where((x) => x.isEvent).firstOrNull;
-  if (event == null || !event.value!.startsWith('{')) return null;
-  var combo = p.strings.firstOrNull?.raw ?? p.pair('key')?.value ?? p.pair('keys')?.value ?? p.pair('combo')?.value;
-  final words = [for (final x in p.parts) if (x.kind == 'word') x];
-  // `shortcut space onPress={…}`: the key as a bare word.
-  if (combo == null && words.isNotEmpty && words.first.raw != 'when') combo = words.first.raw;
-  if (combo == null) return null;
-  combo = combo.replaceAll('"', '').replaceAll(' ', '');
-  if (combo.isEmpty) return null;
-  // `when cond` (words up to the event) or when={cond}.
-  String? when;
-  if (p.pair('when')?.value case final String w) {
-    when = w.startsWith('{') && w.endsWith('}') ? w.substring(1, w.length - 1).trim() : w;
-  } else {
-    final m = RegExp(r'\swhen\s+(.+?)\s+on[A-Z][A-Za-z]*=\{').firstMatch(text);
-    if (m != null) when = m[1]!.trim();
-  }
-  return ['key $combo${when == null || when.isEmpty ? '' : ' when $when'} onPress=${event.value}'];
-}
-
-/// `ConfirmDialog#ask "Delete this plan?" "This cannot be undone."
-/// confirm="Delete" cancel="Keep" onConfirm={…}`: a Dialog with the two
-/// buttons, the first closing it and the second doing what a yes does. Lines
-/// written under it come before the buttons.
-List<String>? _confirmDialogLines(LineParts p, String text) {
-  if (p.id.isEmpty) return null;
-  final strings = [for (final s in p.strings) s.raw];
-  String? text0(List<String> keys) {
-    for (final k in keys) {
-      if (p.pair(k)?.value case final String v) return asLineString(v);
-    }
-    return null;
-  }
-
-  final title = strings.isNotEmpty ? strings[0] : text0(const ['title']) ?? '"Are you sure?"';
-  final message = strings.length > 1 ? strings[1] : text0(const ['message', 'text', 'body', 'description']);
-  final yes = text0(const ['confirm', 'confirmLabel', 'confirmText', 'yes', 'ok', 'action']) ?? '"Confirm"';
-  final no = text0(const ['cancel', 'cancelLabel', 'cancelText', 'no']) ?? '"Cancel"';
-  String actions(List<String> keys) {
-    for (final k in keys) {
-      final v = p.pair(k)?.value;
-      if (v != null && v.startsWith('{') && v.endsWith('}')) return v.substring(1, v.length - 1).trim();
-    }
-    return '';
-  }
-
-  final onYes = actions(const ['onConfirm', 'onYes', 'onOk', 'onAccept', 'onTap']);
-  final onNo = actions(const ['onCancel', 'onNo', 'onDismiss']);
-  final danger = p.has('destructive') || p.has('danger') || p.pair('tone')?.value == 'danger' || p.pair('destructive') != null;
-  String then(String a) => a.isEmpty ? 'close' : (RegExp(r'(^|;)\s*close\s*$').hasMatch(a) ? a : '$a; close');
-  return [
-    'Dialog${p.id} $title${message == null ? '' : ' $message'}',
-    '  Row gap=8 end',
-    '    Button.ghost $no onTap={${then(onNo)}}',
-    '    Button${danger ? '.destructive' : ''} $yes onTap={${then(onYes)}}',
-  ];
-}

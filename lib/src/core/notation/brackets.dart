@@ -91,7 +91,7 @@ typedef _Frame = ({String open, int column, bool event});
     return switch (word) {
       'each' => "the list's formula",
       'if' => 'the condition',
-      'state' || 'project' || 'computed' || 'let' => 'the value',
+      'state' || 'project' || 'let' => 'the value',
       _ => 'this line',
     };
   }
@@ -162,7 +162,7 @@ typedef _Frame = ({String open, int column, bool event});
           final region = stack.isEmpty ? 0 : stack.last.column;
           // What was read before: a group that closed early, with words after
           // it that were meant inside (`sortBy(filter(…))),x=>…)`).
-          final formula = region != 0 || const {'each', 'if', 'state', 'project', 'computed', 'let'}.contains(word);
+          final formula = region != 0 || const {'each', 'if', 'state', 'project', 'let'}.contains(word);
           final early = closed.where((o) => o.region == region && raw.substring(o.close, k).trimLeft().startsWith(',')).firstOrNull;
           if (early case final o? when formula) {
             return (

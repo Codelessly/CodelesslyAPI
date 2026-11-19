@@ -324,7 +324,9 @@ final class _Parser {
 /// nothing written as its value, where the rest of the expression still
 /// reads something at run time: `(on) ? "#FF2563EB" : coalesce(null,
 /// "#FF6B7280")` is `(on) ? "#FF2563EB" : "#FF6B7280"`, as the page words
-/// write it.
+/// write it. A `coalesce` that still reads something at run time loses the
+/// arguments that are nothing here: `coalesce(null, theme.primary)` is
+/// `theme.primary`.
 String foldCalls(String expression) {
   const names = {'upper', 'lower', 'trim', 'round', 'floor', 'ceil', 'abs', 'min', 'max', 'coalesce', 'replace', 'startsWith', 'endsWith'};
   var s = expression;
@@ -349,7 +351,8 @@ String foldCalls(String expression) {
     }
     if (end < 0) return s;
     final v = foldExpression(s.substring(m.start, end));
-    final w = identical(v, unknown) ? null : _literal(v);
+    var w = identical(v, unknown) ? null : _literal(v);
+    if (w == null && m[1] == 'coalesce') w = _coalesced(s.substring(m.end, end - 1));
     if (w == null) {
       from = m.end;
       continue;
@@ -357,6 +360,32 @@ String foldCalls(String expression) {
     s = '${s.substring(0, m.start)}$w${s.substring(end)}';
     from = m.start + w.length;
   }
+}
+
+/// The arguments [inside] a `coalesce(…)` less the ones that are nothing
+/// here: the one left, or the call with the rest; null when none goes.
+String? _coalesced(String inside) {
+  final args = <String>[];
+  var depth = 0, from = 0;
+  for (var k = 0; k < inside.length; k++) {
+    final c = inside[k];
+    if (c == '"' || c == "'") {
+      final close = inside.indexOf(c, k + 1);
+      if (close < 0) return null;
+      k = close;
+      continue;
+    }
+    if (c == '(' || c == '[' || c == '{') depth++;
+    if (c == ')' || c == ']' || c == '}') depth--;
+    if (c == ',' && depth == 0) {
+      args.add(inside.substring(from, k).trim());
+      from = k + 1;
+    }
+  }
+  args.add(inside.substring(from).trim());
+  final kept = [for (final a in args) if (foldExpression(a) != null) a];
+  if (kept.length == args.length || kept.isEmpty) return null;
+  return kept.length == 1 ? kept.single : 'coalesce(${kept.join(', ')})';
 }
 
 bool _quoted(String s, int at) {

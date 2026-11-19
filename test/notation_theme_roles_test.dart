@@ -6,6 +6,8 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 void main() {
   const light = {
     'primary': '#FF4F46E5',
@@ -59,7 +61,7 @@ App
     Table r in rows columns=["Name"]
 ''';
     Map<String, Object?> nodes(NotationOptions o) =>
-        (parseNotation(text, catalog: standardCatalog, options: o).document['nodes'] as Map).cast<String, Object?>();
+        (parseNotation(text, catalog: standardCatalog, options: withTestWords(o)).document['nodes'] as Map).cast<String, Object?>();
     final named = nodes(NotationOptions.fromTheme(light, width: 1280, named: true, roles: true));
     final card = named['card']! as Map;
     expect(((card['decoration'] as Map)['fills'] as List).first, {'color': 'card'});

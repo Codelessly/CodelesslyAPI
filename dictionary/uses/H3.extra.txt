@@ -1,9 +1,0 @@
-// Uses written for a shape no answer of the first corpus has (no answer writes H1 to H4).
-### written: a small title on a website
-Page
-  Section
-    H3 "Teams"
-### written: a strong line in an app
-App
-  Main
-    H3 "Shipping"

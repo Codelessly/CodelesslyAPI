@@ -8,13 +8,15 @@ import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/prompt.dart' show notationFunctions, notationPageFunctions, notationPrompt;
 import 'package:test/test.dart';
 
-NotationResult _parse(String text) => parseNotation(text, catalog: standardCatalog);
+import 'notation_words.dart';
+
+NotationResult _parse(String text) => parseNotation(text, catalog: standardCatalog, options: withTestWords());
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
 /// A page 1280 wide (what the page prompt is for).
 const _pageOptions = NotationOptions(width: 1280);
-NotationResult _parsePage(String text) => parseNotation(text, catalog: standardCatalog, options: _pageOptions);
+NotationResult _parsePage(String text) => parseNotation(text, catalog: standardCatalog, options: withTestWords(_pageOptions));
 String _pagePrompt() => notationPrompt(catalog: standardCatalog, options: _pageOptions);
 
 /// The last action of the first reaction of node [id] (what its tap opens).
@@ -361,7 +363,7 @@ Page
         Column#names
           Text "{p.name}"
           Text "{p.email}"
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+''', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280)));
     expect(r.issues, isEmpty);
     expect((_node(r, 'who')['layout'] as Map)['squeezable'], isTrue);
     expect((_node(r, 'names')['layout'] as Map)['squeezable'], isTrue);
@@ -412,7 +414,7 @@ Column gap=8
         };
     void roundTrips(Map<String, Object?> doc, {bool words = true}) {
       final text = printNotation(doc, catalog: standardCatalog);
-      final back = parseNotation(text, catalog: standardCatalog, options: notationOptionsFor(doc));
+      final back = parseNotation(text, catalog: standardCatalog, options: withTestWords(notationOptionsFor(doc)));
       expect(back.issues, isEmpty, reason: text);
       expect(jsonEncode(sorted(back.document)), jsonEncode(sorted(doc)), reason: text);
       if (words) expect(text.split('\n').first, isNot(startsWith('document ')), reason: 'printed in the tree\'s words');
@@ -506,7 +508,7 @@ Card
   Text.muted "Next invoice on the 1st"
   Badge.success "Paid"
   BarChart values=[1,2,3]
-''', catalog: standardCatalog, options: options);
+''', catalog: standardCatalog, options: withTestWords(options));
     expect(r.issues, isEmpty);
     expect((_node(r, 'screen')['decoration'] as Map)['fills'], [{'color': '#FFFFFCF7'}]);
     expect(((_node(r, 'column1')['decoration'] as Map)['strokes'] as List).single, {'color': '#FFE4E1DC'});
@@ -522,12 +524,12 @@ Card
       'sizes': {'progress': 8},
       'spacing': {'cardGap': 12},
     });
-    final r = parseNotation('Column\n  Card#a\n    Progress#p 0.4\n  Card#b gap=4\n    Text "x"', options: options, catalog: standardCatalog);
+    final r = parseNotation('Column\n  Card#a\n    Progress#p 0.4\n  Card#b gap=4\n    Text "x"', options: withTestWords(options), catalog: standardCatalog);
     expect((_node(r, 'p')['props'] as Map)['borderRadius'], 999);
     expect((_node(r, 'p')['layout'] as Map)['height'], 8);
     expect((_node(r, 'a')['props'] as Map)['spacing'], 12);
     expect((_node(r, 'b')['props'] as Map)['spacing'], 4);
-    final plain = parseNotation('Card#a\n  Progress#p 0.4', catalog: standardCatalog);
+    final plain = parseNotation('Card#a\n  Progress#p 0.4', catalog: standardCatalog, options: withTestWords());
     expect((_node(plain, 'p')['props'] as Map)['borderRadius'], 2);
     expect((_node(plain, 'a')['props'] as Map).containsKey('spacing'), isFalse);
   });
@@ -536,12 +538,12 @@ Card
     final options = NotationOptions.fromTheme({
       'radii': {'card': 26, 'panel': 18, 'tile': 14},
     });
-    final r = parseNotation('Card#solo\n  Card#inner\n    Text "a"', options: options, catalog: standardCatalog);
+    final r = parseNotation('Card#solo\n  Card#inner\n    Text "a"', options: withTestWords(options), catalog: standardCatalog);
     num radius(NotationResult r, String id) => (_node(r, id)['decoration'] as Map)['radius'] as num;
     expect(radius(r, 'solo'), 26);
     expect(radius(r, 'inner'), 14);
     final page = parseNotation('Column\n  Card#section\n    Text "a"\n  Grid cols=2\n    Card#tile\n      Text "b"',
-        options: options, catalog: standardCatalog);
+        options: withTestWords(options), catalog: standardCatalog);
     expect(radius(page, 'section'), 18);
     expect(radius(page, 'tile'), 14);
   });
@@ -579,7 +581,7 @@ Card gap=12
   BarChart values=[1,2]
   Text#big "12" size=24 weight=700
 ''';
-    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, nearestColors: true));
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(theme, named: true, nearestColors: true)));
     expect(r.issues, isEmpty);
     expect((_node(r, 'screen')['decoration'] as Map)['fills'], [{'color': 'page'}]);
     final card = _node(r, 'column1');
@@ -611,9 +613,9 @@ Card gap=12
     expect((_node(r, 'big')['props'] as Map)['style'], {'from': 'body', 'fontSize': 24, 'fontWeight': 700});
     // Without `named` nothing is read as a name; without these tokens (no
     // design system) the look is the bundled one.
-    final literal = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme));
+    final literal = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(theme)));
     expect((_node(literal, 'column2')['decoration'] as Map)['fills'], [{'color': '#FFF5F5F5'}]);
-    final plain = parseNotation(text, catalog: standardCatalog);
+    final plain = parseNotation(text, catalog: standardCatalog, options: withTestWords());
     expect((_node(plain, 'filledButton2')['layout'] as Map)['width'], {'hug': 0});
     expect((_node(plain, 'row1')['decoration'] as Map)['radius'], 5);
     expect((_node(plain, 'column1')['decoration'] as Map)['radius'], 8);
@@ -642,7 +644,7 @@ Card
       Text "{x.t}"
   Button#b "Record" animate=pulse
 ''';
-    final r = parseNotation(text, catalog: standardCatalog);
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords());
     expect(r.issues, isEmpty);
     // A gauge is a stack under its id: a clean arc and the figure inside it.
     expect(_node(r, 'g')['type'], 'stack');
@@ -682,19 +684,19 @@ Card
     Row#todo onSwipeLeft={todos=removeWhere(todos,x=>x.id==t.id)}
       Text "{t.t}"
 ''';
-    final m = parseNotation(more, catalog: standardCatalog);
+    final m = parseNotation(more, catalog: standardCatalog, options: withTestWords());
     expect(m.issues, isEmpty);
     expect((((m.document['nodes'] as Map)['screen'] as Map)['actions'] as List).single, containsPair('trigger', {'type': 'timer', 'intervalMs': 1000, 'when': r'${= n<5}'}));
     expect(_node(m, 'tip')['props'], containsPair('divisions', 6));
     // A share of a row that follows a value grows (a segmented bar's parts).
-    final bar = parseNotation('state a=3\nRow h=12\n  Box#seg grow={a} fill=#FF4285F4', catalog: standardCatalog);
+    final bar = parseNotation('state a=3\nRow h=12\n  Box#seg grow={a} fill=#FF4285F4', catalog: standardCatalog, options: withTestWords());
     expect(bar.issues, isEmpty);
     expect(_node(bar, 'seg')['layout'], containsPair('flex', 1));
     expect((_node(bar, 'seg')['bind'] as Map)['layout.flex'], r'${a}');
     expect(((_node(m, 'todo')['actions'] as List).single as Map)['trigger'], {'type': 'swipeLeft'});
     expect((_node(m, 'todo')['bind'] as Map)['animations[0].delay'], r'${= index*60}');
     // A word it does not have is named with the ones it has; timing alone says where it goes.
-    final bad = parseNotation('Text "x" animate=teleport\nText "y" duration=300', catalog: standardCatalog);
+    final bad = parseNotation('Text "x" animate=teleport\nText "y" duration=300', catalog: standardCatalog, options: withTestWords());
     expect(bad.issues.map((i) => i.message).join('\n'), allOf(contains('No animate=teleport'), contains('go with animate=')));
   });
 
@@ -715,7 +717,7 @@ Card
   Image#img "assets/a.png" fit=contain
   IconButton#info "info" tooltip="More"
 ''';
-    final r = parseNotation(text, catalog: standardCatalog);
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords());
     // The one prop nothing reads is named where it was written; the rest are read.
     expect(r.issues.map((i) => i.message).toList(), [contains('has no "hexagon"')]);
     final lines = _node(r, 'lines');
@@ -752,7 +754,7 @@ if open
 Row#footer
   Text "Terms"
 ''';
-    final r = parseNotation(text, catalog: standardCatalog);
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords());
     expect(r.issues, isEmpty);
     expect(((r.document['nodes'] as Map)['screen'] as Map)['slots'], {'body': 'pageRoot'});
     expect(_node(r, 'pageRoot')['children'], ['header', 'main', 'note', 'footer']);
@@ -784,7 +786,7 @@ Column#page maxw=720
   Avatar#av "Maya Reyes" size=48
   Avatar#pic src="assets/maya.png"
 ''';
-    final r = parseNotation(text, catalog: standardCatalog);
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords());
     expect(r.issues, isEmpty);
     expect((_node(r, 'page')['layout'] as Map)['constraints'], {'maxWidth': 720});
     // Column center: its children side by side centered, each as wide as it is (an icon over its label).
@@ -823,7 +825,7 @@ Column
   Box#brand fill=#FF7C3AED
 ''';
     Object? fill(NotationResult r, String id) => ((_node(r, id)['decoration'] as Map)['fills'] as List).single;
-    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, nearestColors: true));
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(theme, named: true, nearestColors: true)));
     expect(r.issues, isEmpty);
     // On the page the gray would be the page's own color: the theme's fill for the page. In a card it is the neutral fill.
     expect(fill(r, 'onPage'), {'color': 'pageFill'});
@@ -831,7 +833,7 @@ Column
     expect(fill(r, 'brand'), {'color': '#FF7C3AED'});
     // A theme without the name reads it as before.
     final plain = {...theme, 'colors': {...(theme['colors']! as Map)}..remove('pageFill')};
-    expect(fill(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true, nearestColors: true)), 'onPage'), {'color': 'subtleFill'});
+    expect(fill(parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(plain, named: true, nearestColors: true))), 'onPage'), {'color': 'subtleFill'});
   });
 
   test('a theme may give the title a larger style on a wide page', () {
@@ -848,17 +850,17 @@ Column
     const text = 'Column\n  Text.title "Inventory"\n  Text.pageTitle "Contacts"\n  Text.heading "Stock"';
     Object? style(NotationResult r, String id) => (_node(r, id)['props'] as Map)['style'];
     // At a phone's width the title is the title; from the theme's wide size up it is the wide title.
-    final narrow = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true));
+    final narrow = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(theme, named: true)));
     expect(style(narrow, 'text1'), {'from': 'title', 'color': 'primaryText'});
     expect(style(narrow, 'text2'), {'from': 'pageTitle', 'color': 'primaryText'});
-    final wide = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(theme, named: true, width: 1280));
+    final wide = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(theme, named: true, width: 1280)));
     expect(wide.issues, isEmpty);
     expect(style(wide, 'text1'), {'from': 'titleWide', 'color': 'primaryText'});
     expect(style(wide, 'text2'), {'from': 'titleWide', 'color': 'primaryText'});
     expect(style(wide, 'text3'), style(narrow, 'text3'));
     // A theme without the two names (SSUI) is unchanged at any width.
     final plain = {...theme, 'sizes': <String, Object>{}};
-    expect(style(parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(plain, named: true, width: 1280)), 'text1'), {'from': 'title', 'color': 'primaryText'});
+    expect(style(parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(plain, named: true, width: 1280))), 'text1'), {'from': 'title', 'color': 'primaryText'});
   });
   test('Pages: swiped pages bound to a variable, per element or per line, with a peek and dots', () {
     final r = _parse('''
@@ -966,7 +968,7 @@ Card
   Progress 0.4
   BarChart values=[1,2,3]
 ''';
-    final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(a, named: true));
+    final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(a, named: true)));
     expect(r.issues, isEmpty);
     expect((_node(r, 'text1')['props'] as Map)['style'], {'from': 'sectionTitle'});
     expect(((_node(r, 'column1')['decoration'] as Map)['strokes'] as List).single, {'color': 'primaryBorder'});
@@ -975,7 +977,7 @@ Card
     // give when expanded with that theme's values written out.
     for (final t in [a, b]) {
       final resolved = resolveThemeRefs(LayoutDocument.fromJson(r.document, catalog: standardCatalog), ThemeTokens.fromJson(t)).toJson();
-      final literal = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(t)).document;
+      final literal = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(t))).document;
       Object? at(Json d, String id, List<String> path) => path.fold<Object?>((d['nodes'] as Map)[id], (v, k) => v is Map ? v[k] : (v as List)[int.parse(k)]);
       for (final (id, path) in [
         ('column1', ['decoration', 'strokes', '0', 'color']),
@@ -1179,7 +1181,7 @@ Text "{total>=5 ? "Ready" : "Not yet"} at {total}"
       catalog = ds.catalogOver(standardCatalog);
     });
     NotationResult parse(String text) =>
-        Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+        Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds))));
 
     test('bound to a field: of a record variable, of the repeated element, of an element of a list in the element around it', () {
       final r = parse('''
@@ -1331,7 +1333,7 @@ Column
       expect(tabs['props'], {'tabs': ['A', 'B'], 'value': 'tab'});
       final prompt = notationPrompt(catalog: catalog, options: NotationOptions.fromDesignSystem(ds), designSystem: ds);
       expect(prompt, contains('Tabs @value tabs! onChanged : What a Tabs is for.'));
-      final core = parseNotation('Tabs titles=["A","B"]');
+      final core = parseNotation('Tabs titles=["A","B"]', options: withTestWords());
       expect((core.document['nodes']! as Map).values.cast<Map>().any((n) => n['type'] == 'tabs'), isTrue);
     });
 
@@ -1479,7 +1481,7 @@ Page
         Text "a"
       Card grow
         Text "b"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect((node(r, 'go')['layout']! as Map)['height'], 40);
       expect((node(r, 'big')['layout']! as Map)['height'], 44);
@@ -1493,7 +1495,7 @@ Page
       final r = parseNotation('''
 Card#plan fill=#0F2563EB
   Text "Team"
-''', catalog: standardCatalog);
+''', catalog: standardCatalog, options: withTestWords());
       expect(r.issues, isEmpty);
       final fills = (node(r, 'plan')['decoration']! as Map)['fills']! as List;
       expect(fills, hasLength(2));
@@ -1517,7 +1519,7 @@ App
         Badge.success#paid "Paid" w=120
       Text#toc "Install" border-left=#FFE5E7EB id=install
       Avatar#who src="https://example.com/a.png" size=32
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+''', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280)));
       expect(r.issues, isEmpty);
       // The field's label is its hint.
       final q = jsonEncode(node(r, 'q')['props']);
@@ -1541,7 +1543,7 @@ Page
     Heading "Fill every room" level=1
   Footer
     Text "© 2026"
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
+''', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280)));
       expect(r.issues, isEmpty);
       final root = node(r, (node(r, 'screen')['slots']! as Map)['body'] as String);
       expect(root['type'], 'column');
@@ -1573,7 +1575,7 @@ App
     Row
       Pane#detail w=260
         Text "Details"
-''', catalog: standardCatalog, options: const NotationOptions(width: 1280, height: 720));
+''', catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280, height: 720)));
       expect(r.issues, isEmpty);
       expect((node(r, 'screen')['layout']! as Map)['height'], {'fill': 720});
       expect((node(r, 'side')['layout']! as Map)['width'], 248);
@@ -1600,9 +1602,9 @@ App
     });
 
     test('a root written h:fill is a window too; a frame word inside a card is a plain row or column', () {
-      final windowed = parseNotation('Row h=fill\n  Text "a"', catalog: standardCatalog);
+      final windowed = parseNotation('Row h=fill\n  Text "a"', catalog: standardCatalog, options: withTestWords());
       expect((node(windowed, 'screen')['layout']! as Map)['height'], {'fill': 800});
-      final card = parseNotation('Card\n  Header#h\n    Text "Title"\n  Section#s\n    Text "Body"', catalog: standardCatalog);
+      final card = parseNotation('Card\n  Header#h\n    Text "Title"\n  Section#s\n    Text "Body"', catalog: standardCatalog, options: withTestWords());
       expect(card.issues, isEmpty);
       expect(node(card, 'h')['type'], 'row');
       expect((node(card, 's')['children']! as List).length, 1);
@@ -1617,7 +1619,7 @@ Column center
   Icon#i "sync"
   Text#t "import { Beacon } from 'sdk'; track('x', {\\n  plan: 'pro',\\n})"
   Text#u "Total: {total}"
-''', catalog: standardCatalog);
+''', catalog: standardCatalog, options: withTestWords());
       expect((node(r, 'r')['props']! as Map)['mainAxisAlignment'], 'spaceBetween');
       expect((node(r, 'r')['props']! as Map)['crossAxisAlignment'], 'center');
       expect((node(r, 'r')['layout']! as Map)['width'], {'fill': 0});
@@ -1634,8 +1636,8 @@ Column center
       final examples = wide.substring(wide.lastIndexOf('\n  state email=""\n  Page\n'));
       final page = examples.substring(0, examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
       final app = examples.substring(examples.indexOf('\n  state tab')).split('\n').map((l) => l.startsWith('  ') ? l.substring(2) : l).join('\n');
-      expect(parseNotation(page, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
-      expect(parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280)).issues, isEmpty);
+      expect(parseNotation(page, catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280))).issues, isEmpty);
+      expect(parseNotation(app, catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280))).issues, isEmpty);
     });
   });
 
@@ -1668,7 +1670,7 @@ Page
         Text "Three"
       Card#d
         Text "Four"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(at(r, 'plansRow1', 834)['props'], {'wrap': true, 'runSpacing': 24});
       expect((at(r, 'a', 390)['layout']! as Map)['basis'], 220);
@@ -1695,7 +1697,7 @@ Page
           Button.outline "Menu"
       Card#rail w=320
         Text "Tonight"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect((at(r, 'split', 834)['props']! as Map)['wrap'], true);
       expect((at(r, 'copy', 834)['layout']! as Map)['basis'], 360);
@@ -1711,7 +1713,7 @@ Page
       Input#q "Search" grow
       Spacer#gap grow
       Button "Export"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect((at(r, 'bar', 390)['props']! as Map)['wrap'], true);
       expect((at(r, 'q', 390)['layout']! as Map)['basis'], 180);
@@ -1733,7 +1735,7 @@ Page
               Input "Minutes" grow
               Input "Pace" grow
           IconButton "more_vert"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(at(r, 'line', 390), isEmpty);
       expect(at(r, 'body', 390), isEmpty);
@@ -1751,7 +1753,7 @@ Page
         Text#plan "Plan" w=90
         Text#value "Value" w=110
         Text#seen "Last seen" w=110
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(node(r, 'head')['media'], isNull);
       expect(at(r, 'name', 390), isNot(contains('visible')));
@@ -1771,7 +1773,7 @@ App
     Text "Hello"
   Pane#details w=300
     Text "Details"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(app.issues, isEmpty);
       expect(at(app, 'side', 390)['visible'], false);
       expect(at(app, 'side', 834)['visible'], isNull);
@@ -1783,12 +1785,12 @@ Page
   Nav
     Brand "Tidewater" icon="waves"
     Row#links gap=4
-      Link "Features"
-      Link "Pricing"
+      Button.ghost "Features" onTap={go features}
+      Button.ghost "Pricing" onTap={go pricing}
     Button "Start free"
   Section#hero
     Text#big "Fill every room" size=56 weight=800
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(site.issues, isEmpty);
       expect(at(site, 'links', 390)['visible'], false);
       expect(at(site, 'links', 834)['visible'], isNull);
@@ -1804,7 +1806,7 @@ Page
       Donut#mix values=[1370,560,380] labels=["Street trees","School shade","Pocket forests"] h=240
       Donut#bare values=[3,1] labels=["Yes","No"] legend=false
 ''';
-      final r = parseNotation(text, catalog: standardCatalog, options: page);
+      final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       final mix = node(r, 'mix');
       expect(mix['type'], 'row');
@@ -1826,11 +1828,11 @@ Page
     Row between
       Text.muted "Retail"
       Text.strong "48%"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(node(own, 'mix')['type'], 'chart');
       expect(nodesOf(own).keys.where((k) => k.startsWith('mixLegend')), isEmpty);
       // On a card it is the chart alone, as before.
-      final card = parseNotation('Column\n  Donut#mix values=[3,1] labels=["Yes","No"]\n', catalog: standardCatalog);
+      final card = parseNotation('Column\n  Donut#mix values=[3,1] labels=["Yes","No"]\n', catalog: standardCatalog, options: withTestWords());
       expect(node(card, 'mix')['type'], 'chart');
     });
 
@@ -1842,7 +1844,7 @@ Page
     each h in homes
       Card
         Text#homeName "{h.name}" h=120
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(node(r, 'homeName')['layout'], containsPair('height', 120));
       expect((node(r, 'homeName')['props'] as Map).containsKey('item'), isFalse);
@@ -1856,32 +1858,32 @@ Page
     if !device.hover
       Button#preview "Preview" onTap={selected="festival"}
     Text "Pointer: {device.pointer}"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(jsonEncode(r.document), contains('device.hover'));
       expect(jsonEncode(r.document), contains('device.pointer'));
       expect(jsonEncode(r.document['variables']), isNot(contains('device')));
-      final bad = parseNotation('state device={"hover":true}\nPage\n  Text "No"', catalog: standardCatalog, options: page);
+      final bad = parseNotation('state device={"hover":true}\nPage\n  Text "No"', catalog: standardCatalog, options: withTestWords(page));
       expect(bad.issues.single.toString(), contains('read-only'));
       expect(notationPrompt(catalog: standardCatalog, options: page), contains('device.hover'));
       expect(notationPrompt(catalog: standardCatalog), isNot(contains('device.hover')));
     });
 
-    test('a Nav opens its links from a menu on a phone; a link scrolls to an anchor; a header sticks', () {
+    test('a Nav opens its quiet buttons from a menu on a phone; one scrolls to an anchor; a header sticks', () {
       final r = parseNotation('''
 Page
   Nav#bar sticky
     Brand "Tidewater" icon="waves"
     Row#links gap=4
-      Link "Features" href="#features"
-      Link "Pricing" onTap={scroll pricing}
-      Link "Docs" onTap={go docs}
+      Button.ghost "Features" onTap={scroll features}
+      Button.ghost "Pricing" onTap={scroll pricing}
+      Button.ghost "Docs" onTap={go docs}
     Button "Start free"
   Section#features
     Heading "Features"
   Section
     Heading#price "Pricing" id=pricing
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(node(r, 'bar')['sticky'], {'offset': 0});
       // The links go on a phone, and a menu button shows there only.
@@ -1912,7 +1914,7 @@ Page
   Section
     DatePicker#d "Arrival" @when
     Select#g @guests items=[1,2,3]
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(form.issues, isEmpty);
       expect(((node(form, 'd')['props']! as Map)['decoration']! as Map)['labelText'], 'Arrival');
       expect(jsonEncode(node(form, 'g')['bind']), contains('guests'));
@@ -1923,9 +1925,9 @@ Page
 Page
   Nav
     Row gap=4
-      Link "Docs" onTap={go docs}
+      Button.ghost "Docs" onTap={go docs}
     IconButton#mine "menu" show=phone onTap={open=!open}
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(nodesOf(own).values.where((n) => (n! as Map)['type'] == 'iconButton'), hasLength(1));
       expect(jsonEncode(own.document), isNot(contains('navMenu')));
     });
@@ -1937,7 +1939,7 @@ Page
     Button#menu "Menu" show=phone
     Text#long "The long version" hide=phone
     Text#wide "Desktop only" hide=tablet
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(at(r, 'menu', 390), isEmpty);
       expect(at(r, 'menu', 834)['visible'], false);
@@ -1955,7 +1957,7 @@ Column
       Text "Two"
 ''';
       for (final options in const [NotationOptions(), NotationOptions(width: 1280, reflow: false)]) {
-        final plain = parseNotation(text, catalog: standardCatalog, options: options);
+        final plain = parseNotation(text, catalog: standardCatalog, options: withTestWords(options));
         expect(nodesOf(plain).values.where((n) => (n! as Map).containsKey('media')), isEmpty);
       }
     });
@@ -1997,7 +1999,7 @@ App
       Button "Reply"
     Column pad=24
       Text "{find(msgs,x=>x.id==sel).from}"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       // The state: which pane a phone shows, named after the screen, starting at the list.
       expect(variablesOf(r).where((v) => v['name'] == 'screen_pane').single, {'name': 'screen_pane', 'type': 'integer', 'value': 0});
@@ -2077,7 +2079,7 @@ App
     Footer
       Button "Reply"
 ''';
-      final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: page));
+      final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: withTestWords(page)));
       var doc = LayoutDocument(catalog: standardCatalog);
       for (var i = 0; i < text.length; i += 17) {
         final ops = stream.add(text.substring(i, i + 17 > text.length ? text.length : i + 17));
@@ -2089,7 +2091,7 @@ App
       final last = stream.close();
       final a = applyOps(doc, {'ops': last}, catalog: standardCatalog);
       expect(a.errors, isEmpty, reason: '${a.errors}');
-      final whole = parseNotation(text, catalog: standardCatalog, options: page).document;
+      final whole = parseNotation(text, catalog: standardCatalog, options: withTestWords(page)).document;
       final streamed = a.document.toJson();
       final wholeNodes = (whole['nodes']! as Map).cast<String, Object?>(), streamedNodes = (streamed['nodes']! as Map).cast<String, Object?>();
       expect(streamedNodes.keys.toSet(), wholeNodes.keys.toSet());
@@ -2120,7 +2122,7 @@ App
 $between      Column#detail grow h=fill scroll pad=24
         Heading "{find(msgs,x=>x.id==sel).subject}" level=2
 ''';
-      final r = parseNotation(inbox('      Splitter#grip @listW min=220 max=480\n'), catalog: standardCatalog, options: page);
+      final r = parseNotation(inbox('      Splitter#grip @listW min=220 max=480\n'), catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       // A tablet keeps the sidebar (248), so the two need 248 + 290 + 360 and more: under that, by turns.
       final below = ((node(r, 'list')['media']! as List).single as Map)['maxWidth']! as int;
@@ -2147,7 +2149,7 @@ $between      Column#detail grow h=fill scroll pad=24
       }
 
       // No splitter: a column of a fixed width beside the one that grows.
-      final fixed = parseNotation(inbox('').replaceFirst('w={listW}', 'w=300'), catalog: standardCatalog, options: page);
+      final fixed = parseNotation(inbox('').replaceFirst('w={listW}', 'w=300'), catalog: standardCatalog, options: withTestWords(page));
       expect(fixed.issues, isEmpty);
       expect(at(fixed, 'list', 390), {
         'layout': {'width': {'fill': 0}, 'flex': 1},
@@ -2174,7 +2176,7 @@ App
   Main#detail
     Nav#bar
       Heading "{find(msgs,x=>x.id==sel).subject}" level=1
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(variablesOf(r).where((v) => v['name'] == 'screen_pane').single['value'], 1);
       for (final (i, id) in const [(0, 'folders'), (1, 'list'), (2, 'detail')]) {
@@ -2273,7 +2275,7 @@ App
 ''',
         ),
       ]) {
-        final r = parseNotation(text, catalog: standardCatalog, options: page);
+        final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(page));
         expect(r.issues, isEmpty, reason: what);
         expect(listDetail(r), isFalse, reason: what);
       }
@@ -2287,7 +2289,7 @@ App
         Input "Name" @name
       Column#preview grow
         Text "{name}"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect((at(form, 'form', 390)['layout']! as Map)['flex'], 1);
       expect(at(form, 'form', 390)['bind'], isNull);
       // A page with no such panes is as it was, at every width (no state, no back, no actions).
@@ -2299,7 +2301,7 @@ App
     Nav
       Heading "Inbox" level=1
     Text "Hello"
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(listDetail(plain), isFalse);
       expect(node(plain, 'screen').containsKey('actions'), isFalse);
     });
@@ -2340,7 +2342,7 @@ Sheet#filters "Filters"
           nodesOf(r).entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains(button) ?? false).key;
 
       // A page: at the right, each no wider than 240; on a phone (the overlay narrower than it was written), equal shares.
-      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: page));
+      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: withTestWords(page)));
       expect(r.issues, isEmpty, reason: '${r.issues}');
       for (final id in ['closeIt', 'send', 'reset', 'apply']) {
         expect(layout(r, id)['width'], {'hug': 0}, reason: id);
@@ -2359,11 +2361,11 @@ Sheet#filters "Filters"
       expect((made['props']! as Map)['mainAxisAlignment'], 'end');
 
       // A row that says where its buttons go keeps it.
-      final between = Catalog.run(standardCatalog, () => parseNotation(app.replaceFirst('Row gap=8', 'Row gap=8 between'), catalog: standardCatalog, options: page));
+      final between = Catalog.run(standardCatalog, () => parseNotation(app.replaceFirst('Row gap=8', 'Row gap=8 between'), catalog: standardCatalog, options: withTestWords(page)));
       expect((node(between, rowOf(between, 'send'))['props']! as Map)['mainAxisAlignment'], 'spaceBetween');
 
       // A card (a phone's own canvas): equal shares at once, no rule.
-      final card = Catalog.run(standardCatalog, () => parseNotation(app.replaceFirst('Page\n  Section', 'Column\n  Column'), catalog: standardCatalog));
+      final card = Catalog.run(standardCatalog, () => parseNotation(app.replaceFirst('Page\n  Section', 'Column\n  Column'), catalog: standardCatalog, options: withTestWords()));
       for (final id in ['closeIt', 'send', 'reset', 'apply']) {
         expect(layout(card, id)['flex'], 1, reason: id);
         expect(layout(card, id)['width'], {'fill': 0}, reason: id);
@@ -2374,7 +2376,7 @@ Sheet#filters "Filters"
       final mid = Catalog.run(
           standardCatalog,
           () => parseNotation('Page\n  Section\n    Button "Go" onTap={open d}\n\nDialog#d "Pick"\n  Button#first "One" onTap={close}\n  Text "or"\n  IconButton#ic "close" onTap={close}\n',
-              catalog: standardCatalog, options: page));
+              catalog: standardCatalog, options: withTestWords(page)));
       expect(layout(mid, 'first')['constraints'], isNull);
       expect(node(mid, 'first')['media'], isNull);
     });
@@ -2415,7 +2417,7 @@ Drawer#cart right w=340 "Your cart"
 ''';
 
     test('a Dialog, a Sheet, a Menu, a Popover and a Drawer are canvases of their own, opened as their kind says', () {
-      final r = parseNotation(text, catalog: standardCatalog, options: page);
+      final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'signup', 'filters', 'sortMenu', 'tip', 'cart']);
       // The page is as it would be without them.
@@ -2461,7 +2463,8 @@ Drawer#cart right w=340 "Your cart"
       expect(open(r, 'again'), containsPair('presentation', 'popover'));
 
       // A drawer: a panel as tall as the window at its side, over the page;
-      // a tap beside it closes it, and so does a NavItem (not a chip).
+      // a tap beside it closes it, and so does a line tapped in it (not a
+      // chip that only sets a value).
       expect(open(r, 'bag'), {'type': 'openModal', 'to': 'cart', 'presentation': 'dialog', 'cover': true});
       final drawer = node(r, 'cart');
       expect((drawer['layout']! as Map)['height'], {'fill': 800});
@@ -2478,7 +2481,7 @@ Drawer#cart right w=340 "Your cart"
     });
 
     test('as it arrives: each overlay is a root, and what opened it is completed once it is written', () {
-      final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: page));
+      final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: withTestWords(page)));
       var doc = LayoutDocument(catalog: standardCatalog);
       for (var i = 0; i < text.length; i += 13) {
         final ops = stream.add(text.substring(i, i + 13 > text.length ? text.length : i + 13));
@@ -2490,7 +2493,7 @@ Drawer#cart right w=340 "Your cart"
       final last = stream.close();
       if (last.isNotEmpty) doc = applyOps(doc, {'ops': last}, catalog: standardCatalog).document;
       expect(stream.issues, isEmpty);
-      final whole = parseNotation(text, catalog: standardCatalog, options: page).document;
+      final whole = parseNotation(text, catalog: standardCatalog, options: withTestWords(page)).document;
       final streamed = doc.toJson();
       expect(streamed['roots'], whole['roots']);
       final nodes = (streamed['nodes']! as Map).cast<String, Object?>();
@@ -2507,11 +2510,11 @@ Drawer#cart right w=340 "Your cart"
 
     test('an overlay needs an id; a second of the same id is said; a card has them too', () {
       // Indented, or with no id, the word is what it was: here, no node type.
-      final plain = parseNotation('Column\n  Dialog "Hello"\n', catalog: standardCatalog);
+      final plain = parseNotation('Column\n  Dialog "Hello"\n', catalog: standardCatalog, options: withTestWords());
       expect(plain.issues.single.message, contains('No node type "Dialog"'));
       expect(plain.document['roots'], ['screen']);
 
-      final twice = parseNotation('Column#a\n  Text "One"\nMenu#a\n  Text "Two"\nMenu#m\n  Text "Three"\nMenu#m\n  Text "Four"\n', catalog: standardCatalog);
+      final twice = parseNotation('Column#a\n  Text "One"\nMenu#a\n  Text "Two"\nMenu#m\n  Text "Three"\nMenu#m\n  Text "Four"\n', catalog: standardCatalog, options: withTestWords());
       expect(twice.issues.map((i) => i.message), ['The id "a" is used twice: line 1 has it too. Give this line an id of its own.', 'The id "m" is used twice: line 5 has it too. Give this line an id of its own.']);
       expect(twice.document['roots'], ['screen', 'm']);
 
@@ -2520,12 +2523,12 @@ Card
   Button#more "More" onTap={open details}
 Dialog#details "Details"
   Text "The small print."
-''', catalog: standardCatalog);
+''', catalog: standardCatalog, options: withTestWords());
       expect(card.issues, isEmpty);
       expect(card.document['roots'], ['screen', 'details']);
       expect(open(card, 'more'), containsPair('presentation', 'dialog'));
       // With no overlay written, open names a canvas written elsewhere, as before.
-      final other = parseNotation('Button#b "Go" onTap={open elsewhere}\n', catalog: standardCatalog);
+      final other = parseNotation('Button#b "Go" onTap={open elsewhere}\n', catalog: standardCatalog, options: withTestWords());
       expect(open(other, 'b'), {'type': 'openModal', 'to': 'elsewhere'});
       expect(other.document['roots'], ['screen']);
     });
@@ -2572,7 +2575,7 @@ Dialog#sure "Delete it?"
   Button "Delete" onTap={close}
 Menu#more
   Text "Rename" onTap={toast "Renamed"}
-''', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+''', catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds))));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'sure', 'more']);
       expect(node(r, 'inline')['type'], 'Dialog');
@@ -2632,7 +2635,7 @@ Dialog#sure "Delete it?"
   Actions#acts
     Button#ok "Delete" onTap={close}
   Text#after "Still the body"
-''', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+''', catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds))));
       expect(r.issues, isEmpty);
       final frame = node(r, (node(r, 'sure')['slots']! as Map)['body']! as String);
       expect(frame['slots'], {'actions': 'acts'});
@@ -2656,7 +2659,7 @@ App
     Column pad=24
       Text "Content"
 ''';
-      final r = parseNotation(app, catalog: standardCatalog, options: page);
+      final r = parseNotation(app, catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'screen_sidebar']);
       // A menu button first in the bar, on a phone only, opens the drawer.
@@ -2690,13 +2693,13 @@ App
       expect((node(r, 'side')['layout']! as Map)['width'], 248);
 
       // Two panes before the main one, over 420 wide: a tablet hides the sidebar too.
-      final two = parseNotation(app.replaceFirst('  Main', '  Pane w=320\n    Text "List"\n  Main'), catalog: standardCatalog, options: page);
+      final two = parseNotation(app.replaceFirst('  Main', '  Pane w=320\n    Text "List"\n  Main'), catalog: standardCatalog, options: withTestWords(page));
       final twoBar = (node(two, 'bar')['children']! as List).cast<String>();
       expect((node(two, twoBar.first)['media']! as List).single, containsPair('minWidth', 1024));
       expect(((node(two, 'title')['media']! as List).last as Map)['maxWidth'], 1023);
 
       // A Main with no top bar gets a slim one for the button, where the sidebar is hidden.
-      final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level=1\n      Row#tools gap=8\n        Button "New order"\n', ''), catalog: standardCatalog, options: page);
+      final bare = parseNotation(app.replaceFirst('    Nav#bar\n      Heading#title "Orders" level=1\n      Row#tools gap=8\n        Button "New order"\n', ''), catalog: standardCatalog, options: withTestWords(page));
       expect(bare.issues, isEmpty);
       expect(bare.document['roots'], ['screen', 'screen_sidebar']);
       final opener = nodesOf(bare).entries.firstWhere((e) => (e.value! as Map)['type'] == 'iconButton').key;
@@ -2711,7 +2714,7 @@ App
         (app, const NotationOptions(width: 1280, reflow: false)),
         (app, const NotationOptions()),
       ]) {
-        final plain = parseNotation(source, catalog: standardCatalog, options: options);
+        final plain = parseNotation(source, catalog: standardCatalog, options: withTestWords(options));
         expect(plain.document['roots'], ['screen']);
         expect(nodesOf(plain).values.where((n) => (n! as Map)['type'] == 'iconButton'), isEmpty);
         expect((plain.document['variables']! as Map).keys, ['screen']);
@@ -2730,7 +2733,7 @@ App
 Dialog#keys "Shortcuts"
   Text "?"
 ''';
-      final r = parseNotation(app, catalog: standardCatalog, options: page);
+      final r = parseNotation(app, catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'keys', 'screen_sidebar']);
       // An item that opens another overlay closes the drawer first (after, it shut the overlay it opened).
@@ -2755,7 +2758,7 @@ Dialog#keys "Shortcuts"
         '$app\nDrawer#nav w=280\n  Text "Mine"\n',
         app.replaceFirst('App\n', 'App keep\n'),
       ]) {
-        final own = parseNotation(source, catalog: standardCatalog, options: page);
+        final own = parseNotation(source, catalog: standardCatalog, options: withTestWords(page));
         expect(own.issues, isEmpty);
         expect(own.document['roots'], isNot(contains('screen_sidebar')), reason: source);
         expect(jsonEncode(own.document), isNot(contains('screen_sidebar')), reason: source);
@@ -2774,7 +2777,7 @@ Column
 Lightbox#zoom "{photo}" "The harbor at dusk"
 Menu#areaMenu
   Text#refresh "Refresh" onTap={toast "Done"}
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(open(r, 'thumb'), {
         'type': 'openModal',
@@ -2816,7 +2819,7 @@ state photo="a.png"
 Column
   Image#thumb "a.png" w=120 h=80 onTap={open zoom}
 Lightbox#zoom "{photo}" "The harbor at dusk" ratio=1.5
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       // What zooms is the picture's own box, kept over the window: a pinch and the wheel about the point,
       // a double tap to 2x where it was tapped and back, a drag while zoomed.
@@ -2859,7 +2862,7 @@ Lightbox#zoom "{photo}" "The harbor at dusk" ratio=1.5
       expect(shown['cover'], true);
       expect((shown['routeTransition']! as Map)['dismiss'], {'direction': 'down', 'distance': 0.2});
       // The max zoom is the line's; without a ratio the box is the picture's place and a tap there closes.
-      final loose = parseNotation('Column\n  Image#t "a.png" onTap={open z}\nLightbox#z "a.png" max=6\n', catalog: standardCatalog, options: page);
+      final loose = parseNotation('Column\n  Image#t "a.png" onTap={open z}\nLightbox#z "a.png" max=6\n', catalog: standardCatalog, options: withTestWords(page));
       expect(loose.issues, isEmpty);
       expect((node(loose, 'zPhoto')['transformGesture']! as Map)['maxScale'], 6);
       expect(((node(loose, 'zPhoto')['actions']! as List).last as Map)['trigger'], {'type': 'click', 'when': r'${= (0) <= 0 && zZoom<=1.01}'});
@@ -2873,7 +2876,7 @@ Column
   each p in photos
     Image#thumb "{p.url}" w=120 h=80 onTap={at=index; open viewer}
 Lightbox#viewer photos={photos} @at
-''', catalog: standardCatalog, options: page);
+''', catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'viewer']);
       // A page per picture, opened at the one tapped; another picture starts at rest.
@@ -2914,7 +2917,7 @@ Lightbox#viewer photos={photos} @at
       ]);
       expect(jsonEncode(node(r, (thumb['children']! as List).single as String)), contains('"fit":"cover"'));
       // thumbs:false leaves the strip out; a list written out and no =name keep variables of their own.
-      final plain = parseNotation('Column\n  Button#b "Photos" onTap={open shots}\nLightbox#shots photos=["a.png","b.png"] thumbs=false\n', catalog: standardCatalog, options: page);
+      final plain = parseNotation('Column\n  Button#b "Photos" onTap={open shots}\nLightbox#shots photos=["a.png","b.png"] thumbs=false\n', catalog: standardCatalog, options: withTestWords(page));
       expect(plain.issues, isEmpty);
       expect(nodesOf(plain).containsKey('shotsThumbs'), isFalse);
       expect((plain.document['variables']! as Map)['page_variables'], containsAll([
@@ -2924,7 +2927,7 @@ Lightbox#viewer photos={photos} @at
       expect(node(plain, 'shotsPages')['bind'], {'props.initialPage': r'${shotsAt}', 'data': r'${shotsPhotos}'});
       // The lines under it draw one picture (photo is the element), large and in its thumbnail.
       final own = parseNotation('state swatches=[{"c":"#FF112233"}]\nColumn\n  Button#b "Colors" onTap={open sw}\nLightbox#sw photos={swatches}\n  Box#chip w=fill h=fill fill={photo.c}\n',
-          catalog: standardCatalog, options: page);
+          catalog: standardCatalog, options: withTestWords(page));
       expect(own.issues, isEmpty);
       expect(node(own, 'swPhoto')['children'], ['chip']);
       expect((node(own, 'swThumb')['children']! as List).length, 1);
@@ -2973,7 +2976,7 @@ Page
     each t in trips
       PhotoGallery#each photos={t.photos}
 ''';
-      final r = Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+      final r = Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds, width: 1280))));
       expect(r.issues, isEmpty);
       expect(r.document['roots'], ['screen', 'screenViewer']);
       // Its own actions first, then the photos and the one tapped go to the viewer; its value is 0 again once closed.
@@ -2994,13 +2997,13 @@ Page
       // One viewer for the page's galleries, a gallery of what was last tapped.
       expect(node(r, 'screenViewerPages')['bind'], {'props.initialPage': r'${screenViewerAt}', 'data': r'${screenViewerPhotos}'});
       // On a card (and where the line says how it opens) it is the component as written.
-      final card = Catalog.run(catalog, () => parseNotation('state seen=0\nColumn\n  PhotoGallery#g @seen photos=[{"url":"a.png"}]\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+      final card = Catalog.run(catalog, () => parseNotation('state seen=0\nColumn\n  PhotoGallery#g @seen photos=[{"url":"a.png"}]\n', catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds))));
       expect(card.issues, isEmpty);
       expect(card.document['roots'], ['screen']);
       expect(node(card, 'g').containsKey('actions'), isFalse);
       expect((node(card, 'g')['props']! as Map).containsKey('viewer'), isFalse);
       final inline = Catalog.run(catalog,
-          () => parseNotation('Page\n  Section\n    PhotoGallery#g photos=[{"url":"a.png"}] viewer="inline"\n', catalog: catalog, options: NotationOptions.fromDesignSystem(ds, width: 1280)));
+          () => parseNotation('Page\n  Section\n    PhotoGallery#g photos=[{"url":"a.png"}] viewer="inline"\n', catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds, width: 1280))));
       expect(inline.document['roots'], ['screen']);
     });
 
@@ -3087,7 +3090,7 @@ Column
   test('saved: a state kept on the device, on a card, on a page and as it arrives; a site\x27s variable says so in site.json', () {
     for (final width in [390.0, 1280.0]) {
       final r = parseNotation('state draft="" saved\nstate n=1\n${width >= 700 ? 'Page\n  Section\n    Input "Draft" @draft' : 'Card\n  Input "Draft" @draft'}',
-          catalog: standardCatalog, options: NotationOptions(width: width));
+          catalog: standardCatalog, options: withTestWords(NotationOptions(width: width)));
       expect(r.issues, isEmpty);
       final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v};
       expect(declared['draft'], {'name': 'draft', 'type': 'text', 'value': '', 'persist': true});
@@ -3104,7 +3107,7 @@ Column
     // A site's variable lives in site.json, which has to keep it.
     const line = 'project savedIds=[] saved\nPage\n  Section\n    Text "Saved"';
     NotationResult site(Map<String, Object?> declared) =>
-        parseNotation(line, catalog: standardCatalog, options: NotationOptions(width: 1280, projectVariables: {'savedIds': declared}));
+        parseNotation(line, catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280, projectVariables: {'savedIds': declared})));
     final good = site({'name': 'savedIds', 'type': 'list', 'value': [], 'persist': true});
     expect(good.issues, isEmpty);
     expect(jsonEncode(good.document), isNot(contains('"name":"savedIds"')));
@@ -3436,7 +3439,7 @@ Page
     final r = Catalog.run(
         catalog,
         () => parseNotation('state mine=3\nColumn\n  Rating#own "Your rating" @mine half\n  Rating#shown "Course score" score=4.5 readOnly\n',
-            catalog: catalog, options: NotationOptions.fromDesignSystem(ds)));
+            catalog: catalog, options: withTestWords(NotationOptions.fromDesignSystem(ds))));
     expect(r.issues, isEmpty);
     expect(_node(r, 'own')['props'], {'label': 'Your rating', 'value': 'mine', 'half': true});
     expect(_node(r, 'shown')['props'], {'label': 'Course score', 'score': 4.5, 'readOnly': true});
@@ -3480,7 +3483,7 @@ Popover#tip
     final model = ActionDef.fromJson(hover, catalog: standardCatalog)! as OpenModalAction;
     expect((model.popoverArrow, model.hoverCard, model.hoverDelayMs), (true, true, 350));
     expect(model.toJson(), allOf(containsPair('hoverCard', true), containsPair('popoverArrow', true), containsPair('hoverDelayMs', 350)));
-    expect(_pagePrompt(), allOf(contains('Popover#bio arrow'), contains('Link "About Mara" preview=bio')));
+    expect(_pagePrompt(), allOf(contains('Popover#bio arrow'), contains('Text "About Mara" preview=bio')));
   });
 
   test('key and shortcut: a shortcut of the whole screen on a line of its own, and its hint on a text', () {

@@ -306,6 +306,7 @@ final class SiteManifest {
     this.theme = ThemeTokens.none,
     this.fonts = const [],
     this.designSystem,
+    this.dictionary = const [],
     this.extra = const {},
   });
 
@@ -345,11 +346,18 @@ final class SiteManifest {
   /// from the app the site runs in).
   final String? designSystem;
 
+  /// The dictionaries the site's notation reads (`"dictionary": ["../words"]`,
+  /// or one folder as a string): folders of definitions (a `<Word>.txt` each,
+  /// a `define`), relative to the manifest. A word the page, the site and
+  /// its design system do not define is read from the first of them that
+  /// does. Empty: none.
+  final List<String> dictionary;
+
   /// Keys it doesn't model, kept.
   final Json extra;
 
   static const Set<String> keys = {
-    'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts', 'designSystem', //
+    'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme', 'fonts', 'designSystem', 'dictionary', //
   };
 
   /// The page references [json] (a manifest's `pages`) lists: a string as
@@ -376,6 +384,10 @@ final class SiteManifest {
       theme: ThemeTokens.fromJson(m['theme']),
       fonts: FontFamily.listFromJson(m['fonts']),
       designSystem: readString(m['designSystem']),
+      dictionary: switch (m['dictionary']) {
+        final String one when one.trim().isNotEmpty => [one.trim()],
+        final other => readStrings(other),
+      },
       extra: {
         for (final e in m.entries)
           if (!keys.contains(e.key)) e.key: e.value,
@@ -392,6 +404,7 @@ final class SiteManifest {
     if (!theme.isEmpty) 'theme': theme.toJson(),
     if (fonts.isNotEmpty) 'fonts': [for (final f in fonts) f.toJson()],
     'designSystem': ?designSystem,
+    if (dictionary.isNotEmpty) 'dictionary': dictionary,
     ...extra,
   };
 }

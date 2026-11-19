@@ -104,7 +104,7 @@ NotationBindRewrite notationBindRewrite(String line, {Catalog? catalog}) {
   Object? valueStart() {
     if (mainParam != null) return startOf(mainParam);
     if (type == 'slider') return number('min') ?? 0;
-    if (word == 'Pages' || word == 'Dots' || word == 'Lightbox') return 0;
+    if (word == 'Pages' || word == 'Lightbox') return 0;
     return notationValueStart(type) ?? '';
   }
 

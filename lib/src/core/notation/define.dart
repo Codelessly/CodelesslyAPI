@@ -40,7 +40,12 @@ final class NotationDefinition {
     this.primitive = false,
     this.bare = false,
     this.statement = false,
+    this.dictionary,
   });
+
+  /// The dictionary this definition comes from (its folder's name), or null
+  /// for a page's own, a site's or a design system's.
+  final String? dictionary;
 
   /// A word that stands for a statement (docs/design/20 section 13): its
   /// body is `key`, `state` or `every` lines and no node, written where the
@@ -138,11 +143,11 @@ final class NotationDefinition {
 /// The definitions in [texts] (each by its file name: `StickyNote.txt`), by
 /// word, with what could not be read (`StickyNote.txt:3: …`). A word that
 /// uses itself, directly or through others, is left out.
-({Map<String, List<NotationDefinition>> words, List<String> problems}) readDefinitions(Map<String, String> texts) {
+({Map<String, List<NotationDefinition>> words, List<String> problems}) readDefinitions(Map<String, String> texts, {String? dictionary}) {
   final problems = <String>[];
   final words = <String, List<NotationDefinition>>{};
   for (final e in texts.entries) {
-    for (final d in _read(e.key, e.value, problems)) {
+    for (final d in _read(e.key, e.value, problems, dictionary: dictionary)) {
       (words[d.word] ??= []).add(d);
     }
   }
@@ -330,7 +335,7 @@ int restMarkAt(String text) {
 bool _preamble(String text) => RegExp(r'^(state|every|key|on)\s').hasMatch(text);
 
 /// The definitions written in one text.
-List<NotationDefinition> _read(String file, String text, List<String> problems) {
+List<NotationDefinition> _read(String file, String text, List<String> problems, {String? dictionary}) {
   final out = <NotationDefinition>[];
   final lines = text.split(RegExp(r'\r?\n'));
   final doc = <String>[];
@@ -357,7 +362,7 @@ List<NotationDefinition> _read(String file, String text, List<String> problems) 
       if (nt.isEmpty || nt.startsWith('//')) continue;
       body.add((indent: next.length - next.trimLeft().length, text: nt, line: i + 1));
     }
-    final d = definitionOf(file, head + 1, t, body, doc.join(' '), problems);
+    final d = definitionOf(file, head + 1, t, body, doc.join(' '), problems, dictionary: dictionary);
     if (d != null) out.add(d);
     doc.clear();
   }
@@ -366,7 +371,7 @@ List<NotationDefinition> _read(String file, String text, List<String> problems) 
 
 /// The definition whose signature is [signature] (`define` before it is
 /// read too) with [body] under it, or null with what is wrong in [problems].
-NotationDefinition? definitionOf(String file, int line, String signature, List<({int indent, String text, int line})> body, String doc, List<String> problems) {
+NotationDefinition? definitionOf(String file, int line, String signature, List<({int indent, String text, int line})> body, String doc, List<String> problems, {String? dictionary}) {
   final primitive = signature.trim().startsWith('primitive ');
   final sig = declared(signature);
   final parts = LineParts.of(sig);
@@ -379,7 +384,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     return null;
   }
   // A statement of the notation's own grammar is never a word's.
-  if (_statements.difference(const {'computed'}).union(const {'define', 'primitive', 'component'}).contains(parts.word)) {
+  if (_statements.union(const {'define', 'primitive', 'component'}).contains(parts.word)) {
     problems.add('$file:$line: ${parts.word} is a statement of the notation: a definition gives a word of its own.');
     return null;
   }
@@ -573,6 +578,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     primitive: primitive,
     bare: primitive && body.isEmpty,
     statement: statement && roots.isEmpty,
+    dictionary: dictionary,
   );
 }
 
@@ -611,7 +617,7 @@ bool definedPassThrough(String key, [String? value]) {
 /// Whether a use's bare word goes on its root: a universal flag.
 bool definedPassThroughWord(String word) => notationUniversal[word]?.kind == UniversalKind.flag;
 
-const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'on', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived', 'computed'};
+const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'on', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived'};
 
 /// A line the expansion gives: its indent, its text, and where it was
 /// written when it comes from a definition (`StickyNote.txt:3`; null: the
@@ -968,7 +974,7 @@ final class DefinedWords {
         ? ''
         : const {'Column', 'Row', 'Stack', 'Box', 'Card', 'Grid', 'List'}.contains(rootWord)
             ? 'container'
-            : const {'Text', 'Heading', 'Link'}.contains(rootWord)
+            : rootWord == 'Text'
                 ? 'text'
                 : const {'Icon', 'IconButton'}.contains(rootWord)
                     ? 'icon'
@@ -1516,15 +1522,13 @@ final class _Substitution {
   }
 
   /// A theme's value in an expression, as the page words write it there: a
-  /// colour by its value in quotes, a role by `theme.<role>`, a colour the
-  /// theme names by `theme.colors.<name>` (read at run time), a number as
-  /// its digits, a text style's name in quotes.
+  /// colour by its value in quotes, a role or a colour the theme names by its
+  /// name in quotes (`"primary"`, `"mutedText"`: a colour's value names the
+  /// theme's colour, read as the page is shown), a number as its digits.
   static String _themeExpression(Object? v) => switch (v) {
         null => 'null',
         final num n => foldNumber(n),
-        final String s when s.startsWith('#') => '"$s"',
-        final String s when const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(s) => 'theme.$s',
-        final String s => 'theme.colors.$s',
+        final String s => '"$s"',
         _ => 'null',
       };
   final NotationDefinition d;
@@ -1679,6 +1683,10 @@ final class _Substitution {
         final n = inner.trim();
         if (_identifier.hasMatch(n) && renamed[n] == null && _isParameter(n)) {
           b.write(_inString(n));
+        } else if (RegExp(r'^theme\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(n) && n != 'theme.style' && _themeAt(n, 0) != null) {
+          // `"{theme.accent}"` in a value (`fills=[{"color":"{theme.accent}"}]`):
+          // the look as the page words write it, a value or the theme's name.
+          b.write(switch (_themeAt(n, 0)!.value) { null => '', final num v => foldNumber(v), final v => '$v' });
         } else {
           final e = expression(inner);
           final v = foldExpression(e);

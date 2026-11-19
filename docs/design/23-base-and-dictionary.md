@@ -6,6 +6,13 @@ Codelessly API"; every other word a dictionary definition written in base words;
 code, traced back into the base. Notes 19 (the open vocabulary), 20 (defined words), 21 (universal words) and 22
 (parity) are what it rests on.
 
+**Since 38.0.0**: the shorthand words left the package (Heading, H1–H4, Title, Brand, Logo, Link, NavItem and its
+other names, NavSection and its other names, SidebarFooter, NavFooter, IconTile, Dots, ConfirmDialog, Shortcut,
+computed). They are plain definitions in a writer's dictionary, read with `NotationOptions.dictionary` (the SDK's
+`--dictionary` and a site's `"dictionary"`); the package keeps no dictionary of its own. The inventory tool, the
+built-in dictionary, its closure test and their records below are removed with them; `CORPUS.md` and `RENDER.md`
+stay as the record of what was measured.
+
 What was made, all added files:
 
 | what | where |

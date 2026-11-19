@@ -1,3 +1,0 @@
-// A website section's title. It does not say: in an app it is a panel's heading (another text style): it reads the lines it is under.
-H2 "text"
-  Text.{coalesce(theme.style.heading2, theme.style.title, theme.style.sectionTitle)} "{text}" size={theme.siteHeadline == null ? null : round(theme.siteHeadline*0.6)} ...

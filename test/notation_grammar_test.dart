@@ -10,8 +10,10 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 NotationResult _parse(String text, {double width = 390}) =>
-    Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: NotationOptions(width: width)));
+    Catalog.run(standardCatalog, () => parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions(width: width))));
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
@@ -203,7 +205,7 @@ void main() {
     });
 
     test('the lines the notation writes itself are in the grammar: a Nav\'s menu, Dots, a NavItem\'s look', () {
-      final r = _parse('state tab="a"\nstate page=0\nPage\n  Nav\n    Brand "Relay"\n    Row gap=4\n      Link "Docs" onTap={go docs}\n      Link "Pricing" href="#pricing"\n  Section#pricing\n    NavItem "A" selected={tab=="a"} onTap={tab="a"}\n    Dots @page count=3\n', width: 1280);
+      final r = _parse('state tab="a"\nstate page=0\nPage\n  Nav\n    Brand "Relay"\n    Row gap=4\n      Button.ghost "Docs" onTap={go docs}\n      Button.ghost "Pricing" onTap={scroll pricing}\n  Section#pricing\n    NavItem "A" selected={tab=="a"} onTap={tab="a"}\n    Dots @page count=3\n', width: 1280);
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final doc = jsonEncode(r.document);
       expect(doc, contains('"variable":"navMenu"'));
@@ -384,7 +386,7 @@ void main() {
           '      Button#more "Again"\n'
           '      each row in rows\n        Row#row-{row.id} gap=8\n          Text "x"\n'
           'Menu#albumMenu\n  MenuItem "Play" icon="play_arrow" onTap={toast "x"}\n';
-      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: const NotationOptions(width: 1280, screen: 'album')));
+      final r = Catalog.run(standardCatalog, () => parseNotation(app, catalog: standardCatalog, options: withTestWords(NotationOptions(width: 1280, screen: 'album'))));
       expect([for (final i in r.issues) '${i.line}: ${i.message}'], [
         '12: The id "closeButton" is used twice: line 10 has it too, in the other branch of the if. A document holds one node per id, so both branches '
             'cannot have it: give this one an id of its own (closeButton2), or write one line whose values are worked out (label={cond ? "a" : "b"}).',
@@ -417,16 +419,16 @@ void main() {
       expect((_node(r, 'c')['props'] as Map)['text'], r'${item.length}s, ${= length(item.name)} letters');
       // With the site's variables, a name they lack is said.
       final site = Catalog.run(standardCatalog, () => parseNotation('project cart=[]\nColumn\n  Text "{length(cart)}"\n', catalog: standardCatalog,
-          options: const NotationOptions(projectVariables: {'user': {'type': 'text', 'value': ''}})));
+          options: withTestWords(NotationOptions(projectVariables: {'user': {'type': 'text', 'value': ''}}))));
       expect(site.issues.single.message, startsWith('project cart: site.json\'s variables have no "cart"'));
       final declared = Catalog.run(standardCatalog, () => parseNotation('project cart=[]\nColumn\n  Text "{length(cart)}"\n', catalog: standardCatalog,
-          options: const NotationOptions(projectVariables: {'cart': {'type': 'list', 'value': []}})));
+          options: withTestWords(NotationOptions(projectVariables: {'cart': {'type': 'list', 'value': []}}))));
       expect(declared.issues, isEmpty);
       expect(jsonEncode(declared.document['variables'] ?? {}), isNot(contains('cart')), reason: 'the site\'s, with no copy on the screen');
       // An open of an overlay this page does not have opens a placeholder
       // sheet with the vocabulary open (Review 3, D17), beside the ones it has.
       final open = Catalog.run(standardCatalog, () => parseNotation('Column\n  Button "Role" onTap={open roleDialog}\nMenu#more\n  MenuItem "Edit"\n',
-          catalog: standardCatalog, options: const NotationOptions().open()));
+          catalog: standardCatalog, options: withTestWords(NotationOptions().open())));
       expect(open.issues, isEmpty);
       expect(open.document['roots'], ['screen', 'more', 'roleDialog']);
       expect([for (final u in open.vocabulary) if (u.kind == 'overlay') u.word], ['roleDialog']);
@@ -492,7 +494,7 @@ void main() {
           'define Crossword\n  Grid#board cols=13 gap=1 w=520\n    each i in range(169)\n      Square i={i}\n'
           'define Square i=0\n  Stack h=40 fill=#FFFFFFFF onTap={cur=i}\n    if i < 13\n      Text "{i}" size=9\n    Text "A" size=22\n    Icon "close" size=12\n',
           catalog: standardCatalog,
-          options: const NotationOptions(width: 1280));
+          options: withTestWords(NotationOptions(width: 1280)));
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final nodes = r.document['nodes']! as Map;
       List<Object?> mediaOf(String grid) => [
@@ -557,7 +559,7 @@ void main() {
 
     test('a line meant for the page, written after the overlays, says where it went', () {
       const text = 'App\n  Main\n    Column\n      Text "Library"\n'
-          'Menu#albumMenu\n  MenuItem "Add" icon="playlist_add" onTap={toast "Added"}\n'
+          'Menu#albumMenu\n  Button "Add" icon="playlist_add" onTap={toast "Added"}\n'
           '      Card gap=8\n        Text "Now playing"\n';
       expect([for (final i in _parse(text, width: 1280).issues) '${i.line}: ${i.message}'], [
         '7: This line is indented 6 inside Menu#albumMenu, two levels past the line before it (2), so it went into Menu#albumMenu, under that line. '
