@@ -448,7 +448,7 @@ final class PageReflow {
   /// opens nothing over the page nor goes to another. Under an `each`, the
   /// value is read from the row's item (`sel=m.id`), is not the list the
   /// rows are drawn from (a star a tap toggles), and [next] or the pane
-  /// reads it (the open row marked); elsewhere (a NavItem written line by
+  /// reads it (the open row marked); elsewhere (a sidebar's item written line by
   /// line) it is a text or a number [next] reads. A value that reads itself
   /// (a toggle, a selection a tap adds to) is not a choice of one.
   List<({String node, int reaction})> _selects(String pane, String next) {

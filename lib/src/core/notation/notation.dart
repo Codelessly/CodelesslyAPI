@@ -987,7 +987,7 @@ final class NotationOptions {
   /// theme's `sizes.control`. Null: the control's own (its compact step).
   final double? controlHeight;
 
-  /// The fill of a selected `NavItem` and the hairline of a pane's edge and
+  /// The fill of a selected row and the hairline of a pane's edge and
   /// a bar's rule: a theme's `neutralFill` and `line`.
   final String selectedFill, line;
 
@@ -2616,7 +2616,7 @@ class _Parser {
   /// The line each `open` and `scroll` action was written on.
   final _actionLines = Map<Json, int>.identity();
 
-  /// The lines an alias adds after an overlay's own (a ConfirmDialog's buttons).
+  /// The lines an alias adds after an overlay's own (a dialog's buttons).
   final _blockFoot = <String>[];
 
   /// How far in the head of the overlay being read is written (0: at the
@@ -6248,7 +6248,7 @@ class _Parser {
           } else if (!component && universalFlag(word, col)) {
             // A universal word (docs/design/21), or an Input's own (section 7).
           } else if (type == 'icon' && !component && !standIn && given == 0 && textPosition && RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(word)) {
-            // `Icon download` (and `icon=download` on a NavItem, which writes
+            // `Icon download` (and `icon=download` on a defined word that writes
             // that line): a bare word where the name goes is the icon's name,
             // as icon=download is on a Button, whatever a variable is called.
             // One chosen by data is braced: Icon {glyph}.
@@ -6433,7 +6433,7 @@ class _Parser {
           continue;
         }
         // `id=why`: a name a `scroll why` goes to (the node's own id is the
-        // one after its type, `Heading#why`).
+        // one after its type, `Text#why`).
         if (key == 'id' && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(raw) && !spec.props.any((p) => p.key == 'id')) {
           _anchors[raw] = id;
           continue;
@@ -8600,7 +8600,7 @@ class _Parser {
       }
     }
     // Selected (`Row … selected={…}`): a box is drawn in the theme's
-    // selected fill while it holds, as a NavItem is, unless the line gives
+    // selected fill while it holds, unless the line gives
     // its selected look itself (its tail, design 22 4.7).
     final givenStates = readMap(out['states']);
     if (selectedState && const {'row', 'column', 'stack'}.contains(type) && !(readMap(out['bind'])?.keys.any((k) => k.startsWith('decoration.fills')) ?? false) && givenStates?['selected'] == null) {
