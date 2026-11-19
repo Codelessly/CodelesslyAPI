@@ -238,8 +238,9 @@ extension on PageWords {
       var full = false;
       for (final i in data) {
         final need = columns[i].width ?? 90;
-        // On a phone a column of data narrows to 90 before it is left out.
-        final least = width == 'phone' ? (need < 90 ? need : 90) : need;
+        // On a phone a wide column of data (150 and up: words, not a
+        // figure or a status) narrows to 90 before it is left out.
+        final least = width == 'phone' && need >= 150 ? 90 : need;
         if (!full && used + need <= room) {
           used += need;
         } else if (!full && used + least <= room) {

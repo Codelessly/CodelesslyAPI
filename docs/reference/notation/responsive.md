@@ -203,7 +203,7 @@ defaults:
   page's own (an article's tabs): it keeps what is in it and scrolls sideways where that has no room.
 - A `Table` leaves out, at a tablet's and at a phone's width, the columns its row has no room for, from the last
   back (beside the app's sidebar as wide as it is there); its first column, the row's checkbox and a narrow column
-  with no label (a row's menu) stay; on a phone a column of data narrows to 90 before it is left out. A column
+  with no label (a row's menu) stay; on a phone a wide column of data (150 or more) narrows to 90 before it is left out. A column
   you leave out yourself (`"hide":"phone"`) is out there, and the others are still fitted to the room left, so
   the column that grows always has its width. A row written in a cell with a part that grows (`Row` /
   `Column grow` / `Icon`) is as wide as the cell.

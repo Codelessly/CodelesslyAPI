@@ -674,7 +674,7 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 2917
+      "words": 2921
     },
     {
       "topic": "responsive-keys-at-other-widths",
@@ -695,7 +695,7 @@
       "file": "responsive.md",
       "anchor": "responsive-what-reflow-does",
       "title": "What reflow does",
-      "words": 1333
+      "words": 1337
     },
     {
       "topic": "responsive-breakpoints",

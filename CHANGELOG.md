@@ -54,8 +54,8 @@ the first section before upgrading.
 - **A `Sidebar` or `Pane` whose width is kept in a variable** (`w={sidebarWidth}`) is hidden on a phone, and on a
   tablet where a second pane has no room, as one of a written width is.
 - **A `Table` fits its columns to a phone and a tablet also where a column is left out by hand** (`"hide":
-  "phone"`): the columns that still have no room beside the one that grows are left out, and on a phone a column
-  of data narrows to 90 first. The column that grows had no width.
+  "phone"`): the columns that still have no room beside the one that grows are left out, and on a phone a wide
+  column of data (150 or more) narrows to 90 first. The column that grows had no width.
 - **A row with a part that grows, written in a `Table` cell,** is as wide as the cell.
 
 **A website's type**

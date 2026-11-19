@@ -3606,8 +3606,23 @@ class _Parser {
       final node = nodes[e.key]!;
       // The line's own rules (hide=phone) come after, so they win; one it
       // already says (a print read again) is not added twice.
-      final own = (node['media'] as List?) ?? const [];
-      final media = [...e.value.where((r) => !own.any((o) => jsonEquality.equals(o, r))), ...own];
+      // A rule for the very width the line has a rule of its own for (a
+      // row's child written `phone.w=fill`, given its line's share there) is
+      // one rule with it, the line's own keys over it.
+      Json? condition(Object? r) => r is Map ? ({...r.cast<String, Object?>()}..remove('patch')) : null;
+      final own = [...?(node['media'] as List?)];
+      final added = <Json>[];
+      for (final r in e.value) {
+        if (own.any((o) => jsonEquality.equals(o, r))) continue;
+        final at = own.indexWhere((o) => jsonEquality.equals(condition(o), condition(r)));
+        if (at < 0) {
+          added.add(r);
+        } else {
+          final o = (own[at]! as Map).cast<String, Object?>();
+          own[at] = {...o, 'patch': mergePatch(readMap(r['patch']) ?? const {}, readMap(o['patch']) ?? const {}, keepNulls: true)};
+        }
+      }
+      final media = [...added, ...own];
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
     }
