@@ -7406,7 +7406,19 @@ class _Parser {
         if (type == 'segmentedButton' && key == 'items') {
           final items = _value(raw);
           if (items is List) {
-            props['segments'] = [for (final i in items) {'value': '$i', 'label': '$i'}];
+            // `items=[{"value":"kg","label":"Kilograms"}]`: each a segment
+            // with its value and what it shows (the record itself was shown).
+            props['segments'] = [
+              for (final i in items)
+                if (i is Map && (i.containsKey('value') || i.containsKey('label')))
+                  {
+                    'value': '${i['value'] ?? i['label']}',
+                    'label': '${i['label'] ?? i['value']}',
+                    if (i['icon'] != null) 'icon': i['icon'],
+                  }
+                else
+                  {'value': '$i', 'label': '$i'},
+            ];
             continue;
           }
         }
@@ -8826,6 +8838,7 @@ class _Parser {
         },
       };
     }
+    if (type == 'dropdown' && !component) _valueLabelItems(out);
     _readStates(stateWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), id, parent?.id, parent?.type, type, out, node);
     // Its media rules, unless its {…} tail gave them (t.at: where the words end).
     if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
@@ -10648,6 +10661,42 @@ class _Parser {
       'value': value,
       if (saved) 'persist': true,
     };
+  }
+
+  /// A Select whose items are written with a value and what each shows
+  /// (`items=[{"value":"system","label":"Match device"}]`): [node] lists the
+  /// labels (a Select's items are its texts), shows the label of the value
+  /// it is given, and its change gives the value of the label chosen, so the
+  /// variable keeps values. (It showed nothing: no item was "system".)
+  void _valueLabelItems(Json node) {
+    final props = readMap(node['props']);
+    final items = readList(props?['items']);
+    if (props == null || items == null || items.isEmpty || !items.every((i) => i is Map && (i.containsKey('label') || i.containsKey('value')))) return;
+    final labels = [for (final i in items.cast<Map<Object?, Object?>>()) '${i['label'] ?? i['value']}'];
+    final values = [for (final i in items.cast<Map<Object?, Object?>>()) i['value'] ?? i['label']];
+    props['items'] = labels;
+    final l = jsonEncode(labels), v = jsonEncode(values);
+    String inner(String bound) => bound.startsWith(r'${=') ? bound.substring(3, bound.length - 1).trim() : bound.substring(2, bound.length - 1).trim();
+    if (props['value'] case final Object value when values.contains(value)) props['value'] = labels[values.indexOf(value)];
+    final bind = readMap(node['bind']);
+    if (bind?['props.value'] case final String bound when bound.startsWith(r'${') && bound.endsWith('}')) {
+      bind!['props.value'] = '\${= get($l, indexOf($v, ${inner(bound)}))}';
+    }
+    // What a change gives (result) is the label: read as its value.
+    final chosen = '(get($v, indexOf($l, result)))';
+    Object? read(Object? json) => switch (json) {
+          final String s when s == r'${result}' => '\${= $chosen}',
+          final String s when s.startsWith(r'${=') && s.contains('result') => _rename(s, 'result', chosen),
+          final List<Object?> list => [for (final e in list) read(e)],
+          final Map<Object?, Object?> m => {for (final e in m.entries) e.key: read(e.value)},
+          _ => json,
+        };
+    if (readList(node['actions']) case final List<Object?> reactions) {
+      node['actions'] = [
+        for (final r in reactions)
+          if (r is Map && readMap(r['trigger'])?['type'] == 'changed') {...r.cast<String, Object?>(), 'actions': read(r['actions'])} else r,
+      ];
+    }
   }
 
   static final _handlerKey = RegExp(r'^on[A-Z][A-Za-z]*$');

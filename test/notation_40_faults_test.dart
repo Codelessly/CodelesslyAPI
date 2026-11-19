@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  itemsTests();
   valueTextTests();
   drawingTests();
   gridWidthTests();
@@ -464,5 +465,41 @@ Row
     expect(states, isNot(contains('text: null')));
     expect(states, isNot(contains('style: null')));
     expect(_props(r, 'tab')['text'], r'${item.label}');
+  });
+}
+
+void itemsTests() {
+  group('items written with a value and what each shows', () {
+    test('a SegmentedButton\'s are its segments', () {
+      final r = _parse('''
+state units="kg"
+SegmentedButton#seg items=[{"value":"kg","label":"Kilograms"},{"value":"lb","label":"Pounds"}] @units
+''');
+      expect(r.issues, isEmpty);
+      expect(_props(r, 'seg')['segments'], [
+        {'value': 'kg', 'label': 'Kilograms'},
+        {'value': 'lb', 'label': 'Pounds'},
+      ]);
+    });
+
+    test('a Select lists the labels, shows the label of its value, and its change gives the value', () {
+      final r = _parse('''
+state appearance="system"
+state log=""
+Column
+  Select#sel @appearance items=[{"value":"system","label":"Match device"},{"value":"dark","label":"Dark"}]
+  Select#told items=[{"value":"a","label":"Alpha"},{"value":"b","label":"Beta"}] value="b" onChange={log=result}
+  Select#plain @appearance items=["system","dark"]
+''');
+      expect(r.issues, isEmpty);
+      expect(_props(r, 'sel')['items'], ['Match device', 'Dark']);
+      expect((_node(r, 'sel')['bind'] as Map)['props.value'], r'${= get(["Match device","Dark"], indexOf(["system","dark"], appearance))}');
+      expect(_action(r, 'sel')['value'], r'${= (get(["system","dark"], indexOf(["Match device","Dark"], result)))}');
+      expect(_props(r, 'told')['value'], 'Beta');
+      expect(_action(r, 'told')['value'], contains('indexOf(["Alpha","Beta"], result)'));
+      // Plain texts are as before.
+      expect(_props(r, 'plain')['items'], ['system', 'dark']);
+      expect((_node(r, 'plain')['bind'] as Map)['props.value'], r'${appearance}');
+    });
   });
 }
