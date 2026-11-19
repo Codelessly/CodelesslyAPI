@@ -1,5 +1,20 @@
 ## Unreleased
 
+With the CodelesslySDK of the same release.
+
+### Behaviour changes (read before upgrading)
+
+- **One field beside a text button is an inline entry**: an `Input` in a `Row` beside a `Button` and no other field
+  (add an item, a comment, a tag, a promo code, a newsletter's email: `Input "Write a comment" @c grow` before
+  `Button "Post"`) draws no label above it: its string is its placeholder, or, beside a hint, its spoken name
+  (`semanticLabel`), and its height loses the label's room, as a field among icon buttons already did. The row that
+  ends a form keeps its label: where the row's column has fields before it and none after it and the field writes
+  a label and a hint (`Input "Email" "you@example.com"` before `Button "Sign up"`). Two or more fields in a row, and
+  fields with no button beside them, keep theirs as before. `label="…"` keeps a label above a field anywhere, and
+  `print` writes a document's label that way where the line's string would be its placeholder.
+
+## Unreleased
+
 - **A Nav whose writer wrote its own phone menu gets no second one**: a line written `show=phone` (or `tablet`) under a `Nav` was not seen (the check read `show:`), so a bar with the writer's own menu button drew two, and its links again under it.
 
 ### Documented

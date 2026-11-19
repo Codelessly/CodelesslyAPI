@@ -880,7 +880,14 @@ final class _NodeLine {
   String? _mainKey() {
     final spec = this.spec;
     if (spec == null) return null;
-    if (type == 'textField') return 'decoration.labelText';
+    if (type == 'textField') {
+      // A label beside buttons, where the line's string would be the
+      // field's hint (notationFieldPlace), is written by name: kept above.
+      final place = notationFieldPlace(c.nodes, c._parentId, id);
+      final beside = place.composer || place.toolbar || place.entry || place.frame != null;
+      final labelled = switch (readMap(props['decoration'])?['labelText']) { final String l => l.isNotEmpty, _ => false } || bind['props.decoration.labelText'] != null;
+      return beside && labelled ? null : 'decoration.labelText';
+    }
     if (const {'datePicker', 'timePicker', 'dateTimeInput'}.contains(type)) return _hasProp('decoration') ? 'decoration.labelText' : null;
     if (const {'accordion', 'expansionTile', 'listTile', 'column', 'row', 'stack'}.contains(type)) return null;
     // A box has no text: its string is an Image's url (`_main`), nothing else.
