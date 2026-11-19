@@ -846,20 +846,41 @@ final class PageReflow {
     // Its brand, its icon buttons and the menu button are one line there:
     // the bar does not wrap where its links are in its menu.
     if (!_own.contains(id) && !_underKept(id)) _add(id, width, {'props': {'wrap': false}});
-    void fold(String k) {
+    final buttons = <String>[];
+    void find(String k) {
       final kid = nodes[k]!;
       final type = _type(kid);
       if (const {'filledButton', 'outlinedButton', 'elevatedButton'}.contains(type)) {
         final label = _props(kid)['label'];
         final bound = readMap(kid['bind'])?.containsKey('visible') ?? false;
-        if (label is String && label.isNotEmpty && kid['actions'] is List && kid['media'] == null && !bound) _hide(k, width);
+        if (label is String && label.isNotEmpty && kid['actions'] is List && kid['media'] == null && !bound) buttons.add(k);
         return;
       }
       if (readMap(kid['bind'])?.containsKey('visible') ?? false) return;
-      _kids(kid).forEach(fold);
+      _kids(kid).forEach(find);
     }
 
-    kids.forEach(fold);
+    kids.forEach(find);
+    if (buttons.isEmpty) return;
+    // …where they have no room beside the brand and the menu button on a
+    // phone (about what the line needs, with a margin: a wordmark is wider
+    // than its letters count). Where they have, they stay in the bar (a
+    // short brand and its one call to action), and the menu has the links.
+    final shown = [for (final k in kids) if (_need(k) > 0) k];
+    final need = shown.fold<num>(0, (sum, k) => sum + _need(k)) + 12 * math.max(0, shown.length - 1);
+    final folds = width != reflowPhoneMax || need > 320;
+    if (folds) {
+      for (final k in buttons) {
+        _hide(k, width);
+      }
+      return;
+    }
+    // The menu's copies of them are not shown.
+    final menuColumn = _kids(nodes[band]!).skip(1).firstOrNull;
+    for (final row in menuColumn == null ? const <String>[] : _kids(nodes[menuColumn]!)) {
+      final first = _kids(nodes[row]!).firstOrNull;
+      if (first != null && const {'filledButton', 'outlinedButton', 'elevatedButton'}.contains(_type(nodes[first]!))) _hide(row, width);
+    }
   }
 
   /// The button that opens an app's sidebar where the window hides it: what

@@ -28,9 +28,10 @@ the first section before upgrading.
 
 **Bars**
 
-- **A page's bar is one line on a phone**: its brand, its icon buttons and the menu button. Its other labelled
-  buttons (`Button.outline "Get a valuation"`) are in the menu with its links, each as its own kind of button as
-  wide as the menu, where they stayed in the bar and pushed it onto two lines. A bar whose links are in its menu
+- **A page's bar is one line on a phone**: its brand, its icon buttons and the menu button. Where its other
+  labelled buttons (`Button.outline "Get a valuation"`) have no room beside them, they are in the menu with its
+  links, each as its own kind of button as wide as the menu; they stayed in the bar and pushed it onto two lines.
+  A short brand and a button that fit keep the button in the bar. A bar whose links are in its menu
   does not wrap. A bar with no links is unchanged. A button that says where it shows, or stands under an `if`,
   stays where it is.
 - **A second `Nav` in a page is a strip**: it keeps its items at every width and scrolls sideways on a phone. It

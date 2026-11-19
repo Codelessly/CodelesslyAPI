@@ -625,4 +625,22 @@ Column
       }
     });
   });
+
+  test('a short brand and its one button have room on a phone: the button stays in the bar, the menu has the links', () {
+    final r = _parse('''
+Page
+  Nav
+    Text.strong "Canopy"
+    Button.ghost "About" onTap={go about}
+    Button.ghost "Stories" onTap={go stories}
+    Button "Donate" onTap={go donate}
+  Section
+    Text "Hello"
+''');
+    final donate = _nodes(r).entries.where((e) => (e.value as Map)['type'] == 'filledButton').map((e) => e.key).toList();
+    expect(donate.length, 2);
+    expect(_at(r, donate.first, 390)['visible'], isNull, reason: 'in the bar');
+    expect(_at(r, _parentOf(r, donate.last), 390)['visible'], false, reason: 'not said twice in the menu');
+    expect(_at(r, _idOf(r, 'About'), 390)['visible'], false);
+  });
 }
