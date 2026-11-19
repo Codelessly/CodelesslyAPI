@@ -7989,6 +7989,11 @@ class _Parser {
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
       }
     }
+    // `SegmentedButton … expanded=true`: its segments share the width it is
+    // given, so it takes its place's width (it hugged its labels, "Mont…").
+    if (type == 'segmentedButton' && props['expanded'] == true && !layout.containsKey('flex') && (layout['width'] == null || layout['width'] is Map && (layout['width'] as Map).containsKey('hug'))) {
+      layout['width'] = {'fill': 0};
+    }
     // A button alone on its line in a column is the card's one thing to
     // do: as wide as the column, at the design system's height for it.
     if (options.cta case final Json cta when parent != null && parent.type == 'column' && parent.grid == null && !cell) {

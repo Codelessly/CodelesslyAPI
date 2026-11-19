@@ -305,4 +305,15 @@ Column w=fill
     expect((link['layout'] as Map)['width'], isNot(containsPair('fill', 0)));
     expect(bar['media'], contains(equals({'maxWidth': 699, 'patch': {'props': {'wrap': true}}})));
   });
+
+  test('a SegmentedButton written expanded=true takes the width of its place', () {
+    final r = _parse('''
+state f=["Monthly"]
+Column w=400
+  SegmentedButton#s @f segments=["Monthly","One time"] expanded=true
+  SegmentedButton#h @f segments=["Monthly","One time"]
+''');
+    expect((_node(r, 's')['layout'] as Map)['width'], {'fill': 0});
+    expect((_node(r, 'h')['layout'] as Map)['width'], {'hug': 0});
+  });
 }
