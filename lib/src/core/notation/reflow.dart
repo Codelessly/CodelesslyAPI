@@ -433,18 +433,20 @@ final class PageReflow {
   void _app(String id, Json n) {
     final kids = _kids(n);
     var main = kids.indexWhere((k) => roles[k] == 'main');
-    if (main < 0) main = kids.indexWhere((k) => _fixedWidth(nodes[k]!) == null && _fills(nodes[k]!));
+    if (main < 0) main = kids.indexWhere((k) => !_sized(k) && _fills(nodes[k]!));
     if (main < 0) return;
+    // (A pane whose width is kept in a variable, `Sidebar w={sidebarWidth}`
+    // that a splitter sizes, is a pane of that width: it stayed on a phone.)
     final before = [
       for (var i = 0; i < main; i++)
-        if (_fixedWidth(nodes[kids[i]]!) != null) kids[i],
+        if (_sized(kids[i])) kids[i],
     ];
     for (var i = main + 1; i < kids.length; i++) {
-      if (_fixedWidth(nodes[kids[i]]!) != null) _hide(kids[i], reflowTabletMax);
+      if (_sized(kids[i])) _hide(kids[i], reflowTabletMax);
     }
     num taken = 0;
     for (final k in before) {
-      taken += _fixedWidth(nodes[k]!)!;
+      taken += _paneWidth(nodes[k]!);
     }
     // Two panes before the main one (a sidebar and a list): a tablet keeps the nearer.
     if (before.length >= 2 && taken > 420 && !_levels.contains(before.first)) _hide(before.first, reflowTabletMax);
@@ -595,6 +597,14 @@ final class PageReflow {
     });
   }
 
+  /// Whether a pane has a width of its own: written, or kept in a variable.
+  bool _sized(String k) {
+    final n = nodes[k]!;
+    if (_fixedWidth(n) != null) return true;
+    final type = _type(n);
+    return (readMap(n['bind'])?.containsKey('layout.width') ?? false) && (_containers.contains(type) || isComponent(type));
+  }
+
   /// A pane's width: as written, or the value it is bound to starts at (a
   /// list a splitter sizes, `w={listW}`).
   num _paneWidth(Json n) {
@@ -731,14 +741,14 @@ final class PageReflow {
     final main = kids.indexWhere((x) => roles[x] == 'main');
     final at = kids.indexOf(k);
     if (main < 0 || at < 0) return false;
-    if (at > main) return _fixedWidth(nodes[k]!) != null;
+    if (at > main) return _sized(k);
     final before = [
       for (var i = 0; i < main; i++)
-        if (_fixedWidth(nodes[kids[i]]!) != null) kids[i],
+        if (_sized(kids[i])) kids[i],
     ];
     num taken = 0;
     for (final b in before) {
-      taken += _fixedWidth(nodes[b]!)!;
+      taken += _paneWidth(nodes[b]!);
     }
     return before.length >= 2 && taken > 420 && before.first == k;
   }
@@ -980,7 +990,16 @@ final class PageReflow {
     });
     final basis = _cellBasis(g.cols);
     for (final k in _kids(n)) {
-      _add(k, reflowTabletMax, {'layout': {'basis': basis}});
+      // A cell as tall as its row on one line is as tall as itself on lines
+      // of their own (the row's lines stretch their cells): a lane of a
+      // board that filled its row's height had none where the row wrapped.
+      final tall = switch (_layout(nodes[k]!)['height']) { final Map h => h.containsKey('fill'), _ => false };
+      _add(k, reflowTabletMax, {
+        'layout': {
+          'basis': basis,
+          if (tall) 'height': {'fill': null, 'hug': 0},
+        },
+      });
       // An empty cell that fills out the last row has nothing to show on a line of its own.
       if (_type(nodes[k]!) == 'spacer') _hide(k, reflowPhoneMax);
     }
@@ -988,8 +1007,19 @@ final class PageReflow {
 
   void _gridView(String id, Json n) {
     final cols = _props(n)['crossAxisCount'];
-    if (cols is! num || cols < 2 || (readMap(n['bind'])?.containsKey('props.crossAxisCount') ?? false)) return;
     if (_props(n)['minCrossAxisExtent'] != null) return;
+    // Columns worked out from the state (`Grid cols={zoom}`, a size slider):
+    // a phone shows at most three of them, so a cell is never a sliver (five
+    // across a phone were 45 px each).
+    if (readMap(n['bind'])?['props.crossAxisCount'] case final String bound) {
+      final inner = RegExp(r'^\$\{=?\s*(.*)\}$', dotAll: true).firstMatch(bound)?[1];
+      if (inner == null || keepColumns.contains(id) || _underKept(id) || _own.contains(id)) return;
+      _add(id, reflowPhoneMax, {
+        'bind': {'props.crossAxisCount': '\${= min(3, ${inner.trim()})}'},
+      });
+      return;
+    }
+    if (cols is! num || cols < 2) return;
     if (_keeps(id, cols.toInt(), _kids(n), repeated: true)) return;
     final tablet = cols >= 6 ? 3 : cols >= 4 ? 2 : cols;
     if (tablet != cols) _add(id, reflowTabletMax, {'props': {'crossAxisCount': tablet}});
@@ -1264,8 +1294,9 @@ final class PageReflow {
     // crowded when what keeps its width has no room.
     final shown = [for (final k in kids) if (_need(k) > 0 || (_fills(nodes[k]!) && _type(nodes[k]!) != 'spacer')) k];
     // (What grows gives way down to the least its words can be read at: a
-    // text that ends in an ellipsis to almost nothing, any other to 120.)
-    num least(String k) => _truncates(k) || _type(nodes[k]!) == 'spacer' ? 32 : math.max(32, math.min(120, _need(k)));
+    // text that ends in an ellipsis to almost nothing, any other to 120.
+    // A column of them; a text alone narrows, as a list row's subject does.)
+    num least(String k) => _truncates(k) || _type(nodes[k]!) != 'column' ? 32 : math.max(32, math.min(120, _need(k)));
     final need = _sidesPadding(n) + _spacing(n) * math.max(0, shown.length - 1) + shown.fold<num>(0, (s, k) => s + (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null ? least(k) : _need(k)));
     if (need <= _phoneRoom) return;
     final spacing = _spacing(n);

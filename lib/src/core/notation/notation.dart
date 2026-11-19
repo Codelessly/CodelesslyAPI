@@ -10095,6 +10095,26 @@ class _Parser {
     _parentOf[id] = row;
   }
 
+  /// A row written in a table's cell with a part that grows (`Row` /
+  /// `Avatar` / `Column grow` / `Icon`): the row is as wide as the cell, so
+  /// that the part has the cell's room to grow in. As wide as its own
+  /// content, the part that grows had none: a ticket's subject was cut to
+  /// two letters beside an empty cell.
+  void _cellFills(String id) {
+    final n = nodes[id];
+    final cell = _parentOf[id];
+    if (n == null || cell == null || _roles[cell] != 'cell' || n['type'] != 'row') return;
+    final layout = readMap(n['layout']);
+    if (layout == null || layout['flex'] != null || layout['width'] is! Map || !(layout['width'] as Map).containsKey('hug') || _exactWidths.contains(id)) return;
+    final grows = (n['children'] as List? ?? const []).any((c) => switch (readMap(readMap(nodes[c])?['layout'])?['flex']) { final num f => f > 0, _ => false });
+    if (!grows) return;
+    const fill = {
+      'layout': {'width': {'hug': null, 'fill': 0}, 'flex': 1},
+    };
+    nodes[id] = mergePatch(n, fill);
+    _patches.add({'op': 'patch', 'id': id, 'patch': fill});
+  }
+
   void _close(_Open open) {
     if (open.splice || _silence(open)) return;
     _paneGround(open);
@@ -10106,6 +10126,7 @@ class _Parser {
     if (open.each != null) _gridPlace(open.id);
     if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
     if (_roles[open.id] == 'nav') _barTitle(open.id);
+    _cellFills(open.id);
     if (open.each == null && open.condition == null) _flipFaces(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).

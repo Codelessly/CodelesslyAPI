@@ -22,7 +22,10 @@ part of 'page_words.dart';
 
 /// One column of a [Table] line.
 final class _TableColumn {
-  _TableColumn(this.key, this.label, {this.width, this.align = '', this.sort = true, this.hide = ''});
+  _TableColumn(this.key, this.label, {this.width, this.align = '', this.sort = true, this.hide = '', this.phoneWidth});
+
+  /// The width it narrows to on a phone to keep its place there, or null.
+  final num? phoneWidth;
 
   final String key, label;
 
@@ -40,7 +43,7 @@ final class _TableColumn {
   bool get numeric => align == 'end';
 
   /// The words a cell of it takes on its Row.
-  String get size => '${width == null ? ' grow' : ' w=${width is int || width == width!.roundToDouble() ? width!.round() : width}'}${align.isEmpty ? '' : ' $align'}${hide.isEmpty ? '' : ' hide=$hide'}';
+  String get size => '${width == null ? ' grow' : ' w=${width is int || width == width!.roundToDouble() ? width!.round() : width}'}${align.isEmpty ? '' : ' $align'}${hide.isEmpty ? '' : ' hide=$hide'}${phoneWidth == null || hide.isNotEmpty ? '' : ' phone.w=${phoneWidth!.round()}'}';
 
   static String _keyOf(String label) {
     final words = label.trim().split(RegExp(r'[^A-Za-z0-9]+')).where((w) => w.isNotEmpty).toList();
@@ -204,16 +207,16 @@ extension on PageWords {
   /// narrows. At 390 the first column had no width left and its names were
   /// cut to nothing while the columns after it kept theirs (track C: three
   /// of ten builds). The first column, the row's checkbox and a narrow
-  /// column with no label (a row's menu button) stay. A width at which the
-  /// writer leaves a column out (`"hide":"phone"`) is theirs: nothing more
-  /// is left out there.
+  /// column with no label (a row's menu button) stay. A column the writer
+  /// leaves out at a width (`"hide":"phone"`) is out there; of the others,
+  /// those that still have no room beside the column that grows are too
+  /// (one column hidden by hand and three kept left the names no width).
   void _fitColumns(List<_TableColumn> columns, {required bool select}) {
     if (columns.length < 2) return;
     // The room a row has: a tablet's window (834) less the app's sidebar
     // there (a rail, or as wide as written) and a page's padding, a phone's
     // less its padding (390 − 32).
     for (final (width, room, growLeast) in [('tablet', 834 - 64 - _sideAtTablet, 160), ('phone', 358.0, 110)]) {
-      if (columns.any((c) => c.hide == width)) continue;
       bool out(_TableColumn c) => c.hide == 'tablet' || (width == 'phone' && c.hide == 'phone');
       const gap = 16, pad = 32;
       final shown = [for (final c in columns) if (!out(c)) c];
@@ -235,8 +238,14 @@ extension on PageWords {
       var full = false;
       for (final i in data) {
         final need = columns[i].width ?? 90;
+        // On a phone a column of data narrows to 90 before it is left out.
+        final least = width == 'phone' ? (need < 90 ? need : 90) : need;
         if (!full && used + need <= room) {
           used += need;
+        } else if (!full && used + least <= room) {
+          final c = columns[i];
+          columns[i] = _TableColumn(c.key, c.label, width: c.width, align: c.align, sort: c.sort, hide: c.hide, phoneWidth: room - used);
+          used = room;
         } else {
           full = true;
           used -= gap;

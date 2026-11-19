@@ -347,4 +347,97 @@ Drawer#houseNav "Cedar House"
       expect(shown.length, 1, reason: 'the writer\'s');
     });
   });
+
+  group('panes, tables and grids on a narrower window', () {
+    test('a Sidebar whose width is kept in a variable is hidden on a phone, as one of a written width is', () {
+      final r = _parse('''
+state sidebarWidth=220
+App
+  Sidebar w={sidebarWidth}
+    Text "Folders"
+  Main
+    Nav
+      Text.strong "Inbox"
+    Text "Messages"
+''');
+      final side = _parentOf(r, _idOf(r, 'Folders'));
+      expect(_at(r, side, 390)['visible'], false);
+      expect(_at(r, side, 834)['visible'], isNull);
+    });
+
+    test('a Table leaves out the columns that have no room beside the one that grows, also where the writer left one out', () {
+      final r = _parse('''
+state cards=[{"word":"cuaderno","meaning":"notebook","known":"Learning","due":"Today"}]
+state picked=[]
+Column pad=16
+  Table c in cards columns=[{"key":"word","label":"Spanish"},{"key":"meaning","label":"English","w":150},{"key":"known","label":"Status","w":104},{"key":"due","label":"Next review","w":120,"hide":"phone"},{"key":"actions","label":"","w":40}] select=@picked
+    Text.strong "{c.word}"
+    Text "{c.meaning}"
+    Text "{c.known}"
+    Text "{c.due}"
+    IconButton "edit"
+''');
+      final meaning = _parentOf(r, _nodes(r).entries.firstWhere((e) => ((e.value as Map)['props'] as Map?)?['text'] == r'${item.meaning}').key);
+      final known = _parentOf(r, _nodes(r).entries.firstWhere((e) => ((e.value as Map)['props'] as Map?)?['text'] == r'${item.known}').key);
+      // English narrows to keep its place; Status has none.
+      expect(((_at(r, meaning, 390)['layout'] as Map)['width'] as num) >= 90, true);
+      expect(((_at(r, meaning, 390)['layout'] as Map)['width'] as num) < 150, true);
+      expect(_at(r, known, 390)['visible'], false);
+      expect(_at(r, known, 1440), isEmpty);
+    });
+
+    test('a row with a part that grows, written in a Table cell, is as wide as the cell', () {
+      final r = _parse('''
+state tickets=[{"subject":"Password reset","status":"Open"}]
+Column pad=16
+  Table t in tickets columns=[{"key":"subject","label":"Ticket"},{"key":"status","label":"Status","w":110}]
+    Row middle gap=9
+      Column grow gap=2
+        Text.strong "{t.subject}"
+      Icon "chevron_right"
+    Text "{t.status}"
+''');
+      final icon = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'icon').key;
+      final layout = _node(r, _parentOf(r, icon))['layout'] as Map;
+      expect(layout['width'], {'fill': 0});
+      expect(layout['flex'], 1);
+    });
+
+    test('the cells of a Grid that are as tall as their row are as tall as themselves where the grid wraps', () {
+      final r = _parse('''
+App
+  Main
+    Grid cols=4 gap=12
+      Lane "Backlog"
+        Text "One"
+      Lane "Ready"
+        Text "Two"
+      Lane "Doing"
+        Text "Three"
+      Lane "Done"
+        Text "Four"
+define Lane "title"
+  Column gap=8 pad=8 fill=#FFE6EBF2
+    Text.strong "{title}"
+    ...
+''');
+      final lane = _parentOf(r, _idOf(r, 'One'));
+      expect((_node(r, lane)['layout'] as Map)['height'], {'fill': 0});
+      expect((_at(r, lane, 834)['layout'] as Map)['height'], {'fill': null, 'hug': 0});
+    });
+
+    test('a Grid whose columns are worked out shows at most three on a phone', () {
+      final r = _parse('''
+state zoom=5
+state photos=[{"id":1},{"id":2}]
+Column
+  Grid cols={zoom} gap=4
+    each p in photos
+      Box h=80 fill=#FF88AA99
+''');
+      final grid = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'gridView').key;
+      expect('${(_at(r, grid, 390)['bind'] as Map)['props.crossAxisCount']}', startsWith(r'${= min(3, '));
+      expect(_at(r, grid, 834), isEmpty);
+    });
+  });
 }
