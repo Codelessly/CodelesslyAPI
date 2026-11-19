@@ -359,4 +359,30 @@ Column w=fill
     };
     expect(printNotation(doc, catalog: standardCatalog), contains('runSpacing=0'));
   });
+
+  test('the prompt does not teach Wanted, List or Content; the words still expand', () {
+    for (final open in [false, true]) {
+      for (final width in [390.0, 1440.0]) {
+        final prompt = notationPrompt(catalog: standardCatalog, options: NotationOptions(width: width), open: open);
+        expect(RegExp(r'(Wanted|List|Content)').hasMatch(prompt), isFalse, reason: 'open $open at $width');
+        expect(prompt, contains('Layout and content: Stack, Row, Column,'));
+      }
+    }
+    final r = _parse('''
+Column w=fill
+  List#l gap=4
+    Text "a"
+  Wanted#w "PollResults" "each option with its share"
+    Text "b"
+''');
+    expect(r.issues, isEmpty);
+    expect(_node(r, 'l')['type'], 'column');
+    expect(_node(r, 'w')['type'], 'column');
+    final page = _parse('''
+App
+  Content
+    Text "c"
+''', options: const NotationOptions(width: 1440));
+    expect(page.issues, isEmpty);
+  });
 }
