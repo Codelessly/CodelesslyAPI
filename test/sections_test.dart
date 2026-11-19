@@ -300,6 +300,17 @@ void main() {
       expect(seamCall(root, bound).layout.height, bound.layout.height);
     });
 
+    test('the shape of the root (aspectRatio) is kept when the call gives none', () {
+      final root = Node.fromJson({
+        'type': 'stack',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'aspectRatio': 1},
+      })!;
+      final call = Node.fromJson({'type': 'RecordArt', 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}})!;
+      expect(seamCall(root, call).layout.aspectRatio, 1);
+      final shaped = Node.fromJson({'type': 'RecordArt', 'layout': {'width': 200, 'height': {'hug': 0}, 'aspectRatio': 2}})!;
+      expect(seamCall(root, shaped).layout.aspectRatio, 2);
+    });
+
     test('the site manifest round-trips, keeping what it does not model', () {
       final json = {
         'schema': 3,
