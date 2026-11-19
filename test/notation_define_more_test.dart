@@ -281,5 +281,13 @@ define Hotkey "keys" key hint onPress
       expect(r.issues, isEmpty);
       expect(jsonEncode(_node(r, 'screen')['actions']), contains('"key":"ctrl+j"'));
     });
+
+    test('a parameter named like an action\'s field leaves the field\'s name', () {
+      final r = _read('Column\n  Save2 "hello" sound="ding"\ndefine Save2 "text" sound\n  Button "Save" onTap={downloadFile fileName="a.txt" text={text}; playSound sound={sound}}\n');
+      expect(r.issues, isEmpty);
+      final a = jsonEncode(actionsOf(r, 'save21'));
+      expect(a, allOf(contains('"text"'), contains('hello'), contains('ding')));
+      expect(a, isNot(contains('"hello":')));
+    });
   });
 }

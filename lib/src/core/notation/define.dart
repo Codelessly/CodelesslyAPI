@@ -1647,6 +1647,10 @@ final class _Substitution {
       } else if (d.events.contains(word)) {
         // An event in an expression: whether the use gave it.
         b.write(actions.containsKey(word) ? 'true' : 'false');
+      } else if (_isParameter(word) && RegExp(r'^\s*=(?!=)').hasMatch(text.substring(i))) {
+        // `downloadFile text={…}`, `playSound sound={…}`: an action's field
+        // named like a parameter keeps its name; its value is the use's.
+        b.write(word);
       } else if (_isParameter(word)) {
         b.write(_expression(word));
       } else {
