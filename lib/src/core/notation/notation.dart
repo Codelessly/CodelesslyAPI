@@ -2331,6 +2331,20 @@ class _Parser {
   /// written out, each with where it is written.
   Iterable<(PageLine, String?)> _definedLines(int indent, String text) sync* {
     for (final d in _defined.rewrite(indent, text, line: _line)) {
+      // An overlay's word with no id, in an overlay: there is nothing to
+      // open, so it is the open overlay's content (its title, its note and
+      // the lines under it), without a second close button.
+      if (_overlay != null && d.indent == indent && _overlayWord.hasMatch(d.text) && !text.startsWith(RegExp(r'[A-Za-z0-9.]+#'))) {
+        final word = RegExp(r'^[A-Za-z]+').stringMatch(d.text)!;
+        final o = _pages.overlay('$word#${_overlay.id}Inner${d.text.substring(word.length).replaceFirst(RegExp(r'^#\S+'), '')}');
+        if (o != null && o.shift == 0 && o.foot.isEmpty && o.head.isNotEmpty && o.head.first.text.startsWith('Column ')) {
+          yield ((indent: d.indent, text: o.head.first.text.replaceFirst(RegExp(r' pad=\S+'), '')), d.from);
+          for (final l in o.head.skip(1)) {
+            if (!l.text.startsWith('IconButton "close"')) yield ((indent: d.indent + l.indent, text: l.text), d.from);
+          }
+          continue;
+        }
+      }
       final lines = _pages.rewrite(d.indent, d.text);
       _shadowed(d.text, lines);
       for (final l in lines) {
@@ -2704,14 +2718,32 @@ class _Parser {
   /// them, as an overlay's do). Null for any other line.
   List<String>? _overlayDefined(String head) {
     final parts = LineParts.of(head);
-    if (parts == null || parts.id.isEmpty || !_defined.has(parts.word)) return null;
+    if (parts == null || !_defined.has(parts.word) || !_definesOverlay(parts.word)) return null;
     NotationDefinition? read;
     final words = DefinedWords({...options.vocabulary.dictionary, ...options.vocabulary.definitions, ..._defined.page},
         open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), used: (d, p, node, column) => read = d);
     final out = [...words.rewrite(0, head), ...words.finish()];
-    if (out.isEmpty || !RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#').hasMatch(out.first.text)) return null;
-    if (read case final d?) _use(d.primitive ? 'primitive' : 'definition', parts.word, 1, to: d.label, node: parts.id.substring(1), parts: parts, of: d.dictionary);
+    final id = out.isEmpty ? null : RegExp('^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#($notationId)').firstMatch(out.first.text)?[1];
+    if (id == null) return null;
+    if (read case final d?) _use(d.primitive ? 'primitive' : 'definition', parts.word, 1, to: d.label, node: id, parts: parts, of: d.dictionary);
     return [for (final l in out) '${' ' * l.indent}${l.text}'];
+  }
+
+  static final _overlayWord = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)(?=[#.\s]|$)');
+
+  /// Whether a meaning of the defined word [word] has an overlay for its
+  /// body (`define RepDrawer` over `Drawer#repNav …`), itself or through
+  /// another defined word.
+  bool _definesOverlay(String word, [int depth = 0]) {
+    if (depth > 4) return false;
+    for (final d in _defined.meanings(word)) {
+      final first = d.body.firstOrNull?.text;
+      if (first == null) continue;
+      if (_overlayWord.hasMatch(first)) return true;
+      final inner = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(first);
+      if (inner != null && inner != word && _defined.has(inner) && _definesOverlay(inner, depth + 1)) return true;
+    }
+    return false;
   }
 
   /// Whether [text] (indented, with an id) is the head of an overlay: a
@@ -2788,14 +2820,20 @@ class _Parser {
       // pane): it is still over the page, its lines the ones indented under
       // it, and the page goes on after them.
       if (!blank && (_block != null || _blockSkipped)) _closeBlock();
-      final inside = !blank && indent > 0 && _root != null && RegExp(r'^[A-Za-z][A-Za-z0-9]*#[A-Za-z_]').hasMatch(raw.trimLeft()) && _overlayInside(raw.trim());
+      // A defined word whose body is an overlay (`define RepDrawer` over
+      // `Drawer#repNav`) is that overlay wherever its use is written.
+      final defined = blank || _inDeclaration && indent > 0 ? null : _overlayDefined(raw.trim());
+      final inside = !blank &&
+          indent > 0 &&
+          _root != null &&
+          (defined != null || (RegExp(r'^[A-Za-z][A-Za-z0-9]*#[A-Za-z_]').hasMatch(raw.trimLeft()) && _overlayInside(raw.trim())));
       if (!blank && (indent == 0 || inside)) {
         _closeBlock();
         _line++;
         final above = [..._srcStack];
         _track(indent, raw.trim());
         var head = raw.trim();
-        final lines = _overlayDefined(head) ?? _aliased(head, indent + 1);
+        final lines = defined ?? _aliased(head, indent + 1);
         // An unknown word at the margin with an id, after the page: what is
         // written there is over the page, so it stands in as a dialog.
         VocabularyUse? standIn;

@@ -1178,14 +1178,17 @@ final class DefinedWords {
       final isRoot = !rooted && l.indent == 0 && !_preamble(l.text);
       if (isRoot) {
         rooted = true;
+        // An overlay's id is what `open` names: a body's own (`Drawer#menu`)
+        // stays when the use gives none.
+        final rootId = switch (p.id.isEmpty ? _overlayId.firstMatch(l.text) : null) { final m? => m[1]!, _ => uid };
         // Lines written where the use is, when it gives the root nothing of
         // its own; else a Column with the use's id and words. With a line
         // marked `...` the use's words are that line's, and so is its id
         // when the lines are written where the use is.
         if (restAt >= 0) {
-          t = t == notationSplice ? t : (restLines.contains(k) ? _mergedAt(t, root, id: uid) : _rooted(t, uid, const []));
+          t = t == notationSplice ? t : (restLines.contains(k) ? _mergedAt(t, root, id: rootId) : _rooted(t, rootId, const []));
         } else {
-          t = t == notationSplice ? (root.isEmpty && p.id.isEmpty ? t : _rooted('Column', uid, root)) : _rooted(t, uid, root);
+          t = t == notationSplice ? (root.isEmpty && p.id.isEmpty ? t : _rooted('Column', uid, root)) : _rooted(t, rootId, root);
         }
       } else if (restLines.contains(k)) {
         t = _mergedAt(t, root, id: d.body.first.text == notationSplice && p.id.isNotEmpty ? uid : null);
@@ -1227,6 +1230,8 @@ final class DefinedWords {
 
   /// The root line [t] with the use's id and the words it gives every line.
   static String _rooted(String t, String uid, List<LinePart> given) => _merged(t, given, id: uid);
+
+  static final _overlayId = RegExp(r'^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_-]*)(?=\s|$)');
 
   /// The line [t] with the words [given] over its own (an event's actions
   /// after its own), and with the id [id] when given.
