@@ -1833,6 +1833,19 @@ final class _Substitution {
       final reorder = m[3] != null && _identifier.hasMatch(list) ? m[3]! : '';
       return 'each ${renamed[m[1]!] ?? m[1]} in $list$reorder';
     }
+    // `Table p in parameters columns=[â€¦]`: a word over a list reads the
+    // use's value for it as an each does (the list stayed the parameter's
+    // name, which nothing has: a table of its header only).
+    if (RegExp(r'^([A-Z][A-Za-z0-9.]*(?:#[A-Za-z0-9_{}-]+)?)\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+([A-Za-z_][A-Za-z0-9_.]*)(?=\s|$)').firstMatch(text) case final m?
+        when _isParameter(m[3]!.split('.').first)) {
+      var list = _braced(m[3]!);
+      if (RegExp(r'^\(([A-Za-z_][A-Za-z0-9_.]*)\)$').firstMatch(list) case final p?) list = p[1]!;
+      final rest = text.substring(m.end).trim();
+      final head = line(rest.isEmpty ? m[1]! : '${m[1]} $rest');
+      if (head == null) return null;
+      final at = head.indexOf(RegExp(r'\s|$'));
+      return '${head.substring(0, at)} ${renamed[m[2]!] ?? m[2]} in ${list.contains(' ') ? '{$list}' : list}${head.substring(at)}';
+    }
     // `on valueChanged(variable=x)={onSeen}`: a reaction of the screen, the
     // use's actions where it names the word's events.
     if (RegExp(r'^on\s+([A-Za-z]+(?:\([^()]*\))?)=\{(.*)\}\s*$').firstMatch(text) case final m?) {

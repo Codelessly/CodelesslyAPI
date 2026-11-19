@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  wordOverParameterTests();
   componentParamTests();
   stateValueTests();
   overlayGoTests();
@@ -314,5 +315,26 @@ Text#a "{props.label} {label}"
     expect(BindPaths.apply(node, 'layout.width', 'fill').layout.width.fit, SizeFit.fill);
     expect(BindPaths.apply(node, 'layout.height', 'hug').layout.height.fit, SizeFit.hug);
     expect(BindPaths.apply(node, 'layout.width', 64).layout.width, const AxisSize.fixed(64));
+  });
+}
+
+void wordOverParameterTests() {
+  test('a Table over a list given as a defined word\'s parameter reads the use\'s list', () {
+    final r = _parse('''
+state methods=[{"parameters":[{"name":"before","type":"string"}]}]
+define MethodCard "name" parameters=[]
+  Column w=fill ...
+    Text "{name}"
+    Table p in parameters columns=[{"key":"name","label":"Parameter","w":123},{"key":"type","label":"Type"}] compact
+Column
+  MethodCard "diff" parameters={methods[0].parameters}
+  MethodCard "lit" parameters=[{"name":"x","type":"int"}]
+''');
+    expect(r.issues, isEmpty);
+    final lists = [for (final n in _nodes(r)) if (n['type'] == 'listView') (n['bind'] as Map)['data']];
+    expect(lists, hasLength(2));
+    expect(lists.first, contains('methods[0].parameters'));
+    expect(lists.last, contains('"name":"x"'));
+    expect(lists.join(), isNot(contains(r'${parameters}')));
   });
 }
