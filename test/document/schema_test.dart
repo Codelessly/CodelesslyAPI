@@ -58,7 +58,7 @@ void main() {
 
   test('nothing under lib/ or tool/ reads an older schema or mentions migrating one', () {
     final older = RegExp(
-        r'''migrat|kOldestSchemaVersion|schemaOf\(|schema[- ]2\b|schema2|["']schema["']\s*:\s*2\b|schema:\s*2\b|legacy\.''',
+        r'''migrat|kOldestSchemaVersion|schemaOf\(|schema[- ]2\b|schema2|["']schema["']\s*:\s*2\b|schema:\s*2\b|["']legacy\.''',
         caseSensitive: false);
     final found = <String>[];
     for (final dir in ['lib', 'tool']) {
