@@ -84,7 +84,7 @@
      "r0.body.0.0.layout.padding: [8,6,8,10] / (none)",
      "r0.body.0.0.1.props.style.fontSize: 15 / 17",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.layout.height.fill: 0 / (none); r0.body.1.layout.height.hug: (none) / 0",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r1\",\"type\":\"openModal\"}],\"trig... / (none); r0.body.1.0.0.layout.squeezable: (none) / true; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)"
     ],
     "issues": []
@@ -100,7 +100,7 @@
      "r0.body.0.0.layout.padding: [8,6,8,10] / (none)",
      "r0.body.0.0.1.props.style.fontSize: 15 / 17",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.layout.height.fill: 0 / (none); r0.body.1.layout.height.hug: (none) / 0",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r1\",\"type\":\"openModal\"}],\"trig... / (none); r0.body.1.0.0.layout.squeezable: (none) / true; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)"
     ],
     "issues": []
@@ -116,7 +116,7 @@
      "r0.body.0.0.layout.padding: [8,6,8,10] / (none)",
      "r0.body.0.0.1.props.style.fontSize: 15 / 17",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.layout.height.fill: 0 / (none); r0.body.1.layout.height.hug: (none) / 0",
-     "r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
+     "r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16; r0.body.1.0.media: (none) / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
      "r0.body.1.0.0.props.style.fontSize: 18 / 30; r0.body.1.0.0.props.style.fontWeight: 600 / 700"
     ],
     "issues": []
@@ -129,7 +129,7 @@
     "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
     "samples": [
      "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none); r0.body.0.0.props.spacing: 24 / 16",
+     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]; r0.body.0.0.props.spacing: 24 / 16",
      "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
      "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
      "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
@@ -147,7 +147,7 @@
     "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
     "samples": [
      "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none); r0.body.0.0.props.spacing: 24 / 16",
+     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]; r0.body.0.0.props.spacing: 24 / 16",
      "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
      "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
      "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
@@ -165,7 +165,7 @@
     "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
     "samples": [
      "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.props.spacing: 24 / 16",
+     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.props.spacing: 24 / 16; r0.body.0.0.media: (none) / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
      "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
      "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
      "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
@@ -375,8 +375,8 @@
       "summary": "4 of 41 nodes the same; 5 differ, 32 only in the code's, 31 only in the definition's",
       "samples": [
        "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":12,\"spacing\":12,\"wrap\":true}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]",
-       "r0.body.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":213.25,\"flex\":1,\"width\":{\"fill\":0}}}}] / [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":271.0,\"flex\":1,\"width\":{\"fill\":0}}}}]",
+       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":12,\"spacing\":12,\"wrap\":true}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
+       "r0.body.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":213.25,\"flex\":1,\"width\":{\"fill\":0}}}}] / (none)",
        "r0.body.0.0.0.1.props.style.fontFamily: \"Inter\" / \"Inter Display\"; r0.body.0.0.0.1.props.style.fontSize: 15 / 20; r0.body.0.0.0.1.props.style.fontWeight: 600 / 700",
        "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
        "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row"
@@ -391,7 +391,7 @@
       "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
       "samples": [
        "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
        "r0.body.0.0.0.1.props.style.fontSize: 14.5 / 18; r0.body.0.0.0.1.props.style.height: 1.3 / 1.2; r0.body.0.0.0.1.props.style.letterSpacing: -0.1 / (none)",
        "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
        "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
@@ -605,7 +605,7 @@
       "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
       "samples": [
        "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
        "r0.body.0.0.0.1.props.style.fontSize: 13 / 18; r0.body.0.0.0.1.props.style.height: 1.54 / 1.35; r0.body.0.0.0.1.props.style.letterSpacing: (none) / -0.2",
        "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
        "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
@@ -621,7 +621,7 @@
       "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
       "samples": [
        "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+       "r0.body.0.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}]",
        "r0.body.0.0.0.1.props.style.fontSize: 13 / 18; r0.body.0.0.0.1.props.style.height: 1.54 / 1.35; r0.body.0.0.0.1.props.style.letterSpacing: (none) / -0.2",
        "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
        "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
@@ -1972,7 +1972,7 @@
     "summary": "110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
     "samples": [
      "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-     "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF9CA3AF\",\"fontSize\":11} / (none)",
+     "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
      "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
      "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
     ],
@@ -1989,7 +1989,7 @@
     "summary": "110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
     "samples": [
      "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-     "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF9CA3AF\",\"fontSize\":11} / (none)",
+     "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
      "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
      "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
     ],
@@ -2006,7 +2006,7 @@
     "summary": "86 of 88 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
     "samples": [
      "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-     "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF9CA3AF\",\"fontSize\":11} / (none)",
+     "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
      "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
      "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
     ],
@@ -2050,7 +2050,7 @@
     "summary": "80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
     "samples": [
      "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-     "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF9CA3AF\",\"fontSize\":11} / (none)",
+     "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
      "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
      "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
     ],
@@ -2067,7 +2067,7 @@
     "summary": "80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
     "samples": [
      "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-     "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF9CA3AF\",\"fontSize\":11} / (none)",
+     "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
      "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
      "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
     ],
@@ -2084,7 +2084,7 @@
     "summary": "62 of 64 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
     "samples": [
      "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-     "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF9CA3AF\",\"fontSize\":11} / (none)",
+     "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
      "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
      "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
     ],
@@ -2108,7 +2108,7 @@
       "summary": "110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF6B7280\",\"fontFamily\":\"Inter\",\"fontSize\":12.5,\"fontWeight\":500,\"height\":1.4} / (none)",
+       "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
        "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
       ],
@@ -2123,7 +2123,7 @@
       "summary": "110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF6B7280\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":500,\"height\":1.35} / (none)",
+       "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
        "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
       ],
@@ -2138,7 +2138,7 @@
       "summary": "86 of 88 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF6B7280\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":500,\"height\":1.35} / (none)",
+       "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
        "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
       ],
@@ -2153,7 +2153,7 @@
       "summary": "80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF6B7280\",\"fontFamily\":\"Inter\",\"fontSize\":12.5,\"fontWeight\":500,\"height\":1.4} / (none)",
+       "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
        "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
       ],
@@ -2168,7 +2168,7 @@
       "summary": "80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF6B7280\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":500,\"height\":1.35} / (none)",
+       "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
        "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
       ],
@@ -2183,7 +2183,7 @@
       "summary": "62 of 64 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF6B7280\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":500,\"height\":1.35} / (none)",
+       "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
        "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
       ],
@@ -2207,7 +2207,7 @@
       "summary": "110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE4E4E7\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF71717A\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":400,\"height\":1.42} / (none)",
+       "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
        "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
       ],
@@ -2222,7 +2222,7 @@
       "summary": "110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE4E4E7\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF71717A\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":400,\"height\":1.42} / (none)",
+       "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
        "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
       ],
@@ -2237,7 +2237,7 @@
       "summary": "86 of 88 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.0.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE4E4E7\"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {\"color\":\"#FF71717A\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":400,\"height\":1.42} / (none)",
+       "r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
        "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
       ],
@@ -2252,7 +2252,7 @@
       "summary": "80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE4E4E7\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF71717A\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":400,\"height\":1.42} / (none)",
+       "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
        "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
       ],
@@ -2267,7 +2267,7 @@
       "summary": "80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE4E4E7\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF71717A\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":400,\"height\":1.42} / (none)",
+       "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
        "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
       ],
@@ -2282,7 +2282,7 @@
       "summary": "62 of 64 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables",
       "samples": [
        "r0.body.1.2.2.1.0.0.1.0.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE4E4E7\"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {\"minHeight\":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {\"hug\":0} / 16",
-       "r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: \"ellipsis\" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {\"color\":\"#FF71717A\",\"fontFamily\":\"Inter\",\"fontSize\":12,\"fontWeight\":400,\"height\":1.42} / (none)",
+       "r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)",
        "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
        "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
       ],
@@ -4785,7 +4785,7 @@
      "r0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
      "r0.body.0.2.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc...",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r8\",\"type\":\"openModal\"}],\"trig... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.0.1.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.1.0.1.layout.squeezable: (none) / true; r0.body.1.0.1.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":96,\"flex\":1,\"width\":{\"fill\":0}}}}] / (none)"
     ],
@@ -4801,7 +4801,7 @@
      "r0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
      "r0.body.0.2.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc...",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r8\",\"type\":\"openModal\"}],\"trig... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.0.1.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.1.0.1.layout.squeezable: (none) / true; r0.body.1.0.1.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":96,\"flex\":1,\"width\":{\"fill\":0}}}}] / (none)"
     ],
@@ -4815,11 +4815,11 @@
     "summary": "100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's",
     "samples": [
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
-     "r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
+     "r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc...; r0.body.1.0.props.spacing: 24 / 16",
      "r0.body.1.1.layout.width.fill: 0 / (none); r0.body.1.1.layout.width.hug: (none) / 0; r0.body.1.1.type: \"divider\" / \"splitter\"",
      "r0.body.1.2.layout.width: {\"hug\":0} / 340; r0.body.1.2.type: \"splitter\" / \"column\"; r0.body.1.2.bind: (none) / {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"}",
      "r0.body.1.3.bind.visible: \"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\" / \"${= view==\\\"workspace\\\"&&(pane==\\\"note\\\"||!phone)}\"; r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\"]; r0.body.1.3.layout.height.hug: 0 / (none)",
-     "r0.body.1.3.0.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]"
+     "r0.body.1.3.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc..."
     ],
     "issues": []
    },
@@ -5000,11 +5000,11 @@
       "summary": "100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's",
       "samples": [
        "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
-       "r0.body.1.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
+       "r0.body.1.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc...",
        "r0.body.1.1.layout.width.fill: 0 / (none); r0.body.1.1.layout.width.hug: (none) / 0; r0.body.1.1.type: \"divider\" / \"splitter\"",
        "r0.body.1.2.layout.width: {\"hug\":0} / 340; r0.body.1.2.type: \"splitter\" / \"column\"; r0.body.1.2.bind: (none) / {\"visible\":\"${= view==\\\"workspace\\\" && (pane==\\\"list\\\" || !phone)}\"}",
        "r0.body.1.3.bind.visible: \"${= view==\\\"workspace\\\" && (pane==\\\"list\\\" || !phone)}\" / \"${= view==\\\"workspace\\\" && (pane==\\\"note\\\" || !phone)}\"; r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\"]; r0.body.1.3.layout.height.hug: 0 / (none)",
-       "r0.body.1.3.0.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]"
+       "r0.body.1.3.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc..."
       ],
       "issues": []
      },
@@ -5139,11 +5139,11 @@
       "summary": "100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's",
       "samples": [
        "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
-       "r0.body.1.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
+       "r0.body.1.0.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc...",
        "r0.body.1.1.layout.width.fill: 0 / (none); r0.body.1.1.layout.width.hug: (none) / 0; r0.body.1.1.type: \"divider\" / \"splitter\"",
        "r0.body.1.2.layout.width: {\"hug\":0} / 340; r0.body.1.2.type: \"splitter\" / \"column\"; r0.body.1.2.bind: (none) / {\"visible\":\"${= view==\\\"workspace\\\" && (pane==\\\"list\\\" || !phone)}\"}",
        "r0.body.1.3.bind.visible: \"${= view==\\\"workspace\\\" && (pane==\\\"list\\\" || !phone)}\" / \"${= view==\\\"workspace\\\" && (pane==\\\"note\\\" || !phone)}\"; r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\"]; r0.body.1.3.layout.height.hug: 0 / (none)",
-       "r0.body.1.3.0.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]"
+       "r0.body.1.3.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}},{\"minWidth\":700,\"patc..."
       ],
       "issues": []
      },
@@ -5727,7 +5727,7 @@
     "summary": "123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's",
     "samples": [
      "r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\",\"r0.body.1.3.4\"]",
-     "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24",
+     "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}] / (none); r0.body.1.3.0.props.spacing: 16 / 24",
      "r0.body.1.3.1.bind: {\"visible\":\"${= selecting}\"} / (none); r0.body.1.3.1.children: [\"r0.body.1.3.1.0\",\"r0.body.1.3.1.1\",\"r0.body.1.3.1.2\",\"r0.body.1.3.1.3\",\"r0.body.1.3.1... / (none); r0.body.1.3.1.decoration: {\"fills\":[{\"color\":\"#FFEFE4CC\"}]} / (none)",
      "r0.body.1.3.2.bind.visible: \"${= count(notes,x=>!x.trashed&&(nb==\\\"all\\\"||x.nb==nb))==0}\" / \"${= selecting}\"; r0.body.1.3.2.children: [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\"] / [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\",\"r0.body.1.3.2.3\",\"r0.body.1.3.2...; r0.body.1.3.2.layout.padding: (none) / 8",
      "r0.body.1.3.2.0.layout.width.fill: 0 / (none); r0.body.1.3.2.0.layout.width.hug: (none) / 0; r0.body.1.3.2.0.layout.squeezable: (none) / true",
@@ -5896,7 +5896,7 @@
       "summary": "123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's",
       "samples": [
        "r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\",\"r0.body.1.3.4\"]",
-       "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24; r0.body.1.3.0.decoration: (none) / {\"fills\":[{\"color\":\"#FFFFFFFF\"}]}",
+       "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}] / (none); r0.body.1.3.0.props.spacing: 16 / 24",
        "r0.body.1.3.1.bind: {\"visible\":\"${= selecting}\"} / (none); r0.body.1.3.1.children: [\"r0.body.1.3.1.0\",\"r0.body.1.3.1.1\",\"r0.body.1.3.1.2\",\"r0.body.1.3.1.3\",\"r0.body.1.3.1... / (none); r0.body.1.3.1.decoration: {\"fills\":[{\"color\":\"#FFEFE4CC\"}]} / (none)",
        "r0.body.1.3.2.bind.visible: \"${= count(notes,x=>!x.trashed && (nb==\\\"all\\\" || x.nb==nb))==0}\" / \"${= selecting}\"; r0.body.1.3.2.children: [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\"] / [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\",\"r0.body.1.3.2.3\",\"r0.body.1.3.2...; r0.body.1.3.2.layout.padding: (none) / 8",
        "r0.body.1.3.2.0.layout.width.fill: 0 / (none); r0.body.1.3.2.0.layout.width.hug: (none) / 0; r0.body.1.3.2.0.layout.squeezable: (none) / true",
@@ -6059,7 +6059,7 @@
       "summary": "123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's",
       "samples": [
        "r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\",\"r0.body.1.3.4\"]",
-       "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24; r0.body.1.3.0.decoration: (none) / {\"fills\":[{\"color\":\"#FFFFFFFF\"}]}",
+       "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":16,\"wrap\":true}}}] / (none); r0.body.1.3.0.props.spacing: 16 / 24",
        "r0.body.1.3.1.bind: {\"visible\":\"${= selecting}\"} / (none); r0.body.1.3.1.children: [\"r0.body.1.3.1.0\",\"r0.body.1.3.1.1\",\"r0.body.1.3.1.2\",\"r0.body.1.3.1.3\",\"r0.body.1.3.1... / (none); r0.body.1.3.1.decoration: {\"fills\":[{\"color\":\"#FFEFE4CC\"}]} / (none)",
        "r0.body.1.3.2.bind.visible: \"${= count(notes,x=>!x.trashed && (nb==\\\"all\\\" || x.nb==nb))==0}\" / \"${= selecting}\"; r0.body.1.3.2.children: [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\"] / [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\",\"r0.body.1.3.2.3\",\"r0.body.1.3.2...; r0.body.1.3.2.layout.padding: (none) / 8",
        "r0.body.1.3.2.0.layout.width.fill: 0 / (none); r0.body.1.3.2.0.layout.width.hug: (none) / 0; r0.body.1.3.2.0.layout.squeezable: (none) / true",
@@ -10558,8 +10558,8 @@
     "samples": [
      "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none)",
      "r0.body.1.2.0.2.0.layout.height: 32 / 40",
-     "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-     "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(selected)==length(sortDir==\\\"asc... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected)>0&&length(selected)==length(sortDir==\\\"asc\\\"?sortB... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+     "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+     "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(selected)==length(sortDir==\\\"asc... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected)>0&&length(selected)==length(sortDir==\\\"asc\\\"?sortB... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
      "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
      "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.shift&&selectedAnchor>=0?map(sli... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected,coalesce(item.id,item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFE5E7EB\"}]}}}} / (none)"
     ],
@@ -10574,8 +10574,8 @@
     "samples": [
      "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none)",
      "r0.body.1.2.0.2.0.layout.height: 32 / 40",
-     "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-     "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(selected)==length(sortDir==\\\"asc... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected)>0&&length(selected)==length(sortDir==\\\"asc\\\"?sortB... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+     "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+     "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(selected)==length(sortDir==\\\"asc... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected)>0&&length(selected)==length(sortDir==\\\"asc\\\"?sortB... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
      "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
      "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.shift&&selectedAnchor>=0?map(sli... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected,coalesce(item.id,item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFE5E7EB\"}]}}}} / (none)"
     ],
@@ -10590,8 +10590,8 @@
     "samples": [
      "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none)",
      "r0.body.1.2.0.2.0.layout.height: 32 / 40",
-     "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-     "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(selected)==length(sortDir==\\\"asc... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected)>0&&length(selected)==length(sortDir==\\\"asc\\\"?sortB... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+     "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+     "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(selected)==length(sortDir==\\\"asc... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected)>0&&length(selected)==length(sortDir==\\\"asc\\\"?sortB... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
      "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
      "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.shift&&selectedAnchor>=0?map(sli... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected,coalesce(item.id,item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFE5E7EB\"}]}}}} / (none)"
     ],
@@ -10605,8 +10605,8 @@
     "summary": "98 of 128 nodes the same; 4 differ, 26 only in the code's, 2 only in the definition's",
     "samples": [
      "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]",
-     "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-     "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+     "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
      "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none)",
      "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text",
      "only in the definition's: r0.body.1.2.1.2.0.0.0.0.0 row, r0.body.1.2.1.2.0.0.0.0.0.0 text"
@@ -10621,8 +10621,8 @@
     "summary": "98 of 128 nodes the same; 4 differ, 26 only in the code's, 2 only in the definition's",
     "samples": [
      "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]",
-     "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-     "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+     "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
      "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none)",
      "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text",
      "only in the definition's: r0.body.1.2.1.2.0.0.0.0.0 row, r0.body.1.2.1.2.0.0.0.0.0.0 text"
@@ -10637,8 +10637,8 @@
     "summary": "60 of 90 nodes the same; 4 differ, 26 only in the code's, 2 only in the definition's",
     "samples": [
      "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]",
-     "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-     "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+     "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
      "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none)",
      "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text",
      "only in the definition's: r0.body.1.2.1.2.0.0.0.0.0 row, r0.body.1.2.1.2.0.0.0.0.0.0 text"
@@ -10740,8 +10740,8 @@
     "summary": "7 of 18 nodes the same; 5 differ, 6 only in the code's, 2 only in the definition's",
     "samples": [
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]",
-     "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-     "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+     "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
      "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
      "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none)",
      "only in the code's: r0.body.0.0.0.0.1 row, r0.body.0.0.0.0.1.0 text, r0.body.0.0.0.1.0.0.0.0 row, r0.body.0.0.0.1.0.0.0.0.0 text"
@@ -10756,8 +10756,8 @@
     "summary": "7 of 18 nodes the same; 5 differ, 6 only in the code's, 2 only in the definition's",
     "samples": [
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]",
-     "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-     "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+     "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
      "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
      "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none)",
      "only in the code's: r0.body.0.0.0.0.1 row, r0.body.0.0.0.0.1.0 text, r0.body.0.0.0.1.0.0.0.0 row, r0.body.0.0.0.1.0.0.0.0.0 text"
@@ -10772,8 +10772,8 @@
     "summary": "7 of 18 nodes the same; 5 differ, 6 only in the code's, 2 only in the definition's",
     "samples": [
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]",
-     "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-     "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+     "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
      "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
      "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none)",
      "only in the code's: r0.body.0.0.0.0.1 row, r0.body.0.0.0.0.1.0 text, r0.body.0.0.0.1.0.0.0.0 row, r0.body.0.0.0.1.0.0.0.0.0 text"
@@ -10789,8 +10789,8 @@
     "samples": [
      "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]",
      "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]",
-     "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-     "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(chosen)==length(sortBy(shown,rep... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen)>0&&length(chosen)==length(sortBy(shown,replace(sortK... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+     "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+     "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(chosen)==length(sortBy(shown,rep... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen)>0&&length(chosen)==length(sortBy(shown,replace(sortK... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
      "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown,replace(sortKey,'-',''... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown,replace(sortKey,'-',''),startsWith(sortKey,'-')?'desc':'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
      "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.shift&&chosenAnchor>=0?map(slice... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen,coalesce(item.id,item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFE5E7EB\"}]}}}} / (none)"
     ],
@@ -10805,8 +10805,8 @@
     "samples": [
      "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]",
      "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]",
-     "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-     "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(chosen)==length(sortBy(shown,rep... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen)>0&&length(chosen)==length(sortBy(shown,replace(sortK... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+     "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+     "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(chosen)==length(sortBy(shown,rep... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen)>0&&length(chosen)==length(sortBy(shown,replace(sortK... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
      "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown,replace(sortKey,'-',''... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown,replace(sortKey,'-',''),startsWith(sortKey,'-')?'desc':'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
      "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.shift&&chosenAnchor>=0?map(slice... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen,coalesce(item.id,item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFE5E7EB\"}]}}}} / (none)"
     ],
@@ -10821,8 +10821,8 @@
     "samples": [
      "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]",
      "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]",
-     "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-     "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(chosen)==length(sortBy(shown,rep... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen)>0&&length(chosen)==length(sortBy(shown,replace(sortK... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+     "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+     "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= length(chosen)==length(sortBy(shown,rep... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen)>0&&length(chosen)==length(sortBy(shown,replace(sortK... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
      "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown,replace(sortKey,'-',''... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown,replace(sortKey,'-',''),startsWith(sortKey,'-')?'desc':'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
      "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.shift&&chosenAnchor>=0?map(slice... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen,coalesce(item.id,item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFE5E7EB\"}]}}}} / (none)"
     ],
@@ -10844,8 +10844,8 @@
       "samples": [
        "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none); r0.body.1.2.0.2.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.1.2.0.2.0.layout.height: 32 / 40",
-       "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.bind.data: \"${= sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==role... / \"${= (sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==rol...; r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && selectedAnchor >= 0 ? ... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected, coalesce(item.id, item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#242563EB\"}]}}}} / (none)"
       ],
@@ -10858,8 +10858,8 @@
       "samples": [
        "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none); r0.body.1.2.0.2.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.1.2.0.2.0.layout.height: 32 / 40",
-       "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.bind.data: \"${= sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==role... / \"${= (sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==rol...; r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && selectedAnchor >= 0 ? ... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected, coalesce(item.id, item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#242563EB\"}]}}}} / (none)"
       ],
@@ -10872,8 +10872,8 @@
       "samples": [
        "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none); r0.body.1.2.0.2.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.1.2.0.2.0.layout.height: 32 / 40",
-       "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.bind.data: \"${= sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==role... / \"${= (sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==rol...; r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && selectedAnchor >= 0 ? ... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected, coalesce(item.id, item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#242563EB\"}]}}}} / (none)"
       ],
@@ -10886,8 +10886,8 @@
       "samples": [
        "r0.body.1.2.1.2.0.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]",
-       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none)",
        "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text"
       ],
@@ -10900,8 +10900,8 @@
       "samples": [
        "r0.body.1.2.1.2.0.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]",
-       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none)",
        "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text"
       ],
@@ -10914,8 +10914,8 @@
       "samples": [
        "r0.body.1.2.1.2.0.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]",
-       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none)",
        "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text"
       ],
@@ -11003,8 +11003,8 @@
       "samples": [
        "r0.body.0.0.0.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]",
-       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
        "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none)"
       ],
@@ -11017,8 +11017,8 @@
       "samples": [
        "r0.body.0.0.0.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]",
-       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
        "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none)"
       ],
@@ -11031,8 +11031,8 @@
       "samples": [
        "r0.body.0.0.0.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]",
-       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
        "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none)"
       ],
@@ -11045,8 +11045,8 @@
       "samples": [
        "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]; r0.body.0.0.1.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]",
-       "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown, replace(sortKey, '-',... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && chosenAnchor >= 0 ? ma... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen, coalesce(item.id, item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#242563EB\"}]}}}} / (none)"
       ],
@@ -11059,8 +11059,8 @@
       "samples": [
        "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]; r0.body.0.0.1.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]",
-       "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown, replace(sortKey, '-',... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && chosenAnchor >= 0 ? ma... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen, coalesce(item.id, item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#242563EB\"}]}}}} / (none)"
       ],
@@ -11073,8 +11073,8 @@
       "samples": [
        "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]; r0.body.0.0.1.decoration.fills: [{\"color\":\"#FFF3F4F6\"}] / [{\"color\":\"#FFFFFFFF\"}]",
        "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]",
-       "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown, replace(sortKey, '-',... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && chosenAnchor >= 0 ? ma... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen, coalesce(item.id, item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#242563EB\"}]}}}} / (none)"
       ],
@@ -11096,8 +11096,8 @@
       "samples": [
        "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none); r0.body.1.2.0.2.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.1.2.0.2.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.1.2.0.2.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.1.2.0.2.0.layout.height: 32 / 40",
-       "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.bind.data: \"${= sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==role... / \"${= (sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==rol...; r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && selectedAnchor >= 0 ? ... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected, coalesce(item.id, item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFEEF0FE\"}]}}}} / (none)"
       ],
@@ -11110,8 +11110,8 @@
       "samples": [
        "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none); r0.body.1.2.0.2.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.1.2.0.2.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.1.2.0.2.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.1.2.0.2.0.layout.height: 32 / 40",
-       "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.bind.data: \"${= sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==role... / \"${= (sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==rol...; r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && selectedAnchor >= 0 ? ... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected, coalesce(item.id, item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFEEF0FE\"}]}}}} / (none)"
       ],
@@ -11124,8 +11124,8 @@
       "samples": [
        "r0.body.1.2.0.2.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= result.id}\",\"variable\":\"panelId\"}],\"tri... / (none); r0.body.1.2.0.2.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.1.2.0.2.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.1.2.0.2.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.1.2.0.2.0.layout.height: 32 / 40",
-       "r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.1.2.0.2.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(selected) == length(sortDir==\\\"... / (none); r0.body.1.2.0.2.0.0.0.bind: {\"props.value\":\"${= length(selected) > 0 && length(selected) == length(sortDir==\\\"asc\\\"... / (none); r0.body.1.2.0.2.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.1.2.0.2.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortDir==\\\"asc\\\"?sortBy(filter(memb... / (none); r0.body.1.2.0.2.1.0.bind.data: \"${= sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==role... / \"${= (sortDir==\\\"asc\\\"?sortBy(filter(members,m=>(roleFilter==\\\"All roles\\\"||m.role==rol...; r0.body.1.2.0.2.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.1.2.0.2.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && selectedAnchor >= 0 ? ... / (none); r0.body.1.2.0.2.1.0.0.bind: {\"selected\":\"${= contains(selected, coalesce(item.id, item))}\"} / (none); r0.body.1.2.0.2.1.0.0.states: {\"selected\":{\"r0.body.1.2.0.2.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFEEF0FE\"}]}}}} / (none)"
       ],
@@ -11138,8 +11138,8 @@
       "samples": [
        "r0.body.1.2.1.2.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]; r0.body.1.2.1.2.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.1.2.1.2.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none); r0.body.1.2.1.2.0.1.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.1.2.1.2.0.1.0.0.0.states.hovered.r0.body.1.2.1.2.0.1.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]",
        "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text"
       ],
@@ -11152,8 +11152,8 @@
       "samples": [
        "r0.body.1.2.1.2.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]; r0.body.1.2.1.2.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.1.2.1.2.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none); r0.body.1.2.1.2.0.1.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.1.2.1.2.0.1.0.0.0.states.hovered.r0.body.1.2.1.2.0.1.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]",
        "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text"
       ],
@@ -11166,8 +11166,8 @@
       "samples": [
        "r0.body.1.2.1.2.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.1.2.1.2.0.0.children: [\"r0.body.1.2.1.2.0.0.0\",\"r0.body.1.2.1.2.0.0.1\",\"r0.body.1.2.1.2.0.0.2\",\"r0.body.1.2.1... / [\"r0.body.1.2.1.2.0.0.0\"]; r0.body.1.2.1.2.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.1.2.1.2.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.1.2.1.2.0.1.0.0.0.children: [\"r0.body.1.2.1.2.0.1.0.0.0.0\",\"r0.body.1.2.1.2.0.1.0.0.0.1\",\"r0.body.1.2.1.2.0.1.0.0.0... / (none); r0.body.1.2.1.2.0.1.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.1.2.1.2.0.1.0.0.0.states.hovered.r0.body.1.2.1.2.0.1.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]",
        "only in the code's: r0.body.1.2.1.2.0.0.1 row, r0.body.1.2.1.2.0.0.1.0 text, r0.body.1.2.1.2.0.0.2 row, r0.body.1.2.1.2.0.0.2.0 text"
       ],
@@ -11255,8 +11255,8 @@
       "samples": [
        "r0.body.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]; r0.body.0.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
        "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none); r0.body.0.0.0.1.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.0.0.0.1.0.0.0.states.hovered.r0.body.0.0.0.1.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]"
       ],
@@ -11269,8 +11269,8 @@
       "samples": [
        "r0.body.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]; r0.body.0.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
        "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none); r0.body.0.0.0.1.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.0.0.0.1.0.0.0.states.hovered.r0.body.0.0.0.1.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]"
       ],
@@ -11283,8 +11283,8 @@
       "samples": [
        "r0.body.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\",\"r0.body.0.0.0.0.1\"] / [\"r0.body.0.0.0.0.0\"]; r0.body.0.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)",
-       "r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0",
+       "r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)",
        "r0.body.0.0.0.1.0.bind.data: \"${orders}\" / \"${= null}\"",
        "r0.body.0.0.0.1.0.0.0.children: [\"r0.body.0.0.0.1.0.0.0.0\",\"r0.body.0.0.0.1.0.0.0.1\"] / (none); r0.body.0.0.0.1.0.0.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]; r0.body.0.0.0.1.0.0.0.states.hovered.r0.body.0.0.0.1.0.0.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]"
       ],
@@ -11297,8 +11297,8 @@
       "samples": [
        "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]; r0.body.0.0.1.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]; r0.body.0.0.1.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.1.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown, replace(sortKey, '-',... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && chosenAnchor >= 0 ? ma... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen, coalesce(item.id, item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFEEF0FE\"}]}}}} / (none)"
       ],
@@ -11311,8 +11311,8 @@
       "samples": [
        "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]; r0.body.0.0.1.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]; r0.body.0.0.1.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.1.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown, replace(sortKey, '-',... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && chosenAnchor >= 0 ? ma... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen, coalesce(item.id, item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFEEF0FE\"}]}}}} / (none)"
       ],
@@ -11325,8 +11325,8 @@
       "samples": [
        "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\",\"r0.body.0.0.1.2\"] / [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"]; r0.body.0.0.1.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
        "r0.body.0.0.1.0.children: [\"r0.body.0.0.1.0.0\",\"r0.body.0.0.1.0.1\",\"r0.body.0.0.1.0.2\",\"r0.body.0.0.1.0.3\"] / [\"r0.body.0.0.1.0.0\"]; r0.body.0.0.1.0.decoration.fills: [{\"color\":\"#FFFAFAFB\"}] / [{\"color\":\"#FFF8FAFC\"}]; r0.body.0.0.1.0.decoration.strokes: [{\"color\":\"#FFE4E4E7\"}] / [{\"color\":\"#FFE5E7EB\"}]",
-       "r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: \"center\" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1",
-       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"hug\":0}",
+       "r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {\"fill\":0}",
+       "r0.body.0.0.1.0.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (length(chosen) == length(sortBy(shown,... / (none); r0.body.0.0.1.0.0.0.bind: {\"props.value\":\"${= length(chosen) > 0 && length(chosen) == length(sortBy(shown, replac... / (none); r0.body.0.0.1.0.0.0.layout.height: 16 / {\"fill\":0}",
        "r0.body.0.0.1.1.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= map(sortBy(shown, replace(sortKey, '-',... / (none); r0.body.0.0.1.1.0.bind.data: \"${= sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')}\" / \"${= null}\"; r0.body.0.0.1.1.0.focusGroup: {\"axis\":\"vertical\",\"wrap\":false} / (none)",
        "r0.body.0.0.1.1.0.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= (result.shift && chosenAnchor >= 0 ? ma... / (none); r0.body.0.0.1.1.0.0.bind: {\"selected\":\"${= contains(chosen, coalesce(item.id, item))}\"} / (none); r0.body.0.0.1.1.0.0.states: {\"selected\":{\"r0.body.0.0.1.1.0.0\":{\"decoration\":{\"fills\":[{\"color\":\"#FFEEF0FE\"}]}}}} / (none)"
       ],
@@ -11523,7 +11523,8 @@
     "issues": [
      "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
      "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+     "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
     ]
    },
    {
@@ -11543,7 +11544,8 @@
     "issues": [
      "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
      "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+     "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
     ]
    },
    {
@@ -11563,7 +11565,8 @@
     "issues": [
      "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
      "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+     "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
     ]
    },
    {
@@ -11765,7 +11768,8 @@
       "issues": [
        "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
        "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+       "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
       ]
      },
      {
@@ -11783,7 +11787,8 @@
       "issues": [
        "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
        "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+       "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
       ]
      },
      {
@@ -11801,7 +11806,8 @@
       "issues": [
        "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
        "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+       "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
       ]
      },
      {
@@ -11988,7 +11994,8 @@
       "issues": [
        "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
        "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+       "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
       ]
      },
      {
@@ -12006,7 +12013,8 @@
       "issues": [
        "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
        "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+       "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
       ]
      },
      {
@@ -12024,7 +12032,8 @@
       "issues": [
        "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
        "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
-       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+       "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has.",
+       "line 7:5: FooterDict.txt:3: A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling Column: Column scroll with the lines and the each under it (read so here)."
       ]
      },
      {

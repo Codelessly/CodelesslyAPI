@@ -74,15 +74,15 @@ A use counts as the same when its two documents are equal and the definition's s
   - `r0.body.0.0.1.props.style.fontSize: 15 / 17`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @1440: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / (none); r0.body.0.0.props.spacing: 24 / 16`
+  - `r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]; r0.body.0.0.props.spacing: 24 / 16`
   - `r0.body.0.0.0.1.props.style.fontSize: 13 / 18`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @834: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / (none); r0.body.0.0.props.spacing: 24 / 16`
+  - `r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]; r0.body.0.0.props.spacing: 24 / 16`
   - `r0.body.0.0.0.1.props.style.fontSize: 13 / 18`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @390: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.props.spacing: 24 / 16`
+  - `r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.props.spacing: 24 / 16; r0.body.0.0.media: (none) / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]`
   - `r0.body.0.0.0.1.props.style.fontSize: 13 / 18`
 - docs/reference/notation/NOTATION.md block 4 @1440: 12 of 26 nodes the same; 4 differ, 10 only in the code's, 0 only in the definition's; document keys roots
   - `r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
@@ -129,10 +129,10 @@ Under cards's theme: 15 of 15 differ.
   - `r0.body.0.0.layout.padding: [8,6,8,10] / (none)`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @1440: 4 of 41 nodes the same; 5 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"runSpacing":12,"spacing":12,"wrap":true}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":12,"wrap":true}}}]`
+  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"runSpacing":12,"spacing":12,"wrap":true}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @834: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / (none)`
+  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @390: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
   - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.props.spacing: 24 / 16`
@@ -176,10 +176,10 @@ Under desk's theme: 15 of 15 differ.
   - `r0.body.0.0.layout.padding: [8,6,8,10] / (none)`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @1440: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / (none)`
+  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @834: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
-  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / (none)`
+  - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{"maxWidth":699,"patch":{"props":{"spacing":12}}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}]`
 - tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement @390: 5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's; issues: line 7:36: AppDict.txt:3: AppDict: "theme" is not a parameter the notation has.
   - `r0.body.0.children: ["r0.body.0.0","r0.body.0.1","r0.body.0.2"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0`
   - `r0.body.0.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.props.spacing: 24 / 16`
@@ -452,71 +452,71 @@ Under desk's theme: 15 of 15 differ.
 
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @1440: 110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF9CA3AF","fontSize":11} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
   - `variables.page_variables: [{"name":"tab","type":"text","value":"schedule"},{"name":"day","type":"integer","value"... / [{"name":"tab","type":"text","value":"schedule"},{"name":"day","type":"integer","value"...`
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @834: 110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF9CA3AF","fontSize":11} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
   - `variables.page_variables: [{"name":"tab","type":"text","value":"schedule"},{"name":"day","type":"integer","value"... / [{"name":"tab","type":"text","value":"schedule"},{"name":"day","type":"integer","value"...`
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @390: 86 of 88 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF9CA3AF","fontSize":11} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
   - `variables.page_variables: [{"name":"tab","type":"text","value":"schedule"},{"name":"day","type":"integer","value"... / [{"name":"tab","type":"text","value":"schedule"},{"name":"day","type":"integer","value"...`
 - tool/vocabulary/corpus/b08/answers/watch-face-complications.txt ### Face gallery @1440: equal
 - tool/vocabulary/corpus/b08/answers/watch-face-complications.txt ### Face gallery @834: equal
 - tool/vocabulary/corpus/b08/answers/watch-face-complications.txt ### Face gallery @390: equal
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @1440: 80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF9CA3AF","fontSize":11} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
   - `variables.page_variables: [{"name":"shifts","type":"list","value":[{"day":"Mon","filled":4,"id":"mon-am","needed"... / [{"name":"shifts","type":"list","value":[{"day":"Mon","filled":4,"id":"mon-am","needed"...`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @834: 80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF9CA3AF","fontSize":11} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
   - `variables.page_variables: [{"name":"shifts","type":"list","value":[{"day":"Mon","filled":4,"id":"mon-am","needed"... / [{"name":"shifts","type":"list","value":[{"day":"Mon","filled":4,"id":"mon-am","needed"...`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @390: 62 of 64 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF9CA3AF","fontSize":11} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
   - `variables.page_variables: [{"name":"shifts","type":"list","value":[{"day":"Mon","filled":4,"id":"mon-am","needed"... / [{"name":"shifts","type":"list","value":[{"day":"Mon","filled":4,"id":"mon-am","needed"...`
 
 Under cards's theme: 6 of 9 differ.
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @1440: 110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF6B7280","fontFamily":"Inter","fontSize":12.5,"fontWeight":500,"height":1.4} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @834: 110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF6B7280","fontFamily":"Inter","fontSize":12,"fontWeight":500,"height":1.35} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @390: 86 of 88 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF6B7280","fontFamily":"Inter","fontSize":12,"fontWeight":500,"height":1.35} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @1440: 80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF6B7280","fontFamily":"Inter","fontSize":12.5,"fontWeight":500,"height":1.4} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @834: 80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF6B7280","fontFamily":"Inter","fontSize":12,"fontWeight":500,"height":1.35} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @390: 62 of 64 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE5E7EB"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF6B7280","fontFamily":"Inter","fontSize":12,"fontWeight":500,"height":1.35} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
 
 Under desk's theme: 6 of 9 differ.
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @1440: 110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE4E4E7"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF71717A","fontFamily":"Inter","fontSize":12,"fontWeight":400,"height":1.42} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @834: 110 of 112 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE4E4E7"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF71717A","fontFamily":"Inter","fontSize":12,"fontWeight":400,"height":1.42} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule @390: 86 of 88 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 56:54: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has. / line 56:83: DotsDict.txt:3: DotsDict: "size" is not a parameter the notation has.
   - `r0.body.1.2.2.0.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE4E4E7"}]} / (none); r0.body.1.2.2.0.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.0.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.0.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.0.0.0.1.0.0.props.style: {"color":"#FF71717A","fontFamily":"Inter","fontSize":12,"fontWeight":400,"height":1.42} / (none)`
+  - `r0.body.1.2.2.0.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.0.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.0.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @1440: 80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE4E4E7"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF71717A","fontFamily":"Inter","fontSize":12,"fontWeight":400,"height":1.42} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @834: 80 of 82 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE4E4E7"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF71717A","fontFamily":"Inter","fontSize":12,"fontWeight":400,"height":1.42} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
 - tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser @390: 62 of 64 nodes the same; 2 differ, 0 only in the code's, 2 only in the definition's; document keys variables; issues: line 42:54: DotsDict.txt:3: DotsDict: "needed" is not a parameter the notation has. / line 42:75: DotsDict.txt:3: DotsDict: "filled" is not a parameter the notation has.
   - `r0.body.1.2.2.1.0.0.1.0.decoration: {"dashPattern":[4,3],"radius":6,"strokes":[{"color":"#FFE4E4E7"}]} / (none); r0.body.1.2.2.1.0.0.1.0.layout.constraints: {"minHeight":40} / (none); r0.body.1.2.2.1.0.0.1.0.layout.height: {"hug":0} / 16`
-  - `r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none); r0.body.1.2.2.1.0.0.1.0.0.props.overflow: "ellipsis" / (none); r0.body.1.2.2.1.0.0.1.0.0.props.style: {"color":"#FF71717A","fontFamily":"Inter","fontSize":12,"fontWeight":400,"height":1.42} / (none)`
+  - `r0.body.1.2.2.1.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.1.2.2.1.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.1.2.2.1.0.0.1.0.0.props.maxLines: 1 / (none)`
 
 ### Drawer
 
@@ -1063,7 +1063,7 @@ Under desk's theme: 6 of 12 differ.
   - `r0.body.1.children: ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4","r0.body.1.5"] / ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4"]`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace @390: 100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's
   - `r0.body.1.children: ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4","r0.body.1.5"] / ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4"]`
-  - `r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16`
+  - `r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{"minWidth":700,"patch":{"bind":{"visible":null},"visible":false}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}},{"minWidth":700,"patc...; r0.body.1.0.props.spacing: 24 / 16`
   - `r0.body.1.1.layout.width.fill: 0 / (none); r0.body.1.1.layout.width.hug: (none) / 0; r0.body.1.1.type: "divider" / "splitter"`
 - tool/vocabulary/corpus/b07/answers/smart-speaker-display.txt ### Night Clock @1440: equal
 - tool/vocabulary/corpus/b07/answers/smart-speaker-display.txt ### Night Clock @834: equal
@@ -1100,7 +1100,7 @@ Under cards's theme: 11 of 15 differ.
   - `r0.body.0.2.actions: [{"actions":[{"maxHeightFactor":0.9,"presentation":"bottomSheet","sheetRadius":20,"shee... / [{"actions":[{"maxHeightFactor":0.9,"presentation":"bottomSheet","sheetRadius":20,"shee...`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace @390: 100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's
   - `r0.body.1.children: ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4","r0.body.1.5"] / ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4"]`
-  - `r0.body.1.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16`
+  - `r0.body.1.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{"minWidth":700,"patch":{"bind":{"visible":null},"visible":false}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}},{"minWidth":700,"patc...`
 - docs/reference/notation/NOTATION.md block 4 @1440: 13 of 26 nodes the same; 3 differ, 10 only in the code's, 0 only in the definition's; document keys roots
   - `r0.body.1.children: ["r0.body.1.0","r0.body.1.1","r0.body.1.2"] / ["r0.body.1.0"]`
   - `r0.body.1.0.children: ["r0.body.1.0.0"] / (none); r0.body.1.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.1.0.layout.height: {"hug":0} / 40.0`
@@ -1128,7 +1128,7 @@ Under desk's theme: 11 of 15 differ.
   - `r0.body.0.2.actions: [{"actions":[{"maxHeightFactor":0.9,"presentation":"bottomSheet","sheetRadius":20,"shee... / [{"actions":[{"maxHeightFactor":0.9,"presentation":"bottomSheet","sheetRadius":20,"shee...`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace @390: 100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's
   - `r0.body.1.children: ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4","r0.body.1.5"] / ["r0.body.1.0","r0.body.1.1","r0.body.1.2","r0.body.1.3","r0.body.1.4"]`
-  - `r0.body.1.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16`
+  - `r0.body.1.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.media: [{"minWidth":700,"patch":{"bind":{"visible":null},"visible":false}}] / [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}},{"minWidth":700,"patc...`
 - docs/reference/notation/NOTATION.md block 4 @1440: 13 of 26 nodes the same; 3 differ, 10 only in the code's, 0 only in the definition's; document keys roots
   - `r0.body.1.children: ["r0.body.1.0","r0.body.1.1","r0.body.1.2"] / ["r0.body.1.0"]`
   - `r0.body.1.0.children: ["r0.body.1.0.0"] / (none); r0.body.1.0.decoration: {"fills":[{"color":"#FFFFFFFF"}]} / (none); r0.body.1.0.layout.height: {"hug":0} / 34.0`
@@ -1247,7 +1247,7 @@ Under desk's theme: 6 of 6 differ.
   - `r0.body.1.0.0.media: [{"minWidth":700,"patch":{"bind":{"visible":null},"visible":false}}] / (none)`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace @390: 123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's
   - `r0.body.1.3.children: ["r0.body.1.3.0","r0.body.1.3.1","r0.body.1.3.2","r0.body.1.3.3"] / ["r0.body.1.3.0","r0.body.1.3.1","r0.body.1.3.2","r0.body.1.3.3","r0.body.1.3.4"]`
-  - `r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24`
+  - `r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.media: [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}] / (none); r0.body.1.3.0.props.spacing: 16 / 24`
   - `r0.body.1.3.1.bind: {"visible":"${= selecting}"} / (none); r0.body.1.3.1.children: ["r0.body.1.3.1.0","r0.body.1.3.1.1","r0.body.1.3.1.2","r0.body.1.3.1.3","r0.body.1.3.1... / (none); r0.body.1.3.1.decoration: {"fills":[{"color":"#FFEFE4CC"}]} / (none)`
 - docs/reference/notation/navigation.md block 1 @1440: 11 of 18 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's
   - `r0.body.0.children: ["r0.body.0.0"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.media: [{"maxWidth":699,"patch":{"layout":{"padding":[16,14,16,14]}}}] / [{"maxWidth":1023,"patch":{"props":{"runSpacing":12,"wrap":true}}},{"maxWidth":699,"pat...; r0.body.0.props.mainAxisAlignment: (none) / "spaceBetween"`
@@ -1286,7 +1286,7 @@ Under cards's theme: 11 of 15 differ.
   - `r0.body.1.0.children: ["r0.body.1.0.0","r0.body.1.0.1","r0.body.1.0.2","r0.body.1.0.3"] / ["r0.body.1.0.0"]; r0.body.1.0.layout.padding: [24,14,24,14] / [12,8,12,8]; r0.body.1.0.props.mainAxisAlignment: "spaceBetween" / (none)`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace @390: 123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's
   - `r0.body.1.3.children: ["r0.body.1.3.0","r0.body.1.3.1","r0.body.1.3.2","r0.body.1.3.3"] / ["r0.body.1.3.0","r0.body.1.3.1","r0.body.1.3.2","r0.body.1.3.3","r0.body.1.3.4"]`
-  - `r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24; r0.body.1.3.0.decoration: (none) / {"fills":[{"color":"#FFFFFFFF"}]}`
+  - `r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.media: [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}] / (none); r0.body.1.3.0.props.spacing: 16 / 24`
 - docs/reference/notation/navigation.md block 1 @1440: 11 of 18 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's
   - `r0.body.0.children: ["r0.body.0.0"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.padding: [32,14,32,14] / [24,14,24,14]; r0.body.0.media: [{"maxWidth":699,"patch":{"layout":{"padding":[16,14,16,14]}}}] / [{"maxWidth":1023,"patch":{"props":{"runSpacing":12,"wrap":true}}},{"maxWidth":699,"pat...`
   - `r0.body.0.0.layout.constraints: {"maxWidth":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0`
@@ -1321,7 +1321,7 @@ Under desk's theme: 11 of 15 differ.
   - `r0.body.1.0.children: ["r0.body.1.0.0","r0.body.1.0.1","r0.body.1.0.2","r0.body.1.0.3"] / ["r0.body.1.0.0"]; r0.body.1.0.layout.padding: [24,14,24,14] / [12,8,12,8]; r0.body.1.0.props.mainAxisAlignment: "spaceBetween" / (none)`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace @390: 123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's
   - `r0.body.1.3.children: ["r0.body.1.3.0","r0.body.1.3.1","r0.body.1.3.2","r0.body.1.3.3"] / ["r0.body.1.3.0","r0.body.1.3.1","r0.body.1.3.2","r0.body.1.3.3","r0.body.1.3.4"]`
-  - `r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24; r0.body.1.3.0.decoration: (none) / {"fills":[{"color":"#FFFFFFFF"}]}`
+  - `r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.media: [{"maxWidth":699,"patch":{"props":{"runSpacing":16,"wrap":true}}}] / (none); r0.body.1.3.0.props.spacing: 16 / 24`
 - docs/reference/notation/navigation.md block 1 @1440: 11 of 18 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's
   - `r0.body.0.children: ["r0.body.0.0"] / ["r0.body.0.0","r0.body.0.1"]; r0.body.0.layout.padding: [32,14,32,14] / [24,14,24,14]; r0.body.0.media: [{"maxWidth":699,"patch":{"layout":{"padding":[16,14,16,14]}}}] / [{"maxWidth":1023,"patch":{"props":{"runSpacing":12,"wrap":true}}},{"maxWidth":699,"pat...`
   - `r0.body.0.0.layout.constraints: {"maxWidth":1200} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0`
@@ -2240,27 +2240,27 @@ Under desk's theme: 3 of 6 differ.
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/admin-console.txt ### Members @1440: 176 of 206 nodes the same; 21 differ, 9 only in the code's, 2 only in the definition's; document keys variables
   - `r0.body.1.2.0.2.actions: [{"actions":[{"type":"setVariable","value":"${= result.id}","variable":"panelId"}],"tri... / (none)`
   - `r0.body.1.2.0.2.0.layout.height: 32 / 40`
-  - `r0.body.1.2.0.2.0.0.layout.width: 16 / {"fill":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: "center" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1`
+  - `r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {"fill":0}`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/admin-console.txt ### Members @834: 176 of 206 nodes the same; 21 differ, 9 only in the code's, 2 only in the definition's; document keys variables
   - `r0.body.1.2.0.2.actions: [{"actions":[{"type":"setVariable","value":"${= result.id}","variable":"panelId"}],"tri... / (none)`
   - `r0.body.1.2.0.2.0.layout.height: 32 / 40`
-  - `r0.body.1.2.0.2.0.0.layout.width: 16 / {"fill":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: "center" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1`
+  - `r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {"fill":0}`
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/admin-console.txt ### Members @390: 140 of 170 nodes the same; 21 differ, 9 only in the code's, 2 only in the definition's; document keys variables
   - `r0.body.1.2.0.2.actions: [{"actions":[{"type":"setVariable","value":"${= result.id}","variable":"panelId"}],"tri... / (none)`
   - `r0.body.1.2.0.2.0.layout.height: 32 / 40`
-  - `r0.body.1.2.0.2.0.0.layout.width: 16 / {"fill":0}; r0.body.1.2.0.2.0.0.props.crossAxisAlignment: "center" / (none); r0.body.1.2.0.2.0.0.props.crossAxisCount: (none) / 1`
+  - `r0.body.1.2.0.2.0.0.layout.height.hug: 0 / (none); r0.body.1.2.0.2.0.0.layout.height.fill: (none) / 0; r0.body.1.2.0.2.0.0.layout.width: 16 / {"fill":0}`
 - tool/vocabulary/corpus/b08/answers/glucose-log.txt ### Insights @1440: 98 of 128 nodes the same; 4 differ, 26 only in the code's, 2 only in the definition's
   - `r0.body.1.2.1.2.0.0.children: ["r0.body.1.2.1.2.0.0.0","r0.body.1.2.1.2.0.0.1","r0.body.1.2.1.2.0.0.2","r0.body.1.2.1... / ["r0.body.1.2.1.2.0.0.0"]`
-  - `r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: "center" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)`
-  - `r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0`
+  - `r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0`
+  - `r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)`
 - tool/vocabulary/corpus/b08/answers/glucose-log.txt ### Insights @834: 98 of 128 nodes the same; 4 differ, 26 only in the code's, 2 only in the definition's
   - `r0.body.1.2.1.2.0.0.children: ["r0.body.1.2.1.2.0.0.0","r0.body.1.2.1.2.0.0.1","r0.body.1.2.1.2.0.0.2","r0.body.1.2.1... / ["r0.body.1.2.1.2.0.0.0"]`
-  - `r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: "center" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)`
-  - `r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0`
+  - `r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0`
+  - `r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)`
 - tool/vocabulary/corpus/b08/answers/glucose-log.txt ### Insights @390: 60 of 90 nodes the same; 4 differ, 26 only in the code's, 2 only in the definition's
   - `r0.body.1.2.1.2.0.0.children: ["r0.body.1.2.1.2.0.0.0","r0.body.1.2.1.2.0.0.1","r0.body.1.2.1.2.0.0.2","r0.body.1.2.1... / ["r0.body.1.2.1.2.0.0.0"]`
-  - `r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.props.crossAxisAlignment: "center" / (none); r0.body.1.2.1.2.0.0.0.props.spacing: 4 / (none)`
-  - `r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.width.fill: (none) / 0`
+  - `r0.body.1.2.1.2.0.0.0.layout.flex: 1 / (none); r0.body.1.2.1.2.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.layout.height.fill: (none) / 0`
+  - `r0.body.1.2.1.2.0.0.0.0.layout.height.hug: 0 / (none); r0.body.1.2.1.2.0.0.0.0.layout.height.fill: (none) / 0; r0.body.1.2.1.2.0.0.0.0.layout.squeezable: true / (none)`
 - tool/vocabulary/corpus/b08/answers/lab-instrument.txt ### Samples @1440: 83 of 85 nodes the same; 2 differ, 0 only in the code's, 8 only in the definition's
   - `r0.body.1.2.0.1.6.children: ["r0.body.1.2.0.1.6.0"] / ["r0.body.1.2.0.1.6.0","r0.body.1.2.0.1.6.1"]; r0.body.1.2.0.1.6.decoration.dashPattern: [4,3] / (none); r0.body.1.2.0.1.6.decoration.radius: 6 / 8`
   - `r0.body.1.2.0.1.6.0.layout.height: {"hug":0} / 40; r0.body.1.2.0.1.6.0.layout.width.hug: 0 / (none); r0.body.1.2.0.1.6.0.layout.width.fill: (none) / 0`
@@ -2287,28 +2287,28 @@ Under desk's theme: 3 of 6 differ.
   - `r0.body.1.2.3.1.1.0.bind.data: "${= sortBy(sortDir==\"asc\"?sortBy(ages,r=>r[sortCol]):sortByDesc(ages,r=>r[sortCol]),... / "${= sortDir==\"asc\"?sortBy(ages,r=>r[sortCol]):sortByDesc(ages,r=>r[sortCol])}"`
 - docs/reference/notation/lists.md block 4 @1440: 7 of 18 nodes the same; 5 differ, 6 only in the code's, 2 only in the definition's
   - `r0.body.0.0.0.0.children: ["r0.body.0.0.0.0.0","r0.body.0.0.0.0.1"] / ["r0.body.0.0.0.0.0"]`
-  - `r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: "center" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)`
-  - `r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0`
+  - `r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0`
+  - `r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)`
 - docs/reference/notation/lists.md block 4 @834: 7 of 18 nodes the same; 5 differ, 6 only in the code's, 2 only in the definition's
   - `r0.body.0.0.0.0.children: ["r0.body.0.0.0.0.0","r0.body.0.0.0.0.1"] / ["r0.body.0.0.0.0.0"]`
-  - `r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: "center" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)`
-  - `r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0`
+  - `r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0`
+  - `r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)`
 - docs/reference/notation/lists.md block 4 @390: 7 of 18 nodes the same; 5 differ, 6 only in the code's, 2 only in the definition's
   - `r0.body.0.0.0.0.children: ["r0.body.0.0.0.0.0","r0.body.0.0.0.0.1"] / ["r0.body.0.0.0.0.0"]`
-  - `r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.props.crossAxisAlignment: "center" / (none); r0.body.0.0.0.0.0.props.spacing: 4 / (none)`
-  - `r0.body.0.0.0.0.0.0.layout.squeezable: true / (none); r0.body.0.0.0.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.width.fill: (none) / 0`
+  - `r0.body.0.0.0.0.0.layout.flex: 1 / (none); r0.body.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.layout.height.fill: (none) / 0`
+  - `r0.body.0.0.0.0.0.0.layout.height.hug: 0 / (none); r0.body.0.0.0.0.0.0.layout.height.fill: (none) / 0; r0.body.0.0.0.0.0.0.layout.squeezable: true / (none)`
 - docs/reference/notation/lists.md block 10 @1440: 8 of 41 nodes the same; 11 differ, 22 only in the code's, 4 only in the definition's; document keys variables
   - `r0.body.0.0.1.children: ["r0.body.0.0.1.0","r0.body.0.0.1.1","r0.body.0.0.1.2"] / ["r0.body.0.0.1.0","r0.body.0.0.1.1"]`
   - `r0.body.0.0.1.0.children: ["r0.body.0.0.1.0.0","r0.body.0.0.1.0.1","r0.body.0.0.1.0.2","r0.body.0.0.1.0.3"] / ["r0.body.0.0.1.0.0"]`
-  - `r0.body.0.0.1.0.0.layout.width: 16 / {"fill":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: "center" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1`
+  - `r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {"fill":0}`
 - docs/reference/notation/lists.md block 10 @834: 8 of 41 nodes the same; 11 differ, 22 only in the code's, 4 only in the definition's; document keys variables
   - `r0.body.0.0.1.children: ["r0.body.0.0.1.0","r0.body.0.0.1.1","r0.body.0.0.1.2"] / ["r0.body.0.0.1.0","r0.body.0.0.1.1"]`
   - `r0.body.0.0.1.0.children: ["r0.body.0.0.1.0.0","r0.body.0.0.1.0.1","r0.body.0.0.1.0.2","r0.body.0.0.1.0.3"] / ["r0.body.0.0.1.0.0"]`
-  - `r0.body.0.0.1.0.0.layout.width: 16 / {"fill":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: "center" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1`
+  - `r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {"fill":0}`
 - docs/reference/notation/lists.md block 10 @390: 8 of 41 nodes the same; 11 differ, 22 only in the code's, 4 only in the definition's; document keys variables
   - `r0.body.0.0.1.children: ["r0.body.0.0.1.0","r0.body.0.0.1.1","r0.body.0.0.1.2"] / ["r0.body.0.0.1.0","r0.body.0.0.1.1"]`
   - `r0.body.0.0.1.0.children: ["r0.body.0.0.1.0.0","r0.body.0.0.1.0.1","r0.body.0.0.1.0.2","r0.body.0.0.1.0.3"] / ["r0.body.0.0.1.0.0"]`
-  - `r0.body.0.0.1.0.0.layout.width: 16 / {"fill":0}; r0.body.0.0.1.0.0.props.crossAxisAlignment: "center" / (none); r0.body.0.0.1.0.0.props.crossAxisCount: (none) / 1`
+  - `r0.body.0.0.1.0.0.layout.height.hug: 0 / (none); r0.body.0.0.1.0.0.layout.height.fill: (none) / 0; r0.body.0.0.1.0.0.layout.width: 16 / {"fill":0}`
 
 Under cards's theme: 18 of 18 differ.
 - tool/vocabulary/corpus/2026-11-16-sonnet/answers/admin-console.txt ### Members @1440: 176 of 206 nodes the same; 21 differ, 9 only in the code's, 2 only in the definition's; document keys variables
