@@ -40,6 +40,8 @@ import '../triggers.dart' show TriggerType;
 import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
 import '../custom_paint.dart' show DrawOp;
 import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
+// A ListView with lines of its own is read as a scrolling Column (_listOfLines).
+import '../widgets/flex.dart' show FlexProps;
 
 part 'notation_events.dart';
 part 'paint_words.dart';
@@ -8745,6 +8747,7 @@ class _Parser {
           leaf: spec.children == ChildModel.none && parent != null,
           slots: component && spec.children == ChildModel.none ? spec.slots : const [],
           written: written));
+      if (type == 'listView' && !component) _listLines[id] = (line: _line, column: column);
     }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
@@ -9446,6 +9449,71 @@ class _Parser {
   /// with the line's place to record them by: read by the `each` under it.
   final _listUniversal = <String, _ListWords>{};
 
+  /// The `ListView` lines by node id, with where each was written: read when
+  /// the line closes ([_listOfLines]).
+  final _listLines = <String, ({int line, int column})>{};
+
+  /// A `ListView` whose lines are its own (a line beside an `each`, or no
+  /// `each` at all) is no list over data: its first line would be repeated
+  /// without end, and one hidden by its `if` drew nothing. Said where it is
+  /// written, with the way to write it; read as that scrolling Column (a Row
+  /// for a horizontal list). A list with words a Column does not take
+  /// (`stickToEnd`, `reverse`, `separator`…) keeps them and has one item,
+  /// a column of its lines.
+  void _listOfLines(String id) {
+    final at = _listLines.remove(id);
+    final node = nodes[id];
+    if (at == null || node == null || node['type'] != 'listView') return;
+    final props = readMap(node['props']) ?? const <String, Object?>{};
+    final kids = readStrings(node['children']);
+    if (kids.isEmpty || readMap(node['bind'])?['data'] != null || props['itemCount'] != null || props['pagination'] != null) return;
+    final across = props['scrollDirection'] == 'horizontal';
+    final word = across ? 'Row' : 'Column';
+    final flexKeys = {for (final p in FlexProps.all) p.key};
+    final bound = [
+      for (final k in (readMap(node['bind']) ?? const <String, Object?>{}).keys)
+        if (k.startsWith('props.')) k.substring(6),
+    ];
+    final listOnly = [...props.keys, ...bound].where((k) => !flexKeys.contains(k)).toList();
+    if (!_top._quiet) {
+      final read = listOnly.isEmpty ? 'read so here' : 'read here as a list of one item, its lines, for ${listOnly.join(', ')}';
+      issues.add(NotationIssue(at.line, at.column,
+          '${_from == null ? '' : '$_from: '}A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling $word: $word scroll with the lines and the each under it ($read).'));
+    }
+    if (listOnly.isEmpty) {
+      final patch = <String, Object?>{
+        'type': across ? 'row' : 'column',
+        'props': {'scrollable': props['scrollable'] ?? true, if (!across) 'crossAxisAlignment': 'start'},
+      };
+      nodes[id] = mergePatch(node, patch);
+      // Its type changes: the node is set again (a patch keeps the type).
+      _patches.add({'op': 'set', 'id': id, 'node': nodes[id]});
+      return;
+    }
+    final itemId = _id(across ? 'row' : 'column');
+    nodes[itemId] = {
+      'type': across ? 'row' : 'column',
+      'layout': {
+        'width': across ? {'hug': 0} : {'fill': 0},
+        'height': across ? {'fill': 0} : {'hug': 0},
+      },
+      'props': {if (props['spacing'] case final num gap) 'spacing': gap, if (!across) 'crossAxisAlignment': 'start'},
+      'children': kids,
+    };
+    for (final k in kids) {
+      _parentOf[k] = itemId;
+    }
+    _parentOf[itemId] = id;
+    final patch = <String, Object?>{
+      'props': {'itemCount': 1},
+      'children': [itemId],
+    };
+    nodes[id] = mergePatch(node, patch);
+    _patches
+      ..add({'op': 'set', 'id': id, 'node': nodes[id]})
+      ..add({'op': 'set', 'id': itemId, 'node': nodes[itemId]});
+  }
+
   /// The ink of the nearest container around [id] (itself included) that
   /// gave one with `color=`, as written.
   String? _inkAbove(String? id) {
@@ -9612,6 +9680,7 @@ class _Parser {
     _slotAction(open);
     _removable(open);
     if (open.each != null) _selectThrough(open.id);
+    if (open.each == null && open.condition == null) _listOfLines(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {

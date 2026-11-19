@@ -1,3 +1,14 @@
+## Unreleased
+
+### Behaviour changes
+
+- **A `ListView` with lines of its own** (a line beside its `each`, or no `each`) is said at its line and read as
+  the scrolling Column it is: `Column scroll` with the lines and the `each`. It repeated its first line without
+  end, or drew nothing when that line was hidden by its `if`. A list with words a Column does not take
+  (`stickToEnd`, `reverse`, `separator`…) keeps them and has one item, a column of its lines.
+
+### Fixed
+
 ## 37.0.0
 
 Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop
