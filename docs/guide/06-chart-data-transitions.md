@@ -10,7 +10,7 @@
 
 `animate` defaults to `true`; `animationDuration` defaults to 700 milliseconds.
 `false` or a zero duration applies new data immediately. Existing JSON needs no
-migration, and default values remain omitted in sparse serialization. Initial
+change, and default values remain omitted in sparse serialization. Initial
 values and design-canvas previews are drawn at rest. A running SDK interpolates
 numeric values when data changes, retargeting an interrupted transition from the
 values currently painted.

@@ -236,11 +236,13 @@ final class PublishLayout {
   /// The conditions of canvas [canvasId].
   List<Condition> conditionsOf(String canvasId) => logic.conditionsOf(canvasId);
 
-  /// Decodes a published layout of any schema, its nodes and actions with
-  /// [catalog] (default: [Catalog.current]). Never throws.
+  /// Decodes a published layout, its nodes and actions with [catalog]
+  /// (default: [Catalog.current]). A layout of a schema other than
+  /// [kSchemaVersion], or with none, is refused
+  /// ([UnsupportedSchemaException]); otherwise it never throws.
   static PublishLayout fromJson(Object? json, {Catalog? catalog}) {
     final m = readMap(json) ?? const {};
-    final document = LayoutDocument.fromJson({
+    final document = LayoutDocument.fromJson(json is! Map ? null : {
       for (final e in m.entries)
         if (!_ownKeys.contains(e.key)) e.key: e.value,
     }, catalog: catalog);

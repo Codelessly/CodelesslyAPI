@@ -51,7 +51,7 @@ Object? _sorted(Object? v) => switch (v) {
 
 const _samples = <String>[
   // The document line, typed state, the canvas line with what the screen does.
-  'document id="checkout" schema=2 scope=page_variables\nstate count:decimal=2\nstate note:text\ncanvas "Trip" path="/trip" h=844 onLoad={count=3}\nColumn\n  Text "{count}"\nevery 1s onTick={count=count+1}',
+  'document id="checkout" scope=page_variables\nstate count:decimal=2\nstate note:text\ncanvas "Trip" path="/trip" h=844 onLoad={count=3}\nColumn\n  Text "{count}"\nevery 1s onTick={count=count+1}',
   // A component's head and its tree.
   'component StatusPill "A short status."\n  param label="Active" required doc="What it says."\n  param tone:neutral|success|danger="neutral"\n  param count:{"kind":"number","flutter":"int"}=0\n  event onChanged:String\n  slot trailing\n  preview "Default" 120x28 label="Active"\nRow#pill gap=4\n  Text#pillLabel "Active"',
   // A tail merged again over what later lines add; a tail that takes away what the words made.

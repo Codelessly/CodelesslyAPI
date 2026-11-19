@@ -49,10 +49,10 @@ String _prints(Map<String, Object?> doc, {List<String> same = const []}) {
 
 void main() {
   group('the document line', () {
-    test('id, schema and the scope of the state lines', () {
-      final doc = _roundTrip('document id="checkout" schema=2 scope=page_variables\nstate n=1\nColumn\n  Text "{n}"', same: ['document id="checkout" schema=2 scope=page_variables']);
+    test('id and the scope of the state lines', () {
+      final doc = _roundTrip('document id="checkout" scope=page_variables\nstate n=1\nColumn\n  Text "{n}"', same: ['document id="checkout" scope=page_variables']);
       expect(doc['id'], 'checkout');
-      expect(doc['schema'], 2);
+      expect(doc['schema'], 3);
       expect((doc['variables'] as Map).keys, ['page_variables']);
     });
 
@@ -64,6 +64,9 @@ void main() {
     test('a word it does not take is said', () {
       final r = parseNotation('document id="x" flavor=1\nColumn', catalog: standardCatalog);
       expect(r.issues.map((i) => i.message).join(), contains('A document line takes'));
+      // Schema 3 is the only one a document line names.
+      expect(parseNotation('document schema=2\nColumn', catalog: standardCatalog).issues.map((i) => i.message).join(), contains('A document line takes'));
+      expect(parseNotation('document schema=3\nColumn', catalog: standardCatalog).issues, isEmpty);
     });
   });
 

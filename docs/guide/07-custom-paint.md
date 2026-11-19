@@ -85,9 +85,8 @@ canvas.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 2);
 
 ### 30.0.0's special-purpose paint, in these terms
 
-Since 30.1.0 three earlier features are ops (the migration's `paintSteps` rewrite a schema-2 document's;
-docs/design/01-paint-node.md, "30.1.0"); written in a schema-3 document, none is read: write the form
-below:
+Three features that were once keys of their own are ops (docs/design/01-paint-node.md, "30.1.0"); the old
+keys are not read: write the form below:
 
 - **`strokePath`** (a line through points) is a `path` op in `painter` (`foregroundPainter` for `inFront`):
   `points`, a share of the box as `"${= 0.25 * size.width}"`, `curve` as `commands`, `progress` as `trimEnd`,

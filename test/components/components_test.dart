@@ -55,17 +55,6 @@ void main() {
     expect(n.withComponent(null).toJson().containsKey('component'), isFalse);
   });
 
-  test('a node marked by an older editor reads as a component link', () {
-    final n = Node.fromJson({
-      'id': 'x',
-      'type': 'box',
-      'component': {'id': 'c9', 'marker': 'component', 'version': 2},
-    })!;
-    expect(n.component, const ComponentLink(id: 'c9', role: ComponentRole.main, version: 2));
-    expect(n.extra, isEmpty);
-    expect(Node.fromJson({'id': 'x', 'type': 'box', 'component': {'marker': 'instance'}})!.component, isNull);
-  });
-
   test("a copied instance's settings follow its new node ids", () {
     final link = ComponentLink.fromJson({'id': 'cmp1', 'settings': settings})!;
     final copy = link.remapped({'t': 't2', 'card': 'card2'});

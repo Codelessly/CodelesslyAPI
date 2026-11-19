@@ -22,18 +22,15 @@ The editor builds on all three; the API and SDK know nothing about it.
 
 ### 2.1 Versions and storage
 
-* Every document carries `"schema": 3`. Decoders run `LayoutDocument.migrateSchema` on
-  load: a schema-2 document (or one with no `schema`) is migrated once, in
-  memory, by `migrate2to3` (pure JSON, named steps, never throws; a
-  `MigrationReport` says every rewrite, every value with no schema-3 form,
-  kept on its node as `legacy.<name>`, and every behavior change), and the
-  model's decoders know only the schema-3 shape. Loaders take 2 and 3 and
-  never write a migrated document back; `tool/migrate.dart` rewrites files
-  (docs/guide/12-migrating-to-schema-3.md).
+* Every document carries `"schema": 3`, the one schema the package reads:
+  `LayoutDocument.fromJson` (and the publish model's and bundle's decoders)
+  refuse any other, or none, with an `UnsupportedSchemaException` naming the
+  schema found and the one read ("The document is in schema 2;
+  codelessly_api reads schema 3 only.").
 * A project's publish model is
   `publish/{projectId}` and each layout `publish/{projectId}/layouts/{id}`
   (`publish_preview/...` for the editor's preview, `templates/...` for
-  templates), in the current format with `"schema": 3` (or 2, migrated when read); a layout too large for one
+  templates), in the current format with `"schema": 3`; a layout too large for one
   Firestore document keeps its nodes gzipped and base64 encoded in
   `compressedNodes` (`{"nodes": {...}}`). A document in any other format
   fails to load with a clear message (§5.4).
@@ -184,8 +181,7 @@ Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `tabularFigures`) and `leadingDistribution`. A style with no `height` takes
 the nearest `defaultTextStyle` above it (a behavior on any node, Flutter's
 `DefaultTextStyle`), else the font's own line height (Flutter's
-`height: null`); a schema-2 document keeps its 1.33 through the migration
-(`defaultTextStyle: {"height": 1.33}` on its top-level nodes). A node is
+`height: null`). A node is
 turned and scaled by its `motion` (`rotate`, `scale`: Flutter's `Transform`),
 never by its layout.
 
@@ -244,9 +240,9 @@ flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
 |---|---|---|
-| `motion` | `Motion` | Flutter's `Transform` over the layout, nothing temporal (docs/design/03-motion.md): `translateX/Y`, `shiftX/Y` (the node's size), `scale` times `scaleX/Y`, `rotate`, `rotateX/Y` with `perspective`, about `alignment`; `backfaceHidden`; `path` (`PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/`upright`; a closed path wraps its progress). A path is followed from the node's own place (offsets from its start point), or in a `viewBox` over the parent. Its values are the rest pose; how they move is the node's `animations` and `transitions`. Schema 2's flat keys (`originX/Y`, the `path*` keys, `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and shimmer) are migrated (guide chapter 12). |
+| `motion` | `Motion` | Flutter's `Transform` over the layout, nothing temporal (docs/design/03-motion.md): `translateX/Y`, `shiftX/Y` (the node's size), `scale` times `scaleX/Y`, `rotate`, `rotateX/Y` with `perspective`, about `alignment`; `backfaceHidden`; `path` (`PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/`upright`; a closed path wraps its progress). A path is followed from the node's own place (offsets from its start point), or in a `viewBox` over the parent. Its values are the rest pose; how they move is the node's `animations` and `transitions`. |
 | `scale` | number | `Transform.scale` about the center; layout unchanged. |
-| `animations` | `[NodeAnimation]` | Flutter's `AnimationController` as data, outermost first (guide chapter 8): `id`, `duration`/`reverseDuration`, `delay`, `curve`, `repeat` (`{reverse, count}`), `autoplay`, `playKey`, `paused`, `phase`, `spring`, `progress` (an expression instead of a clock), `alignment`, `previewAt`, and `tracks` (`Tween`/`TweenSequence`/`Interval`/`CurveTween` on a binding `path` of the node or of `node`, or on a `variable`; `blend` `replace`, `add` or `multiply`; `wave`s). `preset` with `params` is a short form (`pulse`, `fade`, `scale`, `spin`, `bob`, `sway`, `flicker`, `shake`, `bounce`, `pop`, `wiggle`, `jelly`, `flash`, `keyframes`, `enter`). Its state reads as `${animation.<id>.value}`, `.status`, `.isAnimating` in the node and the nodes inside it. Schema 2's `loops` and `effectAnimations` (and `motion.pulseKey`) are migrated to these. |
+| `animations` | `[NodeAnimation]` | Flutter's `AnimationController` as data, outermost first (guide chapter 8): `id`, `duration`/`reverseDuration`, `delay`, `curve`, `repeat` (`{reverse, count}`), `autoplay`, `playKey`, `paused`, `phase`, `spring`, `progress` (an expression instead of a clock), `alignment`, `previewAt`, and `tracks` (`Tween`/`TweenSequence`/`Interval`/`CurveTween` on a binding `path` of the node or of `node`, or on a `variable`; `blend` `replace`, `add` or `multiply`; `wave`s). `preset` with `params` is a short form (`pulse`, `fade`, `scale`, `spin`, `bob`, `sway`, `flicker`, `shake`, `bounce`, `pop`, `wiggle`, `jelly`, `flash`, `keyframes`, `enter`). Its state reads as `${animation.<id>.value}`, `.status`, `.isAnimating` in the node and the nodes inside it. |
 | `transitions` | `[Transition]` | Implicit animations (`AnimatedContainer`, `AnimatedOpacity`), one per `property` path or prefix (`motion`, `motion.rotate`, `opacity`, `*`): `duration`, `delay`, `curve` or `spring`, `keyframes` (a prefix's as poses) with `interpolation`. A change there tweens from what is shown; the longest match wins; a prefix moves as one; a path an animation plays isn't transitioned. |
 | `shimmer` | `Shimmer` | A band of light over what the node paints (`ShaderMask`): `color`, `strength`, `width`, `angle`, `position`; the `shimmer` animation preset sweeps it. |
 | `inkWell` | `InkWellStyle` | `InkWell` colors: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
@@ -260,9 +256,6 @@ flat in the node's JSON. Every key is optional and sparse.
 | `reorderHandle` | bool | A reorderable list row's drag handle (`ReorderableDragStartListener`). |
 | `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. |
 
-Schema 2's `drag` is migrated to `track` (its `track`), `reorderHandle` (`reorder: true`), `dismissible`
-(`release: dismiss`, its old defaults written out) or `pan`, and `zoomable: true` to a `transformGesture`
-(docs/design/04-drag-and-track.md); the one-app fields schema 3 removed are kept as `legacy.<name>`.
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
 | `reveal`, `particles`, `textDirection` | | Scroll into view; confetti; `Directionality`. |
 | `typewriter` | `Typewriter` | A text node typing its text out (the layout is the whole text's; only what's typed is painted). |
@@ -278,7 +271,7 @@ A spring is one value wherever it is: `Spring`, Flutter's
 for `withDurationAndBounce`), on an animation, a transition, a
 drag source's `returnSpring`, a track's `settleSpring`, a dismissible's
 `returnSpring`, a flip card and a
-route's dismiss (schema 2's flat spring keys are migrated to it). A release's
+route's dismiss. A release's
 motion is one model wherever it is: `GesturePhysics` (a fling with
 `friction`, `overscroll` past `bounds`, a `spring`, a `snap` to points, a
 grid or the edges; `{"preset": "bouncy"}` reads as a preset) for
@@ -543,7 +536,7 @@ run. Names come from scopes: the screen's variables, the list item (`item`,
 `perf`: the app's frame timings `{frameMs, buildMs, rasterMs, fps}`, read
 from the engine only while something watches it...),
 and what a node gives itself and the nodes inside it: a dismissible's live
-`dismiss` and a pan's `pan` values (and both as the legacy `drag`, over the
+`dismiss` and a pan's `pan` values (and both as `drag`, over the
 session's; a `LocalScope`), a track's `track`
 (`value`, `progress`, `dragging`, `fine`, `focused`), a transform gesture's
 `transform` (the pose, `active`, `selected`), a flip card's `flip`
@@ -577,10 +570,10 @@ effect id for the item with that id, and `*` for every item.
 | `props.<prop>.<field>` | a field of a structured prop |
 | `props.style.<field>` (text) | the base style and every run's |
 | `data` | the items a list, grid or page view builds one per (its item count follows) |
-| `textDirection`, `motion.<field>`, `motion.path.progress`, `hero.<field>`, `tooltip`... | a behavior (§4.1); `animations.<id>.paused` reads loosely, `animations.<id>.params.frames` a list or its JSON text; schema 2's bound motion timing keys are migrated to the animations and `transitions[i]` they became |
+| `textDirection`, `motion.<field>`, `motion.path.progress`, `hero.<field>`, `tooltip`... | a behavior (§4.1); `animations.<id>.paused` reads loosely, `animations.<id>.params.frames` a list or its JSON text |
 | `dismissible.<field>`, `pan.<field>`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a dismissible's or pan's setting (`enabled` read loosely, `pan.x`/`pan.y` its rest); a drag source's or drop target's switch; the payload |
-| `track.<field>`, `track.value` | a track's setting or geometry (a number written as is reads); the value it's drawn at. Schema 2's `drag.track.*` and `drag.*` paths are migrated to these (`drag.enabled` → the behavior's `enabled`, `drag.restX` → `pan.x`...) |
-| `animations.<id>.<field>` | an animation's field (`paused`, `phase`, `playKey`, `enabled`, `params.<p>`, `tracks.<trackId>.from`...); schema 2's `loops[i].*` and `effectAnimations[i].*` keys are migrated to these (a loop's `phase` and `lag` into one `phase` formula) |
+| `track.<field>`, `track.value` | a track's setting or geometry (a number written as is reads); the value it's drawn at |
+| `animations.<id>.<field>` | an animation's field (`paused`, `phase`, `playKey`, `enabled`, `params.<p>`, `tracks.<trackId>.from`...) |
 | `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face |
 | `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) |
 | `particles.playKey` | the particles' cue |
@@ -621,8 +614,7 @@ never blocked), scrolling and viewport (`scroll`, `scrollEnd`,
 `enterViewport`, `exitViewport`), drag and drop and `reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
 `key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`,
 `visibleFraction`. `timer` is `Timer.periodic`: `intervalMs` a number or an
-expression, `${result.tick}` (schema 2's `clock` is migrated to it: `every` →
-`intervalMs`, `runWhen` → `when`). `frame` is a `Ticker`: `${result.dt}`,
+expression, `${result.tick}`. `frame` is a `Ticker`: `${result.dt}`,
 `${result.elapsed}`, `${result.frame}`, while `when` holds and the node is on
 stage; a frame that comes while its chain runs is skipped. A list fires `refresh` (pulled to
 refresh) and `swipeAction` (`${result.action}`, `${result.item}`).
@@ -638,8 +630,7 @@ sync), `setVariant`, `setVariable` (a `ValueWrite`: `op` set, toggle,
 add, subtract, insert, insertAll, removeAt, remove, update; `index`,
 `mapKey`; to glide a number, `animate` it), `animate` (an `AnimationController` command — `forward`,
 `reverse`, `toggle`, `repeat`, `stop`, `reset`, `animateTo`, `animateBack`,
-`set` — on a node's animation or a number variable's timeline; schema 2's
-`playAnimation`, `animateVariable` and `setVariable.animateMs` are migrated to it), `callFunction`, `runScript` (a layout script, below;
+`set` — on a node's animation or a number variable's timeline), `callFunction`, `runScript` (a layout script, below;
 `onError` reads `${result.error}`), `callApi` (`onSuccess` / `onError`),
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
 `cloudFiles`, `auth`, `if`, `forEach` (each turn reads `${loop.item}`,
@@ -651,8 +642,7 @@ by closing with `{confirmed: true, ...values}`, the values its actions'
 the scroll views along it), `speak`, `playSound`, `paywall`,
 `controlTrack` (`step` a track by `steps`, `animateTo` a `value`),
 `controlDismissible` (`dismiss`, `returnFrom`, `reset` toward a `direction`),
-`controlTransform` (`reset`, `scaleBy`, `animateTo` a pose; schema 2's
-`controlDrag` is migrated to the one its command names),
+`controlTransform` (`reset`, `scaleBy`, `animateTo` a pose),
 `haptic` (`HapticFeedback`: selection, light, medium, heavy, vibrate),
 `paginate` (a list's pagination by name: next, previous, goTo, first,
 last, refresh, retry, setPageSize).
@@ -824,10 +814,10 @@ project reads `templates`. `CodelesslyConfig.publishSource: preview` reads
 model document (`CodelesslyConfig.liveUpdates`, on by default), and a
 layout whose entry got newer is dropped and loads again when shown, so a
 publish (or a preview save) reaches running apps. A
-document without `"schema": 2` or `3` is not in this format: loading fails
-with a `PublishLoadException` saying so (a newer schema names the SDK
-update). A stored component is checked against its digest as stored, then
-migrated in memory.
+document of a schema other than 3, or without one, is not in this format:
+loading fails with a `PublishLoadException` saying the schema found and the
+one read (a newer schema also names the SDK update). A stored component is
+checked against its digest as stored.
 
 **Components.** `PublishLoader.loadComponent(source, type)` reads one
 published component (§2.1): the Firestore loader the document

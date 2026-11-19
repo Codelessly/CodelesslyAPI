@@ -154,7 +154,7 @@ void main() {
       expect(id.pages['p1']!.title, 'Log');
       expect(id.pageOf(['x', 'p1'])!.title, 'Log');
       expect(id.toJson(), json);
-      final model = PublishModel.fromJson({'projectId': 'p', 'appIdentity': json});
+      final model = PublishModel.fromJson({'schema': 3, 'projectId': 'p', 'appIdentity': json});
       expect(model.appIdentity, id);
       expect(model.extra, isEmpty);
       expect(PublishModel.fromJson(model.toJson()).appIdentity, id);

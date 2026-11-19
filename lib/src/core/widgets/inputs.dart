@@ -905,14 +905,8 @@ abstract final class SignatureProps {
   static const signLineDash = PropDef<double>('signLineDash', Codecs.positive, 6);
   static const signLineGap = PropDef<double>('signLineGap', Codecs.positive, 6);
 
-  /// An older name for [signLineBottom], read when that is unset.
-  static const signLineOffset = PropDef<double?>('signLineOffset', Codecs.optionalPositive, null);
-
   /// The line's distance from the pad's left and right edges.
   static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
-
-  /// An older name for [signLineMark]: either off hides the mark.
-  static const showSignMark = PropDef<bool>('showSignMark', Codecs.bool, true);
 
   /// The mark as an icon; null is a "×" glyph [signMarkSize] high.
   static const signMarkIcon = PropDef<Json?>('signMarkIcon', Codecs.optionalIcon, null);
@@ -962,24 +956,12 @@ abstract final class SignatureProps {
     errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, showSignLine, signLineColor,
     signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing,
     placeholderStyle, placeholderAlignment, placeholderOffset, signLineWidth, signLineStyle, signLineDash,
-    signLineGap, signLineOffset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
+    signLineGap, signMarkIcon, signMarkSize, signMarkColor,
     signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, smooth, error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }
 
 Object? _same(Object? v) => v;
 
-/// A validator: its expression. The object form older documents saved
-/// (`{"type": "required"}`, `{"type": "email"}`, never applied) reads as
-/// the expression it named; any other object, as none.
-String _validatorIn(Object? json) {
-  if (json is String) return json;
-  final m = readMap(json);
-  if (m == null) return '';
-  final message = m['message'] is String ? (m['message'] as String).replaceAll("'", "\\'") : null;
-  return switch (m['type']) {
-    'required' => "\${= trim(value) == '' ? '${message ?? 'Required.'}' : ''}",
-    'email' => "\${= matches(value, '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+\$') ? '' : '${message ?? 'Enter a valid email address.'}'}",
-    _ => '',
-  };
-}
+/// A validator: its expression (anything else reads as none).
+String _validatorIn(Object? json) => json is String ? json : '';

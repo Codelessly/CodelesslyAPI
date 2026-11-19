@@ -33,9 +33,8 @@ enum FormService {
   /// Validated and stored in the app's own variables; no network.
   local,
 
-  /// A service this version doesn't run: a submission saved by an older
-  /// version with a built-in third-party integration that has since been
-  /// removed, or one from a newer version. It decodes so the layout still
+  /// A service this version doesn't run (a `service` other than `local`,
+  /// as a newer version might add). It decodes so the layout still
   /// loads, and fails without sending anything when it runs (a runtime
   /// reports it as the action's error). It is never offered for new actions.
   unsupported,
@@ -79,14 +78,9 @@ final class SubmitFormAction extends DataAction {
   @override
   List<ActionDef> get nested => [...onSuccess, ...onError];
 
-  /// Older layouts' newsletter submissions: `service` other than `local`,
-  /// or no `service` with the removed provider settings. Their credentials
-  /// and field ids are read past, never kept.
-  static const _legacyKeys = ['apiKey', 'dataCenter', 'listId', 'emailField', 'firstNameField', 'lastNameField'];
-
   static FormService _service(Json m) {
     final s = m['service'];
-    if (s == null) return _legacyKeys.any(m.containsKey) ? FormService.unsupported : FormService.local;
+    if (s == null) return FormService.local;
     return s == FormService.local.name ? FormService.local : FormService.unsupported;
   }
 

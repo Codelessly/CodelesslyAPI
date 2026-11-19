@@ -105,7 +105,7 @@ another kind of parent are kept, so moving a node back restores them, and render
 
 `margin` and `padding` are `[left, top, right, bottom]`, or a single number for all four sides.
 A turn or a scale is not layout (neighbors don't move): it is the node's `motion`, Flutter's `Transform`
-(`"motion": {"rotate": 15}`, chapter 8). Schema 3's `layout.rotation` and node `scale` are migrated there.
+(`"motion": {"rotate": 15}`, chapter 8).
 
 ## Decoration
 

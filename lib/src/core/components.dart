@@ -100,15 +100,13 @@ final class ComponentLink {
     };
   }
 
-  /// Null without an id. Also reads the marker the editor kept in a
-  /// node's `extra` before this model (`{"id", "marker": "component" |
-  /// "instance", "version"}`).
+  /// Null without an id.
   static ComponentLink? fromJson(Object? json) {
     final m = readMap(json);
     final id = readString(m?['id']);
     if (m == null || id == null || id.isEmpty) return null;
-    final role = switch (m['role'] ?? m['marker']) {
-      'main' || 'component' => ComponentRole.main,
+    final role = switch (m['role']) {
+      'main' => ComponentRole.main,
       _ => ComponentRole.instance,
     };
     return ComponentLink(

@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6182
+      "words": 6187
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6167
+      "words": 6172
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 10407
+      "words": 10392
     },
     {
       "topic": "layout-layout-fields",
@@ -25,7 +25,7 @@
       "anchor": "layout-layout-fields",
       "title": "Layout fields",
       "summary": "A node's `\"layout\"`: its size, spacing and placement in its parent.",
-      "words": 548
+      "words": 533
     },
     {
       "topic": "layout-which-sizing-modes-each-parent-allows",
@@ -345,7 +345,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 14019
+      "words": 13979
     },
     {
       "topic": "forms-triggers",
@@ -889,7 +889,7 @@
       "anchor": "page-animation",
       "title": "Animation and motion",
       "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4769
+      "words": 4742
     },
     {
       "topic": "animation-triggers",
@@ -1297,7 +1297,7 @@
       "anchor": "page-publish",
       "title": "Publish, managed components and plugins",
       "summary": "What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins.",
-      "words": 672
+      "words": 681
     },
     {
       "topic": "publish-the-publish-model-s-parts",
@@ -1305,7 +1305,7 @@
       "anchor": "publish-the-publish-model-s-parts",
       "title": "The publish model's parts",
       "summary": "",
-      "words": 346
+      "words": 355
     },
     {
       "topic": "publish-a-page-s-url-and-title",

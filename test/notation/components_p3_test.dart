@@ -146,8 +146,9 @@ Column
   group('the document line', () {
     // One spelling of what the API reads two ways (design 22, 4.9): the print
     // reads back as the document in the parser's spelling.
-    test('an empty parameter list, a preview with no values, a document with no schema', () {
+    test('an empty parameter list, a preview with no values', () {
       final doc = {
+        'schema': 3,
         'id': 'Rule',
         'roots': ['rule'],
         'widget': {'type': 'Rule', 'props': <Object?>[]},
@@ -163,10 +164,9 @@ Column
       };
       final printed = printNotation(doc, catalog: standardCatalog);
       expect(printed, isNot(contains('document {')), reason: printed);
-      expect(printed, contains('document schema=2'));
       expect(printed, contains('  preview "Default" 300x2'));
       final back = parseNotation(printed, catalog: standardCatalog, options: notationOptionsFor(doc)).document;
-      expect(back['schema'], 2);
+      expect(back['schema'], 3);
       expect((back['widget']! as Map).containsKey('props'), isFalse);
       expect(back['previews'], [
         {
