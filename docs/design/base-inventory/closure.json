@@ -4524,6 +4524,7 @@
   ],
   "closes": true,
   "closesUpToSpelling": true,
+  "builtIn": true,
   "equal": 12,
   "equalUpToSpelling": 12,
   "expansions": 12,

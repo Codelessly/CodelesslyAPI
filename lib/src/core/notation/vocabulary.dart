@@ -324,8 +324,6 @@ final class NotationVocabulary {
       // `key mod+k onPress={…}`.
       'Shortcut': TypeAlias(line: 'shortcut'),
       'shortcut': TypeAlias(line: 'shortcut'),
-      // A value worked out from the state: ours is `state name=formula`.
-      'computed': TypeAlias(line: 'computed'),
       // A question with a yes and a no, over the page: a Dialog with its two
       // buttons.
       'ConfirmDialog': TypeAlias(line: 'confirmDialog'),
@@ -584,7 +582,6 @@ typedef LineRewrite = List<String>? Function(LineParts parts, String text);
 /// The rewrites [TypeAlias.line] names.
 final Map<String, LineRewrite> lineRewrites = {
   'shortcut': _shortcutLine,
-  'computed': _computedLine,
   'confirmDialog': _confirmDialogLines,
 };
 
@@ -611,15 +608,6 @@ List<String>? _shortcutLine(LineParts p, String text) {
     if (m != null) when = m[1]!.trim();
   }
   return ['key $combo${when == null || when.isEmpty ? '' : ' when $when'} onPress=${event.value}'];
-}
-
-/// `computed total={sum(cart,x=>x.price)}`: a state written as its formula.
-List<String>? _computedLine(LineParts p, String text) {
-  final m = RegExp(r'^[A-Za-z]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(text);
-  if (m == null) return null;
-  var formula = m[2]!.trim();
-  if (formula.startsWith('{') && formula.endsWith('}')) formula = formula.substring(1, formula.length - 1).trim();
-  return ['state ${m[1]}=$formula'];
 }
 
 /// `ConfirmDialog#ask "Delete this plan?" "This cannot be undone."

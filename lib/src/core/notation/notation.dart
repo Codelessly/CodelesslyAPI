@@ -25,6 +25,7 @@ import 'bind_form.dart';
 import 'brackets.dart';
 import 'declared.dart';
 import 'define.dart';
+import 'dictionary.dart';
 import 'formula_names.dart';
 import 'keys.dart';
 import 'media_words.dart';
@@ -1614,6 +1615,15 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
   if (word.isEmpty) return null;
   final c = catalog ?? Catalog.current;
+  // A word of the built-in dictionary, unless the design system defines it.
+  if (notationDictionary[word] case final defs? when !vocabulary.definitions.containsKey(word)) {
+    final d = defs.first;
+    return switch (d.statement ? RegExp(r'^[a-z]+').stringMatch(d.body.first.text) : null) {
+      'state' => '$word, read as a state line: state total={…}',
+      'key' => '$word, read as the notation\'s shortcut line: key mod+k onPress={…}',
+      _ => '$word, a word of the notation\'s dictionary: ${d.signature}',
+    };
+  }
   if (PageWords.words.contains(word)) return '$word, a word of the page (its frames and their lines: App, Sidebar, Rail, Main, Nav, Section, Footer, Dialog…): $word …';
   if (RegExp(r'^H[1-4]$').hasMatch(word)) return '$word, a heading: $word "text"';
   final lower = '${word[0].toLowerCase()}${word.substring(1)}';
@@ -1628,6 +1638,26 @@ String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary v
       null => '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}',
     };
   }
+  return null;
+}
+
+/// Where the notation's meaning of [word] (a line's first word) is written:
+/// `base` (a node type of the notation or the catalog, a statement: the
+/// renderer and the parser implement it), `dictionary` (a definition of the
+/// built-in dictionary, written in base words: docs/design/23), `code` (a
+/// word the expander still rewrites into other lines in Dart: a page word, a
+/// heading, a line of another shape the alias table names), or null (no word
+/// of the notation's: a design system's, a writer's, unknown).
+String? notationWordOrigin(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
+  if (word.isEmpty) return null;
+  if (notationDictionary.containsKey(word)) return 'dictionary';
+  if (PageWords.words.contains(word) || RegExp(r'^H[1-4]$').hasMatch(word)) return 'code';
+  if (vocabulary.types[word]?.line != null) return 'code';
+  const statements = {'state', 'project', 'if', 'else', 'each', 'for', 'key', 'every', 'node', 'document', 'let', 'derived', 'const', 'var', 'define', 'primitive', 'component'};
+  if (statements.contains(word)) return 'base';
+  final c = catalog ?? Catalog.current;
+  final lower = '${word[0].toLowerCase()}${word.substring(1)}';
+  if (notationTypes.containsKey(word) || (word[0] == word[0].toUpperCase() && c.widget(lower) != null)) return 'base';
   return null;
 }
 
@@ -2216,7 +2246,8 @@ class _Parser {
   /// written out as the lines they stand for before a line is read; and,
   /// while those lines are read, where they are written (`StickyNote.txt:3`).
   late final DefinedWords _defined = DefinedWords(
-    options.vocabulary.definitions,
+    // The built-in dictionary's words, under the design system's.
+    {...notationDictionary, ...options.vocabulary.definitions},
     open: options.openVocabulary,
     record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
     issue: _issue,
@@ -2244,7 +2275,7 @@ class _Parser {
         node: d.statement ? null : _bareRoot(d, parts, node),
         parts: parts,
         of: d.file != 'page'
-            ? null
+            ? (isDictionaryDefinition(d) ? 'dictionary' : null)
             : options.vocabulary.definitions[d.word] != null
                 ? 'page, over ${options.vocabulary.definitions[d.word]!.first.file}'
                 : _componentNames(d.word) != null && d.name == null

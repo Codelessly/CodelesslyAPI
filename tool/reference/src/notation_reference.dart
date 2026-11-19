@@ -37,6 +37,7 @@ import 'package:codelessly_api/src/core/notation/notation.dart'
         notationVerbAliases,
         notationVerbs,
         parseNotation;
+import 'package:codelessly_api/src/core/notation/dictionary.dart' show notationDictionaryWords;
 import 'package:codelessly_api/src/core/notation/vocabulary.dart' show NotationVocabulary;
 import 'package:codelessly_api/src/core/notation/page_words.dart' show PageWords;
 import 'package:codelessly_api/src/core/notation/print.dart' show notationOptionsFor, printNotation;
@@ -1313,7 +1314,7 @@ final class _NotationReference {
     const v = NotationVocabulary.core;
     String on(String type) => type == '*' ? 'any line' : '`$type`';
     final rows = <List<String>>[
-      for (final e in v.types.entries)
+      for (final e in v.types.entries) ...[
         [
           '`${e.key}`',
           'word',
@@ -1324,6 +1325,13 @@ final class _NotationReference {
                   '${e.value.requires.isEmpty ? '' : ' (with ${e.value.requires.map((r) => '`$r=`').join(', ')})'}',
           '',
         ],
+        // The built-in dictionary's words that stand for a line of the
+        // notation (docs/design/23), read as that line as the aliases are;
+        // listed after the shortcut, where the alias table had them.
+        if (e.key == 'shortcut')
+          for (final w in notationDictionaryWords.toList()..sort())
+            ['`$w`', 'word', _aliasLines[w] ?? (throw StateError('notation reference: say what the dictionary word $w is in _aliasLines')), ''],
+      ],
       for (final t in v.parameters.entries)
         for (final e in t.value.entries)
           ['`${e.key}=`', 'key', e.value == r'$text' ? 'its next quoted string' : e.value.startsWith('!') ? '`${e.value.substring(1)}=` negated' : '`${e.value}=`', on(t.key)],

@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:codelessly_api/notation.dart';
 
 import 'dictionary/closure.dart';
+import 'dictionary/generate.dart' show builtInWords;
 
 void main(List<String> args) {
   String? opt(String name) {
@@ -66,12 +67,14 @@ void main(List<String> args) {
     final same = c.results.fold<int>(0, (n, r) => n + r.comparison.same);
     final sameSpelt = c.results.fold<int>(0, (n, r) => n + r.spelt.same);
     final verdict = c.closes ? '**closes**' : c.closesUpToSpelling ? '**closes** up to spelling' : 'does not close';
-    summary.add('| `$label` | $verdict | $equal of ${c.results.length} | $spelt | $same of $nodes | $sameSpelt |');
+    final built = builtInWords.contains(label) ? ' (built in)' : '';
+    summary.add('| `$label` | $verdict$built | $equal of ${c.results.length} | $spelt | $same of $nodes | $sameSpelt |');
     report.add({
       'word': label,
       'renamed': renamed.toList()..sort(),
       'closes': c.closes,
       'closesUpToSpelling': c.closesUpToSpelling,
+      if (built.isNotEmpty) 'builtIn': true,
       'equal': equal,
       'equalUpToSpelling': spelt,
       'expansions': c.results.length,
@@ -122,6 +125,9 @@ void main(List<String> args) {
     ..writeln('|---|---|---|---|---|---|');
   summary.forEach(md.writeln);
   md
+    ..writeln()
+    ..writeln('A word marked built in is read from the built-in dictionary (tool/dictionary/generate.dart): the expander\'s side '
+        'is its definition, so it closes by construction; its closure against the code was taken before the code was removed (design note 23).')
     ..writeln()
     ..writeln('A use counts as the same when its two documents are equal and the definition\'s side has no issue the code\'s has not. '
         '"Nodes the same" counts the code\'s nodes that the definition\'s document has, equal, at the same place.')

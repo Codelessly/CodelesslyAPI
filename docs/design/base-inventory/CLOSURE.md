@@ -34,9 +34,11 @@ Each word below is written out in Dart by the expander today. `dictionary/<Word>
 | `Sidebar` | does not close | 2 of 12 | 2 | 599 of 769 | 599 |
 | `SidebarFooter` | does not close | 3 of 6 | 3 | 127 of 146 | 127 |
 | `Table` | does not close | 0 of 18 | 0 | 1305 of 1680 | 1305 |
-| `computed` | **closes** | 12 of 12 | 12 | 1103 of 1103 | 1103 |
+| `computed` | **closes** (built in) | 12 of 12 | 12 | 1103 of 1103 | 1103 |
 | `App (family)` | does not close | 0 of 15 | 1 | 310 of 501 | 325 |
 | `Page (family)` | does not close | 0 of 9 | 0 | 303 of 608 | 309 |
+
+A word marked built in is read from the built-in dictionary (tool/dictionary/generate.dart): the expander's side is its definition, so it closes by construction; its closure against the code was taken before the code was removed (design note 23).
 
 A use counts as the same when its two documents are equal and the definition's side has no issue the code's has not. "Nodes the same" counts the code's nodes that the definition's document has, equal, at the same place.
 
