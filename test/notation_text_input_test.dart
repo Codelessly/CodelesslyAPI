@@ -285,6 +285,31 @@ Row gap=8 middle
     expect(_decoration(again, 'entry'), {'labelText': 'Promo code', 'hintText': 'Enter a code'});
   });
 
+  test('a search field shows the magnifier before its text, unless the line writes its own icon or icon=none', () {
+    final r = _parse('''
+state q=""
+Column gap=8
+  Input#plain "Search" @q
+  Input#hinted "Search orders" "Order number or name" @q
+  Input#find "Find a note" @q grow
+  Input#named "Search" hint="Try coffee" @q
+  Input#own "Search" icon="manage_search" @q
+  Input#none "Search" icon=none @q
+  Input#email "Email" "you@example.com" @q
+''');
+    expect(r.issues, isEmpty);
+    for (final id in const ['plain', 'hinted', 'find', 'named']) {
+      expect(_decoration(r, id)['prefixIcon'], {'icon': 'search', 'size': 18}, reason: id);
+    }
+    expect(_decoration(r, 'plain')['hintText'], 'Search');
+    expect(_decoration(r, 'hinted')['hintText'], 'Order number or name');
+    expect(_decoration(r, 'own')['prefixIcon'], {'icon': 'manage_search', 'size': 18});
+    expect(_decoration(r, 'none'), isNot(contains('prefixIcon')));
+    expect(_decoration(r, 'none')['hintText'], 'Search');
+    // A field that is not a search has none.
+    expect(_decoration(r, 'email'), isNot(contains('prefixIcon')));
+  });
+
   test('fill, border and radius on an Input are its box: a filled pill, a bare field', () {
     final r = _parse('''
 state q=""

@@ -1224,15 +1224,33 @@ final class PageWords {
           if (under != null) (indent: at + 4, text: 'Text $under size=11 color=${quietInks?.$2 ?? '#FF6B7280'}'),
         ]);
     }
-    // A field in a bar has no room for a label above it: its label is its hint.
+    // A field in a bar has no room for a label above it: its label is its
+    // hint. A search field shows the magnifier before its text, as every
+    // web search field and Desk's SearchField do, unless the line writes its
+    // own icon (`icon=none`: none).
     if ((word == 'Input' || word == 'Search' || word == 'SearchField') &&
         (_open.any((l) => l.frame == 'Nav') || RegExp(r'^\s*"(Search|Filter|Find)\b').hasMatch(rest)) &&
         !isComponent(word)) {
+      // A field in a bar that is not a search (a title edited in place, a
+      // formula) has no magnifier: a search is one by its word, its text or
+      // its id.
+      final search = word != 'Input' ||
+          RegExp(r'^\s*"(Search|Filter|Find)\b').hasMatch(rest) ||
+          RegExp(r'search|find|filter', caseSensitive: false).hasMatch('$mark ${RegExp(r'"[^"]*"').allMatches(rest).take(2).map((m) => m[0]).join(' ')}');
+      final ownIcon = parts.has('icon') || parts.has('prefixIcon');
+      final noIcon = const {'none', '"none"'}.contains(parts.value('icon'));
+      if (noIcon) parts.take('icon');
+      final icon = ownIcon || !search ? '' : ' icon="search"';
       if (!parts.has('hint')) {
         final label = parts.string();
         final hint = parts.string() ?? label ?? '"Search"';
         open();
-        return out..add((indent: at, text: 'Input$mark "" $hint${parts.all}'));
+        return out..add((indent: at, text: 'Input$mark "" $hint$icon${parts.all}'));
+      }
+      if (word == 'Input' && (icon.isNotEmpty || noIcon)) {
+        final label = parts.string();
+        open();
+        return out..add((indent: at, text: 'Input$mark${label == null ? '' : ' $label'}$icon${parts.all}'));
       }
     }
     if (word == 'IconTile' && !isComponent('IconTile')) {

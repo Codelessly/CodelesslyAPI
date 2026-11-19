@@ -4,6 +4,9 @@ With the CodelesslySDK of the same release.
 
 ### Behaviour changes (read before upgrading)
 
+- **A search field shows the magnifier**: a field the notation reads as a search (`Input "Search…"`, also `Find…`
+  and `Filter…`, a `Search` line, or a field in a top bar whose text or id says search) has `icon="search"` before
+  its text unless the line writes its own icon; `icon=none` leaves it out.
 - **One field beside a text button is an inline entry**: an `Input` in a `Row` beside a `Button` and no other field
   (add an item, a comment, a tag, a promo code, a newsletter's email: `Input "Write a comment" @c grow` before
   `Button "Post"`) draws no label above it: its string is its placeholder, or, beside a hint, its spoken name
