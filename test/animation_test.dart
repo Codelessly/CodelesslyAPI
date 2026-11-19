@@ -9,9 +9,6 @@ import 'package:test/test.dart';
 
 Node _node(Json j) => Node.fromJson({'type': 'box', ...j}, id: 'n')!;
 
-double _v(NodeAnimation a, String track, double t) =>
-    readDouble(a.expanded.tracks.firstWhere((x) => x.id == track).valueAt(t))!;
-
 void main() {
   group('springs', () {
     test('a spring is set by its physical constants or by duration and bounce, with Flutter\'s formulas', () {

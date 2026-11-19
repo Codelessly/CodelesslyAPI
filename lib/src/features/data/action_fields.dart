@@ -129,7 +129,7 @@ abstract final class CloudBatchFields {
 
 /// [SubmitFormAction].
 abstract final class SubmitFormFields {
-  /// Only `local` is offered: [FormService.unsupported] marks old data.
+  /// Only `local` is offered: [FormService.unsupported] is any other, which sends nothing.
   static const service = PropDef<FormService>('service', EnumCodec([FormService.local]), FormService.local);
   static const payload = PropDef<String>('payload', Codecs.string, '', doc: 'An expression yielding a JSON object.');
   static const validationScript = PropDef<String>('validationScript', Codecs.string, '', doc: 'Await a script returning {valid, errors?, payload?}.');

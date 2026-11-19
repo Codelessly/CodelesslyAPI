@@ -140,8 +140,7 @@ that read the old keys, so the reference apps keep running between phases.
 
 *Superseded by schema 3:* documents are `"schema": 3`, and it is the only schema the package reads: a document of
 any other schema is refused when it is read. The legacy readings described below were moved into a schema-2
-migration with schema 3 (codelessly_api 30.0.0) and later removed with it (docs/design/schema-3-migration-report.md
-is the record of that migration). The text below is the schema-2 plan as it was: documents kept `"schema": 2`; loaders rejected other numbers, so
+migration with schema 3 (codelessly_api 30.0.0) and removed with it in 39.0.0. The text below is the schema-2 plan as it was: documents kept `"schema": 2`; loaders rejected other numbers, so
 nothing here bumped it. Every change is made in decoders (`Behaviors.fromJson`,
 `Motion.fromJson`, `ActionDef.fromJson`, `Trigger.fromJson`,
 `Node.fromJson`): they read the legacy keys, return the new values and

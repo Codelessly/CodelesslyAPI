@@ -444,8 +444,8 @@ them after its other steps (`spellingSteps`), so they rewrite schema-2 documents
 document marked schema 3 is read as it is. The 30.0.0 fields are gone from the model (`StrokePath`,
 `BoxProps.path`/`strokeJoin`/`strokeMiterLimit`, `PathProps.subpathColors`, `Paint.gradientPerSubpath`) and from the
 SDK's painters: the steps read them as plain JSON. In a schema-3 document validation reports each as an error with
-the form to write; a value a step keeps is a `legacy_value` warning, never drawn
-(docs/design/schema-3-migration-report.md). Over that report's corpus (106 documents) the steps rewrite 140 stroke
+the form to write; a value a step keeps is a `legacy_value` warning, never drawn. Over the corpus the migration ran
+on then (106 documents) the steps rewrite 140 stroke
 paths, 133 box path values and 45 per-shape color sets; the SDK's test/custom_paint/migrated_paint_test.dart pins
 what the migrated nodes draw as goldens, taken while the 30.0.0 painters still agreed.
 
