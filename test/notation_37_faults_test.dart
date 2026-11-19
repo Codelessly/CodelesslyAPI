@@ -201,4 +201,22 @@ Column w=fill
     // A row that says nothing: its cards are one row of panels, as before.
     expect(_props(r, 'plain'), containsPair('crossAxisAlignment', 'stretch'));
   });
+
+  test('a row whose growing texts end in an ellipsis keeps its line at narrower widths', () {
+    final r = _parse('''
+Column w=fill
+  Row#person pad=[8,8,8,5] gap=9 middle
+    Avatar "Amelia Moreno" size=30
+    Column gap=2 grow
+      Text.strong "Amelia Moreno" maxLines=1 overflow=ellipsis
+      Text.caption "Workspace owner" maxLines=1 overflow=ellipsis
+  Row#label gap=9 middle
+    Avatar "Amelia Moreno" size=30
+    Column gap=2 grow
+      Text.strong "Amelia Moreno"
+''', options: const NotationOptions(width: 1440));
+    expect(_node(r, 'person'), isNot(contains('media')));
+    // Texts that wrap: the row wraps before it overflows, as before.
+    expect(_node(r, 'label')['media'], isNotEmpty);
+  });
 }

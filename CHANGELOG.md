@@ -16,6 +16,10 @@
   one under another.
 - **A `Grid` with `mainAxisExtent` over an `each` has rows of that height**; they hugged their content. A document
   made before keeps its rows when printed (`shrinkWrapRows=true`).
+- **A row whose growing texts end in an ellipsis keeps its line below a desktop's width** (a name and its role,
+  `maxLines=1 overflow=ellipsis`, beside an avatar): the texts give way. It wrapped where it had no room, the
+  avatar above the name in a narrow sidebar, most often in a component's definition, which is laid out as a
+  page's rows are.
 
 ### Fixed
 

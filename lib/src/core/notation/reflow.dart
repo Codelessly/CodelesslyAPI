@@ -1015,6 +1015,12 @@ final class PageReflow {
     // least width (and its share of what its line leaves), so a label
     // beside a button is as before while both fit.
     if (_layout(n)['height'] is num) return;
+    // What grows in it is texts that end in an ellipsis when they have no
+    // room (`maxLines=1 overflow=ellipsis`: a name and its role beside an
+    // avatar): they give way and the row keeps its line. It wrapped, the
+    // avatar above its name, in a narrow sidebar.
+    final growing = [for (final k in kids) if (_fills(nodes[k]!)) k];
+    if (growing.isNotEmpty && growing.every(_truncates)) return;
     // In an app's window a pane narrows, it is not a page whose lines wrap:
     // a list's row, a label beside its value keep their line (what is wider
     // than a phone holds beside anything, a form beside its preview, wraps).
@@ -1039,6 +1045,17 @@ final class PageReflow {
         _add(k, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
       }
     }
+  }
+
+  /// Whether [id] is a text of one line that ends in an ellipsis, or a
+  /// column of only such texts.
+  bool _truncates(String id) {
+    final n = nodes[id];
+    if (n == null) return false;
+    final type = _type(n);
+    if (type == 'text') return _props(n)['maxLines'] == 1 && _props(n)['overflow'] == 'ellipsis';
+    final kids = _kids(n);
+    return type == 'column' && kids.isNotEmpty && kids.every(_truncates);
   }
 
   /// The room a phone gives a row: its width less a page's padding.
