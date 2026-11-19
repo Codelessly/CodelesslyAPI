@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6191
+      "words": 6193
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6172
+      "words": 6174
     }
   },
   "topics": [
@@ -1145,7 +1145,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 7160
+      "words": 7716
     },
     {
       "topic": "charts-progress-from-state",
@@ -1473,7 +1473,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13652
+      "words": 16062
     },
     {
       "topic": "values-value-types",
@@ -2032,6 +2032,7 @@
       "barChart": "charts.md#node-barChart",
       "lineChart": "charts.md#node-lineChart",
       "plotChart": "charts.md#node-plotChart",
+      "graph": "charts.md#node-graph",
       "barcode": "charts.md#node-barcode",
       "video": "media.md#node-video",
       "embeddedVideo": "media.md#node-embeddedVideo",
@@ -2257,6 +2258,16 @@
       "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",
+      "GraphCrosshair": "values.md#type-GraphCrosshair",
+      "GraphGuide": "values.md#type-GraphGuide",
+      "GraphInteractions": "values.md#type-GraphInteractions",
+      "GraphMark": "values.md#type-GraphMark",
+      "GraphPane": "values.md#type-GraphPane",
+      "GraphSelection": "values.md#type-GraphSelection",
+      "GraphStyle": "values.md#type-GraphStyle",
+      "GraphTransform": "values.md#type-GraphTransform",
+      "GraphXAxis": "values.md#type-GraphXAxis",
+      "GraphYAxis": "values.md#type-GraphYAxis",
       "Keyframe": "values.md#type-Keyframe",
       "PathFollow": "values.md#type-PathFollow",
       "Pose": "values.md#type-Pose",

@@ -528,6 +528,38 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `animate` | bool | `true` |  | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | int | `700` | ≥ 0 | Milliseconds. Zero applies data changes immediately. |
 
+<a id="node-graph"></a>
+### `graph`
+
+Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. Fires `changed` with `${result.view}`, `${result.cursor}` and `${result.selection}` (`index`, `key`, `label`, `row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves (`${result.nearStart}`: older rows are wanted).
+
+A graph: rows of data drawn as marks (bars, lines, areas, candles over a shared x scale; slices round a center), with what the user does to it (the view, the cursor, the selection) published as state. Every chart is a graph written out: a bar chart is bar marks over rows that fill the plot, a donut one arc mark in a polar pane.
+
+Its parts are records: their fields are dotted keys on the node's line (`xAxis.label=month`, `selection.on=both`, `marks[0].y=web`). A graph with one pane writes it as `marks`, `yAxis`, `coord` and `guides`; several panes are `panes`.
+
+- Children: none.
+- Decoration: none: only blur effects in `decoration.effects` apply.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `data` | List<Object> | `[]` |  | The rows: one per place on the x scale (a month, a day, a slice). |
+| `rowKey` | String | `"t"` |  | The row field that names a row across updates (its time, its label): how an update is told from a new row and from older rows put before, and how marks find where they were when they move to new values. |
+| `xAxis` | [GraphXAxis](values.md#type-GraphXAxis) | `{}` |  | The x scale. |
+| `marks` | List<[GraphMark](values.md#type-GraphMark)> | `[]` |  | The marks of a graph with one pane, drawn in order. |
+| `yAxis` | [GraphYAxis](values.md#type-GraphYAxis) | `{}` |  | The y scale of a graph with one pane. |
+| `coord` | String | `"rect"` |  | `rect` (marks over the x scale) or `polar` (the rows round a center: `arc` marks, no axes) for a graph with one pane. |
+| `guides` | List<[GraphGuide](values.md#type-GraphGuide)> | `[]` |  | What is drawn at places of the scales, over the marks of a graph with one pane. |
+| `panes` | List<[GraphPane](values.md#type-GraphPane)> | `[]` |  | Several panes over the one x scale. With panes, `marks`, `yAxis`, `coord` and `guides` are not read. |
+| `transforms` | List<[GraphTransform](values.md#type-GraphTransform)> | `[]` |  | Fields worked out from the rows. |
+| `selection` | [GraphSelection](values.md#type-GraphSelection) | `{}` |  | The selection (hover, tap); off unless its `on` says. |
+| `crosshair` | [GraphCrosshair](values.md#type-GraphCrosshair) | `{}` |  | The crosshair; off unless `enabled`. |
+| `interactions` | [GraphInteractions](values.md#type-GraphInteractions) | `{}` |  | What each gesture does. |
+| `style` | [GraphStyle](values.md#type-GraphStyle) | `{}` |  | Its colors and text. |
+| `animationDuration` | int | `300` | ≥ 0 | Milliseconds the marks take to move to new values when the rows change in a running app (0: at once). |
+| `animateIn` | bool | `false` |  | The marks grow from zero when the graph first shows. |
+| `view` | Object | unset |  | The view, set from state: on rows `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from, to}`. Usually bound. |
+| `selected` | Object | unset |  | The pinned selection, set from state: `{index}` or `{index, mark}`; null for none. Usually bound. |
+
 <a id="node-barcode"></a>
 ### `barcode`
 
@@ -560,7 +592,7 @@ One series of a chart: the values of `field` in each data row.
 | `kind` | [ChartSeriesKind](values.md#enum-ChartSeriesKind) | `"bar"` | `bar`, `line`, `area`, `tick` |  |
 | `color` | [Color](values.md#type-Color) | `"#FF2ED17A"` |  |  |
 | `colorField` | String | unset |  | A row field holding a per-row color (hex), overriding `color`. |
-| `stack` | String | unset |  | Bar series with the same stack id are stacked into one bar. |
+| `stack` | String | unset |  |  |
 | `dashed` | bool | `false` |  |  |
 | `strokeWidth` | double | `2` | ≥ 0 |  |
 | `endDot` | bool | `false` |  |  |

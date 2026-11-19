@@ -95,7 +95,7 @@ const List<PageDef> featurePages = [
   PageDef('charts',
       nodes: [
         'progressBar', 'circularProgressIndicator', 'activityIndicator', 'badge', 'radialGauge', 'gaugeMeter', 'chart', //
-        'barChart', 'lineChart', 'plotChart', 'barcode',
+        'barChart', 'lineChart', 'plotChart', 'graph', 'barcode',
       ],
       models: [
         'ChartSeries', 'ChartReferenceLine', 'GaugeZone', 'ProgressBand', 'PlotChartSeries', 'PlotChartLabel', //

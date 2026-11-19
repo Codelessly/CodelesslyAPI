@@ -375,3 +375,485 @@ enum PlotChartGridAnchor { start, zero }
 /// How the selection is marked: a full-height line, dashed guides from
 /// the point to both axes, or only the dot.
 enum PlotChartSelectionGuides { line, axes, none }
+
+// --- graph ----------------------------------------------------------------------
+//
+// The parts of a graph (GraphProps). Each is a record: on a node's line its
+// fields are dotted keys (`xAxis.label=month`, `selection.on=both`,
+// `marks[0].y=web`).
+
+const _gs = Codecs.string, _gd = Codecs.double, _gp = Codecs.positive, _gb = Codecs.bool;
+const _gc = Codecs.optionalColor, _gn = Codecs.optionalDouble;
+
+/// A graph's x scale: where each row stands, what is written under it, and
+/// the view of it the user moves.
+final class GraphXAxis extends PropRecord {
+  const GraphXAxis._(super.props);
+
+  /// `index`: rows evenly spaced, one place each. `linear`: each row where
+  /// its `field`'s number is, between `min` and `max` (the rows' own least
+  /// and most when not given).
+  static const scaleDef = PropDef<String>('scale', _gs, 'index');
+
+  /// Linear: the row field holding a row's number.
+  static const fieldDef = PropDef<String>('field', _gs, '');
+  static const minDef = PropDef<double?>('min', _gn, null);
+  static const maxDef = PropDef<double?>('max', _gn, null);
+
+  /// The row field written under a row (and at the head of a tooltip).
+  static const labelDef = PropDef<String>('label', _gs, 't');
+
+  /// A date pattern, when the label is a time (milliseconds, or ISO text);
+  /// empty writes the labels as they are.
+  static const formatDef = PropDef<String>('format', _gs, 'MMM d');
+
+  /// `none`: the view is the user's to pan and zoom. `bars`: every row has
+  /// its place across the plot. `points`: the first and last rows are at
+  /// its edges.
+  static const fitDef = PropDef<String>('fit', _gs, 'none');
+
+  /// With a fit: the places across the plot, when more than the rows there
+  /// are (a day not over yet).
+  static const slotsDef = PropDef<int?>('slots', Codecs.optionalInt, null);
+
+  /// The ticks themselves, when the graph does not choose them: `12` or
+  /// `{value, label}` (a number on a linear scale, a row's place on rows).
+  static const tickValuesDef = PropDef<Object?>('tickValues', Codecs.any, null);
+
+  /// A label every this many rows; null lets the graph choose.
+  static const tickEveryDef = PropDef<int?>('tickEvery', Codecs.optionalInt, null);
+
+  /// `step` (every n-th row) or `calendar` (the rows that start an hour, a
+  /// day, a month, a year).
+  static const ticksDef = PropDef<String>('ticks', _gs, 'step');
+  static const labelsDef = PropDef<bool>('labels', _gb, true);
+
+  /// Whether a line is drawn up each pane at every tick.
+  static const gridDef = PropDef<bool>('grid', _gb, true);
+  static const axisHeightDef = PropDef<double>('axisHeight', _gp, 24);
+
+  /// Rows: pixels from one row to the next at rest, and how close and far
+  /// zooming may bring them.
+  static const barSpacingDef = PropDef<double>('barSpacing', _gp, 8);
+  static const minBarSpacingDef = PropDef<double>('minBarSpacing', _gp, 0.5);
+  static const maxBarSpacingDef = PropDef<double>('maxBarSpacing', _gp, 80);
+
+  /// Rows: the empty places right of the last row at rest.
+  static const rightOffsetDef = PropDef<double>('rightOffset', _gd, 3);
+
+  /// `end`: a new row is followed while the last row is in view. `none`.
+  static const followDef = PropDef<String>('follow', _gs, 'end');
+  static const clampDef = PropDef<bool>('clamp', _gb, true);
+
+  /// Whether the view may go past the rows there are.
+  static const overscrollDef = PropDef<bool>('overscroll', _gb, false);
+
+  /// Whether there are older rows to load, and how near the first row (in
+  /// rows) the view comes before the graph asks (its `scroll` trigger with
+  /// `nearStart`).
+  static const moreHistoryDef = PropDef<bool>('moreHistory', _gb, true);
+  static const historyThresholdDef = PropDef<double>('historyThreshold', _gp, 10);
+
+  /// Milliseconds a line takes to change its shape to new rows' (0: at
+  /// once).
+  static const morphDef = PropDef<double>('morph', _gp, 0);
+
+  /// Named stretches of the scale: `{id, from, to, group}`.
+  static const bandsDef = PropDef<List<Json>>('bands', Codecs.jsonList, []);
+
+  static const spec = WidgetSpec('GraphXAxis', props: [
+    scaleDef, fieldDef, minDef, maxDef, labelDef, formatDef, fitDef, slotsDef, tickValuesDef, tickEveryDef, ticksDef, //
+    labelsDef, gridDef, axisHeightDef, barSpacingDef, minBarSpacingDef, maxBarSpacingDef, rightOffsetDef, followDef,
+    clampDef, overscrollDef, moreHistoryDef, historyThresholdDef, morphDef, bandsDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphXAxis._(Props.empty);
+  static GraphXAxis fromJson(Object? json) => GraphXAxis._(Props.fromJson(spec, json));
+  static const codec = ValueCodec<GraphXAxis>(fromJson, _recordOut, PropType.record('GraphXAxis', spec));
+}
+
+/// A pane's y scale.
+final class GraphYAxis extends PropRecord {
+  const GraphYAxis._(super.props);
+
+  /// `visible`: fitted to the rows in view. `data`: to all rows. `fixed`:
+  /// `min` to `max`.
+  static const domainDef = PropDef<String>('domain', _gs, 'visible');
+  static const minDef = PropDef<double?>('min', _gn, null);
+  static const maxDef = PropDef<double?>('max', _gn, null);
+
+  /// Room above and below the fitted values, `[top, bottom]`, as shares of
+  /// their span (`[0.1, 0.1]` when not given).
+  static const marginsDef = PropDef<List<double>>('margins', Codecs.doubles, []);
+
+  /// Values the fitted domain always holds (zero, a goal).
+  static const includeDef = PropDef<List<double>>('include', Codecs.doubles, []);
+
+  /// `linear`, or `percent`: labels are the change from the first row in
+  /// view.
+  static const modeDef = PropDef<String>('mode', _gs, 'linear');
+
+  /// `right` or `left`: where the axis is (one side for the whole graph:
+  /// left when any pane says so).
+  static const sideDef = PropDef<String>('side', _gs, 'right');
+
+  /// The axis's width; 0 for none.
+  static const widthDef = PropDef<double>('width', _gp, 56);
+  static const labelsDef = PropDef<bool>('labels', _gb, true);
+  static const decimalsDef = PropDef<int>('decimals', IntCodec(min: 0), 2);
+
+  /// Written before and after each label (`$`, `k`, `%`).
+  static const prefixDef = PropDef<String>('prefix', _gs, '');
+  static const suffixDef = PropDef<String>('suffix', _gs, '');
+
+  /// About how many round ticks the axis has.
+  static const ticksDef = PropDef<int>('ticks', IntCodec(min: 0), 5);
+
+  /// The ticks themselves, when the graph does not choose them: `12` or
+  /// `{value, label}`.
+  static const tickValuesDef = PropDef<Object?>('tickValues', Codecs.any, null);
+
+  static const spec = WidgetSpec('GraphYAxis', props: [
+    domainDef, minDef, maxDef, marginsDef, includeDef, modeDef, sideDef, widthDef, labelsDef, decimalsDef, prefixDef, //
+    suffixDef, ticksDef, tickValuesDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphYAxis._(Props.empty);
+  static GraphYAxis fromJson(Object? json) => GraphYAxis._(Props.fromJson(spec, json));
+  static const codec = ValueCodec<GraphYAxis>(fromJson, _recordOut, PropType.record('GraphYAxis', spec));
+}
+
+/// What a graph draws of its rows: one mark.
+final class GraphMark extends PropRecord {
+  const GraphMark._(super.props);
+
+  /// `line`, `area`, `bar`, `candle`, or in a polar pane `arc`.
+  static const typeDef = PropDef<String>('type', _gs, 'line');
+
+  /// The row field of the mark's value.
+  static const yDef = PropDef<String>('y', _gs, '');
+
+  /// A candle's fields (a bar with `open` and `close` is colored by its
+  /// direction).
+  static const openDef = PropDef<String>('open', _gs, '');
+  static const highDef = PropDef<String>('high', _gs, '');
+  static const lowDef = PropDef<String>('low', _gs, '');
+  static const closeDef = PropDef<String>('close', _gs, '');
+
+  /// What a tooltip calls the mark; its field when empty.
+  static const nameDef = PropDef<String>('name', _gs, '');
+  static const colorDef = PropDef<Color?>('color', _gc, null);
+
+  /// A row field holding the row's own color.
+  static const colorFieldDef = PropDef<String>('colorField', _gs, '');
+
+  /// Colors row by row (a slice's, a bar's), where the row gives none.
+  static const colorsDef = PropDef<List<String>>('colors', Codecs.strings, []);
+  static const upColorDef = PropDef<Color?>('upColor', _gc, null);
+  static const downColorDef = PropDef<Color?>('downColor', _gc, null);
+
+  /// Bars with the same stack stand on one another; bars with none stand
+  /// side by side in the row's place.
+  static const stackDef = PropDef<String?>('stack', Codecs.optionalString, null);
+
+  /// A bar's corner radius (the top of a stack).
+  static const radiusDef = PropDef<double>('radius', _gp, 0);
+
+  /// A bar's value is written over it.
+  static const labelsDef = PropDef<bool>('labels', _gb, false);
+
+  /// A line's width.
+  static const widthDef = PropDef<double>('width', _gp, 1.5);
+  static const curvedDef = PropDef<bool>('curved', _gb, false);
+
+  /// An area: its fill's opacity, whether it fades to nothing at the
+  /// bottom, or the color it runs to there.
+  static const fillOpacityDef = PropDef<double>('fillOpacity', DoubleCodec(min: 0, max: 1), 0.18);
+  static const fadeDef = PropDef<bool>('fade', _gb, false);
+  static const fillToDef = PropDef<Color?>('fillTo', _gc, null);
+
+  /// A dot of this radius on the last row (0: none), with a ring that
+  /// swells and fades when `pulse`.
+  static const endDotDef = PropDef<double>('endDot', _gp, 0);
+  static const endDotColorDef = PropDef<Color?>('endDotColor', _gc, null);
+  static const pulseDef = PropDef<bool>('pulse', _gb, false);
+
+  /// The mark is on a scale of its own, standing in this share of the pane
+  /// from its bottom (volume under a price).
+  static const overlayDef = PropDef<double?>('overlay', _gn, null);
+
+  /// A line breaks where this row field changes, and the parts outside the
+  /// x scale's band in use are drawn at `dimInactive` of their opacity.
+  static const segmentByDef = PropDef<String>('segmentBy', _gs, '');
+  static const dimInactiveDef = PropDef<double>('dimInactive', DoubleCodec(min: 0, max: 1), 1);
+
+  /// An arc: the hole's share of the radius (0: a pie), the room between
+  /// slices and where the first starts (degrees, clockwise from the top).
+  static const innerDef = PropDef<double>('inner', DoubleCodec(min: 0, max: 1), 0);
+  static const gapDef = PropDef<double>('gap', _gp, 0);
+  static const startAngleDef = PropDef<double>('startAngle', _gd, 0);
+
+  static const spec = WidgetSpec('GraphMark', props: [
+    typeDef, yDef, openDef, highDef, lowDef, closeDef, nameDef, colorDef, colorFieldDef, colorsDef, upColorDef, //
+    downColorDef, stackDef, radiusDef, labelsDef, widthDef, curvedDef, fillOpacityDef, fadeDef, fillToDef, endDotDef,
+    endDotColorDef, pulseDef, overlayDef, segmentByDef, dimInactiveDef, innerDef, gapDef, startAngleDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static GraphMark? fromJson(Object? json) => readMap(json) == null ? null : GraphMark._(Props.fromJson(spec, json));
+  static const codec = ListCodec<GraphMark>(ValueCodec(fromJson, _recordOut, PropType.record('GraphMark', spec)));
+}
+
+/// Something drawn at a place of a pane's scales, over its marks: a line up
+/// the pane (`x`), a line across it (`y`), a dot (`x` and `y`) or a tinted
+/// stretch (`from` to `to`). A place on x is a number on a linear scale, a
+/// row's key on rows.
+final class GraphGuide extends PropRecord {
+  const GraphGuide._(super.props);
+
+  static const xDef = PropDef<Object?>('x', Codecs.any, null);
+  static const yDef = PropDef<double?>('y', _gn, null);
+  static const fromDef = PropDef<Object?>('from', Codecs.any, null);
+  static const toDef = PropDef<Object?>('to', Codecs.any, null);
+  static const colorDef = PropDef<Color?>('color', _gc, null);
+
+  /// `solid`, `dashed` or `dotted`.
+  static const lineDef = PropDef<String>('line', _gs, 'solid');
+  static const widthDef = PropDef<double>('width', _gp, 1);
+  static const labelDef = PropDef<String>('label', _gs, '');
+  static const labelColorDef = PropDef<Color?>('labelColor', _gc, null);
+
+  /// A dot's radius, and its inside when it is not the dot's own color.
+  static const radiusDef = PropDef<double>('radius', _gp, 3.5);
+  static const fillDef = PropDef<Color?>('fill', _gc, null);
+
+  /// The label is under the dot or the line.
+  static const belowDef = PropDef<bool>('below', _gb, false);
+
+  static const spec = WidgetSpec('GraphGuide', props: [
+    xDef, yDef, fromDef, toDef, colorDef, lineDef, widthDef, labelDef, labelColorDef, radiusDef, fillDef, belowDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static GraphGuide? fromJson(Object? json) => readMap(json) == null ? null : GraphGuide._(Props.fromJson(spec, json));
+  static const codec = ListCodec<GraphGuide>(ValueCodec(fromJson, _recordOut, PropType.record('GraphGuide', spec)));
+}
+
+/// One pane of a graph with several: marks over the shared x scale, on a y
+/// scale of its own.
+final class GraphPane extends PropRecord {
+  const GraphPane._(super.props);
+
+  /// Its share of the graph's height.
+  static const growDef = PropDef<double>('grow', _gp, 1);
+
+  /// `rect` (marks over the x scale) or `polar` (the rows round a center:
+  /// `arc` marks, no axes).
+  static const coordDef = PropDef<String>('coord', _gs, 'rect');
+  static const yAxisDef = PropDef<GraphYAxis>('yAxis', GraphYAxis.codec, GraphYAxis.empty);
+  static const marksDef = PropDef<List<GraphMark>>('marks', GraphMark.codec, []);
+  static const guidesDef = PropDef<List<GraphGuide>>('guides', GraphGuide.codec, []);
+
+  /// Lines at a value, tagged on the axis: `{value | field, label, color,
+  /// line, tag, note}` (`field`: the last row's, a last price).
+  static const priceLinesDef = PropDef<List<Json>>('priceLines', Codecs.jsonList, []);
+
+  /// Lettered badges at the foot of the pane: `{at, text, color}` (`at`: a
+  /// row's key).
+  static const markersDef = PropDef<List<Json>>('markers', Codecs.jsonList, []);
+
+  static const spec = WidgetSpec('GraphPane', props: [
+    growDef, coordDef, yAxisDef, marksDef, guidesDef, priceLinesDef, markersDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static GraphPane? fromJson(Object? json) => readMap(json) == null ? null : GraphPane._(Props.fromJson(spec, json));
+  static const codec = ListCodec<GraphPane>(ValueCodec(fromJson, _recordOut, PropType.record('GraphPane', spec)));
+}
+
+/// A field worked out from the rows before each row.
+final class GraphTransform extends PropRecord {
+  const GraphTransform._(super.props);
+
+  /// `sma`, `ema`, `rsi` (written to `as`) or `bollinger` (to `as` with
+  /// `Mid`, `Upper`, `Lower` after it).
+  static const typeDef = PropDef<String>('type', _gs, 'sma');
+  static const fieldDef = PropDef<String>('field', _gs, '');
+  static const asDef = PropDef<String>('as', _gs, '');
+  static const periodDef = PropDef<int>('period', IntCodec(min: 1), 20);
+
+  /// Bollinger: how many deviations the bands stand off.
+  static const kDef = PropDef<double>('k', _gd, 2);
+
+  static const spec = WidgetSpec('GraphTransform', props: [typeDef, fieldDef, asDef, periodDef, kDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static GraphTransform? fromJson(Object? json) =>
+      readMap(json) == null ? null : GraphTransform._(Props.fromJson(spec, json));
+  static const codec =
+      ListCodec<GraphTransform>(ValueCodec(fromJson, _recordOut, PropType.record('GraphTransform', spec)));
+}
+
+/// The selection: the row (or the one bar or slice) under the pointer or a
+/// finger, or pinned by a tap. The graph draws it apart and says what it
+/// holds in a tooltip.
+final class GraphSelection extends PropRecord {
+  const GraphSelection._(super.props);
+
+  /// `none`, `hover` (the pointer, or a finger while it is down), `tap` (a
+  /// tap selects and stays; a tap on it again lets go) or `both`.
+  static const onDef = PropDef<String>('on', _gs, 'none');
+
+  /// `row`: everything the row has. `mark`: the one bar or slice.
+  static const byDef = PropDef<String>('by', _gs, 'row');
+
+  /// The opacity of what is not selected while something is (1: as it is).
+  static const dimDef = PropDef<double>('dim', DoubleCodec(min: 0, max: 1), 0.35);
+
+  /// A fill behind the selected row, the height of the pane.
+  static const bandDef = PropDef<Color?>('band', _gc, null);
+
+  /// How much larger a selected slice is drawn.
+  static const growDef = PropDef<double>('grow', _gp, 4);
+
+  /// A dot of this radius on each line at the selected row (0: none).
+  static const dotDef = PropDef<double>('dot', _gp, 4);
+  static const tooltipDef = PropDef<bool>('tooltip', _gb, true);
+
+  /// The row field of the tooltip's first line; the x label when empty.
+  static const titleDef = PropDef<String>('title', _gs, '');
+  static const tooltipFillDef = PropDef<Color?>('tooltipFill', _gc, null);
+  static const tooltipTextDef = PropDef<Color?>('tooltipText', _gc, null);
+
+  /// A last tooltip row with the sum of the row's marks.
+  static const totalDef = PropDef<bool>('total', _gb, false);
+
+  static const spec = WidgetSpec('GraphSelection', props: [
+    onDef, byDef, dimDef, bandDef, growDef, dotDef, tooltipDef, titleDef, tooltipFillDef, tooltipTextDef, totalDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphSelection._(Props.empty);
+  static GraphSelection fromJson(Object? json) => GraphSelection._(Props.fromJson(spec, json));
+  static const codec = ValueCodec<GraphSelection>(fromJson, _recordOut, PropType.record('GraphSelection', spec));
+}
+
+/// The crosshair: a line through the row under the pointer and one at its
+/// value, tagged on both axes.
+final class GraphCrosshair extends PropRecord {
+  const GraphCrosshair._(super.props);
+
+  static const enabledDef = PropDef<bool>('enabled', _gb, false);
+
+  /// `hover`, `longPress`, `both`, or `touch` (a hover, and a finger from
+  /// the moment it is down).
+  static const onDef = PropDef<String>('on', _gs, 'both');
+
+  /// The row field its value snaps to; empty for the pointer's own.
+  static const magnetDef = PropDef<String>('magnet', _gs, '');
+  static const verticalDef = PropDef<bool>('vertical', _gb, true);
+  static const horizontalDef = PropDef<bool>('horizontal', _gb, true);
+
+  /// `dashed`, `dotted` or `solid`.
+  static const lineDef = PropDef<String>('line', _gs, 'dashed');
+
+  /// A dot of this radius where the lines cross, ringed `dotStroke` wide.
+  static const dotDef = PropDef<double>('dot', _gp, 0);
+  static const dotStrokeDef = PropDef<double>('dotStroke', _gp, 0);
+
+  /// Where the row's label is written: `axis`, `top` or `none`.
+  static const timeLabelDef = PropDef<String>('timeLabel', _gs, 'axis');
+  static const timeFormatDef = PropDef<String>('timeFormat', _gs, '');
+  static const priceTagDef = PropDef<bool>('priceTag', _gb, true);
+
+  static const spec = WidgetSpec('GraphCrosshair', props: [
+    enabledDef, onDef, magnetDef, verticalDef, horizontalDef, lineDef, dotDef, dotStrokeDef, timeLabelDef, //
+    timeFormatDef, priceTagDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphCrosshair._(Props.empty);
+  static GraphCrosshair fromJson(Object? json) => GraphCrosshair._(Props.fromJson(spec, json));
+  static const codec = ValueCodec<GraphCrosshair>(fromJson, _recordOut, PropType.record('GraphCrosshair', spec));
+}
+
+/// What each gesture does to a graph whose view is the user's (an x scale
+/// with no fit).
+final class GraphInteractions extends PropRecord {
+  const GraphInteractions._(super.props);
+
+  /// A drag on the plot pans the view.
+  static const dragPanDef = PropDef<bool>('dragPan', _gb, true);
+
+  /// The wheel zooms about the pointer.
+  static const wheelZoomDef = PropDef<bool>('wheelZoom', _gb, true);
+
+  /// Two fingers zoom about their middle.
+  static const pinchZoomDef = PropDef<bool>('pinchZoom', _gb, true);
+
+  /// A drag on the y axis scales it; on the x axis, zooms.
+  static const axisScaleDef = PropDef<bool>('axisScale', _gb, true);
+
+  /// A double tap on an axis fits it again.
+  static const doubleTapResetDef = PropDef<bool>('doubleTapReset', _gb, true);
+
+  /// A flick keeps panning and slows down.
+  static const flingDef = PropDef<bool>('fling', _gb, true);
+
+  static const spec = WidgetSpec('GraphInteractions', props: [
+    dragPanDef, wheelZoomDef, pinchZoomDef, axisScaleDef, doubleTapResetDef, flingDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphInteractions._(Props.empty);
+  static GraphInteractions fromJson(Object? json) => GraphInteractions._(Props.fromJson(spec, json));
+  static const codec =
+      ValueCodec<GraphInteractions>(fromJson, _recordOut, PropType.record('GraphInteractions', spec));
+}
+
+/// A graph's colors and text.
+final class GraphStyle extends PropRecord {
+  const GraphStyle._(super.props);
+
+  /// Its ground; clear when not given.
+  static const backgroundDef = PropDef<Color?>('background', _gc, null);
+  static const gridDef = PropDef<Color?>('grid', _gc, null);
+
+  /// The axes' labels.
+  static const textDef = PropDef<Color?>('text', _gc, null);
+  static const crosshairDef = PropDef<Color?>('crosshair', _gc, null);
+
+  /// A value's tag on an axis, and its text.
+  static const tagDef = PropDef<Color?>('tag', _gc, null);
+  static const tagTextDef = PropDef<Color?>('tagText', _gc, null);
+
+  /// The line between two panes.
+  static const separatorDef = PropDef<Color?>('separator', _gc, null);
+  static const fontSizeDef = PropDef<double>('fontSize', _gp, 11);
+  static const fontFamilyDef = PropDef<String?>('fontFamily', Codecs.optionalString, null);
+
+  /// Room above the panes.
+  static const topInsetDef = PropDef<double>('topInset', _gp, 0);
+
+  static const spec = WidgetSpec('GraphStyle', props: [
+    backgroundDef, gridDef, textDef, crosshairDef, tagDef, tagTextDef, separatorDef, fontSizeDef, fontFamilyDef, //
+    topInsetDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphStyle._(Props.empty);
+  static GraphStyle fromJson(Object? json) => GraphStyle._(Props.fromJson(spec, json));
+  static const codec = ValueCodec<GraphStyle>(fromJson, _recordOut, PropType.record('GraphStyle', spec));
+}

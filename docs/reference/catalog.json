@@ -10925,6 +10925,173 @@
       ],
       "docs": "charts.md#node-lineChart"
     },
+    "graph": {
+      "doc": "Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. Fires `changed` with `${result.view}`, `${result.cursor}` and `${result.selection}` (`index`, `key`, `label`, `row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves (`${result.nearStart}`: older rows are wanted).\n\nA graph: rows of data drawn as marks (bars, lines, areas, candles over a shared x scale; slices round a center), with what the user does to it (the view, the cursor, the selection) published as state. Every chart is a graph written out: a bar chart is bar marks over rows that fill the plot, a donut one arc mark in a polar pane.\n\nIts parts are records: their fields are dotted keys on the node's line (`xAxis.label=month`, `selection.on=both`, `marks[0].y=web`). A graph with one pane writes it as `marks`, `yAxis`, `coord` and `guides`; several panes are `panes`.",
+      "children": "none",
+      "slots": [],
+      "decorated": false,
+      "childFields": [],
+      "props": [
+        {
+          "key": "data",
+          "type": "List<Object>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Object",
+          "itemKind": "json",
+          "doc": "The rows: one per place on the x scale (a month, a day, a slice)."
+        },
+        {
+          "key": "rowKey",
+          "type": "String",
+          "kind": "string",
+          "default": "t",
+          "nullable": false,
+          "doc": "The row field that names a row across updates (its time, its label): how an update is told from a new row and from older rows put before, and how marks find where they were when they move to new values."
+        },
+        {
+          "key": "xAxis",
+          "type": "GraphXAxis",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphXAxis",
+          "doc": "The x scale."
+        },
+        {
+          "key": "marks",
+          "type": "List<GraphMark>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "GraphMark",
+          "itemKind": "object",
+          "item_object": "GraphMark",
+          "doc": "The marks of a graph with one pane, drawn in order."
+        },
+        {
+          "key": "yAxis",
+          "type": "GraphYAxis",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphYAxis",
+          "doc": "The y scale of a graph with one pane."
+        },
+        {
+          "key": "coord",
+          "type": "String",
+          "kind": "string",
+          "default": "rect",
+          "nullable": false,
+          "doc": "`rect` (marks over the x scale) or `polar` (the rows round a center: `arc` marks, no axes) for a graph with one pane."
+        },
+        {
+          "key": "guides",
+          "type": "List<GraphGuide>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "GraphGuide",
+          "itemKind": "object",
+          "item_object": "GraphGuide",
+          "doc": "What is drawn at places of the scales, over the marks of a graph with one pane."
+        },
+        {
+          "key": "panes",
+          "type": "List<GraphPane>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "GraphPane",
+          "itemKind": "object",
+          "item_object": "GraphPane",
+          "doc": "Several panes over the one x scale. With panes, `marks`, `yAxis`, `coord` and `guides` are not read."
+        },
+        {
+          "key": "transforms",
+          "type": "List<GraphTransform>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "GraphTransform",
+          "itemKind": "object",
+          "item_object": "GraphTransform",
+          "doc": "Fields worked out from the rows."
+        },
+        {
+          "key": "selection",
+          "type": "GraphSelection",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphSelection",
+          "doc": "The selection (hover, tap); off unless its `on` says."
+        },
+        {
+          "key": "crosshair",
+          "type": "GraphCrosshair",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphCrosshair",
+          "doc": "The crosshair; off unless `enabled`."
+        },
+        {
+          "key": "interactions",
+          "type": "GraphInteractions",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphInteractions",
+          "doc": "What each gesture does."
+        },
+        {
+          "key": "style",
+          "type": "GraphStyle",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphStyle",
+          "doc": "Its colors and text."
+        },
+        {
+          "key": "animationDuration",
+          "type": "int",
+          "kind": "integer",
+          "default": 300,
+          "nullable": false,
+          "min": 0,
+          "doc": "Milliseconds the marks take to move to new values when the rows change in a running app (0: at once)."
+        },
+        {
+          "key": "animateIn",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "The marks grow from zero when the graph first shows."
+        },
+        {
+          "key": "view",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": "The view, set from state: on rows `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from, to}`. Usually bound."
+        },
+        {
+          "key": "selected",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": "The pinned selection, set from state: `{index}` or `{index, mark}`; null for none. Usually bound."
+        }
+      ],
+      "docs": "charts.md#node-graph"
+    },
     "barcode": {
       "doc": "Barcode / QR code.\n\nA barcode or QR code of `data`, filling the box.",
       "children": "none",
@@ -16621,7 +16788,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": "Bar series with the same stack id are stacked into one bar."
+          "doc": ""
         },
         {
           "key": "dashed",
@@ -17541,6 +17708,1146 @@
           "nullable": false,
           "min": 0.0,
           "doc": "For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis."
+        }
+      ]
+    },
+    "GraphCrosshair": {
+      "doc": "The crosshair: a line through the row under the pointer and one at its value, tagged on both axes.",
+      "fields": [
+        {
+          "key": "enabled",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "on",
+          "type": "String",
+          "kind": "string",
+          "default": "both",
+          "nullable": false,
+          "doc": "`hover`, `longPress`, `both`, or `touch` (a hover, and a finger from the moment it is down)."
+        },
+        {
+          "key": "magnet",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The row field its value snaps to; empty for the pointer's own."
+        },
+        {
+          "key": "vertical",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "horizontal",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "line",
+          "type": "String",
+          "kind": "string",
+          "default": "dashed",
+          "nullable": false,
+          "doc": "`dashed`, `dotted` or `solid`."
+        },
+        {
+          "key": "dot",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A dot of this radius where the lines cross, ringed `dotStroke` wide."
+        },
+        {
+          "key": "dotStroke",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "timeLabel",
+          "type": "String",
+          "kind": "string",
+          "default": "axis",
+          "nullable": false,
+          "doc": "Where the row's label is written: `axis`, `top` or `none`."
+        },
+        {
+          "key": "timeFormat",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "priceTag",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        }
+      ]
+    },
+    "GraphGuide": {
+      "doc": "Something drawn at a place of a pane's scales, over its marks: a line up the pane (`x`), a line across it (`y`), a dot (`x` and `y`) or a tinted stretch (`from` to `to`). A place on x is a number on a linear scale, a row's key on rows.",
+      "fields": [
+        {
+          "key": "x",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "y",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "from",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "to",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "color",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "line",
+          "type": "String",
+          "kind": "string",
+          "default": "solid",
+          "nullable": false,
+          "doc": "`solid`, `dashed` or `dotted`."
+        },
+        {
+          "key": "width",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "label",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "labelColor",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "radius",
+          "type": "double",
+          "kind": "number",
+          "default": 3.5,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A dot's radius, and its inside when it is not the dot's own color."
+        },
+        {
+          "key": "fill",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "below",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "The label is under the dot or the line."
+        }
+      ]
+    },
+    "GraphInteractions": {
+      "doc": "What each gesture does to a graph whose view is the user's (an x scale with no fit).",
+      "fields": [
+        {
+          "key": "dragPan",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "A drag on the plot pans the view."
+        },
+        {
+          "key": "wheelZoom",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "The wheel zooms about the pointer."
+        },
+        {
+          "key": "pinchZoom",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Two fingers zoom about their middle."
+        },
+        {
+          "key": "axisScale",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "A drag on the y axis scales it; on the x axis, zooms."
+        },
+        {
+          "key": "doubleTapReset",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "A double tap on an axis fits it again."
+        },
+        {
+          "key": "fling",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        }
+      ]
+    },
+    "GraphMark": {
+      "doc": "What a graph draws of its rows: one mark.",
+      "fields": [
+        {
+          "key": "type",
+          "type": "String",
+          "kind": "string",
+          "default": "line",
+          "nullable": false,
+          "doc": "`line`, `area`, `bar`, `candle`, or in a polar pane `arc`."
+        },
+        {
+          "key": "y",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The row field of the mark's value."
+        },
+        {
+          "key": "open",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "A candle's fields (a bar with `open` and `close` is colored by its direction)."
+        },
+        {
+          "key": "high",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "low",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "close",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "name",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "color",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "colorField",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "A row field holding the row's own color."
+        },
+        {
+          "key": "colors",
+          "type": "List<String>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "String",
+          "itemKind": "string",
+          "doc": "Colors row by row (a slice's, a bar's), where the row gives none."
+        },
+        {
+          "key": "upColor",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "downColor",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "stack",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "radius",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A bar's corner radius (the top of a stack)."
+        },
+        {
+          "key": "labels",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A bar's value is written over it."
+        },
+        {
+          "key": "width",
+          "type": "double",
+          "kind": "number",
+          "default": 1.5,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A line's width."
+        },
+        {
+          "key": "curved",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "fillOpacity",
+          "type": "double",
+          "kind": "number",
+          "default": 0.18,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "An area: its fill's opacity, whether it fades to nothing at the bottom, or the color it runs to there."
+        },
+        {
+          "key": "fade",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "fillTo",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "endDot",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A dot of this radius on the last row (0: none), with a ring that swells and fades when `pulse`."
+        },
+        {
+          "key": "endDotColor",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "pulse",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "overlay",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "The mark is on a scale of its own, standing in this share of the pane from its bottom (volume under a price)."
+        },
+        {
+          "key": "segmentBy",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "A line breaks where this row field changes, and the parts outside the x scale's band in use are drawn at `dimInactive` of their opacity."
+        },
+        {
+          "key": "dimInactive",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": ""
+        },
+        {
+          "key": "inner",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "An arc: the hole's share of the radius (0: a pie), the room between slices and where the first starts (degrees, clockwise from the top)."
+        },
+        {
+          "key": "gap",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "startAngle",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        }
+      ]
+    },
+    "GraphPane": {
+      "doc": "One pane of a graph with several: marks over the shared x scale, on a y scale of its own.",
+      "fields": [
+        {
+          "key": "grow",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Its share of the graph's height."
+        },
+        {
+          "key": "coord",
+          "type": "String",
+          "kind": "string",
+          "default": "rect",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "yAxis",
+          "type": "GraphYAxis",
+          "kind": "object",
+          "default": {},
+          "nullable": false,
+          "object": "GraphYAxis",
+          "doc": ""
+        },
+        {
+          "key": "marks",
+          "type": "List<GraphMark>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "GraphMark",
+          "itemKind": "object",
+          "item_object": "GraphMark",
+          "doc": ""
+        },
+        {
+          "key": "guides",
+          "type": "List<GraphGuide>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "GraphGuide",
+          "itemKind": "object",
+          "item_object": "GraphGuide",
+          "doc": ""
+        },
+        {
+          "key": "priceLines",
+          "type": "List<Object>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Object",
+          "itemKind": "json",
+          "doc": "Lines at a value, tagged on the axis: `{value | field, label, color, line, tag, note}` (`field`: the last row's, a last price)."
+        },
+        {
+          "key": "markers",
+          "type": "List<Object>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Object",
+          "itemKind": "json",
+          "doc": ""
+        }
+      ]
+    },
+    "GraphSelection": {
+      "doc": "The selection: the row (or the one bar or slice) under the pointer or a finger, or pinned by a tap. The graph draws it apart and says what it holds in a tooltip.",
+      "fields": [
+        {
+          "key": "on",
+          "type": "String",
+          "kind": "string",
+          "default": "none",
+          "nullable": false,
+          "doc": "`none`, `hover` (the pointer, or a finger while it is down), `tap` (a tap selects and stays; a tap on it again lets go) or `both`."
+        },
+        {
+          "key": "by",
+          "type": "String",
+          "kind": "string",
+          "default": "row",
+          "nullable": false,
+          "doc": "`row`: everything the row has. `mark`: the one bar or slice."
+        },
+        {
+          "key": "dim",
+          "type": "double",
+          "kind": "number",
+          "default": 0.35,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "The opacity of what is not selected while something is (1: as it is)."
+        },
+        {
+          "key": "band",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "A fill behind the selected row, the height of the pane."
+        },
+        {
+          "key": "grow",
+          "type": "double",
+          "kind": "number",
+          "default": 4,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "How much larger a selected slice is drawn."
+        },
+        {
+          "key": "dot",
+          "type": "double",
+          "kind": "number",
+          "default": 4,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A dot of this radius on each line at the selected row (0: none)."
+        },
+        {
+          "key": "tooltip",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "title",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "tooltipFill",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "tooltipText",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "total",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A last tooltip row with the sum of the row's marks."
+        }
+      ]
+    },
+    "GraphStyle": {
+      "doc": "A graph's colors and text.",
+      "fields": [
+        {
+          "key": "background",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "Its ground; clear when not given."
+        },
+        {
+          "key": "grid",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "text",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "The axes' labels."
+        },
+        {
+          "key": "crosshair",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "tag",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "A value's tag on an axis, and its text."
+        },
+        {
+          "key": "tagText",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "separator",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "The line between two panes."
+        },
+        {
+          "key": "fontSize",
+          "type": "double",
+          "kind": "number",
+          "default": 11,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "fontFamily",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "topInset",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Room above the panes."
+        }
+      ]
+    },
+    "GraphTransform": {
+      "doc": "A field worked out from the rows before each row.",
+      "fields": [
+        {
+          "key": "type",
+          "type": "String",
+          "kind": "string",
+          "default": "sma",
+          "nullable": false,
+          "doc": "`sma`, `ema`, `rsi` (written to `as`) or `bollinger` (to `as` with `Mid`, `Upper`, `Lower` after it)."
+        },
+        {
+          "key": "field",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "as",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "period",
+          "type": "int",
+          "kind": "integer",
+          "default": 20,
+          "nullable": false,
+          "min": 1,
+          "doc": ""
+        },
+        {
+          "key": "k",
+          "type": "double",
+          "kind": "number",
+          "default": 2,
+          "nullable": false,
+          "doc": "Bollinger: how many deviations the bands stand off."
+        }
+      ]
+    },
+    "GraphXAxis": {
+      "doc": "A graph's x scale: where each row stands, what is written under it, and the view of it the user moves.",
+      "fields": [
+        {
+          "key": "scale",
+          "type": "String",
+          "kind": "string",
+          "default": "index",
+          "nullable": false,
+          "doc": "`index`: rows evenly spaced, one place each. `linear`: each row where its `field`'s number is, between `min` and `max` (the rows' own least and most when not given)."
+        },
+        {
+          "key": "field",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "min",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "max",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "label",
+          "type": "String",
+          "kind": "string",
+          "default": "t",
+          "nullable": false,
+          "doc": "The row field written under a row (and at the head of a tooltip)."
+        },
+        {
+          "key": "format",
+          "type": "String",
+          "kind": "string",
+          "default": "MMM d",
+          "nullable": false,
+          "doc": "A date pattern, when the label is a time (milliseconds, or ISO text); empty writes the labels as they are."
+        },
+        {
+          "key": "fit",
+          "type": "String",
+          "kind": "string",
+          "default": "none",
+          "nullable": false,
+          "doc": "`none`: the view is the user's to pan and zoom. `bars`: every row has its place across the plot. `points`: the first and last rows are at its edges."
+        },
+        {
+          "key": "slots",
+          "type": "int",
+          "kind": "integer",
+          "default": null,
+          "nullable": true,
+          "doc": "With a fit: the places across the plot, when more than the rows there are (a day not over yet)."
+        },
+        {
+          "key": "tickValues",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "tickEvery",
+          "type": "int",
+          "kind": "integer",
+          "default": null,
+          "nullable": true,
+          "doc": "A label every this many rows; null lets the graph choose."
+        },
+        {
+          "key": "ticks",
+          "type": "String",
+          "kind": "string",
+          "default": "step",
+          "nullable": false,
+          "doc": "`step` (every n-th row) or `calendar` (the rows that start an hour, a day, a month, a year)."
+        },
+        {
+          "key": "labels",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "grid",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Whether a line is drawn up each pane at every tick."
+        },
+        {
+          "key": "axisHeight",
+          "type": "double",
+          "kind": "number",
+          "default": 24,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "barSpacing",
+          "type": "double",
+          "kind": "number",
+          "default": 8,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Rows: pixels from one row to the next at rest, and how close and far zooming may bring them."
+        },
+        {
+          "key": "minBarSpacing",
+          "type": "double",
+          "kind": "number",
+          "default": 0.5,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "maxBarSpacing",
+          "type": "double",
+          "kind": "number",
+          "default": 80,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "rightOffset",
+          "type": "double",
+          "kind": "number",
+          "default": 3,
+          "nullable": false,
+          "doc": "Rows: the empty places right of the last row at rest."
+        },
+        {
+          "key": "follow",
+          "type": "String",
+          "kind": "string",
+          "default": "end",
+          "nullable": false,
+          "doc": "`end`: a new row is followed while the last row is in view. `none`."
+        },
+        {
+          "key": "clamp",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "overscroll",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Whether the view may go past the rows there are."
+        },
+        {
+          "key": "moreHistory",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Whether there are older rows to load, and how near the first row (in rows) the view comes before the graph asks (its `scroll` trigger with `nearStart`)."
+        },
+        {
+          "key": "historyThreshold",
+          "type": "double",
+          "kind": "number",
+          "default": 10,
+          "nullable": false,
+          "min": 0.0,
+          "doc": ""
+        },
+        {
+          "key": "morph",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "Milliseconds a line takes to change its shape to new rows' (0: at once)."
+        },
+        {
+          "key": "bands",
+          "type": "List<Object>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Object",
+          "itemKind": "json",
+          "doc": ""
+        }
+      ]
+    },
+    "GraphYAxis": {
+      "doc": "A pane's y scale.",
+      "fields": [
+        {
+          "key": "domain",
+          "type": "String",
+          "kind": "string",
+          "default": "visible",
+          "nullable": false,
+          "doc": "`visible`: fitted to the rows in view. `data`: to all rows. `fixed`: `min` to `max`."
+        },
+        {
+          "key": "min",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "max",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "margins",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": "Room above and below the fitted values, `[top, bottom]`, as shares of their span (`[0.1, 0.1]` when not given)."
+        },
+        {
+          "key": "include",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": "Values the fitted domain always holds (zero, a goal)."
+        },
+        {
+          "key": "mode",
+          "type": "String",
+          "kind": "string",
+          "default": "linear",
+          "nullable": false,
+          "doc": "`linear`, or `percent`: labels are the change from the first row in view."
+        },
+        {
+          "key": "side",
+          "type": "String",
+          "kind": "string",
+          "default": "right",
+          "nullable": false,
+          "doc": "`right` or `left`: where the axis is (one side for the whole graph: left when any pane says so)."
+        },
+        {
+          "key": "width",
+          "type": "double",
+          "kind": "number",
+          "default": 56,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "The axis's width; 0 for none."
+        },
+        {
+          "key": "labels",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "decimals",
+          "type": "int",
+          "kind": "integer",
+          "default": 2,
+          "nullable": false,
+          "min": 0,
+          "doc": ""
+        },
+        {
+          "key": "prefix",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Written before and after each label (`$`, `k`, `%`)."
+        },
+        {
+          "key": "suffix",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "ticks",
+          "type": "int",
+          "kind": "integer",
+          "default": 5,
+          "nullable": false,
+          "min": 0,
+          "doc": "About how many round ticks the axis has."
+        },
+        {
+          "key": "tickValues",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
         }
       ]
     },
