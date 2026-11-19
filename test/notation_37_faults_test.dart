@@ -181,4 +181,24 @@ Column w=fill
       },
     ]);
   });
+
+  test('cards side by side in a row that says top sit at its top (they stretched to the tallest)', () {
+    const text = '''
+Column w=fill
+  Row#top gap=18 tablet.direction=vertical top
+    Column gap=12 grow
+      Text "Passes"
+    Card w=322
+      Text "Your order"
+  Row#plain gap=18
+    Card
+      Text "A"
+    Card w=322
+      Text "B"
+''';
+    final r = _parse(text, options: const NotationOptions(width: 1440));
+    expect(_props(r, 'top'), containsPair('crossAxisAlignment', 'start'));
+    // A row that says nothing: its cards are one row of panels, as before.
+    expect(_props(r, 'plain'), containsPair('crossAxisAlignment', 'stretch'));
+  });
 }

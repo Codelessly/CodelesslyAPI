@@ -6140,6 +6140,7 @@ class _Parser {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column' || type == 'flex') {
             props['crossAxisAlignment'] = c;
+            _crossWritten.add(id);
           } else if (num.tryParse(word) != null && (_valueProps[type]?.type == 'decimal' || _shownValue[type] == 'value')) {
             // A bare number on a slider or a progress bar is its value.
             props['value'] = num.parse(word);
@@ -7978,7 +7979,9 @@ class _Parser {
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];
       final cross = (row?['props'] as Map?)?['crossAxisAlignment'];
-      if (row != null && (cross == null || cross == 'center' || cross == 'start')) {
+      // A row that says where its children sit (`top`) keeps it: the cards
+      // stretched to the tallest beside them whatever the row said.
+      if (row != null && !_crossWritten.contains(parent.id) && (cross == null || cross == 'center' || cross == 'start')) {
         const Json patch = {
           'props': {'crossAxisAlignment': 'stretch'},
         };
@@ -9490,6 +9493,10 @@ class _Parser {
   /// selectable, handle, selected, onReorder, onSelect, each with its column),
   /// with the line's place to record them by: read by the `each` under it.
   final _listUniversal = <String, _ListWords>{};
+
+  /// The rows, columns and flexes whose line says where their children sit
+  /// across (`top`, `middle`, `stretch`…).
+  final _crossWritten = <String>{};
 
   /// The `ListView` lines by node id, with where each was written: read when
   /// the line closes ([_listOfLines]).

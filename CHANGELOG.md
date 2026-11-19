@@ -19,6 +19,8 @@
 
 ### Fixed
 
+- Cards side by side in a row that says where its children sit (`Row top`) sit there; on a page they were
+  stretched to the tallest whatever the row said. A row that says nothing keeps its cards equally tall.
 - A line of a length of its own that grows at another width (`w=280 phone.grow`) takes the room it is given there;
   it kept its length and the row ran past the window.
 
