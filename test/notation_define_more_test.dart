@@ -275,5 +275,11 @@ define Hotkey "keys" key hint onPress
         expect(painted, ['pic1'], reason: text);
       }
     });
+
+    test('key {param} in a body with a root takes the chord from the use', () {
+      final r = _read('state n=0\nColumn\n  Keys2 keys="ctrl+j" onGo={n=1}\ndefine Keys2 keys onGo\n  key {keys} onPress={onGo}\n  Text "k"\n');
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(_node(r, 'screen')['actions']), contains('"key":"ctrl+j"'));
+    });
   });
 }
