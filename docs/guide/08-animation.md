@@ -157,42 +157,11 @@ that gives one constant takes the owner's default for the other, and is written 
   "tracks": [{"path": "motion.rotateY", "from": 0, "to": 180}]}]}
 ```
 
-## The legacy keys
+## Counting a number
 
-Documents written before keep loading and playing the same. The decoders read every older shape and return
-the new one; the encoders write only the new one:
-
-| Written before | Reads as |
-|---|---|
-| `loops[i]` | animation `loop<i>`, preset of its `type`; `lag` folded into `phase`, `reverse` into `repeat.reverse`, `enabled` kept |
-| `effectAnimations[i]` | an animation named after it (`effect<i>` unnamed), preset of its `type`, on cue; `playOnAppear` → `autoplay`, `originX/Y` → `alignment` |
-| `motion.pulseKey` (which no SDK ever read) | animation `pulse`: the motion's keyframes from its values and back, on that key |
-| bindings `loops[i].*`, `effectAnimations[i].*`, `motion.pulseKey` | `animations.<id>.*` (a loop's `phase` and `lag` as one formula) |
-| `playAnimation {node, animation}` | `animate {node, animation, from: "0"}` |
-| `animateVariable` `play`/`pause`/`resume`/`stop`/`seek` | `animate {variable}` `animateTo`/`stop`/`forward`/`stop`/`set` |
-| `clock {every, runWhen, lookaheadMs}` | `timer {intervalMs, when}` |
-| `FlipSpring`, `TransitionSpring`, `springStiffness`/`springDamping`, `settleStiffness`/`settleDamping`, `GesturePhysics`' flat `stiffness`/`damping`/`mass`/`bounce`/`duration` | `Spring`, with each owner's old defaults |
-
-```json legacy
-{"loops": [{"type": "pulse", "scaleFrom": 0.65, "duration": 1400, "reverse": true, "lag": 175}],
- "effectAnimations": [{"name": "nudge", "type": "shake", "cycles": 3}],
- "bind": {"effectAnimations[0].playKey": "${hits}"}}
-```
-
-```json
-{"animations": [
-  {"id": "loop0", "preset": "pulse", "params": {"scaleFrom": 0.65}, "duration": 1400, "repeat": {"reverse": true}, "phase": 0.9375},
-  {"id": "nudge", "preset": "shake", "params": {"cycles": 3}}],
- "bind": {"animations.nudge.playKey": "${hits}"}}
-```
-
-A motion's timing, entrance, loop, spin and shimmer read as transitions and animations (below), and so does
-`strokePath`'s drawing: an animation whose track draws the path op's `trimEnd` from 0
-(`{"path": "customPaint.painter.<op id>.trimEnd", "from": 0}`; an omitted `to` is the op's own value, its declared
-default 1 when the JSON omits it) and a transition of that path for a change of the progress. A number in a text
-counts the same way: a transition of `props.text` counts it from the number shown to each new value, written as the
+A transition of `props.text` counts it from the number shown to each new value, written as the
 text writes it (its decimals, its thousands separators, the characters around it), and an animation with a track
-on `props.text` from 0 counts it up when the text shows (what a text's `countUp` was):
+on `props.text` from 0 counts it up when the text shows:
 
 ```json
 {"props": {"text": "$1,204.50"}, "bind": {"props.text": "${total}"},
@@ -211,9 +180,8 @@ Not yet moved: `typewriter` (see [docs/design/02-animation.md](../design/02-anim
 `backfaceHidden`, and `path` (a `PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/
 `upright`). One matrix, outermost first: the path's offset, the translations, then about
 `alignment` the scale, the rotation (and the path's turn), `rotateX`, `rotateY`. A closed path wraps its
-`progress`; an open one stops at its ends. It is the one way to scale or turn a node: schema 3's node `scale` and
-`layout.rotation` are migrated into it (chapter 13), and a transition on `motion.scale` times the scale apart from
-the rest of the motion.
+`progress`; an open one stops at its ends. It is the one way to scale or turn a node, and a transition on
+`motion.scale` times the scale apart from the rest of the motion.
 
 How a value gets there is the node's `animations`, and its `transitions`: Flutter's implicit animations
 (`AnimatedContainer`, `AnimatedOpacity`), one entry per property path. When the value there changes (a binding,
@@ -227,19 +195,7 @@ animation is playing isn't transitioned; the design canvas shows new values at o
                  {"property": "motion.rotate", "spring": {"duration": 600, "bounce": 0.3}}]}
 ```
 
-A motion's legacy keys read as what they are now. Its pose keys stay (`originX/Y` read as `alignment`, the flat
-path keys as `path`); its `opacity` is the node's (multiplied in), its `blur` a `motionBlur` layer blur;
-`duration`, `delay`, `curve` (and the `spring` curve) a `motion` transition (with the opacity and blur it eased);
-`enter`, `enterFrom`, `replayKey`, `enterHeld`, `revealOnScroll` the animation `enter` (preset `enter`,
-`playKey`, `paused`, `visibleFraction`); `loop`, `repeat`, `phase`, `paused` the animation `loop`; `spin`,
-`spinRamp` the animation `spin` (preset `spin`, `ramp`); `shimmer` the `shimmer` behavior and its animation. Bound
-keys are rewritten to the paths they address (`motion.replayKey` → `animations.enter.playKey`,
-`motion.pathProgress` → `motion.path.progress`, `motion.delay` → the animation's and the transitions' delay).
-
-```json legacy
-{"motion": {"translateY": -4, "scale": 1.02, "originY": 1, "duration": 160, "curve": "easeOut",
-            "enter": true, "enterFrom": {"translateY": 24, "opacity": 0}, "replayKey": "${step}"}}
-```
+A pose with an entrance that plays again when a value changes:
 
 ```json
 {"motion": {"translateY": -4, "scale": 1.02, "alignment": [0, 1]},
@@ -250,10 +206,6 @@ keys are rewritten to the paths they address (`motion.replayKey` → `animations
 
 A swing around rest and a spin that speeds up (`ramp`), slows to a stop while paused:
 
-```json legacy
-{"motion": {"rotate": 8, "loop": "swing", "duration": 1200, "spin": 0.5, "spinRamp": 400}}
-```
-
 ```json
 {"motion": {"rotate": 8},
  "animations": [{"id": "loop", "preset": "loop", "params": {"from": {"rotate": 0}, "mode": "swing"},
@@ -263,12 +215,6 @@ A swing around rest and a spin that speeds up (`ramp`), slows to a stop while pa
 ```
 
 A train on its route, upright, faded and blurred, entering when it scrolls into view:
-
-```json legacy
-{"motion": {"path": "M0 0 C 40 -60, 120 -60, 160 0", "pathProgress": 1, "orientToPath": true,
-            "orientUpright": true, "opacity": 0.8, "blur": 2,
-            "revealOnScroll": true, "duration": 600}}
-```
 
 ```json
 {"opacity": 0.8,
@@ -281,11 +227,7 @@ A train on its route, upright, faded and blurred, entering when it scrolls into 
                  {"property": "decoration.effects.motionBlur.blurRadius", "duration": 600, "curve": "easeInOut"}]}
 ```
 
-A `setVariable` glide is the `animate` variable driver:
-
-```json legacy
-{"type": "setVariable", "variable": "total", "op": "add", "value": "5", "animateMs": "800", "curve": "easeOutCubic"}
-```
+A variable glides to a new value with the `animate` variable driver:
 
 ```json
 {"type": "animate", "variable": "total", "command": "animateTo", "target": "${= total + (5)}", "duration": "800",

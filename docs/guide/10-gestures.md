@@ -17,9 +17,6 @@ A list's rows reorder by the list's own `reorder` prop (`ReorderableListView`); 
 `"reorderHandle": true` is the handle they are dragged by (`ReorderableDragStartListener`). A node that only
 needs to hear a drag uses the `drag` and `dragEnd` triggers and moves nothing.
 
-Each sample below is checked by `test/drag_split_test.dart`: a block marked `json legacy` is the old shape,
-read as the block after it, which is what the model writes.
-
 ## `track`: a value set by dragging
 
 | Key | Default | Flutter / meaning |
@@ -45,34 +42,17 @@ Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.f
 
 A knob that turns in place (an arc about its own center) by angle, the wheel off:
 
-```json legacy
-{"drag": {"track": {"shape": "arc", "variable": "bpm", "min": 30, "max": 250, "step": 1, "endAngle": 135, "wheel": false, "jumpOnTap": true}}}
-```
-
 ```json
 {"track": {"variable": "bpm", "min": 30, "max": 250, "step": 1, "allowedInteraction": "tapAndSlide", "wheelStep": 0, "shape": "arc"}}
 ```
 
-A combination dial: unclamped, coasting when flicked (the legacy `friction` 2.6 was a rate per second; the
-same coast loses 0.9257 of its speed a second):
-
-```json legacy
-{"drag": {"track": {"shape": "arc", "variable": "dialTurns", "max": 100, "step": 1, "startAngle": 0, "endAngle": 360, "endless": true, "momentum": true}}}
-```
+A combination dial: unclamped, coasting when flicked:
 
 ```json
 {"track": {"variable": "dialTurns", "max": 100, "step": 1, "clamp": false, "shape": "arc", "startAngle": 0, "sweepAngle": 360, "physics": {"friction": 0.9257}}}
 ```
 
-Schema 3 dropped the one-app track fields (`smooth`, `gain` round an arc, `parkedProgress`, the fine mode,
-`defaultValue`/`doubleTapValues`): the migration keeps such a value as `legacy.track.<field>`, unread, and its
-report says what to write instead (docs/guide/12-migrating-to-schema-3.md).
-
-A playhead that only shows its variable (its reactions seek): `write: false` became a bound value.
-
-```json legacy
-{"drag": {"track": {"variable": "playhead", "write": false, "x2": 300, "y2": 0, "jumpOnTap": true, "keyboard": false}}}
-```
+A playhead that only shows its variable (its reactions seek): a bound value.
 
 ```json
 {"bind": {"track.value": "${playhead}"}, "track": {"allowedInteraction": "tapAndSlide", "keyStep": 0, "x2": 300, "y2": 0}}
@@ -106,12 +86,7 @@ or `animateTo` a `value`, reported as one change:
 
 Let go past a threshold it flies off and fires the swipe of that direction (`swipeLeft`...), then shows its next
 content at rest. Inside it `${dismiss.dx}`, `dy`, `progress` (0–1 toward the threshold), `direction`,
-`dragging` can be read; it fires `drag` and `dragEnd`. The legacy `drag` with `release: dismiss` reads as it
-with its old defaults written out:
-
-```json legacy
-{"drag": {"release": "dismiss", "directions": ["left", "right", "up"], "verticalThreshold": 0.25, "resistance": 0.6}}
-```
+`dragging` can be read; it fires `drag` and `dragEnd`. A deck with every setting written out:
 
 ```json
 {"dismissible": {"directions": ["left", "right", "up"], "dismissThresholds": {"left": 0.35, "right": 0.35, "up": 0.25, "down": 0.25}, "flingVelocity": 800, "resistance": 0.6, "movementDuration": 320, "curve": "easeIn", "returnDuration": 450, "returnCurve": "spring"}}
@@ -126,10 +101,6 @@ A new deck with Flutter's defaults, an upward swipe at a quarter of the height:
 `controlDismissible` flies it off (`dismiss`, a button "Nope"), brings it back from a side (`returnFrom`, an
 undo: a card built in the next frame starts off-screen there) or springs it home (`reset`):
 
-```json legacy
-{"type": "controlDrag", "node": "card", "command": "fling", "direction": "left"}
-```
-
 ```json
 {"type": "controlDismissible", "node": "card", "direction": "left"}
 ```
@@ -140,10 +111,6 @@ undo: a card built in the next frame starts off-screen there) or springs it home
 `y` (bindable), `xVariable`/`yVariable` (written as it moves), `physics` (fling, spring, `snap` points),
 `bounds` and the limits `minX`...`maxY` (offsets from rest). `${pan.dx}`, `dy`, `dragging`, `settling`,
 `snapIndex` read inside it. A bottom sheet:
-
-```json legacy
-{"drag": {"axis": "vertical", "release": "stay", "minY": -560, "maxY": 0, "yVariable": "sheetY", "physics": {"snap": {"points": [[0, 0], [0, -560]]}}}}
-```
 
 ```json
 {"pan": {"axis": "vertical", "release": "stay", "yVariable": "sheetY", "physics": {"snap": {"points": [[0, 0], [0, -560]]}}, "minY": -560, "maxY": 0}}
@@ -158,19 +125,11 @@ under the pointer), `dragAnchor` (`child`: where grabbed; `center`), the feedbac
 `{"stiffness": 260, "damping": 14}`; `false`: none). `dropTarget` is `DragTarget`: `accepts`, `acceptIf`, a list
 to insert into (`listNodeId`, `slot`, `slotNodeId`, `slotSize`; the slot opens for drags it accepts). `${drag.*}` reads the session.
 
-```json legacy
-{"draggable": {"group": "cards", "whileDragging": "hidden", "feedbackNodeId": "ghost", "feedbackAnchor": "center", "returnSpring": false}}
-```
-
 ```json
 {"draggable": {"group": "cards", "childWhenDragging": "hidden", "feedback": "ghost", "dragAnchor": "center", "returnSpring": false}}
 ```
 
 A row's reorder handle:
-
-```json legacy
-{"drag": {"reorder": true}}
-```
 
 ```json
 {"reorderHandle": true}
@@ -181,16 +140,8 @@ A row's reorder handle:
 Unchanged (DESIGN.md §4.1). `controlTransform` resets it, scales it (`scaleBy`) or springs it to a pose
 (`animateTo`, `{x, y, scale, rotation}`); a `reset` on a node without one resets its dismissible or pan.
 
-```json legacy
-{"type": "controlDrag", "node": "map", "command": "zoom", "value": "1.5"}
-```
-
 ```json
 {"type": "controlTransform", "node": "map", "command": "scaleBy", "value": "1.5"}
-```
-
-```json legacy
-{"zoomable": true}
 ```
 
 ```json

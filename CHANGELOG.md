@@ -1,3 +1,39 @@
+## Unreleased
+
+Schema 3 is the only schema the package reads.
+
+### Behaviour changes (read before upgrading)
+
+- **Documents of schema 2 are no longer read.** `LayoutDocument.fromJson`, `PublishLayout.fromJson`,
+  `PublishComponent.fromJson` (its document), `PublishModel.fromJson` and `PublishBundle.fromJson` throw an
+  `UnsupportedSchemaException` (a `FormatException`) for JSON of any schema other than 3, saying the schema it
+  found and the one it reads: `The document is in schema 2; codelessly_api reads schema 3 only.` (`The publish
+  model ...`, `The bundle ...` for those). Write `"schema": 3`.
+- **A document with no `"schema"` is refused too** (it was read as schema 2): `The document has no "schema";
+  codelessly_api reads schema 3 only ("schema": 3).` A bundle may leave its own `schema` out, as before; its
+  model and layouts carry theirs. JSON that is not a map still decodes as an empty document or model.
+- **`printNotation` prints documents of schema 3 only**, refusing any other with the same exception. The notation
+  no longer writes or reads `document schema=2`: a `document` line takes `schema=3` or no `schema`.
+- **Older spellings are no longer read:** a submit-form action with the removed newsletter settings and no
+  `service` is now a local submission; a text field's `validator` given as an object (`{"type": "required"}`)
+  reads as none; a node's `component` marker `{"marker": "component"}` is an instance (write `"role": "main"`);
+  a signature pad's `signLineOffset` and `showSignMark` are gone (write `signLineBottom` and `signLineMark`).
+
+### Removed
+
+- The schema-2 reading: `migrate2to3`, `migrateDocument`, `migrateJson2to3`, `migrateJson`, `migrateNode2to3`,
+  `migrateNode`, `migratePublish2to3`, `LayoutDocument.migrateSchema`, `PublishModel.migratePublishSchema`,
+  `schemaMigrations`, `publishSchemaMigrations`, `SchemaMigration`, `MigrationReport`, `MigrationEntry`,
+  `MigrationEntryKind`, `jsonEncodeShort`, `migrationReportMarkdown`, `MigrationStep`, `MigrationScope`, `schema3Steps`, `isLayoutDocumentJson`,
+  `dropNaturalLineHeightFlags`, `copyJson`, `schemaOf`, `kOldestSchemaVersion`, `schema2PathHint`,
+  `movedPathHint` and `olderSchemaPathHint`; `AnimationPresets.legacyMotionProperties`; `Track.frictionRate`;
+  `SignatureProps.signLineOffset` and `SignatureProps.showSignMark`.
+- The guide's chapter 12 (migrating to schema 3) and the old shapes in chapters 8 and 10.
+
+### Added
+
+- `UnsupportedSchemaException` and `requireSchema`, exported with `kSchemaVersion` from `core.dart`.
+
 ## 37.0.0
 
 Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop

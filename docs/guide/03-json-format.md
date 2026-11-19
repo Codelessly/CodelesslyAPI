@@ -10,9 +10,11 @@
 
 ### Versioned
 
-Every document carries `"schema": 3` (`kSchemaVersion`). A schema-2 document (or one with no `schema`) is
-migrated once, in memory, when it is read (`LayoutDocument.migrateSchema`, `migrate2to3`), so stored data
-keeps working; the decoders know only the schema-3 shape. Chapter 12 is the migration guide.
+Every document carries `"schema": 3` (`kSchemaVersion`), and it is the only schema the package reads: a
+document of any other schema, or with no `schema`, is refused when it is read. `LayoutDocument.fromJson` throws
+an `UnsupportedSchemaException` (a `FormatException`) whose message names the schema found and the one read:
+`The document is in schema 2; codelessly_api reads schema 3 only.` The publish model and bundle are refused
+the same way. Apart from that, decoding never throws (below).
 
 ### Total decoding
 
