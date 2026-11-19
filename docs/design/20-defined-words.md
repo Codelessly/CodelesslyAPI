@@ -740,3 +740,23 @@ With it the dictionary's words differ from the code's under Cards' and Desk's th
 the core's looks (note 23 section 9): the theme is no longer a reason a word does not close. `NavSection` and `Brand`
 still differ under Desk, where its sidebar is a rail at a tablet's width and the code hides their labels there: that
 is the frame (section 14).
+
+## 17. A definition that reacts to its parameter changing: the options, not built
+
+`ThemeMode mode={appearance}`, `FollowingLog request={req}`: the word should run its actions each time the value its
+use gives changes. A body has `on load={…}` (once) and `on valueChanged(variable=x)={…}`, which names a variable, not
+an expression; the use gave an expression (`(appearance)`, or `(prefs.mode)`), so the body has nothing to name.
+
+- **A. A reaction on a parameter**: a body line `on mode changed={setThemeMode mode={mode}}` (or `on change(mode)`).
+  As the use is expanded, a use's value that is a variable (`{appearance}`) becomes `on
+  valueChanged(variable=appearance)`; any other expression gets a derived state of the use's own (`state
+  mode_themeMode1={prefs.mode}`) and the reaction names it. A written value (`mode="dark"`) never changes, so the line
+  is left out. Small in `define.dart`; it needs the engine to raise `valueChanged` for a derived state, which is
+  not checked.
+- **B. A parameter bound both ways**: the signature says `mode=@` and the body reacts to its own variable (`on
+  valueChanged(variable=mode)`). A use that binds its variable (`mode=@appearance`) gets the reaction; a use that
+  gives an expression does not. No new grammar, but the writer must bind, which the corpus writers did not.
+- **C. Leave it to the use**: the word applies its value on load, and the page's control runs the action on change
+  (today's workaround in `ThemeMode`).
+
+A is the form writers wrote; it is left for a decision because it adds a statement form to a body.

@@ -26,6 +26,13 @@
 - **A call worked out from written values** inside an expression that still reads the state is worked out as the
   use is read (`{on ? "#FF2563EB" : coalesce(null, "#FF6B7280")}`).
 
+- **More of a body reads the use**: an event of a trigger with fields (`onKeyDown(key=c)={onCompose}`), an `on …` line
+  (`on valueChanged(variable=x)={onSeen}`, before the body's root too), and a variable a key names by its name
+  (`measure.variable="box"`, the word's own when its body states it). An action's field named like a parameter
+  (`downloadFile text={text}`) keeps its name.
+- **A record line of a definition (`customPaint`, `animation`) is its body's**: written after the page it was also
+  drawn on the page's node open above the definition; written before the page it was refused.
+
 ### The built-in dictionary
 
 - **Words the notation has may be definitions in its own base words**, shipped in the package
