@@ -1,6 +1,13 @@
-## Unreleased
+## 38.0.0
 
-### Behaviour changes
+A part's own design at a width (`at phone`), more of what a `define` can say, the first word of a built-in
+dictionary, and fixes to lines that followed the notation and drew wrongly: lists, grids, rows that wrap, an app's
+bar, a `Nav` on its own. With CodelesslySDK 38.0.0. Some of these change how an existing document draws: read the
+first section before upgrading.
+
+### Behaviour changes (read before upgrading)
+
+**Rows, lists and grids**
 
 - **A row that wraps has its gap between its lines too** (`Row gap=12 wrap`, `phone.wrap=true`), as CSS's `gap`
   does, unless it says `runSpacing`; its lines touched. A document made before prints `runSpacing=0`.
@@ -20,21 +27,39 @@
   `maxLines=1 overflow=ellipsis`, beside an avatar): the texts give way. It wrapped where it had no room, the
   avatar above the name in a narrow sidebar, most often in a component's definition, which is laid out as a
   page's rows are.
+
+**Bars**
+
 - **An app's bar shows the page's name beside its menu button** where the sidebar is a drawer and nothing in the
   bar names the page at that width (a `Breadcrumb … hide=phone`): the name its `canvas` line gives, taking the
   bar's room. The bar had the menu button alone.
-- **A flip card (`flip.axis=…`) of more than two lines is said at its line**: its first line is the front and its
-  second the back, so a second of three lines was hidden as the back (the word on a study card). Where its lines
-  are shown by an `if` and its `else`, they are read as the two faces, a column of each.
 - **A `Nav` out of a page's frame** (in a component, or a column of its own) **is a bar**: its `NavItem`s and
   `NavLink`s sit side by side at their own widths, its `Link`s are quiet buttons, and on a phone it goes onto a
   further line where it has no room (unless it says how it wraps). Each item took an equal share of the row, one
   letter a line on a phone.
+
+**Cards and components**
+
+- **A flip card (`flip.axis=…`) of more than two lines is said at its line**: its first line is the front and its
+  second the back, so a second of three lines was hidden as the back (the word on a study card). Where its lines
+  are shown by an `if` and its `else`, they are read as the two faces, a column of each.
 - **`pad=` on a component call is an issue and left out**: the room inside a component is its definition's (the
   renderer draws the root's padding), so it was taken and drew nothing. A strict expand of such a text now fails;
   the drawing is the same.
 
-### Changed
+**Defined words (`define`)**
+
+- **A value a body works out from the use's written values is worked out as the use is read.** `radius={size/4}`
+  with `size=40` is `radius=10`, `"{upper(label)}"` is the label in capitals, `Text.{level == 1 ? "heading1" :
+  "heading3"}` is the variant, and an `if` (with its `else`) that reads only written values keeps the branch taken
+  and writes nothing for the others. A call worked out from written values inside an expression that still reads
+  the state is worked out too (`{on ? "#FF2563EB" : coalesce(null, "#FF6B7280")}`); an expression that reads the
+  page's state is read at run time, as before. Nothing draws differently; a document built from a definition has
+  fixed values where it had bindings of the same values, and no hidden line where an `if` was false.
+- **`computed` is read from the built-in dictionary** (see Added): `computed total={…}` is the `state` line it
+  was. Its use is recorded as a `definition` with `of: dictionary`, where it was an alias of a line.
+
+**The prompt**
 
 - **The prompt (`notationPrompt`, open and full) no longer teaches `Wanted`, `List` or `Content`**: its list of
   types names `Row` and `Column` (it gave `Badge` and `Wanted` as their names), "Only Row, Column, … take
@@ -43,62 +68,7 @@
 
 ### Added
 
-- `ChartSeries.withKind`.
-
-### Fixed
-
-- A `SegmentedButton … expanded=true` with no width of its own takes its place's width; it hugged its labels and
-  cut them. A document made before prints its hugging width (`w=hug`).
-- A component whose root has a shape (`Stack w=fill aspectRatio=1`) keeps it where it is called with none
-  (`seamCall`); a call that hugs its height drew it 0 tall.
-- Cards side by side in a row that says where its children sit (`Row top`) sit there; on a page they were
-  stretched to the tallest whatever the row said. A row that says nothing keeps its cards equally tall.
-- A line of a length of its own that grows at another width (`w=280 phone.grow`) takes the room it is given there;
-  it kept its length and the row ran past the window.
-### Defined words (`define`)
-
-- **A value a body works out from the use's written values is worked out as the use is read.** `radius={size/4}`
-  with `size=40` is `radius=10`, `"{upper(label)}"` is the label in capitals, `Text.{level == 1 ? "heading1" :
-  "heading3"}` is the variant, and an `if` (with its `else`) that reads only written values keeps the branch taken
-  and writes nothing for the others. An expression that reads the page's state is read at run time, as before.
-  Nothing draws differently; a document built from a definition has fixed values where it had bindings of the
-  same values, and no hidden line where an `if` was false.
-- **`...` as a word of a body line** marks the line that takes the words a use writes beyond the signature: the
-  universal words, and every other key, flag or event, read there as on a page's line (they were recorded as words
-  the definition does not have). The root keeps the use's id.
-- **A body's lines may carry a role** (`Row~app`, `Column~section`, …): the reflow lays them out at a tablet's and a
-  phone's width as it does the page words'. A role on a body's root was refused.
-- **A word may stand for a statement**: a body of `key`, `state` or `every` lines alone is those lines where the use
-  is, and its word may be lowercase (`computed total={…}` over `state ...`). `key {…}` in such a body takes the
-  chord worked out from the use.
-
-- **A body may read the theme as `{theme.<name>}`**: the looks the notation's own words take from the theme
-  (`accent`, `line`, `paneFill`, `mutedInk`, `contentWidth`, `sectionPad`, … and `theme.style.<name>`, a text style's
-  name when the theme has it), worked out as the word is used under whatever theme the page is read with. A look
-  the theme does not give leaves its key out; any other `theme.` name is read as the page runs; a name that is
-  neither is an issue that lists the names.
-- **A dotted key in a body reads the use's values** (`hovered.fill={tint}`); it was left as written.
-- **A call worked out from written values** inside an expression that still reads the state is worked out as the
-  use is read (`{on ? "#FF2563EB" : coalesce(null, "#FF6B7280")}`).
-
-- **More of a body reads the use**: an event of a trigger with fields (`onKeyDown(key=c)={onCompose}`), an `on …` line
-  (`on valueChanged(variable=x)={onSeen}`, before the body's root too), and a variable a key names by its name
-  (`measure.variable="box"`, the word's own when its body states it). An action's field named like a parameter
-  (`downloadFile text={text}`) keeps its name.
-- **A record line of a definition (`customPaint`, `animation`) is its body's**: written after the page it was also
-  drawn on the page's node open above the definition; written before the page it was refused.
-
-### The built-in dictionary
-
-- **Words the notation has may be definitions in its own base words**, shipped in the package
-  (`notationDictionary`, `notationDictionaryWords`) and read under a design system's definitions: a design
-  system's definition or component of the same name is the word, and a page's own `define` of it is not used, as
-  for any word the notation has.
-- **`computed` is the first**: `computed total={…}` is read from its definition (a `state` line), as before. Its
-  use is recorded as a `definition` with `of: dictionary`, where it was an alias of a line.
-- **`notationWordOrigin(word)`** says where the notation's meaning of a word is written: `base`, `dictionary`, or
-  `code` (a word the expander still rewrites, such as the page words).
-### A design at a width (the notation)
+**A design at a width (`at <width>`)**
 
 A part whose lines differ at a width, and not only its values, writes its design there in a block under it, after
 its own lines:
@@ -143,6 +113,62 @@ Row#bar w=fill between middle
   (or `...`). Twins written by hand print as twins.
 - **The prompt** teaches it in one sentence where widths are taught; the reference's responsive page has a section
   on it.
+
+**Defined words (`define`)**
+
+- **`...` as a word of a body line** marks the line that takes the words a use writes beyond the signature: the
+  universal words, and every other key, flag or event, read there as on a page's line (they were recorded as words
+  the definition does not have). The root keeps the use's id.
+- **A body's lines may carry a role** (`Row~app`, `Column~section`, …): the reflow lays them out at a tablet's and a
+  phone's width as it does the page words'. A role on a body's root was refused.
+- **A word may stand for a statement**: a body of `key`, `state` or `every` lines alone is those lines where the use
+  is, and its word may be lowercase (`computed total={…}` over `state ...`). `key {…}` in such a body takes the
+  chord worked out from the use.
+- **A body may read the theme as `{theme.<name>}`**: the looks the notation's own words take from the theme
+  (`accent`, `line`, `paneFill`, `mutedInk`, `contentWidth`, `sectionPad`, … and `theme.style.<name>`, a text style's
+  name when the theme has it), worked out as the word is used under whatever theme the page is read with. A look
+  the theme does not give leaves its key out; any other `theme.` name is read as the page runs; a name that is
+  neither is an issue that lists the names.
+- **More of a body reads the use**: an event of a trigger with fields (`onKeyDown(key=c)={onCompose}`), an `on …` line
+  (`on valueChanged(variable=x)={onSeen}`, before the body's root too), and a variable a key names by its name
+  (`measure.variable="box"`, the word's own when its body states it). An action's field named like a parameter
+  (`downloadFile text={text}`) keeps its name.
+
+**The built-in dictionary**
+
+- **Words the notation has may be definitions in its own base words**, shipped in the package
+  (`notationDictionary`, `notationDictionaryWords`) and read under a design system's definitions: a design
+  system's definition or component of the same name is the word, and a page's own `define` of it is not used, as
+  for any word the notation has. `computed` is the first.
+- **`notationWordOrigin(word)`** says where the notation's meaning of a word is written: `base`, `dictionary`, or
+  `code` (a word the expander still rewrites, such as the page words).
+
+**Charts**
+
+- `ChartSeries.withKind`.
+
+### Fixed
+
+- A `SegmentedButton … expanded=true` with no width of its own takes its place's width; it hugged its labels and
+  cut them. A document made before prints its hugging width (`w=hug`).
+- A component whose root has a shape (`Stack w=fill aspectRatio=1`) keeps it where it is called with none
+  (`seamCall`); a call that hugs its height drew it 0 tall.
+- Cards side by side in a row that says where its children sit (`Row top`) sit there; on a page they were
+  stretched to the tallest whatever the row said. A row that says nothing keeps its cards equally tall.
+- A line of a length of its own that grows at another width (`w=280 phone.grow`) takes the room it is given there;
+  it kept its length and the row ran past the window.
+- A dotted key in a definition's body reads the use's values (`hovered.fill={tint}`); it was left as written.
+- A record line of a definition (`customPaint`, `animation`) is its body's: written after the page it was also
+  drawn on the page's node open above the definition; written before the page it was refused.
+
+### Documentation
+
+- The notation reference says what was hard to find: plain `key` lines wait while a text field has the caret; a
+  list that follows its newest entry (`each … follow h=180`, the list's `stickToEnd`); Enter and Shift+Enter in a
+  multi-line `Input` with `onSubmit`, as a bullet of its own; looking a word up in the index before a `define`;
+  `guard=` on a Dialog, `on valueChanged(variable=…)`, the keys held on a click (`result.shift`, `result.meta`) and
+  a scroll fraction kept in a `:decimal` state, each with an example; what `Calendar marks=` and `Barcode
+  symbology=qrCode` draw; and a condition on `screen.width` in an action for a tap that differs by width.
 
 ## 37.0.0
 
