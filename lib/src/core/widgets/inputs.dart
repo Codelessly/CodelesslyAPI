@@ -612,7 +612,7 @@ abstract final class DropdownProps {
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
     itemImageRadius, menuStyle,
-  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
+  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it, and with `underline: false` that box is its frame, its padding the inset of its value and chevron (a fill or a border written on a notation `Select` line sets it: no second frame inside). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.');
 }
 
 // --- date and time ------------------------------------------------------------

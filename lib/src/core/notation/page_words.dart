@@ -481,6 +481,13 @@ final class PageWords {
     final written = parts.take('photos') ?? parts.take('images') ?? parts.take('items');
     final thumbs = (parts.take('thumbs') ?? 'true') != 'false';
     final max = num.tryParse(parts.take('max') ?? '') ?? 4;
+    // It is the whole window, its picture contained in it: a size written on
+    // its line (`Lightbox#gallery "…" w=960 h=665`, as a Dialog's) has nothing
+    // to size. It was "h= is written twice on this line", said of a line that
+    // wrote it once (round 11b, property-listings).
+    parts
+      ..take('w')
+      ..take('h');
     // Its variables are named after it, an id's hyphens as `_` (a name).
     final word = id.replaceAll('-', '_');
     final zoom = '${word}Zoom';
@@ -843,6 +850,15 @@ final class PageWords {
   /// already as tall as the window; `Table … radius=0 border=rule`), the
   /// word's is left out and the writer's kept, without a word. A key the
   /// writer wrote twice is still said.
+  /// How far a plain line written at [indent] moves under the lines its
+  /// frames added (a Section's inner column, a Nav's row), as [rewrite]
+  /// moves it, without reading it: a node's custom paint and animation lines
+  /// go under the node they are written under.
+  int shiftAt(int indent) {
+    final parent = _open.lastWhere((l) => l.indent < indent, orElse: () => _Line(-1, null, before: 0));
+    return parent.indent < 0 ? 0 : parent.before + parent.shift;
+  }
+
   List<PageLine> rewrite(int indent, String text) {
     _Parts.handedOut.clear();
     final out = _rewrite(indent, text);
@@ -909,8 +925,10 @@ final class PageWords {
       return l;
     }
 
-    // A line under a Table is its next cell (table_words.dart).
-    if (parent?.table case final _Table t) out.add(_cellLine(t));
+    // A line under a Table is its next cell (table_words.dart); an `else`
+    // goes on the cell of the `if` before it (round 11b, kanban-board: "An
+    // else follows an if at the same depth" was said of one that did).
+    if (parent?.table case final _Table t when !RegExp(r'^else\b').hasMatch(text)) out.add(_cellLine(t));
     if (word == 'Table' && !isComponent('Table') && !declares('Table')) {
       if (_tableLines(at, mark, rest) case (final lines, final table)) {
         // Its cells go under a row's: eight further in than its own lines.
@@ -964,6 +982,15 @@ final class PageWords {
       // ground reaches the foot and its Footer sits there on a short page
       // (round 11: white under the footer).
       return out..add((indent: at, text: 'Column${_role('page')}$mark w=fill h=fill scroll stretch$fill${parts.all}'));
+    }
+    // `Page grow` under a site's header, `Page w=fill h=fill` in a Stack: the
+    // page's scrolling column there, taking the room its column leaves, its
+    // Sections a page's, as `App grow` is an app's region (round 11b, 4
+    // builds: "No node type Page", which read as if the word did not exist).
+    if (word == 'Page' && indent > 0 && !isComponent(word) && !declares(word)) {
+      open(frame: 'Page');
+      final sized = parts.has('h') || parts.hasWord('grow');
+      return out..add((indent: at, text: 'Column$mark w=fill scroll stretch${sized ? '' : ' grow'}${parts.all}'));
     }
     if ((word == 'App' || word == 'AppShell' || word == 'Window') && indent == 0) {
       app = true;

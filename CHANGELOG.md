@@ -4,11 +4,45 @@
 
 ### Documented
 
+- **forms.md**: a chip's label color is `labelStyle.color=` (it named `labelColor=`, which a ChoiceChip refuses:
+  round 11b, smart-home); a form is `form=true` (it said "a column with `form`", and bare `form` is refused:
+  meal-planner). **lists.md**: `SwipeAction` lines go under an each that runs down a Column, not a ListView (both
+  story-reader arms wrote it under a ListView and were refused).
+- **The names a variable cannot take** (`data`, `route`, `storage`, `screen`, `theme`, `auth`, `drag`, `perf`,
+  `script`, `speech`, which the runtime gives every formula) are in the notation's state.md; only the JSON
+  reference listed them (round 11b: `state perf` in seat-booking, 9 lines renamed; `state script` in
+  story-reader, 5).
 - **An `if` under an `each`** hides what a copy shows, not the copy: the copy keeps its place and its Grid cell
   (round 10, R65, 4 runs). lists.md says so, and how to leave elements out: `each d in filter(days, x => x.open)`.
 
 ### Behaviour changes
 
+- **A child written to fill, in a row that wraps, takes the whole line where the row wraps** (CSS `width: 100%`
+  in a wrapping row): `Row gap=24 top phone.wrap=true` over `Card w=392 phone.w=fill` and `Column grow
+  phone.w=fill` (round 11b, 4 builds: seat-booking's artwork card 32 px wide and its About column 0, the page
+  12,900 px tall; smart-home's rules list squeezed and its editor gone; food-ordering's panels). A run gives no
+  room to fill, so the renderer held it to its design number, 0. It is written as a basis longer than any line
+  (`layout.basis`, cut to the line) at the widths the fill and the wrap both hold. A fill the line did not write (a
+  field's, a component's) is as it was.
+- **The strings of an `ExpansionTile` are its header** (`ExpansionTile "{entry.q}"`): the title (and subtitle) of
+  the list tile in its `tile` slot, as `ListTile "…"` makes them; the lines under it are what it shows open. They
+  were its first children, under a header drawn from the slot alone, blank (round 11b: conference's FAQ, six
+  question rows with only a chevron). The reference says so.
+- **A labelled `Input` of a fixed height is that high in its box, its label above** (round 11b: 8 builds;
+  `Input "Street address" "e.g. 11 Canynge Road" @a h=44` beside a `Select h=44`): the reference gives a field's
+  height as a step of the control scale, the same on the inputs beside it; the height held the label and the box
+  together, and the box drew about 22 high, its text tiny. The node now hugs and its box is the height written
+  (`decoration.constraints`). A field with no label above (a composer, a toolbar's, a hint alone) is as it was,
+  and so is a height that adds the label's room to the control height (`h=48` at 28).
+- **A Select whose line writes a `fill` or a `border` is framed by that box alone** (round 11b, the docs site's
+  version switcher: `Select @version items=[…] w=83 h=36 pad=[8,0,5,0] fill=paper border=rule radius=7`): the
+  Select draws no frame of its own inside it (`underline: false`), its value and chevron are inset by the
+  line's `pad` (or the frame's side padding, 8 or 10), and the box's line takes the accent while it has the
+  focus (unless the line wrote its focused look). It drew two boxes, one inside the other, as an `Input`'s
+  `fill`, `border` and `radius` did before they became its field's.
+- **`fill`, `border` and `radius` on a `DatePicker` and a `TimePicker` are its field's** (its
+  decoration's, as on an `Input`): the fill and border went to the node, under the field's own, and `radius`
+  was left out ("A DatePicker has no radius").
 - **A site's `primary` re-accents a design system's dark accent too** (`ThemeTokens.withSiteTheme`): Desk's dark
   `accent`, a lighter indigo than its dark `primary`, stayed indigo under a site's green (the SideButton, the brand
   tile, the chosen view, the cursor bar), with `dark.primary` given or not, though Desk's README says naming
@@ -26,6 +60,74 @@
 
 ### Fixed
 
+- **`Pages` in a centring column fill its width**: pages swiped across have no width of their own to hug, and
+  in a `Column center` they were 0 wide and showed nothing (round 11b, meal-planner: `Pages @step h=362`, the
+  cooking step card missing at every size).
+- **A `Page` under another line** (`Page grow` under a site's own header, `Page w=fill h=fill` in a Stack) is the
+  page's scrolling column there, taking the room its column leaves, its Sections a page's, as `App grow` is an
+  app's region: it was "No node type Page", which read as if the word did not exist (round 11b, 4 builds:
+  docs-site, restaurant, magazine, scrolly-story; the writers' rewrites lost the Sections' bands). navigation.md
+  says so.
+- **`Stack … clipBehavior=hardEdge`** cuts what is in it at its edge (the decoration's `clip`): a stack's own
+  `clipBehavior` is its scroll view's, and `hardEdge`, its default, was not even kept, so the children drew past
+  the stack (round 11b: clip-editor's timeline, both arms; story-reader's deck). `clip` on a stack is read by the
+  renderer (codelessly_sdk).
+- **A `TableView` that grows in a column takes the height left** (`TableView#sheetGrid grow w=fill …` under a
+  toolbar; round 11b, spreadsheet): `grow` gave it a share of the column but its height stayed its content's, and
+  the grid drew 0 high, missing at every size. A list, a grid and a box that grow already did.
+- **A component that fills, called in a row of a width of its own** (a `Table`'s cell of `w:87`), shares that
+  width: it was given 240, as in a row only as wide as its content, and overflowed the cell (round 11b,
+  support-desk: `StatusMark label={t.status}`, 49 render errors over the three sizes).
+- **A `SegmentedButton` bound to a list variable** (`state modes=["Public reply"]`, `SegmentedButton @modes`; round
+  11b, support-desk) takes the list as its selection and a change writes the list: it was wrapped again
+  (`[modes]`, a list in a list) and no segment showed chosen. A text variable is still its single choice.
+- **An `if` and its `else` under a `Table` are one cell** (round 11b, kanban-board: a due date or a dash): each
+  line under a table is its next cell, and the `else` was made a cell of its own, then refused: "An else follows an
+  if at the same depth", said of one that did.
+- **A `Lightbox` with a size on its line** (`Lightbox#gallery "Property gallery" w=960 h=665`, as a Dialog is
+  written; round 11b, property-listings): no "h= is written twice on this line", said of a line that wrote it once.
+  A lightbox is the whole window, its picture contained in it: the size has nothing to size and is not read.
+- **Copies that grow, in a row that turns down the page at a width, may say `phone.grow=0` or `phone.w=fill`
+  there** (round 11b: restaurant, nonprofit): where the row is a column the grid of the copies has one column and
+  each copy is its whole width, which is what those words say. They were refused ("a width of their own at another
+  size is not read"), and the writers rewrote the lines; the reference says a key after a condition is any key the
+  line reads. A width of their own at a size where the row stays a row is still said.
+- **`Grid cols={n} tablet.cols={max(2, n - 2)}`**: a Grid's columns at a width worked out from the state, as
+  `cols={…}` is (round 11b: photo-library). It was refused with "A Grid's columns at a width are a number from
+  1 to 24: tablet.cols=2", which read as if 2 were out of range.
+- **`drop=audioSource dropTarget.slot=none`** and `drag=clips(1) draggable.feedbackRotation=0`: the dotted key
+  sets a field of the record `drop=`/`drag=` made. The expand stopped with an exception ("type 'String' is not
+  a subtype of type 'List<String>'"; round 11b: clip-editor, both arms).
+- **A `Grid` (or `gridView`) with `childAspectRatio`** has rows of that shape: it was also given
+  `shrinkWrapRows`, rows as tall as their content, and a cell that fills (`box w=fill h=fill`, a picture) drew
+  0 to 20 px high (round 11b: photo-library's photos on five screens, both arms; music-player, 126 render
+  errors, "Stack requires bounded constraints"). One with `mainAxisExtent` is as it was.
+- **A dotted key with a quoted value** (`style.fontFamily="monospace"` on a paint `paragraph`; round 11b:
+  saas-landing 10 lines, seat-booking 5) is one key: it was read as a word and a second text, "A paragraph has
+  no style.fontFamily=" and "A paragraph takes one text". The reference (paint.md) teaches dotted paths.
+- **A field's own word at a dotted key** (`transformGesture.wheel=zoom` on a page with `state zoom`; round 11b:
+  photo-library, team-chat) is that word, as a prop's own word is; it was "A value read from the state is
+  written in braces: transformGesture.wheel={zoom}", the wrong fix.
+- **`DateTimeInput @due`** keeps its value in `due` (its `value`, written back on a pick), as `DatePicker @day`
+  does; it was "A DateTimeInput binds nothing" (round 11b: kanban-board, money-tracker, rewritten by hand).
+- **An `each` in a row that turns down the page at a width turns with it** (`Row gap=12 phone.direction=vertical`
+  over `each`, copies `Card w=365 phone.w=fill`; round 11b: travel-guide, conference, restaurant): its copies are
+  one under another across the row's width there; the list made for them stayed a line across, wider than a phone
+  (24 of travel-guide's 28 errors at 390). Copies that grow were already a grid that turns.
+- **A flag written as a key** (round 11b, 6 builds): `Main scroll=false` (a main that does not scroll: food-ordering,
+  mail-client, photo-library), `Row tablet.scroll phone.scroll=false` (kanban-board), `Row phone.stretch=true`
+  (admin-console, money-tracker), and `=true` on `scroll` and the alignment words (`top`, `middle`, `center`,
+  `stretch`, `between`…) are the flag; `scroll=false` is `scrollable=false`. They were "A Column has no
+  "scroll" (did you mean scrollable?)" and "A Flex has no "stretch"", though the reference gives flags values
+  (`hidden={…}`) and says the key after a size's condition is any key the line reads.
+- **A `customPaint` (or `animation`) line under a node in a `Nav`, a `Section`, a `Footer` or another page word is
+  that node's** (round 11b: 6 builds): it was read at the depth written, two shallower than the page word moves the
+  node lines to, so it went to the node above: a logo's mark under `box w=32 h=32` was painted across the row of
+  the wordmark (seat-booking, nonprofit), a hero's console across the hero behind its headline (saas-landing),
+  a route's stops over their names (travel-guide), a floor plan left out of its panel (conference). An
+  `animation#id` as the first line under a `Section` closed the Section's column, so the lines after it went to
+  its band, centred and with no gap (studio-portfolio: the one render error, "BoxConstraints forces an infinite
+  width", at 390).
 - **A Table's sort arrow** is in the theme's accent by its name (a design system's, a site's `primary`), as a
   NavItem's chosen ink is; it was the default blue under any theme (support desk, test 11; round 10, R17).
 - **`every 1m`** (and `every 1h`, `every 2min`) is a timer of that many minutes or hours; it was refused (round 10,

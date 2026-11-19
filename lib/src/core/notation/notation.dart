@@ -1273,6 +1273,9 @@ const Map<String, ({String prop, String type, Object? start})> _valueProps = {
   'segmentedButton': (prop: 'selected', type: 'text', start: ''),
   'datePicker': (prop: 'value', type: 'text', start: ''),
   'timePicker': (prop: 'value', type: 'text', start: ''),
+  // A date (time) field of the form words: `DateTimeInput @due mode=date`
+  // (round 11b: "binds nothing" in 2 builds).
+  'dateTimeInput': (prop: 'value', type: 'text', start: ''),
   // The page shown, from 0: a swipe writes it, and setting it turns the page.
   'pageView': (prop: 'initialPage', type: 'decimal', start: 0),
 };
@@ -1493,6 +1496,10 @@ const _borderSides = {
   'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
 };
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
+/// A flag word written with `=true` or `=false` (after a size's condition or
+/// not): the condition, the word, the value.
+final _flagKey = RegExp(r'^((?:[a-z][A-Za-z0-9]*\.)+)?(scroll|stretch|top|bottom|middle|center|left|right|start|end|between|around|evenly)=(true|false)$');
+
 const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'bottom': 'end', 'right': 'end', 'stretch': 'stretch'};
 
 /// What the notation already has under [word], in one line with its
@@ -2676,7 +2683,9 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     if (_componentLine(raw)) return;
     final indent = raw.length - raw.trimLeft().length;
-    if (_paintLine(indent, raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
+    // (At the indent the page words move the node lines to: a box in a Nav
+    // or a Section is two deeper than written.)
+    if (_paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.
@@ -3097,6 +3106,158 @@ class _Parser {
       }
     }
   }
+  /// A Select whose line wrote a fill or a border (`Select @version
+  /// items=[…] fill=paper border=rule radius=7`; round 11b, the docs site's
+  /// version switcher): the line's box is its frame, as an Input's `fill`,
+  /// `border` and `radius` are its field's. The Select draws no frame of its
+  /// own inside it (`underline: false`), its value and chevron are inset from
+  /// the box's sides as in its own frame (unless the line wrote a `pad`), and
+  /// the box's line takes the accent while the Select has the focus (unless
+  /// the line wrote its focused look). It drew two boxes, one in the other.
+  /// A labelled field whose line wrote a fixed height (`Input "Street
+  /// address" "e.g. 11 Canynge Road" @a h=44`; round 11b, 8 builds): the
+  /// height is its box's, a step of the control scale as the reference
+  /// says, with its label above it (and room for its error below), as a
+  /// Select of `h=44` beside it is 44. It was the height of the label and
+  /// the box together: the box drew about 22 high. A field whose label is
+  /// gone (a composer's, a toolbar's) is as it was; a height that already
+  /// adds the label's room to the control height (`h=48` at 28) is too.
+  void _labelledFieldHeights() {
+    final extra = options.fieldLabel == null ? 20 : 23;
+    for (final MapEntry(key: id, value: h) in _fieldHeights.entries) {
+      final n = nodes[id];
+      if (n == null || n['type'] != 'textField') continue;
+      final layout = readMap(n['layout']) ?? const <String, Object?>{};
+      if (layout['height'] != h) continue;
+      final props = readMap(n['props']) ?? const <String, Object?>{};
+      final d = readMap(props['decoration']) ?? const <String, Object?>{};
+      final label = d['labelText'];
+      final labelled = (label is String && label.isNotEmpty) || readMap(n['bind'])?['props.decoration.labelText'] != null;
+      if (!labelled) continue;
+      if (options.controlHeight case final c? when h == c + extra || h == c + extra + 18) continue;
+      if (readMap(d['constraints']) != null) continue;
+      final change = <String, Object?>{
+        'layout': {
+          'height': {'hug': 0},
+        },
+        'props': {
+          'decoration': {
+            'constraints': {'minHeight': h, 'maxHeight': h},
+          },
+        },
+      };
+      nodes[id] = mergePatch(n, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+  }
+
+  /// A child that fills, written so, in a row that wraps (`Row gap=24 top
+  /// phone.wrap=true` over `Card w=392 phone.w=fill` and `Column grow
+  /// phone.w=fill`; round 11b, 4 builds): where the row wraps it takes the
+  /// whole line, as CSS's `width: 100%` in a wrapping row does; a run gives
+  /// no room to fill, so it was held to its design number (0: a column 0
+  /// wide, a card as narrow as its content). It is said as a basis longer
+  /// than any line (a line's basis is cut to the line), at the widths the
+  /// fill and the wrap both hold. A fill the line did not write (a field's,
+  /// a component's) is as it was.
+  void _wrapFills() {
+    const line = 100000;
+    bool horizontal(Json n) => n['type'] == 'row' || (n['type'] == 'flex' && readMap(n['props'])?['direction'] != 'vertical');
+    bool isFill(Object? w) => w is Map && w.containsKey('fill') && (w['fill'] is num) && (w['fill'] as num) <= 0;
+    for (final id in [...nodes.keys]) {
+      final row = nodes[id]!;
+      if (!horizontal(row)) continue;
+      final always = readMap(row['props'])?['wrap'] == true;
+      final wraps = [
+        for (final r in (row['media'] as List?) ?? const [])
+          if (r is Map && readMap(readMap(r['patch'])?['props'])?['wrap'] == true) r,
+      ];
+      if (!always && wraps.isEmpty) continue;
+      bool wrapsWhere(Map rule) {
+        if (always) return true;
+        if (rule.containsKey('minWidth')) return wraps.any((w) => w['minWidth'] == rule['minWidth'] && w['maxWidth'] == rule['maxWidth']);
+        final at = rule['maxWidth'];
+        return at is num && wraps.any((w) => !w.containsKey('minWidth') && w['maxWidth'] is num && (w['maxWidth'] as num) >= at);
+      }
+
+      for (final cid in readStrings(row['children'])) {
+        final c = nodes[cid];
+        if (c == null) continue;
+        final layout = readMap(c['layout']) ?? const <String, Object?>{};
+        if (layout.containsKey('basis')) continue;
+        Json? change;
+        if (always && _writtenFills.contains(cid) && isFill(layout['width'])) {
+          change = {
+            'layout': {'basis': line},
+          };
+        }
+        final rules = [for (final r in (c['media'] as List?) ?? const []) r is Map ? {...r.cast<String, Object?>()} : r];
+        var ruled = false;
+        for (var i = 0; i < rules.length; i++) {
+          final r = rules[i];
+          if (r is! Map<String, Object?>) continue;
+          final patch = readMap(r['patch']);
+          final l = readMap(patch?['layout']);
+          if (l == null || !isFill(l['width']) || l.containsKey('basis') || !wrapsWhere(r)) continue;
+          rules[i] = {
+            ...r,
+            'patch': {
+              ...patch!,
+              'layout': {...l, 'basis': line},
+            },
+          };
+          ruled = true;
+        }
+        if (ruled) (change ??= <String, Object?>{})['media'] = rules;
+        if (change == null) continue;
+        nodes[cid] = {...mergePatch(c, {...change}..remove('media')), if (ruled) 'media': rules};
+        if (_canvas) ops.add({'op': 'patch', 'id': cid, 'patch': change});
+      }
+    }
+  }
+
+  void _framedSelectsBare() {
+    for (final id in _framedSelects) {
+      if (_ownFrameSaid.contains(id)) continue;
+      final n = nodes[id];
+      if (n == null || n['type'] != 'dropdown') continue;
+      final props = readMap(n['props']) ?? const <String, Object?>{};
+      if (props.containsKey('underline')) continue;
+      final d = readMap(n['decoration']) ?? const <String, Object?>{};
+      final strokes = (d['strokes'] as List?) ?? const [];
+      final fills = (d['fills'] as List?) ?? const [];
+      if (strokes.isEmpty && fills.isEmpty) continue;
+      final change = <String, Object?>{
+        'props': {'underline': false},
+      };
+      final layout = readMap(n['layout']) ?? const <String, Object?>{};
+      if (!layout.containsKey('padding')) {
+        // The field's side padding at its step (SSUI's: 8 compact, 10 at 32 and up).
+        final h = layout['height'];
+        final side = h is num && h >= 32 ? 10 : 8;
+        change['layout'] = {
+          'padding': [side, 0, side, 0],
+        };
+      }
+      final states = readMap(n['states']) ?? const <String, Object?>{};
+      if (strokes.isNotEmpty && !states.containsKey('focused')) {
+        change['states'] = {
+          'focused': {
+            id: {
+              'decoration': {
+                'strokes': [
+                  {...?readMap(strokes.first), 'color': options.accent},
+                ],
+              },
+            },
+          },
+        };
+      }
+      nodes[id] = mergePatch(n, change);
+      if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+    }
+  }
+
 
   /// A text field in a row of buttons (the text input pass of round 11,
   /// codelessly_sdk docs/research/text-input-round-11.md), as a writer
@@ -3723,6 +3884,20 @@ class _Parser {
   /// The text fields whose lines (`minLines` 3) the word `multiline` gave,
   /// not the writer: a composer's starts at one ([_fieldsBesideButtons]).
   final _multilineWord = <String>{};
+
+  /// The Selects whose lines wrote a fill or a border: the line's box is
+  /// their frame ([_framedSelectsBare]).
+  final _framedSelects = <String>{};
+
+  /// The text fields whose lines wrote a fixed height ([_labelledFieldHeights]).
+  final _fieldHeights = <String, num>{};
+
+  /// The nodes whose lines wrote `w=fill` ([_wrapFills]).
+  final _writtenFills = <String>{};
+
+  /// The Selects whose lines said `underline=` (true: the frame inside the
+  /// box is kept).
+  final _ownFrameSaid = <String>{};
 
   /// The item of an `each` → its list, for one that may yet share a row's width.
   final _acrossLists = <String, String>{};
@@ -4819,7 +4994,7 @@ class _Parser {
         if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
-            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
+            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
             : across
                 ? {
                     'scrollable': false,
@@ -4891,6 +5066,33 @@ class _Parser {
           if (across) 'mainAxisAlignment': const {'start': 'start', 'end': 'end'}[rowProps?['crossAxisAlignment']] ?? 'center',
         },
       };
+      // `Row gap=12 phone.direction=vertical` over an each of copies of a
+      // width (`Card w=365 phone.w=fill`; round 11b, conference, restaurant,
+      // travel-guide): where the row turns down the page its copies do too,
+      // one under another across the row's width; the list stayed a line
+      // across, wider than a phone (24 of travel-guide's 28 errors).
+      if (across && !wraps && g == null) {
+        for (final rule in (nodes[parent.id]?['media'] as List?) ?? const []) {
+          if (rule is! Map || ((rule['patch'] as Map?)?['props'] as Map?)?['direction'] != 'vertical') continue;
+          final when = {for (final e in rule.entries) if (e.key != 'patch') e.key as String: e.value};
+          (nodes[listId]!['media'] ??= <Object?>[]) as List
+            ..add({
+              ...when,
+              'patch': {
+                'props': {'scrollDirection': 'vertical'},
+                'layout': {'width': {'fill': 0}},
+              },
+            });
+          (nodes[itemId]!['media'] ??= <Object?>[]) as List
+            ..add({
+              ...when,
+              'patch': {
+                'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+                'props': {'mainAxisAlignment': 'start'},
+              },
+            });
+        }
+      }
       if (selection case final String sel) {
         // A tap selects the row alone, Ctrl or Cmd adds or removes it, Shift
         // takes the range from the last row chosen (Space and Enter on a
@@ -5317,7 +5519,11 @@ class _Parser {
       } else {
         // A segmented button's selection is a list: one name bound to it
         // is its single choice.
-        final list = type == 'segmentedButton';
+        // A list bound whole (`state modes=["Public reply"]`, `@modes`) is
+        // the selection itself (round 11b, support-desk: wrapped again, no
+        // segment showed chosen).
+        final listVar = type == 'segmentedButton' && _identifier.hasMatch(expr) && !expr.contains('.') && (variables[expr]?['value'] is List || variables[expr]?['type'] == 'list');
+        final list = type == 'segmentedButton' && !listVar;
         bind['props.${value.prop}'] = list ? _formula('[$expr]') : _read(expr);
         if (_identifier.hasMatch(expr) && expr.contains('.')) {
           // A control bound to a field: of a record variable
@@ -5697,8 +5903,20 @@ class _Parser {
         final from = t.at;
         // `onKeyDown(key=Enter)={…}`: an event with its trigger's fields.
         final withFields = _Events.withFields(t.s, t.at);
-        final word = withFields == null ? t.word() : '${withFields.$1}=';
+        var word = withFields == null ? t.word() : '${withFields.$1}=';
         if (withFields != null) t.at = withFields.$3;
+        // A flag written as a key (`Main scroll=false`, `Row phone.stretch=true`,
+        // `tablet.scroll=true`; round 11b, 6 builds): `=true` is the flag,
+        // `scroll=false` the box that does not scroll (`scrollable=false`).
+        // The reference shows flags given values (`hidden={…}`) and a key
+        // after a condition as "any key the line reads".
+        if ((withFields == null ? _flagKey.firstMatch(word) : null) case final f? when !spec.props.any((p) => p.key == f[2])) {
+          if (f[3] == 'true') {
+            word = '${f[1] ?? ''}${f[2]}';
+          } else if (f[2] == 'scroll') {
+            word = '${f[1] ?? ''}scrollable=false';
+          }
+        }
         // Where the strings go: before any key=value or bare word.
         final textPosition = !afterKey;
         afterKey = true;
@@ -5729,8 +5947,33 @@ class _Parser {
           } else if (grid != null && RegExp(r'^(cols|columns)=').hasMatch(ruleWord)) {
             // `tablet.cols=2`: the grid's column count at that width, a rule of
             // the grid its `each` makes.
-            final n = int.tryParse(ruleWord.substring(ruleWord.indexOf('=') + 1));
-            if (n == null || n < 1 || n > 24) {
+            final value = ruleWord.substring(ruleWord.indexOf('=') + 1);
+            final n = int.tryParse(value);
+            // `tablet.cols={max(2, gridColumns - 2)}`: worked out at that
+            // width, as `cols={…}` is (round 11b, photo-library: refused,
+            // with a message that read as if 2 were out of range).
+            final worked = n == null && value.startsWith('{') && value.endsWith('}') && value.length > 2 ? _formula('max(1, round(${value.substring(1, value.length - 1).trim()}))') : null;
+            if (worked != null) {
+              if (!_mediaLine) {
+                if (grid.mediaCols.isEmpty) {
+                  grid
+                    ..mediaLine = _line
+                    ..mediaColumn = col;
+                }
+                grid.mediaCols.add({
+                  ...m.condition,
+                  'patch': {
+                    'bind': {'props.crossAxisCount': worked},
+                  },
+                });
+                num widest(Json r) => (r['maxWidth'] as num?) ?? double.infinity;
+                final order = [for (var i = 0; i < grid.mediaCols.length; i++) (i, grid.mediaCols[i])]
+                  ..sort((a, b) => widest(b.$2).compareTo(widest(a.$2)) != 0 ? widest(b.$2).compareTo(widest(a.$2)) : a.$1.compareTo(b.$1));
+                grid.mediaCols
+                  ..clear()
+                  ..addAll([for (final e in order) e.$2]);
+              }
+            } else if (n == null || n < 1 || n > 24) {
               _issue(col, "A Grid's columns at a width are a number from 1 to 24: ${t.s.substring(from, from + m.length - 1)}.cols=2.");
             } else if (!_mediaLine) {
               if (grid.mediaCols.isEmpty) {
@@ -6150,7 +6393,11 @@ class _Parser {
           // variable was meant as its value: said, not guessed.
           final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(raw)!;
           final known = variables.containsKey(head) || _derived.containsKey(head) || head == 'item' && _stack.any((o) => o.each != null);
-          final ownValue = spec.props.any((p) => p.key == key && p.type.kind == PropKind.enumeration && p.type.values.contains(raw));
+          // (A field's own word at a dotted key too: `transformGesture.wheel=zoom`
+          // beside a `zoom` variable; round 11b, 2 builds.)
+          bool enumHas(PropType? t) => t != null && t.kind == PropKind.enumeration && t.values.contains(raw);
+          final ownValue = spec.props.any((p) => p.key == key && enumHas(p.type)) ||
+              (key.contains('.') && !component && enumHas(notationKey(key, type, catalog: catalog)?.type));
           // A key whose value is always a word (a field's type, an icon's
           // name) keeps it, whatever a variable is called:
           // Input "Email" type=email @email.
@@ -6170,6 +6417,18 @@ class _Parser {
         // Flutter's names for a Grid's words (test 10: Grid crossAxisCount=,
         // crossAxisSpacing=, mainAxisSpacing=, mainAxisExtent=): read as the
         // notation's, recorded as aliases. A Grid has one gap.
+        // A field's fixed height, as the reference gives it: the box's (one
+        // step of the control scale), its label above it ([_labelledFieldHeights]).
+        if (type == 'textField' && !component && key == 'h' && num.tryParse(raw) != null) _fieldHeights[id] = num.parse(raw);
+        if (key == 'w' && raw == 'fill') _writtenFills.add(id);
+        // `Stack … clipBehavior=hardEdge`: what is in it is cut at its edge,
+        // the decoration's clip (a stack's own clipBehavior is its scroll
+        // view's, and `hardEdge`, its default, is not kept: it drew past its
+        // edge; round 11b, clip-editor's timeline).
+        if (type == 'stack' && !component && key == 'clipBehavior' && const {'hardEdge', 'antiAlias', 'antiAliasWithSaveLayer'}.contains(raw)) {
+          decoration['clip'] = raw;
+          continue;
+        }
         if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
           _use('alias', key, col, of: 'parameter', to: to, on: written);
           key = to;
@@ -6212,7 +6471,7 @@ class _Parser {
         // its frame).
         // A state's or a media rule's word reads the same (`focused.fill=`
         // on an Input: its box's fill while it has the focus).
-        if (type == 'textField' && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
+        if (const {'textField', 'datePicker', 'timePicker'}.contains(type) && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
           Json border() => (field['border'] as Json?) ?? (field['border'] = <String, Object?>{'type': 'outline'});
           final v = raw.startsWith('=') ? null : _value(raw);
@@ -6243,6 +6502,14 @@ class _Parser {
           }
           continue;
         }
+        // `Select … fill=paper border=rule radius=7`: the line's box is the
+        // Select's frame, as an Input's are its field's; the Select draws
+        // none of its own inside it ([_framedSelects]).
+        if (type == 'dropdown' && !component && const {'fill', 'border', 'borderColor', 'border-color'}.contains(key)) {
+          final v = raw.startsWith('=') ? null : _value(raw);
+          if (v != 'none' && v != 'transparent' && v != false && v != 0) _framedSelects.add(id);
+        }
+        if (type == 'dropdown' && !component && key == 'underline') _ownFrameSaid.add(id);
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
@@ -6473,7 +6740,8 @@ class _Parser {
             // is elsewhere, is that expression (a record `{"rid":…}` is kept).
             var data = m[2]?.trim();
             if (data != null && data.startsWith('{') && !data.startsWith('{"') && data.endsWith('}') && _opened(data.substring(0, data.length - 1)) == 1) data = data.substring(1, data.length - 1).trim();
-            node['draggable'] = {'group': m[1], if (data != null) 'data': _read(data)};
+            // (Typed so a dotted key after it sets a field of it: `draggable.feedbackRotation=0`.)
+            node['draggable'] = <String, Object?>{'group': m[1], if (data != null) 'data': _read(data)};
           }
           continue;
         }
@@ -6482,7 +6750,7 @@ class _Parser {
           if (groups.isEmpty || groups.any((g) => !_identifier.hasMatch(g))) {
             _issue(col, 'drop is written drop=group or drop=a,b with the groups it takes: drop=todo,doing onDrop={done=append(done,result.data)}.');
           } else {
-            node['dropTarget'] = {'accepts': groups};
+            node['dropTarget'] = <String, Object?>{'accepts': groups};
           }
           continue;
         }
@@ -7145,7 +7413,10 @@ class _Parser {
         final row = nodes[parent!.id];
         final rowWidth = (row?['layout'] as Map?)?['width'];
         // A row that is itself only as wide as its content gives it a width.
-        if (rowWidth is Map && rowWidth.containsKey('fill') || (row?['layout'] as Map?)?.containsKey('flex') == true) {
+        // (A row of a width of its own, a table's cell of `w:87`, has that
+        // width to share: round 11b, support-desk's StatusMark was 240 wide
+        // in an 87 column, 49 overflow errors.)
+        if (rowWidth is Map && rowWidth.containsKey('fill') || rowWidth is num || (row?['layout'] as Map?)?.containsKey('flex') == true) {
           layout['flex'] = 1;
         } else {
           layout['width'] = 240;
@@ -7608,7 +7879,9 @@ class _Parser {
       layout.putIfAbsent('height', () => {'hug': 0});
     }
     // A grid's rows are as tall as their content unless a height is given.
-    if (type == 'gridView' && !props.containsKey('mainAxisExtent')) props.putIfAbsent('shrinkWrapRows', () => true);
+    // (A cell's shape or height written: its rows are that, not their content's;
+    // round 11b, `Grid … childAspectRatio=1.36` drew its photos 0 to 20 high.)
+    if (type == 'gridView' && !props.containsKey('mainAxisExtent') && !props.containsKey('childAspectRatio')) props.putIfAbsent('shrinkWrapRows', () => true);
     final cell = parent?.grid != null && !(grid != null && identical(parent!.grid, grid));
     if (cell) {
       layout['flex'] = 1;
@@ -7848,6 +8121,10 @@ class _Parser {
       final fills = !placed && layout.containsKey('flex') ||
           spread ||
           !placed && capped ||
+          // Pages swiped across have no width of their own to hug: in a
+          // centring column they were 0 wide and showed nothing (round 11b,
+          // meal-planner's cooking steps).
+          !placed && type == 'pageView' ||
           !placed && !inRow && !inTile && !inHug && type != 'icon' && (!control || type == 'textField' || type == 'slider' || type == 'dropdown' || type == 'pageView');
       layout['width'] = fills ? {'fill': 0} : {'hug': 0};
     } else {
@@ -7861,7 +8138,9 @@ class _Parser {
         layout.containsKey('flex') &&
         parent?.type == 'column' &&
         !inRow &&
-        const {'column', 'row', 'flex', 'stack', 'listView', 'gridView'}.contains(type);
+        // (A data table too: `TableView#sheetGrid grow` under a toolbar drew
+        // 0 high, round 11b, spreadsheet.)
+        const {'column', 'row', 'flex', 'stack', 'listView', 'gridView', 'tableView'}.contains(type);
     // An empty box that grows in a column is what pushes the lines after it
     // to the end (`box grow h=1` above a sidebar's foot, as `flex: 1` with a
     // height does on the web): it takes the room left, and never less than
@@ -7958,7 +8237,19 @@ class _Parser {
         // A copy's own width or growth at another width (`tablet.w=272
         // tablet.grow=false`), or the row scrolling there, a grid's column
         // cannot follow: said, with what to write (it was dropped).
-        final ownMedia = pre?.parts.where((p) => RegExp(r'^[a-z]+\.(w|width|grow|flex)\b').hasMatch(p.kind == 'pair' ? p.key ?? '' : p.raw)).toList() ?? const [];
+        // (Where the row turns down the page the grid has one column, each copy
+        // its whole width: a copy's `phone.grow=0` or `phone.w=fill` there says
+        // what it does, and is read; round 11b: restaurant, nonprofit.)
+        bool saysOneColumn(LinePart p) {
+          final word = p.kind == 'pair' ? '${p.key}=${p.value}' : p.raw;
+          final m = mediaCondition(word.split('=').first);
+          if (m == null || m.problem != null) return false;
+          final rest = word.substring(m.length);
+          if (!RegExp(r'^(grow=(0|false)|flex=0|w=fill|width=fill)$').hasMatch(rest)) return false;
+          return gridMedia.any((g) => jsonEquality.equals({for (final e in g.entries) if (e.key != 'patch') e.key: e.value}, m.condition));
+        }
+
+        final ownMedia = pre?.parts.where((p) => RegExp(r'^[a-z]+\.(w|width|grow|flex)\b').hasMatch(p.kind == 'pair' ? p.key ?? '' : p.raw) && !saysOneColumn(p)).toList() ?? const [];
         final rowScrolls = (rowMedia ?? const []).any((r) => r is Map && ((r['patch'] as Map?)?['props'] as Map?)?['scrollable'] == true);
         if (ownMedia.isNotEmpty || rowScrolls) {
           _issue(column,
@@ -8641,6 +8932,23 @@ class _Parser {
   }
 
   void _strings(List<String> texts, String type, String id, Json out) {
+    // `ExpansionTile "{entry.q}"`: its strings are its header's, the title
+    // and subtitle of the list tile in its `tile` slot, as `ListTile "…"`
+    // makes them; the lines under it are what it shows open. They were its
+    // first children, and the header, drawn from the slot alone, was blank
+    // (round 11b: conference's FAQ, docs-site's navigation groups).
+    if (type == 'expansionTile' && texts.isNotEmpty && (out['slots'] as Map?)?['tile'] == null) {
+      final tile = '${id}Tile';
+      nodes[tile] = <String, Object?>{
+        'type': 'listTile',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+      };
+      _parentOf[tile] = id;
+      _slotOf[tile] = 'tile';
+      ((out['slots'] as Json?) ?? (out['slots'] = <String, Object?>{}))['tile'] = tile;
+      _strings(texts, 'listTile', tile, nodes[tile]!);
+      return;
+    }
     for (var i = 0; i < texts.length; i++) {
       final tid = _id('text');
       final container = type == 'column' || type == 'row' || type == 'stack';
@@ -8862,7 +9170,7 @@ class _Parser {
       nodes[list] = {
         'type': 'gridView',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
+        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
         'bind': {
           'data': _formula('range(${cells.length})'),
           if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,
@@ -9431,6 +9739,9 @@ class _Parser {
     _feet();
     _endButtons();
     _fieldsBesideButtons();
+    _framedSelectsBare();
+    _labelledFieldHeights();
+    _wrapFills();
     _reflow();
     // What a last line changed on a node already sent (an `every`).
     if (_canvas && _patches.isNotEmpty) {

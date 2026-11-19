@@ -939,6 +939,20 @@ final class _NodeLine {
     }
     if (type == 'text') _text();
     if (type == 'textField') _input();
+    // A Select with a box of its own and its own frame inside it (a
+    // document made before round 11b): a `fill` or a `border` on its line
+    // now makes the box its frame, so the frame it keeps is said.
+    // A grid of a cell shape whose rows are still their content's (a document
+    // made before round 11b): `childAspectRatio` alone now gives rows of that
+    // shape, so the rows it keeps are said.
+    if (type == 'gridView' && props['childAspectRatio'] != null && props['shrinkWrapRows'] == true) {
+      words.add('shrinkWrapRows=true');
+      doneProps.add('shrinkWrapRows');
+    }
+    if (type == 'dropdown' && !props.containsKey('underline')) {
+      final d = readMap(n['decoration']);
+      if ((d?['fills'] as List?)?.isNotEmpty == true || (d?['strokes'] as List?)?.isNotEmpty == true) words.add('underline=true');
+    }
     if (_buttons.contains(type)) _button();
     if (type == 'iconButton') _iconButton();
   }
@@ -1153,10 +1167,18 @@ final class _NodeLine {
         h > 0 &&
         props['scrollable'] != true &&
         readStrings(n['children']).any((k) => readMap(c.nodes[k])?['type'] == 'text');
+    // A labelled field's whole height, its label's and its box's (`h=` on it
+    // is its box's: round 11b).
+    final labelledField = type == 'textField' &&
+        h is num &&
+        switch (readMap(props['decoration'])?['labelText']) {
+          final String l => l.isNotEmpty,
+          _ => bind['props.decoration.labelText'] != null,
+        };
     if (spacer && h != null && !_equal(h, height)) {
       if (_sizeWord(h) case final String s) words.add('layout.height=$s');
     } else if (!spacer && free('height') && h != null && !_equal(h, height)) {
-      if (_sizeWord(h) case final String s) words.add(textUnder ? 'layout.height=$s' : 'h=$s');
+      if (_sizeWord(h) case final String s) words.add(textUnder || labelledField ? 'layout.height=$s' : 'h=$s');
     }
     // A fit beside a bound size (a bound size alone is 0): by its full path,
     // that size exactly (design 22, 4.8).

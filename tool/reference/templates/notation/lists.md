@@ -135,8 +135,8 @@ ListView h=120 scrollDirection=horizontal
 ## A list chosen from and swiped
 
 `selectable selected=@chosen` on the line an each is under makes its rows chosen as a desktop list's are (a press
-alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all), and `SwipeAction` lines under the each put actions
-behind a swiped row: one list takes both (a mailbox: choose many with the keyboard and the pointer, swipe one on a
+alone, Ctrl or Cmd adds, Shift takes a range, Ctrl or Cmd A all), and `SwipeAction` lines under the each (an each
+that runs down a Column, as below; not under a ListView) put actions behind a swiped row: one list takes both (a mailbox: choose many with the keyboard and the pointer, swipe one on a
 phone). `removes` takes the row out of the list's variable; `result.item` is the row swiped. An action is drawn in
 the accent, a destructive one (`danger`, or a delete, remove or trash by its icon or label) in the theme's error
 color; `background=` and `foreground=` give it colors of its own (`background=warning`). A row's own menu

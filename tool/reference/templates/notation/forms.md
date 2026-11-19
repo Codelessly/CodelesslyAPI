@@ -54,7 +54,7 @@ the accent, their label in its ink (`onPrimary`). What is not chosen is a tint o
 on, never a fixed grey. Chips and segments are rounded rectangles (the theme's control radius, at every width), not
 pills, and a chosen chip shows no check mark unless the line writes `showCheckmark=true`. A row of chips is the word
 for filters and for tabs across a page: write `ChoiceChip "All stories" selected={section=="All"} onTap={…}` and do
-not style it. The line's own colors (`selectedColor=`, `backgroundColor=`, `labelColor=`) and `shape=` win.
+not style it. The line's own colors (`selectedColor=`, `backgroundColor=`, the label's `labelStyle.color=`) and `shape=` win.
 
 ## A number with its buttons
 
@@ -78,7 +78,7 @@ clip=antiAlias` around `IconButton "remove" border-right=…`, `Input … decora
 
 ## Validation
 
-A column with `form` holds fields that check themselves: an Input's `validator={…}` gives the message (empty when
+A column with `form=true` holds fields that check themselves: an Input's `validator={…}` gives the message (empty when
 the value is good), and the `validate` action checks every field of the form; `result` says whether all passed.
 
 ```notation expands

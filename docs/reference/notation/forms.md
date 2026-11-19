@@ -73,7 +73,7 @@ the accent, their label in its ink (`onPrimary`). What is not chosen is a tint o
 on, never a fixed grey. Chips and segments are rounded rectangles (the theme's control radius, at every width), not
 pills, and a chosen chip shows no check mark unless the line writes `showCheckmark=true`. A row of chips is the word
 for filters and for tabs across a page: write `ChoiceChip "All stories" selected={section=="All"} onTap={…}` and do
-not style it. The line's own colors (`selectedColor=`, `backgroundColor=`, `labelColor=`) and `shape=` win.
+not style it. The line's own colors (`selectedColor=`, `backgroundColor=`, the label's `labelStyle.color=`) and `shape=` win.
 
 <a id="forms-a-number-with-its-buttons"></a>
 ## A number with its buttons
@@ -108,7 +108,7 @@ clip=antiAlias` around `IconButton "remove" border-right=…`, `Input … decora
 <a id="forms-validation"></a>
 ## Validation
 
-A column with `form` holds fields that check themselves: an Input's `validator={…}` gives the message (empty when
+A column with `form=true` holds fields that check themselves: an Input's `validator={…}` gives the message (empty when
 the value is good), and the `validate` action checks every field of the form; `result` says whether all passed.
 
 ```notation expands
@@ -548,12 +548,12 @@ An inline month calendar that picks a start and end date (range false: one day, 
 <a id="node-dropdown"></a>
 ### `Select` (`dropdown`)
 
-Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it. Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
+Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it, and with `underline: false` that box is its frame, its padding the inset of its value and chevron (a fill or a border written on a notation `Select` line sets it: no second frame inside). Leave its height to hug: every input (text field, dropdown, date and time picker) is then the same control height (28); a fixed height picks another step of the control scale (24, 28, 32, 36, 44) and should be the same on the inputs beside it.
 
 - Written `Select`. Level 1 (Widget catalog).
 - `Select "…"` sets `props.hint`; it takes one quoted string (a second is said).
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): yes: a `fill` or a `border` written makes the box of the line its frame (`Select @v items=[…] fill=#FFFFFFFF border=#FFE2E3ED radius=7`): it draws no frame of its own inside it, its value and chevron inset by `pad` (else by the side padding of its frame).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
@@ -634,7 +634,7 @@ A date field that opens a calendar drawn in the project theme (a popover under t
 - Written `DatePicker`. Level 1 (Widget catalog).
 - `DatePicker "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): the field's own box: `fill=#FFF3F4F6` its fill, `border=#FFD1D5DB` its line (`border=none`: none, and no fill unless one is written: a bare field), `radius=20` its corners; else only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
@@ -657,7 +657,7 @@ A time field that opens hour and minute columns drawn in the project theme (a po
 - Written `TimePicker`. Level 1 (Widget catalog).
 - `TimePicker "…"` sets `props.decoration.labelText`; it takes one quoted string (a second is said).
 - Takes no lines under it.
-- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): the field's own box: `fill=#FFF3F4F6` its fill, `border=#FFD1D5DB` its line (`border=none`: none, and no fill unless one is written: a bare field), `radius=20` its corners; else only `effects` (blurs).
 - The fields of its text style ([TextStyle](theme.md#type-TextStyle)) are keys by their own names: `letterSpacing=0.4`, `fontFamily="Inter"`.
 
 | Key | Type | Default | Level | Description |
