@@ -261,4 +261,19 @@ define Hotkey "keys" key hint onPress
       expect(jsonEncode(r.document), contains(r'${theme.colors.ink}'));
     });
   });
+
+  group('what stopped definitions, more', () {
+    List<Object?> actionsOf(NotationResult r, String id) => (_node(r, id)['actions'] as List?) ?? const [];
+
+    test('a record line of a definition is its body\'s, written before the page or after it, and never the page\'s', () {
+      const def = 'define Pic\n  Stack w=100 h=100\n    Box w=100 h=100\n    customPaint viewBox=[100,100]\n      circle c=[50,50] radius=20 fill=#FF2563EB\n';
+      const page = 'Column\n  Row\n    Pic\n  Row\n    Text "last row"\n';
+      for (final text in ['$def$page', '$page$def']) {
+        final r = _read(text);
+        expect(r.issues, isEmpty, reason: text);
+        final painted = [for (final e in (r.document['nodes'] as Map).entries) if ((e.value as Map).containsKey('customPaint')) e.key];
+        expect(painted, ['pic1'], reason: text);
+      }
+    });
+  });
 }

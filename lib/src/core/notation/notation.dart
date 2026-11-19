@@ -2723,6 +2723,10 @@ class _Parser {
   String? _root;
   int _line = 0;
 
+  /// Whether the line being read is a `define`'s or a `primitive`'s, or
+  /// under one.
+  bool _inDeclaration = false;
+
   /// Reads one line (without its newline).
   void line(String raw) {
     // The lines under an overlay's head are its canvas's; the next line at
@@ -2845,7 +2849,11 @@ class _Parser {
     final indent = raw.length - raw.trimLeft().length;
     // (At the indent the page words move the node lines to: a box in a Nav
     // or a Section is two deeper than written.)
-    if (_paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
+    // The lines of a `define` (or `primitive`) are the definition's: a record
+    // line among them (`customPaint`) is its body's, not the page's (it was
+    // put on the node open above the definition, or said to have none).
+    if (indent == 0) _inDeclaration = isDeclaration(raw.trimRight());
+    if (!_inDeclaration && _paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.
