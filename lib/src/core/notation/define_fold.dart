@@ -318,3 +318,68 @@ final class _Parser {
     };
   }
 }
+
+/// [expression] with each call of a function [foldExpression] works out
+/// (`coalesce(null, "#FF6B7280")`, `round(40/4)`) whose arguments name
+/// nothing written as its value, where the rest of the expression still
+/// reads something at run time: `(on) ? "#FF2563EB" : coalesce(null,
+/// "#FF6B7280")` is `(on) ? "#FF2563EB" : "#FF6B7280"`, as the page words
+/// write it.
+String foldCalls(String expression) {
+  const names = {'upper', 'lower', 'trim', 'round', 'floor', 'ceil', 'abs', 'min', 'max', 'coalesce', 'replace', 'startsWith', 'endsWith'};
+  var s = expression;
+  var from = 0;
+  while (true) {
+    final m = RegExp(r'(?<![A-Za-z0-9_.])([A-Za-z_][A-Za-z0-9_]*)\(').allMatches(s, from).where((m) => names.contains(m[1]) && !_quoted(s, m.start)).firstOrNull;
+    if (m == null) return s;
+    var depth = 0, end = -1;
+    for (var k = m.end - 1; k < s.length; k++) {
+      final c = s[k];
+      if (c == '"' || c == "'") {
+        final close = s.indexOf(c, k + 1);
+        if (close < 0) return s;
+        k = close;
+        continue;
+      }
+      if (c == '(') depth++;
+      if (c == ')' && --depth == 0) {
+        end = k + 1;
+        break;
+      }
+    }
+    if (end < 0) return s;
+    final v = foldExpression(s.substring(m.start, end));
+    final w = identical(v, unknown) ? null : _literal(v);
+    if (w == null) {
+      from = m.end;
+      continue;
+    }
+    s = '${s.substring(0, m.start)}$w${s.substring(end)}';
+    from = m.start + w.length;
+  }
+}
+
+bool _quoted(String s, int at) {
+  var q = '';
+  for (var i = 0; i < at; i++) {
+    final c = s[i];
+    if (q.isNotEmpty) {
+      if (c == r'\') {
+        i++;
+      } else if (c == q) {
+        q = '';
+      }
+    } else if (c == '"' || c == "'") {
+      q = c;
+    }
+  }
+  return q.isNotEmpty;
+}
+
+String? _literal(Object? v) => switch (v) {
+      null => 'null',
+      final bool b => '$b',
+      final num n => foldNumber(n),
+      final String s when !s.contains('{') && !s.contains('"') && !s.contains(r'\') => '"$s"',
+      _ => null,
+    };

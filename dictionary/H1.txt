@@ -1,3 +1,3 @@
 // A website's headline. It does not say: in an app it is the page's title (another text style): it reads the lines it is under.
 H1 "text"
-  Text.heading1 "{text}"
+  Text.{coalesce(theme.style.heading1, theme.style.pageTitle, theme.style.title)} "{text}" size={theme.siteHeadline} ...

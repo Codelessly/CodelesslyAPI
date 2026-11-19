@@ -54,25 +54,37 @@ void main(List<String> args) {
   final words = <String>{for (final f in files.values) ...f.words};
   final summary = <String>[];
   final details = StringBuffer();
+  final themes = closureThemes();
   void run(String label, String usesFrom, Set<String> renamed) {
     final uses = usesOf(usesFrom);
     if (uses.isEmpty) {
-      summary.add('| `$label` | no use | | | | |');
+      summary.add('| `$label` | no use | | | | |${' |' * themes.length}');
       return;
     }
     final c = closure(label, uses, files.values, renamed: renamed);
+    // The same under each design system's theme (dictionary/themes).
+    final byTheme = {for (final t in themes.entries) t.key: closure(label, uses, files.values, renamed: renamed, theme: t.value)};
+    final everywhere = c.closes && byTheme.values.every((x) => x.closes);
     final equal = c.results.where((r) => r.comparison.equal && r.issues.isEmpty).length;
     final spelt = c.results.where((r) => r.spelt.equal && r.issues.isEmpty).length;
     final nodes = c.results.fold<int>(0, (n, r) => n + r.comparison.nodesA);
     final same = c.results.fold<int>(0, (n, r) => n + r.comparison.same);
     final sameSpelt = c.results.fold<int>(0, (n, r) => n + r.spelt.same);
-    final verdict = c.closes ? '**closes**' : c.closesUpToSpelling ? '**closes** up to spelling' : 'does not close';
+    final verdict = everywhere
+        ? '**closes**'
+        : c.closes
+            ? 'closes at the core\'s looks'
+            : c.closesUpToSpelling
+                ? 'closes up to spelling at the core\'s looks'
+                : 'does not close';
     final built = builtInWords.contains(label) ? ' (built in)' : '';
-    summary.add('| `$label` | $verdict$built | $equal of ${c.results.length} | $spelt | $same of $nodes | $sameSpelt |');
+    String eq(WordClosure x) => '${x.results.where((r) => r.comparison.equal && r.issues.isEmpty).length} of ${x.results.length}';
+    summary.add('| `$label` | $verdict$built | $equal of ${c.results.length} | $spelt | $same of $nodes | $sameSpelt |${[for (final x in byTheme.values) ' ${eq(x)} |'].join()}');
     report.add({
       'word': label,
       'renamed': renamed.toList()..sort(),
       'closes': c.closes,
+      'closesEverywhere': everywhere,
       'closesUpToSpelling': c.closesUpToSpelling,
       if (built.isNotEmpty) 'builtIn': true,
       'equal': equal,
@@ -84,6 +96,20 @@ void main(List<String> args) {
         for (final r in c.results)
           {'from': r.from, 'width': r.width, 'equal': r.comparison.equal, 'equalUpToSpelling': r.spelt.equal, 'summary': r.spelt.summary, 'samples': r.spelt.samples, 'issues': r.issues},
       ],
+      'themes': {
+        for (final t in byTheme.entries)
+          t.key: {
+            'closes': t.value.closes,
+            'equal': t.value.results.where((r) => r.comparison.equal && r.issues.isEmpty).length,
+            'expansions': t.value.results.length,
+            'nodes': t.value.results.fold<int>(0, (n, r) => n + r.comparison.nodesA),
+            'same': t.value.results.fold<int>(0, (n, r) => n + r.comparison.same),
+            'results': [
+              for (final r in t.value.results)
+                if (!r.comparison.equal || r.issues.isNotEmpty) {'from': r.from, 'width': r.width, 'summary': r.comparison.summary, 'samples': r.comparison.samples, 'issues': r.issues},
+            ],
+          },
+      },
     });
     details
       ..writeln()
@@ -93,6 +119,18 @@ void main(List<String> args) {
       details.writeln('- ${r.from} @${r.width.round()}: ${r.comparison.equal ? 'equal' : r.spelt.equal ? 'equal up to spelling' : r.spelt.summary}${r.issues.isEmpty ? '' : '; issues: ${r.issues.take(2).join(' / ')}'}');
       for (final s in r.spelt.samples.take(r.spelt.equal ? 0 : 3)) {
         details.writeln('  - `${s.replaceAll('`', "'")}`');
+      }
+    }
+    for (final t in byTheme.entries) {
+      final differ = [for (final r in t.value.results) if (!r.comparison.equal || r.issues.isNotEmpty) r];
+      details
+        ..writeln()
+        ..writeln('Under ${t.key}\'s theme: ${differ.isEmpty ? 'every use the same.' : '${differ.length} of ${t.value.results.length} differ.'}');
+      for (final r in differ) {
+        details.writeln('- ${r.from} @${r.width.round()}: ${r.comparison.summary}${r.issues.isEmpty ? '' : '; issues: ${r.issues.take(2).join(' / ')}'}');
+        for (final s in r.comparison.samples.take(2)) {
+          details.writeln('  - `${s.replaceAll('`', "'")}`');
+        }
       }
     }
     if (dump != null) {
@@ -121,13 +159,17 @@ void main(List<String> args) {
     if (only == null) run('$w (family)', w, frameFamily.intersection(words));
   }
   md
-    ..writeln('| word | | expansions the same | up to spelling | nodes the same | up to spelling |')
-    ..writeln('|---|---|---|---|---|---|');
+    ..writeln('| word | | expansions the same | up to spelling | nodes the same | up to spelling |${[for (final t in themes.keys) ' under $t |'].join()}')
+    ..writeln('|---|---|---|---|---|---|${'---|' * themes.length}');
   summary.forEach(md.writeln);
   md
     ..writeln()
     ..writeln('A word marked built in is read from the built-in dictionary (tool/dictionary/generate.dart): the expander\'s side '
         'is its definition, so it closes by construction; its closure against the code was taken before the code was removed (design note 23).')
+    ..writeln()
+    ..writeln('Each use is expanded at the core\'s looks and again under each design system\'s theme of dictionary/themes (its '
+        'colors, fills, inks, sizes and text styles, read as the SDK reads a design system\'s theme; its components are not '
+        'loaded). A word **closes** when every use is the same under every theme.')
     ..writeln()
     ..writeln('A use counts as the same when its two documents are equal and the definition\'s side has no issue the code\'s has not. '
         '"Nodes the same" counts the code\'s nodes that the definition\'s document has, equal, at the same place.')

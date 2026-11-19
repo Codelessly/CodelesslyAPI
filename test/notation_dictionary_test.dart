@@ -118,6 +118,13 @@ void main() {
         expect(c.closesUpToSpelling, r['closesUpToSpelling']);
         expect(c.results.where((x) => x.comparison.equal && x.issues.isEmpty).length, r['equal']);
         expect(c.results.fold<int>(0, (n, x) => n + x.comparison.same), r['same'], reason: 'nodes the same for $w');
+        // And under each design system's theme (dictionary/themes).
+        for (final t in closureThemes().entries) {
+          final tr = (r['themes'] as Map)[t.key] as Map;
+          final ct = closure(w, uses, files.values, theme: t.value);
+          expect(ct.results.where((x) => x.comparison.equal && x.issues.isEmpty).length, tr['equal'], reason: '$w under ${t.key}');
+          expect(ct.results.fold<int>(0, (n, x) => n + x.comparison.same), tr['same'], reason: 'nodes the same for $w under ${t.key}');
+        }
       });
     }
     test('the frame family, renamed together', () {

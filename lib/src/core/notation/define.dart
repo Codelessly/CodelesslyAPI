@@ -262,6 +262,22 @@ String declared(String line) {
 }
 final _event = RegExp(r'^on[A-Z][A-Za-z0-9]*$');
 
+/// The names a definition's body reads as `theme.<name>` while a use is
+/// expanded (docs/design/20 section 16): the looks the page words read, as
+/// [notationThemeReads] gives them. `theme.style.<name>` is a text style's
+/// name when the theme has it.
+const notationThemeNames = [
+  'accent', 'accentText', 'line', 'selectedFill', 'surface', 'overlaySurface', 'track', 'band', 'siteFill', 'paneFill', 'sideFill', 'iconTile', //
+  'hoverFill', 'quietInk', 'mutedInk', 'faintInk', 'contentWidth', 'narrowWidth', 'sidebarWidth', 'sidebarRail', 'sectionPad', 'gutter', 'siteHeadline',
+];
+
+/// The run-time theme's own names (a binding reads them in the app: SDK
+/// themeValues): left to it, and no issue.
+const _runtimeTheme = {
+  'primary', 'onPrimary', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', 'radius', 'buttonRadius', 'iconStyle', //
+  'colors', 'text', 'spacing', 'radii', 'sizes', 'shadows', 'durations', 'curves', 'isDark', 'brightness', 'mode', 'hasDark',
+};
+
 /// A line's role mark after its type (`Row~app`, `Column~section`: the
 /// frame the reflow lays out by, docs/design/20 section 13): the line
 /// without it, and the role (empty: none).
@@ -624,6 +640,7 @@ final class DefinedWords {
     this.internal,
     this.bindsVariable,
     this.builtIn,
+    this.theme = const {},
   })  : counts = counts ?? {},
         page = page ?? {};
 
@@ -635,6 +652,10 @@ final class DefinedWords {
   /// (notationBuiltInDefinition), or null: such a definition read as the
   /// text arrives is not used, and this is said.
   final String? Function(String word)? builtIn;
+
+  /// What a body reads as `theme.<name>` (docs/design/20 section 16): the
+  /// looks the page words read, by name, as they write them ([notationThemeReads]).
+  final Map<String, Object?> theme;
 
   /// A variable of the page a use binds (`Stepper @servings`), at its
   /// column, with what a state line for it would start at (as written).
@@ -1133,7 +1154,7 @@ final class DefinedWords {
         internal?.call('${p}_$uid');
       }
     }
-    final sub = _Substitution(d, values, actions, renamed, ids);
+    final sub = _Substitution(d, values, actions, renamed, ids, theme);
 
     // The body, with the use's values put in.
     final lines = <({int indent, String text, int line})>[
@@ -1165,6 +1186,9 @@ final class DefinedWords {
       }
       lines.add((indent: l.indent, text: t, line: l.line));
     }
+    if (sub.unknownTheme.isNotEmpty) {
+      _issue(column, '${d.at(d.line)}: ${d.word} reads ${sub.unknownTheme.map((n) => 'theme.$n').join(', ')}, which the theme does not give a definition. It gives: ${notationThemeNames.map((n) => 'theme.$n').join(', ')}, and theme.style.<name> (a text style\'s name, or nothing).');
+    }
     // An `if` whose condition reads nothing at run time is decided here.
     final decided = _decideIfs(lines);
     lines
@@ -1172,7 +1196,7 @@ final class DefinedWords {
       ..addAll(decided);
     // Its words expanded in turn, with the same definitions.
     final inner =
-        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, internal: internal, bindsVariable: bindsVariable);
+        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, internal: internal, bindsVariable: bindsVariable, theme: theme);
     final expanded = <DefinedLine>[];
     for (final l in lines) {
       expanded.addAll(inner.rewrite(l.indent, l.text, from: d.at(l.line)));
@@ -1465,7 +1489,44 @@ final class _Use {
 
 /// A use's values put into its definition's body.
 final class _Substitution {
-  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids);
+  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids, this.theme);
+
+  /// The looks a body reads as `theme.<name>` ([notationThemeReads]).
+  final Map<String, Object?> theme;
+
+  /// The names read as `theme.<name>` that are neither the looks a body
+  /// reads nor the run-time theme's.
+  final unknownTheme = <String>{};
+
+  /// `theme.<name>` (or `theme.style.<name>`) at [at] of [text], as a body
+  /// reads it while the use is expanded: its value, and where it ends; null
+  /// when it is the run-time theme's (`theme.colors.ink`, `theme.isDark`).
+  ({Object? value, int end})? _themeAt(String text, int at) {
+    final m = RegExp(r'theme\.([A-Za-z_][A-Za-z0-9_]*)(?:\.([A-Za-z_][A-Za-z0-9_]*))?').matchAsPrefix(text, at);
+    if (m == null) return null;
+    final name = m[1]!;
+    if (name == 'style') {
+      if (m[2] == null) return null;
+      final styles = theme['style'];
+      return (value: styles is Set && styles.contains(m[2]) ? m[2] : null, end: m.end);
+    }
+    if (notationThemeNames.contains(name)) return (value: theme[name], end: m.start + 6 + name.length);
+    if (!_runtimeTheme.contains(name)) unknownTheme.add(name);
+    return null;
+  }
+
+  /// A theme's value in an expression, as the page words write it there: a
+  /// colour by its value in quotes, a role by `theme.<role>`, a colour the
+  /// theme names by `theme.colors.<name>` (read at run time), a number as
+  /// its digits, a text style's name in quotes.
+  static String _themeExpression(Object? v) => switch (v) {
+        null => 'null',
+        final num n => foldNumber(n),
+        final String s when s.startsWith('#') => '"$s"',
+        final String s when const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(s) => 'theme.$s',
+        final String s => 'theme.colors.$s',
+        _ => 'null',
+      };
   final NotationDefinition d;
 
   /// The ids written in the body (keys of [renamed]): an action may name one
@@ -1572,6 +1633,12 @@ final class _Substitution {
       final word = m[0]!;
       final before = i == 0 ? '' : text[i - 1];
       final call = m.end < text.length && text[m.end] == '(';
+      if ((word == 'theme' && before != '.' ? _themeAt(text, i) : null) case final t?) {
+        final style = text.startsWith('theme.style.', i);
+        b.write(style ? (t.value == null ? 'null' : '"${t.value}"') : _themeExpression(t.value));
+        i = t.end;
+        continue;
+      }
       i = m.end;
       if (before == '.' || call) {
         b.write(word);
@@ -1586,7 +1653,7 @@ final class _Substitution {
         b.write(word);
       }
     }
-    return b.toString();
+    return foldCalls(b.toString());
   }
 
   /// A string `"…"`: its `{p}` the use's value, its other `{…}` read.
@@ -1739,6 +1806,11 @@ final class _Substitution {
             // A string that is one value read from the state is that value.
             if (given != null && RegExp(r'^"\{[^{}"]*\}"$').hasMatch(given)) given = given.substring(1, given.length - 1);
             if (given != null && given.isNotEmpty) parts.add('$k=$given');
+          } else if (whole != null && RegExp(r'^theme\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(whole) && _themeAt(whole, 0) != null) {
+            // `fill={theme.paneFill}`: the look as the page words write it
+            // (a value, or the theme's name for it); none leaves the key out.
+            final v = _themeAt(whole, 0)!.value;
+            if (v != null) parts.add('$k=${v is num ? foldNumber(v) : v}');
           } else if (whole != null) {
             final e = expression(whole);
             // Reading nothing at run time, it is worked out here: a value

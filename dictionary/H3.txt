@@ -1,3 +1,3 @@
 // A small title on a website. It does not say: in an app it is a strong line (another text style): it reads the lines it is under.
 H3 "text"
-  Text.heading3 "{text}"
+  Text.{coalesce(theme.style.heading3, theme.style.heading, theme.style.cardTitle, theme.style.strong)} "{text}" size={theme.siteHeadline == null ? null : round(theme.siteHeadline*0.37)} ...

@@ -3,6 +3,7 @@
 // use's other words, a role on a body's root, several lines at its margin,
 // and a word that stands for a statement.
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
@@ -219,6 +220,45 @@ define Hotkey "keys" key hint onPress
       final states = jsonEncode(_node(r, 'chip21')['states']);
       expect(states, contains('#FFDC2626'));
       expect(states, isNot(contains('tint')));
+    });
+  });
+
+  group('the theme read in a body (theme.<name>)', () {
+    Json theme(String name) => (jsonDecode(File('dictionary/themes/$name.json').readAsStringSync()) as Map).cast<String, Object?>();
+    NotationResult under(String text, String? name) => parseNotation(text,
+        catalog: standardCatalog, options: name == null ? const NotationOptions(width: 1440) : NotationOptions.fromTheme(ThemeTokens.fromJson(theme(name)).toJson(), width: 1440));
+
+    test('a look the page words read, as they write it: the same document as the page word', () {
+      const word = 'Page\n  Section\n    Text "in"\n';
+      const defined = 'Page\n  Band\n    Text "in"\ndefine Band\n  Column~section w=fill center pad=[theme.gutter,theme.sectionPad,theme.gutter,theme.sectionPad]\n    Column w=fill maxw={theme.contentWidth} gap=32\n      ...\n';
+      for (final name in [null, 'cards', 'desk']) {
+        final a = under(word, name), b = under(defined, name);
+        expect(b.issues, isEmpty);
+        expect(jsonEncode(_node(b, 'band1')..remove('children')), jsonEncode(_node(a, 'column2')..remove('children')), reason: '$name');
+      }
+    });
+
+    test('a look the theme does not give leaves the key out; in an expression, a colour, a role and a named colour as the page words write them', () {
+      const text = 'Column\n  Pane2\ndefine Pane2\n  Column fill={theme.paneFill} border={theme.line}\n    Box w=6 h=6 fill={1 == 1 ? theme.accent : theme.track}\n';
+      final core = under(text, null), desk = under(text, 'desk');
+      expect((_node(core, 'pane21')['decoration'] as Map).containsKey('fills'), isFalse);
+      expect(jsonEncode(_node(desk, 'pane21')['decoration']), contains('fills'));
+      expect(jsonEncode(core.document), contains('#FF2563EB'));
+      final named = parseNotation(text, catalog: standardCatalog, options: NotationOptions.fromTheme(ThemeTokens.fromJson(theme('desk')).toJson(), width: 1440, named: true));
+      expect(named.issues, isEmpty);
+    });
+
+    test('a text style by name when the theme has it, else the fallback', () {
+      const text = 'Column\n  Note2 "x"\ndefine Note2 "t"\n  Text.{coalesce(theme.style.nope, theme.style.caption, "muted")} "{t}"\n';
+      final r = under(text, null);
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(_nodes(r, 'text').single['props']), jsonEncode(_nodes(under('Column\n  Text.caption "x"\n', null), 'text').single['props']));
+    });
+
+    test('a name the theme does not give a definition is an issue that lists the names; the run-time theme is left to the app', () {
+      final r = under('Column\n  Odd2\ndefine Odd2\n  Text "{theme.wobble}" color={theme.colors.ink}\n', null);
+      expect(r.issues.single.message, allOf(contains('theme.wobble'), contains('theme.accent'), contains('theme.style.<name>')));
+      expect(jsonEncode(r.document), contains(r'${theme.colors.ink}'));
     });
   });
 }

@@ -27,6 +27,23 @@ Column gap=8
   Pill "Old"
 ```
 
+A defined word's lines may read the looks the theme gives the notation's own words as `{theme.<name>}`, worked out
+as the word is used, under whatever theme the page is read with (a design system's, the site's, or the notation's
+own looks): `accent`, `accentText`, `line`, `selectedFill`, `surface`, `overlaySurface`, `track`, `band`, `siteFill`,
+`paneFill`, `sideFill`, `iconTile`, `hoverFill`, `quietInk`, `mutedInk`, `faintInk` (colors; some are nothing under a
+theme that has none, and a key given nothing is left out), `contentWidth`, `narrowWidth`, `sidebarWidth`,
+`sidebarRail`, `sectionPad`, `gutter`, `siteHeadline` (sizes), and `theme.style.<name>`, a text style's name when the
+theme has it. They work in an expression too (`{coalesce(theme.mutedInk, "#FF6B7280")}`,
+`Text.{coalesce(theme.style.caption, "muted")}`); any other `theme.` name is the theme read as the page runs.
+
+```notation expands
+define Tag "label"
+  Row gap=4 pad=[8,2,8,2] radius=12 fill={theme.selectedFill} border={theme.line}
+    Text "{label}" color={theme.accent}
+Column gap=8
+  Tag "New"
+```
+
 {{reference}}
 
 {{examples}}

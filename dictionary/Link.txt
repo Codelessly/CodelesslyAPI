@@ -1,10 +1,10 @@
-// A link in running content: its text in the accent; a tap does what the use says, or opens its web address (href="https://…"), or scrolls to a part of the page (href="#pricing"). It does not say: in a bar it is a quiet button and joins the bar's phone menu (it reads the line it is under); with a look of its own (fill, radius, a border) it is a box around the text; the theme's accent.
+// A link in running content: its text in the accent; a tap does what the use says, or opens its web address (href="https://…"), or scrolls to a part of the page (href="#pricing"). It does not say: in a bar it is a quiet button and joins the bar's phone menu (it reads the line it is under); with a look of its own (fill, radius, a border) it is a box around the text.
 Link "label" href to url onTap
   if onTap
-    Text "{label}" color=#FF2563EB ... onTap={onTap}
+    Text "{label}" color={coalesce(theme.accentText, theme.accent)} ... onTap={onTap}
   else if startsWith(coalesce(href, to, url, ""), "http")
-    Text "{label}" color=#FF2563EB ... onTap={link {replace(coalesce(href, to, url), "\"", "")}}
+    Text "{label}" color={coalesce(theme.accentText, theme.accent)} ... onTap={link {replace(coalesce(href, to, url), "\"", "")}}
   else if startsWith(coalesce(href, to, url, ""), "#")
-    Text "{label}" color=#FF2563EB ... onTap={scroll {replace(coalesce(href, to, url), "#", "")}}
+    Text "{label}" color={coalesce(theme.accentText, theme.accent)} ... onTap={scroll {replace(coalesce(href, to, url), "#", "")}}
   else
-    Text "{label}" color=#FF2563EB ...
+    Text "{label}" color={coalesce(theme.accentText, theme.accent)} ...

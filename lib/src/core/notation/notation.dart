@@ -1641,6 +1641,38 @@ String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary v
   return null;
 }
 
+/// The looks a definition's body reads as `theme.<name>` under [options]
+/// (docs/design/20 section 16), each as the page words read and write it:
+/// the design system's or the site's theme, the core's looks with none, a
+/// dark theme's inks; null where the page words write nothing. `style` is the
+/// names of the theme's text styles.
+Map<String, Object?> notationThemeReads(NotationOptions options) => {
+      'accent': options.accent,
+      'accentText': options.accentText,
+      'line': options.line,
+      'selectedFill': options.selectedFill,
+      'surface': options.surface,
+      'overlaySurface': identical(options.card, defaultCard) && options.surface == '#FFFFFFFF' ? 'surface' : null,
+      'track': options.track,
+      'band': options.band,
+      'siteFill': options.siteFill,
+      'paneFill': options.paneFill,
+      'sideFill': options.sideFill,
+      'iconTile': options.iconTile,
+      'hoverFill': options.roles ? 'hoverFill' : '#0F111827',
+      'quietInk': options.quietInks?.$1,
+      'mutedInk': options.quietInks?.$2,
+      'faintInk': options.quietInks?.$3,
+      'contentWidth': options.contentWidth,
+      'narrowWidth': options.narrowWidth,
+      'sidebarWidth': options.sidebarWidth,
+      'sidebarRail': options.reflow && options.width >= 700 ? options.sidebarRail : null,
+      'sectionPad': options.sectionPad,
+      'gutter': options.gutter,
+      'siteHeadline': options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
+      'style': options.textStyles.keys.toSet(),
+    };
+
 /// Where the notation's meaning of [word] (a line's first word) is written:
 /// `base` (a node type of the notation or the catalog, a statement: the
 /// renderer and the parser implement it), `dictionary` (a definition of the
@@ -2248,6 +2280,7 @@ class _Parser {
   late final DefinedWords _defined = DefinedWords(
     // The built-in dictionary's words, under the design system's.
     {...notationDictionary, ...options.vocabulary.definitions},
+    theme: notationThemeReads(options),
     open: options.openVocabulary,
     record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
     issue: _issue,

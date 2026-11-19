@@ -611,8 +611,7 @@ is `key enter when trim(draft)!="" onPress=…`; `when={…}` the same, braced).
 
 - **G1, the frame a use is under** (a `NavItem` in a bar or a sidebar, a heading in an app or on a website):
   section 14.
-- **G9, the theme**: a page word reads the design system's accent, line, fills and text styles, and a body writes
-  fixed values. A definition is the same as the code's at the core's looks only.
+- **G9, the theme**: section 16.
 - **G6, G8 and G10** are the base: overlays, lines that read or move other lines, what is written outside a use's
   lines (note 23 section 5.1).
 - **Whether a value was written** cannot be asked apart from its value: `if name` with a name `"{row.icon}"` is read
@@ -703,3 +702,41 @@ design system's definitions, so:
 A word is added only when its closure is exact over every use (`CLOSURE.md` marks it built in) and the expansions of
 its uses are the same documents before and after its code is removed. The first is `computed` (section 13.5's
 `computed` over `state ...`).
+
+## 16. The theme read in a body (G9)
+
+The owner's decision: a definition reads the theme as `{theme.<name>}`. The names are the looks the page words read
+(`notationThemeReads`, from `NotationOptions`, which the design system's or the site's theme fills, or the core's
+looks with none), and each is what the page words write:
+
+| name | the page words' value | read by (today, in code) |
+|---|---|---|
+| `accent` | the accent, as the theme names it (`primary`) or its value | NavItem, Brand, IconTile, Link, Dots |
+| `accentText` | the accent as text on a light page; nothing when the theme has none | Link |
+| `line` | the rule colour | Sidebar, Pane, Footer, SidebarFooter, the foot |
+| `selectedFill` | the chosen item's fill | NavItem, IconTile |
+| `surface`, `overlaySurface` | what a drawer's panel and an app's foot are drawn on; the role an overlay is drawn in with no theme (`surface`), else nothing | Drawer, the foot |
+| `track` | a progress's track | Dots |
+| `band`, `siteFill`, `paneFill`, `sideFill`, `iconTile` | a tinted section's fill, a website's ground, a pane's, a sidebar's, an icon's tile; nothing when the theme names none | Section, Page, Nav, Sidebar, IconTile |
+| `hoverFill` | an item's tint under the pointer: the theme's role `hoverFill` when the document names its colours, else `#0F111827` | NavItem |
+| `quietInk`, `mutedInk`, `faintInk` | a dark theme's inks for items at rest; nothing in a light theme | NavItem, NavSection, Brand |
+| `contentWidth`, `narrowWidth`, `sidebarWidth`, `sidebarRail`, `sectionPad`, `gutter` | the theme's sizes (`sidebarRail` only where the page reflows, 700 wide and up) | Section, Nav, Sidebar |
+| `siteHeadline` | a website's headline size, 60, or nothing when the theme's `heading1` or `pageTitle` has a display size | Heading, H1–H3 |
+| `style.<name>` | the text style's name when the theme has it, else nothing | every heading, the overlays' titles, NavItem's count |
+
+**Read as the use is expanded**, not left for the renderer: the page words write the value (or the theme's name for
+it) into the line as they read it, so a definition that writes the same gives the same document under every theme,
+named or not, light or dark (the dark inks are in the options). `fill={theme.paneFill}` alone after a key is the
+value as the page words write it (`fill=card` named, `fill=#FFFFFFFF` not), and nothing leaves the key out, as `if
+paneFill != null` does in the code. In an expression a colour is written as the page words write one there: its
+value in quotes, a role as `theme.primary`, a colour the theme names as `theme.colors.<name>` (read at run time, as
+`Dots` reads it); a size is its number; a style its name in quotes, so `Text.{coalesce(theme.style.caption,
+"muted")}` and `{coalesce(theme.mutedInk, "#FF6B7280")}` work out as the use is read (section 13.1, which now also
+works out a call such as `coalesce(…)` inside an expression that still reads the state). Any other `theme.` name is
+the theme the app runs with (`theme.colors.ink`, `theme.isDark`), left as written; a name that is neither is an issue
+on the use that lists the names. A page's own `define` and a design system's definitions read it the same way.
+
+With it the dictionary's words differ from the code's under Cards' and Desk's themes exactly where they differ at
+the core's looks (note 23 section 9): the theme is no longer a reason a word does not close. `NavSection` and `Brand`
+still differ under Desk, where its sidebar is a rail at a tablet's width and the code hides their labels there: that
+is the frame (section 14).

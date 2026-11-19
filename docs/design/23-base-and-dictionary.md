@@ -375,3 +375,36 @@ examples and tests and the reference examples write no `computed`; the API's tes
 byte-identical (1,356 documents, 30,954 node lines, real gaps 0); print never wrote `computed` (it prints the
 `state` line, as before); the four documents that use it render byte-identical PNGs at the three sizes (12
 captures).
+
+## 9. With the theme read (G9)
+
+The dictionary reads the theme where the code does (note 20 section 16), and the closure runs each use under Cards'
+and Desk's themes as well as the core's looks (`dictionary/themes/`; their themes only, not their components). Per
+word, the expansions the same at the core's looks / under Cards / under Desk, before the theme reads and after:
+
+| word | before | after | still differs |
+|---|---|---|---|
+| Dots | 3/9, 3/9, 0/9 | 3/9, 3/9, 3/9 | the shapes the code refuses (question 6) |
+| Brand | 3/9, 3/9, 0/9 | 3/9, 3/9, 1/9 | the bar (G1); under Desk the rail hides its name at a tablet's width (G1) |
+| NavSection | 6/9, 6/9, 2/9 | 6/9, 6/9, 2/9 | a label worked out from the state; the rail (G1) |
+| Link | 6/12, 0/12, 0/12 | 6/12, 6/12, 6/12 | the bar and its phone menu (G1, G8) |
+| Section | 6/15, 0/15, 0/15 | 6/15, 6/15, 6/15 | compact, bleed, tint; plain after plain (G8); outside a Page (G1) |
+| Nav | 4/15, 0/15, 0/15 | 4/15, 4/15, 4/15 | a website's bar (G1), its phone menu, the drawer's button (G8) |
+| Sidebar | 2/12, 0/12, 0/12 | 2/12, 2/12, 2/12 | outside an App, the rail, the drawer (G1, G8) |
+| SidebarFooter | 3/6, 3/6, 0/6 | 3/6, 3/6, 3/6 | a Brand in the foot, a foot outside a sidebar (G1) |
+| H2, H3 | 0/6, 1/6, 0/6; 0/6 each | 3/6 under each | an app's heading (G1) |
+| H1 | 3/6 each | the same | an app's title (G1); marks its section a hero for the buttons after it (G8) |
+| Heading | 0/15 each | the same | the level by frame (G1), the hero (G8) |
+| IconTile | 0/9 each | the same | the code's star and text child for an unquoted icon; a worked-out name read at run time |
+| NavItem, Main, Pane, App, Page, Footer, Table, Shortcut | | each theme as at the core's looks | as section 8 |
+| the overlays | 0 each | the same | G6 |
+
+**No further word closes in every context**, so none moved: what is left is the frame (G1), what other lines read
+of a word (G8), the shapes the code reads that a definition does not, and the overlays.
+
+**With G1 built** (and the theme reads), these would close over their uses: `Brand` (its bar meaning, and the rail
+read from the sidebar it is in), `H2` and `H3` (their app meaning), and `SidebarFooter` if a definition can also be
+the frame its lines read (its Brand). `H1` and `Heading` need G8 besides (the hero mark the section's buttons read),
+`NavSection` a way to ask whether a label was written, `Link`, `Nav`, `Section`, `Sidebar`, `Main`, `Pane`, `App`,
+`Page`, `Footer` and `NavItem` G8 (the phone menu, the drawer, the window's foot, the rule beside Main, the
+plain-after-plain spacing) and, for NavItem, the code's spelling of `selected`. So G1 alone moves three or four words.

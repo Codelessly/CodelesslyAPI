@@ -1,4 +1,4 @@
-// An icon on a tinted square: the square's corner a quarter of its side, the icon half of it, a star when the use names no icon; what else the use writes is the square's. It does not say: the theme's accent and tile fill (the code reads them; these are the core's); an icon written where the text goes ({p.icon}, unquoted) is that icon here, a star in the code.
-IconTile "name" size=40 color=#FF2563EB fill=#FFE5E7EB
-  Box w={size} h={size} radius={round(size/4)} fill={fill} center middle ...
-    Icon "{coalesce(name, "star")}" size={round(size/2)} color={color}
+// An icon on a tinted square: the square's corner a quarter of its side, the icon half of it, a star when the use names no icon; what else the use writes is the square's. It does not say: an icon written where the text goes ({p.icon}, unquoted) is that icon here, a star in the code.
+IconTile "name" size=40 color fill
+  Box w={size} h={size} radius={round(size/4)} fill={coalesce(fill, theme.iconTile, theme.selectedFill)} center middle ...
+    Icon "{coalesce(name, "star")}" size={round(size/2)} color={coalesce(color, theme.accent)}

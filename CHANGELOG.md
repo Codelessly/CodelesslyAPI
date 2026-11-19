@@ -17,6 +17,15 @@
   is, and its word may be lowercase (`computed total={…}` over `state ...`). `key {…}` in such a body takes the
   chord worked out from the use.
 
+- **A body may read the theme as `{theme.<name>}`**: the looks the notation's own words take from the theme
+  (`accent`, `line`, `paneFill`, `mutedInk`, `contentWidth`, `sectionPad`, … and `theme.style.<name>`, a text style's
+  name when the theme has it), worked out as the word is used under whatever theme the page is read with. A look
+  the theme does not give leaves its key out; any other `theme.` name is read as the page runs; a name that is
+  neither is an issue that lists the names.
+- **A dotted key in a body reads the use's values** (`hovered.fill={tint}`); it was left as written.
+- **A call worked out from written values** inside an expression that still reads the state is worked out as the
+  use is read (`{on ? "#FF2563EB" : coalesce(null, "#FF6B7280")}`).
+
 ### The built-in dictionary
 
 - **Words the notation has may be definitions in its own base words**, shipped in the package
