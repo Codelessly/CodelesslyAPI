@@ -166,7 +166,12 @@ Column gap=12
         {'color': '#FFFDE68A'},
       ]);
       expect((first['layout'] as Map)['width'], 200);
-      expect(jsonEncode(first['bind']), contains('true ?'));
+      // `{selected ? … : …}` with selected=true written reads nothing at run
+      // time: worked out as the use is read (docs/design/20 section 13).
+      expect(first['bind'], isNull);
+      expect((first['decoration'] as Map)['strokes'], [
+        {'color': '#FF2563EB'},
+      ]);
       expect(jsonEncode(first['actions']), contains('"message":"hi"'));
       expect(_node(r, 'text1')['props'], containsPair('text', 'Hello'));
       expect(_node(r, 'text2')['props'], containsPair('text', 'Hello (200 wide)'));
@@ -191,7 +196,7 @@ Column gap=12
     test('a use expands to the same document as its lines written out by hand', () {
       final byHand = parseNotation('''
 Column gap=12
-  Column#stickyNote1 w=200 pad=14 gap=6 fill=#FFFDE68A radius=6 border={true ? "#FF2563EB" : "#1A000000"} onTap={toast "hi"}
+  Column#stickyNote1 w=200 pad=14 gap=6 fill=#FFFDE68A radius=6 border=#FF2563EB onTap={toast "hi"}
     Text "Hello"
     Text.caption "Hello (200 wide)"
 ''', catalog: standardCatalog, options: const NotationOptions(width: 1280));
@@ -296,8 +301,10 @@ Column
       expect(swatch, contains(r'"message":"${= (item)}"'));
       final tiles = jsonEncode(r.document);
       expect(tiles, contains('"message":"saved"'));
-      // b.pdf has no download button: its `if onDownload` is false.
-      expect(tiles, contains('"visible":"\${= false}"'));
+      // b.pdf has no download button: its `if onDownload` is false, decided
+      // as the use is read (docs/design/20 section 13).
+      expect(tiles, isNot(contains('"visible":"\${= false}"')));
+      expect('"type":"iconButton"'.allMatches(tiles), hasLength(1));
     });
   });
 
@@ -594,8 +601,9 @@ define Guide visible=true steer=0
       for (final (id, w) in [('a', 2), ('b', 2), ('c', 3)]) {
         expect(deco(id), {'strokes': [{'color': '#FF2563EB'}], 'strokeWidth': w}, reason: id);
       }
-      expect(deco('d')['strokes'], [{'color': '#FF2563EB'}]);
-      expect((_node(r, 'd_ring21')['bind'] as Map)['decoration.strokeWidth'], r'${= true ? 2 : 0}');
+      // `{on ? 2 : 0}` with on=true written: worked out as the use is read.
+      expect(deco('d'), {'strokes': [{'color': '#FF2563EB'}], 'strokeWidth': 2});
+      expect(_node(r, 'd_ring21')['bind'], isNull);
       expect(deco('e'), {'strokes': [{'color': const NotationOptions().line}], 'strokeWidth': 1});
     });
 
@@ -847,7 +855,10 @@ define Status done=false
 ''', catalog: standardCatalog);
       expect(r.issues, isEmpty);
       final root = (r.document['nodes'] as Map).values.cast<Map>().firstWhere((n) => n['type'] == 'column');
-      expect([for (final c in root['children'] as List) _node(r, c as String)['type']], ['text', 'text', 'text', 'text']);
+      // The first reads the page's done at run time (both texts); the
+      // second's done is its default, false, decided as it is read: "Open".
+      expect([for (final c in root['children'] as List) _node(r, c as String)['type']], ['text', 'text', 'text']);
+      expect([for (final c in (root['children'] as List).skip(2)) (_node(r, c as String)['props'] as Map)['text']], ['Open']);
       expect((r.document['nodes'] as Map).containsKey('status1'), isFalse);
       expect(readPageDefinitions('define Status\n  else\n    Text "x"\n').problems.single.message, endsWith('write the lines indented under a Column.'));
     });

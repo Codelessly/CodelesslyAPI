@@ -410,7 +410,8 @@ Column
     test('on a defined word: its next string, or its value; the number in an expression', () {
       final r = _clean('define Count "value" suffix=""\n  Row\n    Text "{value}{suffix}"\n    Text "{value * 2}"\nColumn\n  Count 39 suffix="%"\n');
       expect(_props(r, 'text1')['text'], '39%');
-      expect(_props(r, 'text2')['text'], r'${= 39 * 2}');
+      // Read nothing at run time: worked out as the use is read (docs/design/20 section 13).
+      expect(_props(r, 'text2')['text'], '78');
       final v = _clean('define Gauge2 value=0\n  Text "{value}"\nColumn\n  Gauge2 7\n');
       expect(_props(v, 'gauge21')['text'], '7');
     });

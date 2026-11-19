@@ -2241,7 +2241,7 @@ class _Parser {
     // word replaces the component there (docs/design/20 section 6).
     used: (d, parts, node, column) => _use(d.primitive ? 'primitive' : 'definition', parts.word, column,
         to: d.label,
-        node: _bareRoot(d, parts, node),
+        node: d.statement ? null : _bareRoot(d, parts, node),
         parts: parts,
         of: d.file != 'page'
             ? null

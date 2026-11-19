@@ -102,6 +102,9 @@ typedef _Frame = ({String open, int column, bool event});
   var k = lead;
   // A shortcut's chord is a key, whatever its character (`key [`, `key ]`).
   if (word == 'key') k = lead + (RegExp(r'^key\s+\S*').stringMatch(t)?.length ?? 3);
+  // A definition's chord worked out from its use (`key {coalesce(keys, key)}`,
+  // docs/design/20 section 13) is a formula: read as one.
+  if (RegExp(r'^key\s+\{').hasMatch(t)) k = lead + t.indexOf('{');
   while (k < raw.length) {
     final c = raw[k];
     final col = k + 1;

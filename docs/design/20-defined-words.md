@@ -499,3 +499,121 @@ The twenty standalone runs' final answers (each with all the runs' aliases), cou
 
 So two thirds of the "100%" is words that mean what they say; a seventh were named and never read, and the rest stands
 in for a primitive the writers already described.
+
+## 13. What a body says beyond fixed lines (the dictionary's needs, note 23)
+
+Note 23 wrote 28 words the expander writes in Dart as definitions and found ten things the code does that a
+definition could not say (its section 3, G1 to G10). Five of them are said now, each in the grammar a page already
+has. Nothing a body wrote before means anything else, and no picture changes: where the document changes, it is a
+value written where a binding of the same value was.
+
+### 13.1 Values worked out as the use is read (G2)
+
+```
+IconTile "name" size=40
+  Box w={size} h={size} radius={round(size/4)} center middle
+    Icon "{coalesce(name, "star")}" size={round(size/2)}
+```
+
+An expression of a body that, once the use's values are put in, **names nothing** (no variable of the page, no row
+of an `each`, no state of the word's own, no value the use gave as `{…}`) reads nothing at run time, so it is worked
+out as the use is read, as the formula engine would: `IconTile size=48` is `radius=12`, `size=24`, `Icon "star"`.
+An expression that still names something is left to the engine, as before (`IconTile size={n}` is a binding of
+`(n)/4`). It holds wherever a body reads its values:
+
+| written in a body | worked out to |
+|---|---|
+| `key={…}` | the value (`radius=10`, `fill=#FF2563EB`, `label="Save"`); nothing leaves the key out; `visible` true is left out, false is `visible=false` |
+| `"… {…} …"` | the text spliced in (`"{upper(label)}"` with `"People"` is `"PEOPLE"`) |
+| `if …`, `else if …`, `else` | the branch taken is its lines, moved out to where the `if` was; the others are not written (`if badge` with no badge given writes nothing) |
+| `Word.{…}` | the variant (`Text.{level == 1 ? "heading1" : "heading3"}` with `level=1` is `Text.heading1`) |
+| `key {…}` (a statement, 13.4) | the chord, written bare |
+
+What it works out: numbers, texts in quotes, `true`, `false`, `null`, a colour (`#FF2563EB`, a text); `+ - * / %`,
+`== != < <= > >=`, `&& || !`, `?:` and parentheses; and `upper`, `lower`, `trim`, `replace`, `round`, `floor`,
+`ceil`, `abs`, `min`, `max`, `coalesce`, `if`, with the engine's meanings (`coalesce` skips empty texts; truth is the
+engine's: `""`, `0`, `null`, `false` are false). Anything else (a list, another function, a text compared with a
+number) is left to the engine.
+
+Why no mark of its own (a `{= …}` for "now", say): the writers of the corpora wrote `{size/4}`, `if badge` and
+`"{upper(label)}"` meaning exactly this, and no one wrote a second kind of brace. The two readings cannot disagree
+on what is shown: an expression that names nothing has the same value at run time as now. A body that means "at
+run time" reads something that changes (a variable, a row), and such an expression is never worked out early. What
+changes is the document: a fixed value where a binding of it was, and no hidden node where an `if` was false (Cards'
+`AttachmentTile` with no `onDownload` has no download button, where it had one hidden), which an editor shows as
+what it is.
+
+### 13.2 The line that takes a use's other words (G3)
+
+```
+Section gap=32
+  Column~section w=fill center pad=[24,64,24,64]
+    Column w=fill maxw=1120 gap={gap} ...
+      ...
+```
+
+A body line may carry `...` as a word of its own (after its head, outside its strings and braces): **the use's
+words go there**, not on the root. Those are the universal words (section 2), as before, and with the mark every
+other word the use writes that the signature does not name: a key (`tablet.w=64`, `id=pricing`), a flag, an event.
+They are then read as a page's line reads them (a word that line does not have is recorded or said there, as on any
+line), where without the mark they are recorded as words the definition does not have (open) or an issue (closed).
+The words go where the mark is, and a key the line writes too is the use's (`Box2 pad=4` over `Column pad=24 ...`
+is `pad=4`). The root keeps the use's id; with several lines at the margin (13.3) the id goes on the marked line too.
+A word's own parameters still go where the body reads them: `IconTile`'s `color` on its icon, with `color={color}`
+there.
+
+`...` at the start of a line is still a slot (section 3): a slot holds the lines under a use, `...` after a head
+the words on the use's line.
+
+### 13.3 Several lines at the margin (G4)
+
+```
+SidebarFooter gap=2 pad=[0,8,0,0]
+  Spacer
+  Column w=fill gap={gap} pad={pad} border-top=#FFE5E7EB ...
+    ...
+```
+
+A body of several lines side by side was already its lines written where the use is (section 2). What was missing
+is where a use's words go: a Column holding the lines took them. With the mark of 13.2 they go on the marked line,
+and the lines stay where the use is (`SidebarFooter` is a Spacer and a ruled column in its sidebar, not a column
+holding both).
+
+### 13.4 A role on the root (G5)
+
+`Row~app`, `Column~section`, `Column~sidebar`, `Column~main`, `Column~pane`, `Row~nav`, `Column~foot`: a body's
+lines may say which frame they are, after the type, as the page words' lines do. The reflow lays them out at a
+tablet's and a phone's width by it (a section's padding, a sidebar folded to a rail), and the role is taken off
+before the line is read. Before, a body's root with a role was refused ("the first line … is a node"): a role is
+read on any line of a body, root or not.
+
+### 13.5 A word that stands for a statement (G7)
+
+```
+// A keyboard shortcut of the screen.
+Shortcut "keys" key keys combo hint description label onPress
+  key {replace(coalesce(keys, key, combo), " ", "")} ... onPress={onPress}
+
+// A value worked out from the state.
+computed
+  state ...
+```
+
+A body of statement lines alone (`key`, `state`, `every`, with no node) is **those lines, written where the use
+is**: `Shortcut "v" hint="V" onPress={go board}` is `key v onPress={go board}`, `computed total={sum(cart)}` is `state
+total={sum(cart)}`. Such a word may be lowercase, as a statement is (`computed`); every other word is still
+capitalised. The statement reads the use's values as any line does: `{…}` worked out (13.1) is the chord, written
+bare, and `...` takes the use's other words where it is written (`Shortcut "enter" when trim(draft)!="" onPress=…`
+is `key enter when trim(draft)!="" onPress=…`; `when={…}` the same, braced). A `state` line with a name of its own
+(`state open=false`) is still the word's own state, renamed to the use's (section 4); `state ...` is the use's.
+
+### 13.6 What is still not said
+
+- **G1, the frame a use is under** (a `NavItem` in a bar or a sidebar, a heading in an app or on a website):
+  section 14.
+- **G9, the theme**: a page word reads the design system's accent, line, fills and text styles, and a body writes
+  fixed values. A definition is the same as the code's at the core's looks only.
+- **G6, G8 and G10** are the base: overlays, lines that read or move other lines, what is written outside a use's
+  lines (note 23 section 5.1).
+- **Whether a value was written** cannot be asked apart from its value: `if name` with a name `"{row.icon}"` is read
+  at run time (the text may be empty), where the code tests only that a name was written.

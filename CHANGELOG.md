@@ -1,3 +1,22 @@
+## Unreleased
+
+### Defined words (`define`)
+
+- **A value a body works out from the use's written values is worked out as the use is read.** `radius={size/4}`
+  with `size=40` is `radius=10`, `"{upper(label)}"` is the label in capitals, `Text.{level == 1 ? "heading1" :
+  "heading3"}` is the variant, and an `if` (with its `else`) that reads only written values keeps the branch taken
+  and writes nothing for the others. An expression that reads the page's state is read at run time, as before.
+  Nothing draws differently; a document built from a definition has fixed values where it had bindings of the
+  same values, and no hidden line where an `if` was false.
+- **`...` as a word of a body line** marks the line that takes the words a use writes beyond the signature: the
+  universal words, and every other key, flag or event, read there as on a page's line (they were recorded as words
+  the definition does not have). The root keeps the use's id.
+- **A body's lines may carry a role** (`Row~app`, `Column~section`, …): the reflow lays them out at a tablet's and a
+  phone's width as it does the page words'. A role on a body's root was refused.
+- **A word may stand for a statement**: a body of `key`, `state` or `every` lines alone is those lines where the use
+  is, and its word may be lowercase (`computed total={…}` over `state ...`). `key {…}` in such a body takes the
+  chord worked out from the use.
+
 ## 37.0.0
 
 Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop

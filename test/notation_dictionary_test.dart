@@ -64,9 +64,8 @@ void main() {
     });
   });
 
-  test('the definitions read, but for the one a definition cannot stand for', () {
-    final problems = readDefinitionsProblems(files.values);
-    expect(problems, ['Shortcut.txt:2: the first line Shortcut stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.']);
+  test('the definitions read', () {
+    expect(readDefinitionsProblems(files.values), isEmpty);
   });
 
   group('closure, as recorded', () {

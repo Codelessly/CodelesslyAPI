@@ -1477,46 +1477,37 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 0,
-  "equalUpToSpelling": 0,
+  "equal": 3,
+  "equalUpToSpelling": 3,
   "expansions": 9,
   "nodes": 471,
-  "same": 450,
+  "same": 459,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b01/answers/habit-tracker.txt ### New habit",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "40 of 42 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.2.0.0.5.0.0.decoration.radius: 10 / (none); r0.body.2.0.0.5.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
-     "r0.body.2.0.0.5.0.0.0.bind.props.size: (none) / \"${= 40/2}\"; r0.body.2.0.0.5.0.0.0.props: {\"size\":20} / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (42 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b01/answers/habit-tracker.txt ### New habit",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "40 of 42 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.2.0.0.5.0.0.decoration.radius: 10 / (none); r0.body.2.0.0.5.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
-     "r0.body.2.0.0.5.0.0.0.bind.props.size: (none) / \"${= 40/2}\"; r0.body.2.0.0.5.0.0.0.props: {\"size\":20} / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (42 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b01/answers/habit-tracker.txt ### New habit",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "40 of 42 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.2.0.0.5.0.0.decoration.radius: 10 / (none); r0.body.2.0.0.5.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
-     "r0.body.2.0.0.5.0.0.0.bind.props.size: (none) / \"${= 40/2}\"; r0.body.2.0.0.5.0.0.0.props: {\"size\":20} / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (42 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -1526,7 +1517,7 @@
     "equalUpToSpelling": false,
     "summary": "33 of 36 nodes the same; 2 differ, 1 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.4.0.0.0.0.children: [\"r0.body.2.0.0.4.0.0.0.0.0\",\"r0.body.2.0.0.4.0.0.0.0.1\"] / [\"r0.body.2.0.0.4.0.0.0.0.0\"]; r0.body.2.0.0.4.0.0.0.0.decoration.radius: 10 / (none); r0.body.2.0.0.4.0.0.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
+     "r0.body.2.0.0.4.0.0.0.0.children: [\"r0.body.2.0.0.4.0.0.0.0.0\",\"r0.body.2.0.0.4.0.0.0.0.1\"] / [\"r0.body.2.0.0.4.0.0.0.0.0\"]",
      "r0.body.2.0.0.4.0.0.0.0.0.layout.width.fill: 0 / (none); r0.body.2.0.0.4.0.0.0.0.0.layout.width.hug: (none) / 0; r0.body.2.0.0.4.0.0.0.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none)",
      "only in the code's: r0.body.2.0.0.4.0.0.0.0.1 icon"
     ],
@@ -1539,7 +1530,7 @@
     "equalUpToSpelling": false,
     "summary": "33 of 36 nodes the same; 2 differ, 1 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.4.0.0.0.0.children: [\"r0.body.2.0.0.4.0.0.0.0.0\",\"r0.body.2.0.0.4.0.0.0.0.1\"] / [\"r0.body.2.0.0.4.0.0.0.0.0\"]; r0.body.2.0.0.4.0.0.0.0.decoration.radius: 10 / (none); r0.body.2.0.0.4.0.0.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
+     "r0.body.2.0.0.4.0.0.0.0.children: [\"r0.body.2.0.0.4.0.0.0.0.0\",\"r0.body.2.0.0.4.0.0.0.0.1\"] / [\"r0.body.2.0.0.4.0.0.0.0.0\"]",
      "r0.body.2.0.0.4.0.0.0.0.0.layout.width.fill: 0 / (none); r0.body.2.0.0.4.0.0.0.0.0.layout.width.hug: (none) / 0; r0.body.2.0.0.4.0.0.0.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none)",
      "only in the code's: r0.body.2.0.0.4.0.0.0.0.1 icon"
     ],
@@ -1552,7 +1543,7 @@
     "equalUpToSpelling": false,
     "summary": "33 of 36 nodes the same; 2 differ, 1 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.0.0.4.0.0.0.0.children: [\"r0.body.2.0.0.4.0.0.0.0.0\",\"r0.body.2.0.0.4.0.0.0.0.1\"] / [\"r0.body.2.0.0.4.0.0.0.0.0\"]; r0.body.2.0.0.4.0.0.0.0.decoration.radius: 10 / (none); r0.body.2.0.0.4.0.0.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
+     "r0.body.2.0.0.4.0.0.0.0.children: [\"r0.body.2.0.0.4.0.0.0.0.0\",\"r0.body.2.0.0.4.0.0.0.0.1\"] / [\"r0.body.2.0.0.4.0.0.0.0.0\"]",
      "r0.body.2.0.0.4.0.0.0.0.0.layout.width.fill: 0 / (none); r0.body.2.0.0.4.0.0.0.0.0.layout.width.hug: (none) / 0; r0.body.2.0.0.4.0.0.0.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none)",
      "only in the code's: r0.body.2.0.0.4.0.0.0.0.1 icon"
     ],
@@ -1563,10 +1554,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "77 of 79 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "78 of 79 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r1.body.1.0.0.0.0.decoration.radius: 10 / (none); r1.body.1.0.0.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
-     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\"; r1.body.1.0.0.0.0.0.props.size: 20 / (none); r1.body.1.0.0.0.0.0.bind: (none) / {\"props.size\":\"${= 40/2}\"}"
+     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\""
     ],
     "issues": []
    },
@@ -1575,10 +1565,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "77 of 79 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "78 of 79 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r1.body.1.0.0.0.0.decoration.radius: 10 / (none); r1.body.1.0.0.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
-     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\"; r1.body.1.0.0.0.0.0.props.size: 20 / (none); r1.body.1.0.0.0.0.0.bind: (none) / {\"props.size\":\"${= 40/2}\"}"
+     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\""
     ],
     "issues": []
    },
@@ -1587,10 +1576,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "77 of 79 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "78 of 79 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r1.body.1.0.0.0.0.decoration.radius: 10 / (none); r1.body.1.0.0.0.0.bind: (none) / {\"decoration.radius\":\"${= 40/4}\"}",
-     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\"; r1.body.1.0.0.0.0.0.props.size: 20 / (none); r1.body.1.0.0.0.0.0.bind: (none) / {\"props.size\":\"${= 40/2}\"}"
+     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\""
     ],
     "issues": []
    }
@@ -2492,14 +2480,10 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "54 of 60 nodes the same; 6 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "58 of 60 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r0.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r0.body.0.4.states: (none) / {\"hovered\":{\"r0.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":...",
-     "r0.body.0.4.0.props.color: \"#FF2563EB\" / (none); r0.body.0.4.0.bind: (none) / {\"props.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"}",
-     "r0.body.0.4.1.props.style.color: \"#FF2563EB\" / \"#FF111827\"; r0.body.0.4.1.props.style.fontWeight: 600 / (none); r0.body.0.4.1.bind: (none) / {\"props.style.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\":\"...",
-     "r1.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r1.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r1.body.0.4.states: (none) / {\"hovered\":{\"r1.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":...",
-     "r1.body.0.4.0.props.color: \"#FF2563EB\" / (none); r1.body.0.4.0.bind: (none) / {\"props.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"}",
-     "r1.body.0.4.1.props.style.color: \"#FF2563EB\" / \"#FF111827\"; r1.body.0.4.1.props.style.fontWeight: 600 / (none); r1.body.0.4.1.bind: (none) / {\"props.style.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\":\"..."
+     "r1.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r1.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r1.body.0.4.states: (none) / {\"hovered\":{\"r1.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":..."
     ],
     "issues": []
    },
@@ -2508,14 +2492,10 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "54 of 60 nodes the same; 6 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "58 of 60 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r0.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r0.body.0.4.states: (none) / {\"hovered\":{\"r0.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":...",
-     "r0.body.0.4.0.props.color: \"#FF2563EB\" / (none); r0.body.0.4.0.bind: (none) / {\"props.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"}",
-     "r0.body.0.4.1.props.style.color: \"#FF2563EB\" / \"#FF111827\"; r0.body.0.4.1.props.style.fontWeight: 600 / (none); r0.body.0.4.1.bind: (none) / {\"props.style.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\":\"...",
-     "r1.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r1.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r1.body.0.4.states: (none) / {\"hovered\":{\"r1.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":...",
-     "r1.body.0.4.0.props.color: \"#FF2563EB\" / (none); r1.body.0.4.0.bind: (none) / {\"props.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"}",
-     "r1.body.0.4.1.props.style.color: \"#FF2563EB\" / \"#FF111827\"; r1.body.0.4.1.props.style.fontWeight: 600 / (none); r1.body.0.4.1.bind: (none) / {\"props.style.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\":\"..."
+     "r1.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r1.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r1.body.0.4.states: (none) / {\"hovered\":{\"r1.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":..."
     ],
     "issues": []
    },
@@ -2524,11 +2504,9 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "35 of 38 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "37 of 38 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r0.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r0.body.0.4.states: (none) / {\"hovered\":{\"r0.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":...",
-     "r0.body.0.4.0.props.color: \"#FF2563EB\" / (none); r0.body.0.4.0.bind: (none) / {\"props.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"}",
-     "r0.body.0.4.1.props.style.color: \"#FF2563EB\" / \"#FF111827\"; r0.body.0.4.1.props.style.fontWeight: 600 / (none); r0.body.0.4.1.bind: (none) / {\"props.style.color\":\"${= true?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\":\"..."
+     "r0.body.0.4.decoration.fills: [{\"color\":\"#FF2563EB\",\"opacity\":0.12}] / (none); r0.body.0.4.bind: (none) / {\"selected\":\"${= true}\"}; r0.body.0.4.states: (none) / {\"hovered\":{\"r0.body.0.4\":{\"decoration\":{\"fills\":[{\"color\":\"#0F111827\"}]}}},\"selected\":..."
     ],
     "issues": []
    },
@@ -2580,14 +2558,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "193 of 209 nodes the same; 8 differ, 8 only in the code's, 0 only in the definition's",
+    "summary": "189 of 209 nodes the same; 12 differ, 8 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.1.children: [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"] / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\"]",
+     "r0.body.0.1.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.1.0.props.color: (none) / \"#FF2563EB\"",
+     "r0.body.0.1.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.1.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.1.1.props.style.fontWeight: (none) / 600",
      "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\",\"r0.body.0.2.2\"] / [\"r0.body.0.2.0\",\"r0.body.0.2.1\"]",
      "r0.body.0.3.children: [\"r0.body.0.3.0\",\"r0.body.0.3.1\",\"r0.body.0.3.2\"] / [\"r0.body.0.3.0\",\"r0.body.0.3.1\"]",
-     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]",
-     "r5.body.0.1.children: [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\",\"r5.body.0.1.3\"] / [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\"]",
-     "r5.body.0.2.children: [\"r5.body.0.2.0\",\"r5.body.0.2.1\",\"r5.body.0.2.2\"] / [\"r5.body.0.2.0\",\"r5.body.0.2.1\"]"
+     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]"
     ],
     "issues": []
    },
@@ -2596,14 +2574,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "193 of 209 nodes the same; 8 differ, 8 only in the code's, 0 only in the definition's",
+    "summary": "189 of 209 nodes the same; 12 differ, 8 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.1.children: [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"] / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\"]",
+     "r0.body.0.1.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.1.0.props.color: (none) / \"#FF2563EB\"",
+     "r0.body.0.1.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.1.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.1.1.props.style.fontWeight: (none) / 600",
      "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\",\"r0.body.0.2.2\"] / [\"r0.body.0.2.0\",\"r0.body.0.2.1\"]",
      "r0.body.0.3.children: [\"r0.body.0.3.0\",\"r0.body.0.3.1\",\"r0.body.0.3.2\"] / [\"r0.body.0.3.0\",\"r0.body.0.3.1\"]",
-     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]",
-     "r5.body.0.1.children: [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\",\"r5.body.0.1.3\"] / [\"r5.body.0.1.0\",\"r5.body.0.1.1\",\"r5.body.0.1.2\"]",
-     "r5.body.0.2.children: [\"r5.body.0.2.0\",\"r5.body.0.2.1\",\"r5.body.0.2.2\"] / [\"r5.body.0.2.0\",\"r5.body.0.2.1\"]"
+     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]"
     ],
     "issues": []
    },
@@ -2612,13 +2590,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "167 of 175 nodes the same; 4 differ, 4 only in the code's, 0 only in the definition's",
+    "summary": "165 of 175 nodes the same; 6 differ, 4 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.1.children: [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"] / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\"]",
+     "r0.body.0.1.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.1.0.props.color: (none) / \"#FF2563EB\"",
+     "r0.body.0.1.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.1.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.1.1.props.style.fontWeight: (none) / 600",
      "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\",\"r0.body.0.2.2\"] / [\"r0.body.0.2.0\",\"r0.body.0.2.1\"]",
      "r0.body.0.3.children: [\"r0.body.0.3.0\",\"r0.body.0.3.1\",\"r0.body.0.3.2\"] / [\"r0.body.0.3.0\",\"r0.body.0.3.1\"]",
-     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]",
-     "only in the code's: r0.body.0.1.3 text, r0.body.0.2.2 text, r0.body.0.3.2 text, r0.body.0.4.2 text"
+     "r0.body.0.4.children: [\"r0.body.0.4.0\",\"r0.body.0.4.1\",\"r0.body.0.4.2\"] / [\"r0.body.0.4.0\",\"r0.body.0.4.1\"]"
     ],
     "issues": []
    },
@@ -2815,7 +2794,7 @@
     "equalUpToSpelling": false,
     "summary": "127 of 153 nodes the same; 21 differ, 5 only in the code's, 3 only in the definition's; document keys variables",
     "samples": [
-     "r0.body.1.0.2.0.0.0.children: [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2... / [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2...; r0.body.1.0.2.0.0.0.layout.width.hug: 0 / (none); r0.body.1.0.2.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.1.0.2.0.0.0.children: [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2... / [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2...; r0.body.1.0.2.0.0.0.layout.flex: 1 / (none); r0.body.1.0.2.0.0.0.layout.height.fill: 0 / (none)",
      "r0.body.1.0.2.0.0.0.0.layout.constraints: (none) / {\"minHeight\":40}; r0.body.1.0.2.0.0.0.0.layout.padding: (none) / 8; r0.body.1.0.2.0.0.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none)",
      "r0.body.1.0.2.0.0.0.1.children: [\"r0.body.1.0.2.0.0.0.1.0\"] / [\"r0.body.1.0.2.0.0.0.1.0\",\"r0.body.1.0.2.0.0.0.1.1\"]; r0.body.1.0.2.0.0.0.1.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.0.2.0.0.0.1.layout.constraints.minHeight: 40 / 300",
      "r0.body.1.0.2.0.0.0.1.0.layout.width.hug: 0 / (none); r0.body.1.0.2.0.0.0.1.0.layout.width.fill: (none) / 0; r0.body.1.0.2.0.0.0.1.0.props.maxLines: 1 / (none)",
@@ -2831,7 +2810,7 @@
     "equalUpToSpelling": false,
     "summary": "127 of 153 nodes the same; 21 differ, 5 only in the code's, 3 only in the definition's; document keys variables",
     "samples": [
-     "r0.body.1.0.2.0.0.0.children: [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2... / [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2...; r0.body.1.0.2.0.0.0.layout.width.hug: 0 / (none); r0.body.1.0.2.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.1.0.2.0.0.0.children: [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2... / [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2...; r0.body.1.0.2.0.0.0.layout.flex: 1 / (none); r0.body.1.0.2.0.0.0.layout.height.fill: 0 / (none)",
      "r0.body.1.0.2.0.0.0.0.layout.constraints: (none) / {\"minHeight\":40}; r0.body.1.0.2.0.0.0.0.layout.padding: (none) / 8; r0.body.1.0.2.0.0.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none)",
      "r0.body.1.0.2.0.0.0.1.children: [\"r0.body.1.0.2.0.0.0.1.0\"] / [\"r0.body.1.0.2.0.0.0.1.0\",\"r0.body.1.0.2.0.0.0.1.1\"]; r0.body.1.0.2.0.0.0.1.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.0.2.0.0.0.1.layout.constraints.minHeight: 40 / 300",
      "r0.body.1.0.2.0.0.0.1.0.layout.width.hug: 0 / (none); r0.body.1.0.2.0.0.0.1.0.layout.width.fill: (none) / 0; r0.body.1.0.2.0.0.0.1.0.props.maxLines: 1 / (none)",
@@ -2847,7 +2826,7 @@
     "equalUpToSpelling": false,
     "summary": "99 of 125 nodes the same; 21 differ, 5 only in the code's, 3 only in the definition's; document keys variables",
     "samples": [
-     "r0.body.1.0.2.0.0.0.children: [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2... / [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2...; r0.body.1.0.2.0.0.0.layout.width.hug: 0 / (none); r0.body.1.0.2.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.1.0.2.0.0.0.children: [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2... / [\"r0.body.1.0.2.0.0.0.0\",\"r0.body.1.0.2.0.0.0.1\",\"r0.body.1.0.2.0.0.0.2\",\"r0.body.1.0.2...; r0.body.1.0.2.0.0.0.layout.flex: 1 / (none); r0.body.1.0.2.0.0.0.layout.height.fill: 0 / (none)",
      "r0.body.1.0.2.0.0.0.0.layout.constraints: (none) / {\"minHeight\":40}; r0.body.1.0.2.0.0.0.0.layout.padding: (none) / 8; r0.body.1.0.2.0.0.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none)",
      "r0.body.1.0.2.0.0.0.1.children: [\"r0.body.1.0.2.0.0.0.1.0\"] / [\"r0.body.1.0.2.0.0.0.1.0\",\"r0.body.1.0.2.0.0.0.1.1\"]; r0.body.1.0.2.0.0.0.1.decoration: {\"dashPattern\":[4,3],\"radius\":6,\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.0.2.0.0.0.1.layout.constraints.minHeight: 40 / 300",
      "r0.body.1.0.2.0.0.0.1.0.layout.width.hug: 0 / (none); r0.body.1.0.2.0.0.0.1.0.layout.width.fill: (none) / 0; r0.body.1.0.2.0.0.0.1.0.props.maxLines: 1 / (none)",
@@ -3736,43 +3715,37 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 0,
-  "equalUpToSpelling": 0,
+  "equal": 9,
+  "equalUpToSpelling": 9,
   "expansions": 18,
   "nodes": 618,
-  "same": 588,
+  "same": 609,
   "results": [
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/kanban-board.txt ### Archive",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "55 of 56 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (56 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/kanban-board.txt ### Archive",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "55 of 56 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (56 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/kanban-board.txt ### Archive",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"board\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"v\",\"type\":\"keyDown\"}}] / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (37 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -3782,7 +3755,7 @@
     "equalUpToSpelling": false,
     "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs..."
     ],
     "issues": []
    },
@@ -3793,7 +3766,7 @@
     "equalUpToSpelling": false,
     "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs..."
     ],
     "issues": []
    },
@@ -3804,7 +3777,7 @@
     "equalUpToSpelling": false,
     "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / (none)"
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs..."
     ],
     "issues": []
    },
@@ -3815,7 +3788,7 @@
     "equalUpToSpelling": false,
     "summary": "97 of 98 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger..."
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig..."
     ],
     "issues": []
    },
@@ -3826,7 +3799,7 @@
     "equalUpToSpelling": false,
     "summary": "97 of 98 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger..."
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig..."
     ],
     "issues": []
    },
@@ -3837,7 +3810,7 @@
     "equalUpToSpelling": false,
     "summary": "68 of 69 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= streak}\",\"variable\":\"streak\"}],\"trigger..."
+     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig..."
     ],
     "issues": []
    },
@@ -3850,7 +3823,9 @@
     "samples": [
      "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
     ],
-    "issues": []
+    "issues": [
+     "line 2:5: ShortcutDict.txt:3: No key \"{null}\". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Shortcuts",
@@ -3861,7 +3836,9 @@
     "samples": [
      "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
     ],
-    "issues": []
+    "issues": [
+     "line 2:5: ShortcutDict.txt:3: No key \"{null}\". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Shortcuts",
@@ -3872,90 +3849,62 @@
     "samples": [
      "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
     ],
-    "issues": []
+    "issues": [
+     "line 2:5: ShortcutDict.txt:3: No key \"{null}\". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left."
+    ]
    },
    {
     "from": "written: a shortcut with its keys as a string",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 3 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"ctrl+k\",\"type\":\"keyDow... / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Search\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text, r0.body.1 column, r0.body.1.0 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (3 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a shortcut with its keys as a string",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 3 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"ctrl+k\",\"type\":\"keyDow... / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Search\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text, r0.body.1 column, r0.body.1.0 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (3 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a shortcut with its keys as a string",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 3 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"ctrl+k\",\"type\":\"keyDow... / (none)",
-     "r0.body.children: [\"r0.body.0\"] / [\"r0.body.0\",\"r0.body.1\"]; r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Search\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text, r0.body.1 column, r0.body.1.0 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (3 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a shortcut with keys=",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 1 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"/\",\"type\":\"keyDown\"}}] / (none)",
-     "r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Members\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (3 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a shortcut with keys=",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 1 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"/\",\"type\":\"keyDown\"}}] / (none)",
-     "r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Members\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (3 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a shortcut with keys=",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "0 of 3 nodes the same; 3 differ, 0 only in the code's, 1 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"node\":\"search\",\"type\":\"focus\"}],\"trigger\":{\"key\":\"/\",\"type\":\"keyDown\"}}] / (none)",
-     "r0.body.props.crossAxisAlignment: \"start\" / \"stretch\"",
-     "r0.body.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13} / (none); r0.body.0.props.text: \"Members\" / (none); r0.body.0.props.crossAxisAlignment: (none) / \"start\"",
-     "only in the definition's: r0.body.0.0 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (3 nodes)",
+    "samples": [],
     "issues": []
    }
   ]
@@ -4518,7 +4467,7 @@
   "equalUpToSpelling": 1,
   "expansions": 15,
   "nodes": 501,
-  "same": 161,
+  "same": 155,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
@@ -4573,14 +4522,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "20 of 63 nodes the same; 4 differ, 39 only in the code's, 16 only in the definition's; document keys roots, variables",
+    "summary": "18 of 63 nodes the same; 6 differ, 39 only in the code's, 16 only in the definition's; document keys roots, variables",
     "samples": [
+     "r0.body.0.4.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.4.0.props.color: (none) / \"#FF2563EB\"",
+     "r0.body.0.4.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.4.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.4.1.props.style.fontWeight: (none) / 600",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r1\",\"type\":\"openModal\"}],\"trig... / (none); r0.body.1.0.0.layout.squeezable: (none) / true; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
-     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]",
-     "roots: [\"r0\",\"r1\"] / [\"r0\"]",
-     "variables.page_variables: [{\"name\":\"cur\",\"type\":\"text\",\"value\":\"\"},{\"name\":\"serv\",\"type\":\"text\",\"value\":\"\"},{\"nam... / (none); variables.r0: (none) / [{\"name\":\"cur\",\"type\":\"text\",\"value\":\"\"},{\"name\":\"serv\",\"type\":\"text\",\"value\":\"\"},{\"nam..."
+     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]"
     ],
     "issues": []
    },
@@ -4589,14 +4538,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "20 of 63 nodes the same; 4 differ, 39 only in the code's, 16 only in the definition's; document keys roots, variables",
+    "summary": "18 of 63 nodes the same; 6 differ, 39 only in the code's, 16 only in the definition's; document keys roots, variables",
     "samples": [
+     "r0.body.0.4.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.4.0.props.color: (none) / \"#FF2563EB\"",
+     "r0.body.0.4.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.4.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.4.1.props.style.fontWeight: (none) / 600",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r1\",\"type\":\"openModal\"}],\"trig... / (none); r0.body.1.0.0.layout.squeezable: (none) / true; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
-     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]",
-     "roots: [\"r0\",\"r1\"] / [\"r0\"]",
-     "variables.page_variables: [{\"name\":\"cur\",\"type\":\"text\",\"value\":\"\"},{\"name\":\"serv\",\"type\":\"text\",\"value\":\"\"},{\"nam... / (none); variables.r0: (none) / [{\"name\":\"cur\",\"type\":\"text\",\"value\":\"\"},{\"name\":\"serv\",\"type\":\"text\",\"value\":\"\"},{\"nam..."
+     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]"
     ],
     "issues": []
    },
@@ -4605,13 +4554,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "21 of 41 nodes the same; 3 differ, 17 only in the code's, 16 only in the definition's",
+    "summary": "19 of 41 nodes the same; 5 differ, 17 only in the code's, 16 only in the definition's",
     "samples": [
+     "r0.body.0.4.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.4.0.props.color: (none) / \"#FF2563EB\"",
+     "r0.body.0.4.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.4.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.4.1.props.style.fontWeight: (none) / 600",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
      "r0.body.1.0.0.props.style.fontFamily: \"serif\" / (none)",
      "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]",
-     "only in the code's: r0.body.1.2 column, r0.body.1.2.0 column, r0.body.1.2.0.0 column, r0.body.1.2.0.0.0 text",
-     "only in the definition's: r0.body.1.1.0 column, r0.body.1.1.0.0 column, r0.body.1.1.0.0.0 text, r0.body.1.1.0.1 text"
+     "only in the code's: r0.body.1.2 column, r0.body.1.2.0 column, r0.body.1.2.0.0 column, r0.body.1.2.0.0.0 text"
     ],
     "issues": []
    },
