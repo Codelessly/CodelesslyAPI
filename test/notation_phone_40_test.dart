@@ -326,7 +326,7 @@ App
       final slim = _parentOf(r, menus.first.key);
       expect(hiddenEverywhere(_node(r, slim)), true);
       final bar = (_node(r, _parentOf(r, menus.last.key))['children'] as List).cast<String>();
-      expect(bar.any((k) => (_node(r, k)['props'] as Map?)?['text'] == 'Inbox'), true, reason: 'beside the bar's title');
+      expect(bar.any((k) => (_node(r, k)['props'] as Map?)?['text'] == 'Inbox'), true, reason: 'beside its title');
     });
 
     test('is not made where the writer wrote one for a narrow window', () {
