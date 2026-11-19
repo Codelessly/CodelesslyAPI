@@ -19,6 +19,7 @@ import '../layout.dart' show SizeFit;
 import '../json.dart';
 import '../props.dart';
 import '../suggest.dart' show didYouMean;
+import '../theme.dart' show ThemeTokens;
 import '../triggers.dart' show KeyCombo;
 import 'bind_form.dart';
 import 'brackets.dart';
@@ -147,6 +148,87 @@ final class NotationResult {
   final List<NotationIssue> issues;
 }
 
+/// Where text field [id] sits among buttons, in a document's [nodes] (by
+/// id, as a document holds them) with [parentOf] each node's parent: the
+/// places where it has no room for a label above it (the text input pass of
+/// round 11, codelessly_sdk docs/research/text-input-round-11.md):
+/// - `composer`: a multi-line field in a row beside a button;
+/// - `toolbar`: a field among icon buttons (a stepper's, a toolbar's);
+/// - `entry`: one field beside a text button (add an item, a comment, a
+///   promo code, a newsletter's email), except in the row that ends a form
+///   (its column has fields before the row and none after it) where the
+///   field writes a label and a hint: there the label is the form's;
+/// - `frame`: the framed row (or the box holding that row alone) of a field
+///   beside a button with nothing else beside it but icons and texts.
+/// In each the expander drops the label above the field (its hint, or its
+/// spoken name beside a hint); the printer writes such a label by name
+/// (`label="…"`), which keeps it.
+({bool composer, bool toolbar, bool entry, String? frame}) notationFieldPlace(Map<String, Object?> nodes, String? Function(String id) parentOf, String id) {
+  const buttons = {'iconButton', 'filledButton', 'outlinedButton', 'textButton', 'elevatedButton', 'floatingActionButton'};
+  const fields = {'textField', 'dropdown', 'datePicker', 'timePicker', 'dateTimeInput', 'checkbox', 'switch', 'slider', 'radio', 'segmentedButton'};
+  const quiet = {'icon', 'text', 'spacer', 'row', 'column', 'stack', 'image', ...buttons};
+  Json? node(String? id) => id == null ? null : readMap(nodes[id]);
+  List<String> kids(String id) => [...?(node(id)?['children'] as List?)?.whereType<String>().where(nodes.containsKey)];
+  Iterable<String> types(String id) sync* {
+    yield '${node(id)?['type']}';
+    for (final k in kids(id)) {
+      yield* types(k);
+    }
+  }
+
+  bool framed(String id) {
+    final d = readMap(node(id)?['decoration']);
+    final r = d?['radius'];
+    final round = r is num ? r > 0 : r != null;
+    return round && ((d!['strokes'] as List?)?.isNotEmpty == true || (d['fills'] as List?)?.isNotEmpty == true);
+  }
+
+  final n = node(id) ?? const <String, Object?>{};
+  final props = readMap(n['props']) ?? const <String, Object?>{};
+  final maxLines = props['maxLines'];
+  final multiline = (maxLines is num && maxLines != 1) || (props['minLines'] is num && (props['minLines']! as num) > 1);
+  // Its place: up through the wrappers holding it alone, to a row.
+  var at = id;
+  for (var p = parentOf(at); p != null && const {'column', 'stack', 'row'}.contains(node(p)?['type']) && kids(p).length == 1; p = parentOf(p)) {
+    at = p;
+  }
+  final row = parentOf(at);
+  final inRow = row != null && node(row)?['type'] == 'row';
+  final beside = inRow ? [for (final k in kids(row)) if (k != at) ...types(k)] : const <String>[];
+  final alone = inRow && !beside.any(fields.contains);
+  final byButton = alone && beside.any(buttons.contains);
+  final composer = byButton && multiline;
+  final toolbar = byButton && beside.contains('iconButton');
+  final d = readMap(props['decoration']) ?? const <String, Object?>{};
+  final b = readMap(n['bind']) ?? const <String, Object?>{};
+  final labelAndHint = ((d['labelText'] is String && (d['labelText']! as String).isNotEmpty) || b['props.decoration.labelText'] != null) &&
+      ((d['hintText'] is String && (d['hintText']! as String).isNotEmpty) || b['props.decoration.hintText'] != null);
+  bool endsForm() {
+    final column = parentOf(row!);
+    if (column == null || node(column)?['type'] != 'column') return false;
+    final lines = kids(column);
+    final i = lines.indexOf(row);
+    return lines.take(i).any((k) => types(k).any(fields.contains)) && !lines.skip(i + 1).any((k) => types(k).any(fields.contains));
+  }
+
+  final entry = byButton && !multiline && beside.any((t) => t != 'iconButton' && buttons.contains(t)) && !(labelAndHint && endsForm());
+  // The frame: the row's own, or a box's holding the row alone. (Beside a
+  // button: a composer's frame. A framed row of an icon and a field alone,
+  // a document's search pill, is as it was written.)
+  String? frame;
+  if (byButton && beside.every(quiet.contains)) {
+    for (String? f = row; f != null; f = parentOf(f)) {
+      if (framed(f)) {
+        frame = f;
+        break;
+      }
+      final up = parentOf(f);
+      if (up == null || kids(up).length != 1 || !const {'column', 'stack', 'row'}.contains(node(up)?['type'])) break;
+    }
+  }
+  return (composer: composer, toolbar: toolbar, entry: entry, frame: frame);
+}
+
 /// How the notation expands.
 final class NotationOptions {
   const NotationOptions({
@@ -204,6 +286,7 @@ final class NotationOptions {
     this.screens = const {},
     this.ownComponents = const {},
     this.themeColors = const {},
+    this.roles = false,
   });
 
   /// These options with an open vocabulary (or not), and with [vocabulary]
@@ -225,6 +308,12 @@ final class NotationOptions {
   /// (`Footer`, `Sidebar`, `Card`) is an issue, not a silent frame.
   NotationOptions withOwnComponents(Iterable<String> names) =>
       _copy(openVocabulary: openVocabulary, vocabulary: vocabulary, ownComponents: {...names});
+
+  /// Whether the notation's own parts are drawn in the theme's roles by
+  /// name (ThemeTokens.notationRoles: `line`, `card`, `band`, `hoverFill`,
+  /// `quietText`...), each light or dark as the site is shown: a site's
+  /// theme with no design system ([NotationOptions.fromTheme] `roles`).
+  final bool roles;
 
   /// The components that are the app's own ([withOwnComponents]).
   final Set<String> ownComponents;
@@ -294,6 +383,7 @@ final class NotationOptions {
         screens: screens ?? this.screens,
         ownComponents: ownComponents ?? this.ownComponents,
         themeColors: themeColors,
+        roles: roles,
       );
 
   /// The looks of [designSystem] ([NotationOptions.fromTheme] over its
@@ -301,8 +391,8 @@ final class NotationOptions {
   /// (`StatusBadge "Paid"`, `Stepper @qty`) is as big as its own design says:
   /// as wide as its parent, as its content, or a size of its own.
   factory NotationOptions.fromDesignSystem(DesignSystem designSystem,
-      {double width = 390, String screen = 'screen', bool named = false, bool nearestColors = false, bool reflow = true, Map<String, Json> projectVariables = const {}}) {
-    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, nearestColors: nearestColors, reflow: reflow);
+      {double width = 390, String screen = 'screen', bool named = false, bool nearestColors = false, bool reflow = true, Map<String, Json> projectVariables = const {}, bool roles = false}) {
+    final base = NotationOptions.fromTheme(designSystem.manifest.theme.toJson(), width: width, screen: screen, named: named, nearestColors: nearestColors, reflow: reflow, roles: roles);
     Object size(SizeFit fit, double value) => switch (fit) {
           SizeFit.fill || SizeFit.flexible => {'fill': 0},
           SizeFit.hug => {'hug': 0},
@@ -359,6 +449,7 @@ final class NotationOptions {
       projectVariables: projectVariables,
       accentText: base.accentText,
       themeColors: base.themeColors,
+      roles: base.roles,
       components: {
         for (final c in designSystem.list)
           if (c.document.nodes[c.document.roots.firstOrNull] case final root?)
@@ -401,7 +492,7 @@ final class NotationOptions {
   /// (another design system with the same names, dark mode, an edited
   /// token) with nothing rewritten. It needs that theme to render; what the
   /// theme has no name for is still written as a value.
-  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false, bool nearestColors = false, bool reflow = true}) {
+  factory NotationOptions.fromTheme(Json theme, {double width = 390, String screen = 'screen', bool named = false, bool nearestColors = false, bool reflow = true, bool roles = false}) {
     final colors = readMap(theme['colors']) ?? const {};
     String color(String name, String fallback) {
       Object? c = colors[name] ?? theme[name];
@@ -433,13 +524,16 @@ final class NotationOptions {
     }
 
     final dark = groundHex != null && lum(groundHex) < 0.35;
-    final inkHex = hexOf('primaryText') ?? hexOf('onSurface') ?? hexOf('ink') ?? (dark ? '#FFF3F4F6' : '#FF111827');
-    String tint(int alpha) => '#${alpha.toRadixString(16).padLeft(2, '0').toUpperCase()}${inkHex.substring(3)}';
-    String lift(String hex, double t) =>
-        '#FF${[for (var i = 3; i < 9; i += 2) (int.parse(hex.substring(i, i + 2), radix: 16) + (255 - int.parse(hex.substring(i, i + 2), radix: 16)) * t).round().toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
-    final lineTone = dark ? tint(0x29) : '#FFE5E7EB';
-    final fillTone = dark ? tint(0x1A) : '#FFE5E7EB';
-    final cardTone = dark ? lift(groundHex, 0.06) : '#FFFFFFFF';
+    // The tones the notation draws its own parts in are the theme's roles
+    // (ThemeTokens.notationRoles): with [roles] (a site with no design
+    // system) written by their names, so the renderer gives each its light
+    // or dark value in the mode the site is shown in; else their values in
+    // this theme (a dark ground's made from its ink and ground).
+    final tokens = ThemeTokens.fromJson(theme);
+    String roleOf(String name) => named && roles ? name : tokens.notationRole(name)!.toJson();
+    final lineTone = roleOf('line');
+    final fillTone = roleOf('subtleFill');
+    final cardTone = roleOf('card');
     final groundTone = groundName == null ? '#FFFFFFFF' : color(groundName, '#FFFFFFFF');
     final ink = color('primaryText', color('onSurface', color('ink', dark ? '#FFF3F4F6' : '#FF111827')));
     final muted = color('secondaryText', ink), faint = color('tertiaryText', muted);
@@ -467,8 +561,8 @@ final class NotationOptions {
     Object style(String name, Object fallback) => styles[name] ?? fallback;
     Json body() => {...(style('body', const {'fontSize': 13}) as Map).cast<String, Object?>()};
     styles
-      ..putIfAbsent('title', () => style('pageTitle', defaultTextVariants['title']!))
-      ..putIfAbsent('heading', () => style('sectionTitle', defaultTextVariants['heading']!))
+      ..putIfAbsent('title', () => style('pageTitle', {...(defaultTextVariants['title']! as Map).cast<String, Object?>(), 'color': roleOf('headingText')}))
+      ..putIfAbsent('heading', () => style('sectionTitle', {...(defaultTextVariants['heading']! as Map).cast<String, Object?>(), 'color': roleOf('headingText')}))
       ..putIfAbsent('strong', () => body()..addAll({'fontWeight': 600, 'color': ink}))
       ..putIfAbsent('small', () => style('bodySecondary', defaultTextVariants['small']!))
       ..putIfAbsent('muted', () => body()..['color'] = muted)
@@ -502,7 +596,7 @@ final class NotationOptions {
 
     (String, String, String) tone(String role, String inkName) {
       if (role == 'neutral' || hex('${role}Tint') != null) {
-        return (color('${role}Tint', dark ? tint(0x1A) : '#FFF3F4F6'), color('${role}TintBorder', lineTone), color(inkName, ink));
+        return (color('${role}Tint', roleOf('neutralTint')), color('${role}TintBorder', lineTone), color(inkName, ink));
       }
       if (hex(inkName) case final String base) {
         return ('#1A${base.substring(3)}', '#47${base.substring(3)}', color(inkName, ink));
@@ -553,7 +647,8 @@ final class NotationOptions {
     return NotationOptions(
       width: width,
       screen: screen,
-      themeColors: colors.keys.toSet(),
+      themeColors: {...colors.keys, if (named && roles) ...ThemeTokens.notationRoles.keys},
+      roles: named && roles,
       textStyles: styles,
       card: {
         'decoration': {
@@ -604,7 +699,7 @@ final class NotationOptions {
       // A link in running text: the accent where it is read as text on a
       // light page (a bright accent is for fills).
       accentText: colors['accentText'] != null ? color('accentText', '#FF1D4ED8') : colors['accentDeep'] != null ? color('accentDeep', '#FF1D4ED8') : null,
-      quietInks: dark ? (tint(0xCC), tint(0x99), tint(0x66)) : null,
+      quietInks: named && roles ? ('quietText', 'mutedText', 'faintText') : dark ? (roleOf('quietText'), roleOf('mutedText'), roleOf('faintText')) : null,
       themeTextStyles: {
         for (final e in textStyles.entries)
           if (readMap(e.value) case final Json s) e.key: s,
@@ -711,6 +806,7 @@ final class NotationOptions {
         vocabulary: vocabulary,
         ownComponents: ownComponents,
         themeColors: themeColors,
+        roles: roles,
       );
 
   /// The canvas's width.
@@ -2803,6 +2899,7 @@ class _Parser {
     // page) is the drawer's.
     sidebarMenu: _host == null && options.reflow && options.width >= 700 ? '${options.screen.replaceAll('-', '_')}_sidebar' : null,
     surface: options.surface,
+    themeRoles: options.roles,
     overlaySurface: identical(options.card, defaultCard) && options.surface == '#FFFFFFFF' ? 'surface' : null,
     viewer: _host == null && options.width >= 700 ? '${options.screen.replaceAll('-', '_')}Viewer' : null,
     takesViewer: (name) {
@@ -3265,33 +3362,18 @@ class _Parser {
   /// - beside a button, a multi-line field is a composer: it starts at one
   ///   line and grows to its most (`multiline` alone: three lines tall,
   ///   empty);
-  /// - a composer, a field among icon buttons (a toolbar's, a stepper's)
-  ///   and a field in a framed row have no room for a label above: the
-  ///   label is the hint, or, beside a hint, the field's spoken name;
+  /// - a composer, a field among icon buttons (a toolbar's, a stepper's),
+  ///   one field beside a text button (an inline entry: add an item, a
+  ///   comment, a promo code; not the row that ends a form, whose field
+  ///   writes a label and a hint) and a field in a framed row have no room
+  ///   for a label above: the label is the hint, or, beside a hint, the
+  ///   field's spoken name;
   /// - in a row with its own frame (a radius and a border or a fill) that
   ///   holds the field and its buttons (and icons, texts) alone, the field is bare:
   ///   the frame is its box (a bordered field drawn inside a bordered box);
   /// - a multi-line field with onSubmit sends on Enter (Shift+Enter: a new
   ///   line), where Enter only broke the line and onSubmit never ran.
   void _fieldsBesideButtons() {
-    const buttons = {'iconButton', 'filledButton', 'outlinedButton', 'textButton', 'elevatedButton', 'floatingActionButton'};
-    const fields = {'textField', 'dropdown', 'datePicker', 'timePicker', 'dateTimeInput', 'checkbox', 'switch', 'slider', 'radio', 'segmentedButton'};
-    const quiet = {'icon', 'text', 'spacer', 'row', 'column', 'stack', 'image', ...buttons};
-    List<String> kids(String id) => [...?(nodes[id]?['children'] as List?)?.whereType<String>().where(nodes.containsKey)];
-    Iterable<String> types(String id) sync* {
-      yield '${nodes[id]?['type']}';
-      for (final k in kids(id)) {
-        yield* types(k);
-      }
-    }
-
-    bool framed(String id) {
-      final d = readMap(nodes[id]?['decoration']);
-      final r = d?['radius'];
-      final round = r is num ? r > 0 : r != null;
-      return round && ((d!['strokes'] as List?)?.isNotEmpty == true || (d['fills'] as List?)?.isNotEmpty == true);
-    }
-
     void patch(String id, Json change) {
       nodes[id] = mergePatch(nodes[id]!, change);
       if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
@@ -3310,41 +3392,18 @@ class _Parser {
       // Enter sends, Shift+Enter breaks the line.
       final submits = ((n['actions'] as List?) ?? const []).any((a) => a is Map && (a['trigger'] as Map?)?['type'] == 'submitted');
       if (multiline && submits && !props.containsKey('textInputAction')) propsChange['textInputAction'] = 'send';
-      // Its place: up through the wrappers holding it alone, to a row.
-      var at = id;
-      for (var p = _parentOf[at]; p != null && const {'column', 'stack', 'row'}.contains(nodes[p]?['type']) && kids(p).length == 1; p = _parentOf[p]) {
-        at = p;
-      }
-      final row = _parentOf[at];
-      final inRow = row != null && nodes[row]?['type'] == 'row';
-      final beside = inRow ? [for (final k in kids(row)) if (k != at) ...types(k)] : const <String>[];
-      final alone = inRow && !beside.any(fields.contains);
-      final byButton = alone && beside.any(buttons.contains);
-      final composer = byButton && multiline;
-      final toolbar = byButton && beside.contains('iconButton');
-      // The frame: the row's own, or a box's holding the row alone.
-      String? frame;
-      // (Beside a button: a composer's frame. A framed row of an icon and a
-      // field alone, a document's search pill, is as it was written.)
-      if (byButton && beside.every(quiet.contains)) {
-        for (String? f = row; f != null; f = _parentOf[f]) {
-          if (framed(f)) {
-            frame = f;
-            break;
-          }
-          final up = _parentOf[f];
-          if (up == null || kids(up).length != 1 || !const {'column', 'stack', 'row'}.contains(nodes[up]?['type'])) break;
-        }
-      }
+      final (:composer, :toolbar, :entry, :frame) = notationFieldPlace(nodes, (k) => _parentOf[k], id);
       if (composer && _multilineWord.contains(id)) propsChange['minLines'] = 1;
-      if (composer || toolbar || frame != null) {
+      if (composer || toolbar || entry || frame != null) {
         final d = readMap(props['decoration']) ?? const <String, Object?>{};
         final binds = readMap(n['bind']) ?? const <String, Object?>{};
         final label = d['labelText'];
         final boundLabel = binds['props.decoration.labelText'];
         final hasHint = (d['hintText'] is String && (d['hintText']! as String).isNotEmpty) || binds['props.decoration.hintText'] != null;
         final labelled = (label is String && label.isNotEmpty) || boundLabel != null;
-        if (labelled) {
+        // A label written by name (`label="Email"`) stays above the field
+        // wherever it is: the way a print keeps a field's label there.
+        if (labelled && !_labelByName.contains(id)) {
           final decorationChange = <String, Object?>{'labelText': null, 'labelStyle': null};
           if (hasHint) {
             // Its name, spoken.
@@ -3898,6 +3957,11 @@ class _Parser {
   /// The Selects whose lines said `underline=` (true: the frame inside the
   /// box is kept).
   final _ownFrameSaid = <String>{};
+
+  /// The text fields whose label is written by name (`label="…"`), not as
+  /// the line's string: their label stays above them beside buttons too
+  /// ([_fieldsBesideButtons]).
+  final _labelByName = <String>{};
 
   /// The item of an `each` → its list, for one that may yet share a row's width.
   final _acrossLists = <String, String>{};
@@ -7132,6 +7196,8 @@ class _Parser {
           node['visible'] = raw == 'false';
           continue;
         }
+        // `label="Email"`: the field's label, kept above it beside buttons too.
+        if (key == 'label' && type == 'textField') _labelByName.add(id);
         // Input "Search" icon="search": the icon inside the field, before
         // the text (its decoration's prefixIcon).
         // `prefixIcon="search"` (Flutter's name, test 10) is the same.
@@ -7657,7 +7723,7 @@ class _Parser {
         ];
       } else {
         decoration.putIfAbsent('fills', () => [
-              {'color': _named('#FFE5E7EB', 'fill')},
+              {'color': options.roles ? 'subtleFill' : _named('#FFE5E7EB', 'fill')},
             ]);
         avatarName = shown is String ? shown : '';
         props.addAll({'mainAxisAlignment': 'center', 'crossAxisAlignment': 'center'});

@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 12895
+      "words": 12843
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -324,7 +324,7 @@
       "file": "forms.md",
       "anchor": "forms-tabs-segments-and-chips-chosen-from",
       "title": "Tabs, segments and chips chosen from",
-      "words": 157
+      "words": 155
     },
     {
       "topic": "forms-a-number-with-its-buttons",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9786
+      "words": 9736
     },
     {
       "topic": "forms-behaviors",
@@ -381,7 +381,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7353
+      "words": 7340
     },
     {
       "topic": "lists-a-list-over-data",
@@ -409,7 +409,7 @@
       "file": "lists.md",
       "anchor": "lists-a-list-chosen-from-and-swiped",
       "title": "A list chosen from and swiped",
-      "words": 280
+      "words": 267
     },
     {
       "topic": "lists-words",
@@ -452,14 +452,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3401
+      "words": 3374
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 139
+      "words": 112
     },
     {
       "topic": "state-bindings",
@@ -703,14 +703,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3790
+      "words": 3712
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 1024
+      "words": 984
     },
     {
       "topic": "navigation-over-the-page",
@@ -731,7 +731,7 @@
       "file": "navigation.md",
       "anchor": "navigation-words",
       "title": "Words",
-      "words": 1572
+      "words": 1534
     },
     {
       "topic": "navigation-events-and-actions",

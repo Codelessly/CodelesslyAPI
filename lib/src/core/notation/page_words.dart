@@ -61,6 +61,7 @@ final class PageWords {
     this.menu = false,
     this.sidebarMenu,
     this.surface = '#FFFFFFFF',
+    this.themeRoles = false,
     this.overlaySurface,
     this.viewer,
     this.takesViewer = _none,
@@ -167,6 +168,18 @@ final class PageWords {
 
   /// What a drawer's panel is drawn on when the theme names no pane fill.
   final String surface;
+
+  /// Whether what the words draw by themselves with no theme color for it
+  /// (a sidebar item's tint under the pointer, a table's header band) is
+  /// written by the theme's role for it (`hoverFill`, `band`:
+  /// ThemeTokens.notationRoles), light or dark as the site is shown.
+  final bool themeRoles;
+
+  /// The tint of a sidebar's item under the pointer.
+  String get _hoverFill => themeRoles ? 'hoverFill' : '#0F111827';
+
+  /// What a table's header band is with no band of the theme's.
+  String get _headBand => themeRoles ? 'band' : '#FFF8FAFC';
 
   /// With no theme of its own (no design system): the theme's role an
   /// overlay's panel is drawn in (`surface`), and its title and close button
@@ -836,7 +849,7 @@ final class PageWords {
   /// tint is the accent as the theme names it at an eighth of its strength,
   /// so it follows the site's own accent and its dark mode.
   String _navFill(String ink) =>
-      selectedFill == '#FFE5E7EB' ? 'fills=[{"color":"$ink","opacity":0.12}]' : 'fill=$selectedFill';
+      selectedFill == '#FFE5E7EB' || selectedFill == 'subtleFill' ? 'fills=[{"color":"$ink","opacity":0.12}]' : 'fill=$selectedFill';
 
   /// A quoted label in capitals (`"People & access"` is `"PEOPLE & ACCESS"`); one with a value in it as written.
   static String _upper(String quoted) => quoted.contains('{') ? quoted : quoted.toUpperCase();
@@ -1175,7 +1188,7 @@ final class PageWords {
       // icon shows the icon alone: its label, count and shortcut had no room.
       final railed = across || icon == null ? '' : _railHide();
       // Under the pointer an item that is not the chosen one is tinted.
-      final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=#0F111827';
+      final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=$_hoverFill';
       final weight = on
           ? 'weight=600 color=$ink'
           : selected != null
@@ -1251,15 +1264,33 @@ final class PageWords {
           if (under != null) (indent: at + 4, text: 'Text $under size=11 color=${quietInks?.$2 ?? '#FF6B7280'}'),
         ]);
     }
-    // A field in a bar has no room for a label above it: its label is its hint.
+    // A field in a bar has no room for a label above it: its label is its
+    // hint. A search field shows the magnifier before its text, as every
+    // web search field and Desk's SearchField do, unless the line writes its
+    // own icon (`icon=none`: none).
     if ((word == 'Input' || word == 'Search' || word == 'SearchField') &&
         (_open.any((l) => l.frame == 'Nav') || RegExp(r'^\s*"(Search|Filter|Find)\b').hasMatch(rest)) &&
         !isComponent(word)) {
+      // A field in a bar that is not a search (a title edited in place, a
+      // formula) has no magnifier: a search is one by its word, its text or
+      // its id.
+      final search = word != 'Input' ||
+          RegExp(r'^\s*"(Search|Filter|Find)\b').hasMatch(rest) ||
+          RegExp(r'search|find|filter', caseSensitive: false).hasMatch('$mark ${RegExp(r'"[^"]*"').allMatches(rest).take(2).map((m) => m[0]).join(' ')}');
+      final ownIcon = parts.has('icon') || parts.has('prefixIcon');
+      final noIcon = const {'none', '"none"'}.contains(parts.value('icon'));
+      if (noIcon) parts.take('icon');
+      final icon = ownIcon || !search ? '' : ' icon="search"';
       if (!parts.has('hint')) {
         final label = parts.string();
         final hint = parts.string() ?? label ?? '"Search"';
         open();
-        return out..add((indent: at, text: 'Input$mark "" $hint${parts.all}'));
+        return out..add((indent: at, text: 'Input$mark "" $hint$icon${parts.all}'));
+      }
+      if (word == 'Input' && (icon.isNotEmpty || noIcon)) {
+        final label = parts.string();
+        open();
+        return out..add((indent: at, text: 'Input$mark${label == null ? '' : ' $label'}$icon${parts.all}'));
       }
     }
     if (word == 'IconTile' && !isComponent('IconTile')) {

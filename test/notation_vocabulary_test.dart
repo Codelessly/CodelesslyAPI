@@ -662,13 +662,14 @@ Page
         expect(taught(1280), contains(kept), reason: kept);
       }
       // No behaviour word, no escape to JSON, no reference pages.
-      for (final left in ['Also, on a page', 'CodeInput', 'SwipeAction', 'DataTable', 'Splitter', 'Calendar @arrival', 'Slider @low @high', 'reorder', 'fuzzy(', 'BEYOND THESE WORDS', 'node {', 'ui_docs', 'confirm "']) {
+      for (final left in ['Also, on a page', 'SwipeAction', 'DataTable', 'Splitter', 'Calendar @arrival', 'Slider @low @high', 'reorder', 'fuzzy(', 'BEYOND THESE WORDS', 'node {', 'ui_docs', 'confirm "']) {
         expect(page, isNot(contains(left)), reason: left);
         expect(taught(1280), contains(left), reason: 'the taught prompt has "$left"');
       }
       // What round 11's writers invented words for is said, in a line each:
       // the screen's shortcut, announcing, the time, a search field.
-      for (final said in ['- key mod+k onPress={focus search}', 'announce "{n} results"', 'now() (the time)', 'Input#search "Search" icon="search"']) {
+      // And a one-time code is one CodeInput (six one-digit Inputs were written).
+      for (final said in ['- key mod+k onPress={focus search}', 'announce "{n} results"', 'now() (the time)', 'Input#search "Search" icon="search"', 'CodeInput "Code" @code length=6 digits is a one-time code']) {
         expect(page, contains(said), reason: said);
       }
     });

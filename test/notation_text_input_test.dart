@@ -94,7 +94,7 @@ define ComposerField @value hint=""
     expect(_props(r, field)['semanticLabel'], 'Message');
   });
 
-  test('lines a writer gives a composer are kept; a multi-line field alone or one line beside a text button is as written', () {
+  test('lines a writer gives a composer are kept; a multi-line field alone, or a form\'s last row, is as written', () {
     final r = _parse('''
 state draft=""
 state email=""
@@ -113,9 +113,94 @@ Column
     expect(_props(r, 'notes')['minLines'], 3);
     expect(_props(r, 'notes')['textInputAction'], 'send');
     expect(_decoration(r, 'notes'), {'labelText': 'Notes'});
-    // One line beside a text button keeps its label (the owner's decision).
+    // One line with a label and a hint beside a text button, in the row that
+    // ends a column of fields, is that form's last row: labelled.
     expect(_decoration(r, 'news'), {'labelText': 'Email address', 'hintText': 'you@example.com'});
     expect(_props(r, 'news'), isNot(contains('textInputAction')));
+  });
+
+  test('a field beside a text button is an inline entry: its label the placeholder, or spoken beside a hint, and no height for a label', () {
+    const options = NotationOptions(width: 1280, controlHeight: 34);
+    final r = _parse('''
+state item=""
+state comment=""
+state code=""
+state guest=""
+state title=""
+state note=""
+Column gap=12
+  Row gap=8 middle
+    Input#item "Add a checklist item" @item grow
+    Button.outline "Add"
+  Row gap=8 middle
+    Input#comment "Comment" "Write a comment" @comment grow
+    Button "Post"
+  Card gap=8
+    Text.strong "Order"
+    Row gap=8 middle
+      Input#promo "Promo code" "Enter a code" @code grow
+      Button.outline "Apply"
+  Column gap=12
+    Input#title "Title" "Team sync" @title
+    Text "Guests"
+    Row gap=8 middle
+      Input#guest "Add guest" "Name or email" @guest grow
+      Button.outline "Add"
+    Input#note "Note" @note multiline
+''', options: options);
+    expect(r.issues, isEmpty);
+    expect(_decoration(r, 'item'), {'hintText': 'Add a checklist item'});
+    expect((_node(r, 'item')['layout'] as Map)['height'], 34);
+    expect(_props(r, 'item'), isNot(contains('semanticLabel')));
+    expect(_decoration(r, 'comment'), {'hintText': 'Write a comment'});
+    expect(_props(r, 'comment')['semanticLabel'], 'Comment');
+    expect(_decoration(r, 'promo'), {'hintText': 'Enter a code'});
+    expect(_props(r, 'promo')['semanticLabel'], 'Promo code');
+    // A row in the middle of a form (a field after it): its button adds to
+    // the form, it does not send it; the field is an entry.
+    expect(_decoration(r, 'guest'), {'hintText': 'Name or email'});
+    expect(_props(r, 'guest')['semanticLabel'], 'Add guest');
+    // The form's own fields keep their labels.
+    expect(_decoration(r, 'title'), {'labelText': 'Title', 'hintText': 'Team sync'});
+  });
+
+  test('the row that ends a form keeps its labels: a labelled field with a hint before the submit button, two fields, fields with no button', () {
+    final r = _parse('''
+state name=""
+state email=""
+state first=""
+state last=""
+Column gap=12
+  Column gap=12
+    Input#name "Name" "Jane Doe" @name
+    Row gap=8 bottom
+      Input#email "Email" "you@example.com" @email grow
+      Button "Sign up"
+  Column gap=12
+    Input#name2 "Name" "Jane Doe" @name
+    Row gap=8 bottom
+      Input#first "First name" "Jane" @first grow
+      Input#last "Last name" "Doe" @last grow
+      Button "Save"
+  Row gap=12
+    Input#first2 "First name" @first grow
+    Input#last2 "Last name" @last grow
+  Column gap=12
+    Input#name3 "Name" @name
+    Row gap=8 middle
+      Input#code "Invite code" @email grow
+      Button "Join"
+''');
+    expect(r.issues, isEmpty);
+    expect(_decoration(r, 'email'), {'labelText': 'Email', 'hintText': 'you@example.com'});
+    expect(_props(r, 'email'), isNot(contains('semanticLabel')));
+    expect(_decoration(r, 'first'), {'labelText': 'First name', 'hintText': 'Jane'});
+    expect(_decoration(r, 'last'), {'labelText': 'Last name', 'hintText': 'Doe'});
+    expect(_decoration(r, 'first2'), {'labelText': 'First name'});
+    expect(_decoration(r, 'last2'), {'labelText': 'Last name'});
+    // The other side of the line: a form's last field with a label and no
+    // hint shows its label inside, where it is still read.
+    expect(_decoration(r, 'code'), {'hintText': 'Invite code'});
   });
 
   test('a field among icon buttons (a stepper, a toolbar) has no label above it, nor the height for one', () {
@@ -183,6 +268,46 @@ Column
     expect(_decoration(r, 'mail'), {'labelText': '', 'hintText': 'you@example.com'});
     // A card's form field keeps its box.
     expect(_decoration(r, 'email'), {'labelText': 'Email', 'hintText': 'you@example.com'});
+  });
+
+  test('a document\'s labelled field beside buttons prints its label by name, which keeps it above', () {
+    final r = _parse('''
+state q=""
+Row gap=8 middle
+  Input#entry label="Promo code" hint="Enter a code" @q grow
+  Button "Apply"
+''');
+    expect(r.issues, isEmpty);
+    expect(_decoration(r, 'entry'), {'labelText': 'Promo code', 'hintText': 'Enter a code'});
+    final printed = printNotation(r.document, catalog: standardCatalog);
+    expect(printed, contains('label="Promo code"'));
+    final again = _parse(printed);
+    expect(_decoration(again, 'entry'), {'labelText': 'Promo code', 'hintText': 'Enter a code'});
+  });
+
+  test('a search field shows the magnifier before its text, unless the line writes its own icon or icon=none', () {
+    final r = _parse('''
+state q=""
+Column gap=8
+  Input#plain "Search" @q
+  Input#hinted "Search orders" "Order number or name" @q
+  Input#find "Find a note" @q grow
+  Input#named "Search" hint="Try coffee" @q
+  Input#own "Search" icon="manage_search" @q
+  Input#none "Search" icon=none @q
+  Input#email "Email" "you@example.com" @q
+''');
+    expect(r.issues, isEmpty);
+    for (final id in const ['plain', 'hinted', 'find', 'named']) {
+      expect(_decoration(r, id)['prefixIcon'], {'icon': 'search', 'size': 18}, reason: id);
+    }
+    expect(_decoration(r, 'plain')['hintText'], 'Search');
+    expect(_decoration(r, 'hinted')['hintText'], 'Order number or name');
+    expect(_decoration(r, 'own')['prefixIcon'], {'icon': 'manage_search', 'size': 18});
+    expect(_decoration(r, 'none'), isNot(contains('prefixIcon')));
+    expect(_decoration(r, 'none')['hintText'], 'Search');
+    // A field that is not a search has none.
+    expect(_decoration(r, 'email'), isNot(contains('prefixIcon')));
   });
 
   test('fill, border and radius on an Input are its box: a filled pill, a bare field', () {
