@@ -2780,8 +2780,68 @@ class _Parser {
   /// under one.
   bool _inDeclaration = false;
 
+  /// [raw], a line of a component's tree, with each parameter its
+  /// expressions read by its bare name (`w={edge}` under `param edge=180`)
+  /// read as the component's (`props.edge`): a name no state of the text and
+  /// no `each` around the line has is that parameter, not nothing. Only what
+  /// is in braces is read (`w=fill` under `param fill` is the word).
+  String _paramsRead(String raw) {
+    final top = _top;
+    if (top._widget?['props'] case final List<Object?> params when params.isNotEmpty) {
+      final names = [
+        for (final p in params)
+          if (p is Map && p['key'] is String && !variables.containsKey(p['key']) && !top._derived.containsKey(p['key']) && !_stack.any((o) => o.each == p['key']))
+            p['key'] as String,
+      ];
+      if (names.isEmpty || !names.any(raw.contains)) return raw;
+      String named(String code) {
+        for (final n in names) {
+          if (code.contains(n)) code = _rename(code, n, 'props.$n');
+        }
+        return code;
+      }
+
+      // A condition and the list of an `each` (or of a `Table row in rows`)
+      // are expressions as they stand.
+      final t = raw.trimLeft(), pad = raw.substring(0, raw.length - t.length);
+      if (RegExp(r'^(if|else if|elif)\s+').firstMatch(t) case final m?) return '$pad${m[0]}${named(t.substring(m.end))}';
+      if (RegExp(r'^(?:each|[A-Z][A-Za-z0-9]*(?:#[A-Za-z0-9_-]+)?)\s+[A-Za-z_][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z_][A-Za-z0-9_]*)?\s+in\s+').firstMatch(t) case final m?) {
+        final rest = t.substring(m.end);
+        // (A list worked out with a call has spaces in it: all of it.)
+        final end = rest.startsWith('{') || rest.startsWith('[') ? 0 : rest.startsWith(RegExp(r'[A-Za-z_][A-Za-z0-9_.]*\(')) ? rest.length : rest.indexOf(RegExp(r'\s|$'));
+        raw = '$pad${m[0]}${named(rest.substring(0, end))}${rest.substring(end)}';
+      }
+      if (!raw.contains('{')) return raw;
+      final out = StringBuffer();
+      var at = 0;
+      while (at < raw.length) {
+        final open = raw.indexOf('{', at);
+        if (open < 0) break;
+        final braced = (_Tokens(raw)..at = open).balanced();
+        if (!braced.endsWith('}') || braced.length < 3) {
+          out.write(raw.substring(at, open + 1));
+          at = open + 1;
+          continue;
+        }
+        var inner = braced;
+        for (final n in names) {
+          if (inner.contains(n)) inner = _rename(inner, n, 'props.$n');
+        }
+        out
+          ..write(raw.substring(at, open))
+          ..write(inner);
+        at = open + braced.length;
+      }
+      out.write(raw.substring(at));
+      return out.toString();
+    }
+    return raw;
+  }
+
   /// Reads one line (without its newline).
   void line(String raw) {
+    // A component's tree has started: its overlays' lines read its parameters too.
+    if (_host == null && _root != null && _widget != null) raw = _paramsRead(raw);
     // An `at` block ends at the next line not indented past it (at_width.dart).
     if (_at.open != null && !_continues && !_at.feeding) _atBefore(raw);
     // The lines under an overlay's head are its canvas's; the next line at
@@ -2908,6 +2968,7 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     if (_atLine(raw)) return; // `at phone` and the lines of its block (at_width.dart)
     if (_componentLine(raw)) return;
+    raw = _paramsRead(raw);
     final indent = raw.length - raw.trimLeft().length;
     // (At the indent the page words move the node lines to: a box in a Nav
     // or a Section is two deeper than written.)

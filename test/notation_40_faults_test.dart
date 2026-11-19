@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  componentParamTests();
   stateValueTests();
   overlayGoTests();
   group('a defined word whose body is an overlay', () {
@@ -247,5 +248,71 @@ Column
       expect(_variables(r).firstWhere((v) => v['name'] == 'label')['value'], 'rows[0]');
       expect(_variables(r).firstWhere((v) => v['name'] == 'rows')['value'], [1, 2]);
     });
+  });
+}
+
+void componentParamTests() {
+  group('a component\'s parameter read by its bare name', () {
+    test('in braces it is the component\'s (props.name): a size, a text, a paint line, a condition', () {
+      final r = _parse('''
+component CoverArt "Art"
+  param edge:double=180
+  param fluid:bool=false
+  param record:Map={}
+Column#root w={fluid ? 'fill' : edge} h={fluid ? 'hug' : edge} aspectRatio=1
+  Text#t "{record.title} at {edge}"
+  if fluid
+    Text#f "wide"
+  Box#b w=40 h=40
+    customPaint viewBox=[10,10]
+      rect rect=[0,0,10,10] fill={record.color}
+''');
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'root')['bind'], {
+        'layout.width': r"${= props.fluid ? 'fill' : props.edge}",
+        'layout.height': r"${= props.fluid ? 'hug' : props.edge}",
+      });
+      expect(_props(r, 't')['text'], r'${props.record.title} at ${props.edge}');
+      expect('${_node(r, 'f')}', contains('props.fluid'));
+      expect('${_node(r, 'b')}', contains('props.record.color'));
+    });
+
+    test('a word outside braces, a state of the name and an each\'s item are not the parameter', () {
+      final r = _parse('''
+component Tile "A tile"
+  param fill:String="red"
+  param count:int=1
+  param row:Map={}
+state count=3
+state rows=[{"n":1}]
+Column#root w=fill
+  Text#a "{count}"
+  each row in rows
+    Text#b "{row.n} {fill}"
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'root')['layout'] as Map)['width'], {'fill': 0});
+      expect(_props(r, 'a')['text'], r'${count}');
+      expect(_props(r, 'b')['text'], r'${item.n} ${props.fill}');
+    });
+
+    test('props.name as written stays', () {
+      final r = _parse('''
+component Tile "A tile"
+  param label:String="x"
+Text#a "{props.label} {label}"
+''');
+      expect(_props(r, 'a')['text'], r'${props.label} ${props.label}');
+    });
+  });
+
+  test('a bound size that names its fit as a word is that fit', () {
+    final node = Node.fromJson(const {
+      'type': 'column',
+      'layout': {'width': 0, 'height': 0},
+    }, id: 'n')!;
+    expect(BindPaths.apply(node, 'layout.width', 'fill').layout.width.fit, SizeFit.fill);
+    expect(BindPaths.apply(node, 'layout.height', 'hug').layout.height.fit, SizeFit.hug);
+    expect(BindPaths.apply(node, 'layout.width', 64).layout.width, const AxisSize.fixed(64));
   });
 }
