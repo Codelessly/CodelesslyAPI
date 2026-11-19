@@ -77,7 +77,8 @@ The render step reports what rendering shows: `render_exception` (naming the nod
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
+`component_missing`, `set_overwritten`, `formula_runaway` (functions that call each other without end), `screen_timeout`
+(a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
 notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it). Links to a screen that is missing are one
 `unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
 one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are
