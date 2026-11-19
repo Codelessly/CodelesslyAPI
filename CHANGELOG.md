@@ -28,6 +28,9 @@
   `NavLink`s sit side by side at their own widths, its `Link`s are quiet buttons, and on a phone it goes onto a
   further line where it has no room (unless it says how it wraps). Each item took an equal share of the row, one
   letter a line on a phone.
+- **`pad=` on a component call is an issue and left out**: the room inside a component is its definition's (the
+  renderer draws the root's padding), so it was taken and drew nothing. A strict expand of such a text now fails;
+  the drawing is the same.
 
 ### Added
 

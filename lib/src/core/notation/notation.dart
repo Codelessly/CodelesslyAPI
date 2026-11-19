@@ -7502,6 +7502,16 @@ class _Parser {
       const looks = {'fill', 'fills', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right', 'strokes', 'strokeWidth', 'gradient'};
       final look = namedOnLine.where((k) => looks.contains(k) && spec.prop(k) == null).toList();
       if (look.isNotEmpty && !_quiet && !_mediaLine) _issue(column, _callLook(written, look));
+      // Nor a padding: the room inside it is its definition's (the renderer
+      // draws the root's). `pad=` was taken and drew nothing.
+      final pads = namedOnLine.where((k) => (k == 'pad' || k == 'padding') && spec.prop(k) == null).toList();
+      if (pads.isNotEmpty) {
+        layout.remove('padding');
+        if (!_quiet && !_mediaLine) {
+          _issue(column,
+              '${pads.map((k) => '$k=').join(', ')} on a call of $written is left out: the room inside a component is its definition\'s (pad= on its root line). Give $written a parameter for it, or write a margin (margin=) for room around the call.');
+        }
+      }
       decoration.clear();
       bind.removeWhere((k, _) => k.startsWith('decoration.'));
       callSizes = {

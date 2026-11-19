@@ -2,6 +2,7 @@
 // test is such a line and what it now expands to.
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/src/core/catalog_json.dart' show catalogFromJson;
 import 'package:test/test.dart';
 
 NotationResult _parse(String text, {NotationOptions options = const NotationOptions()}) =>
@@ -315,5 +316,18 @@ Column w=400
 ''');
     expect((_node(r, 's')['layout'] as Map)['width'], {'fill': 0});
     expect((_node(r, 'h')['layout'] as Map)['width'], {'hug': 0});
+  });
+
+  test('pad= on a component call is said and left out (the room inside is the definition)', () {
+    final catalog = standardCatalog +
+        catalogFromJson({
+          'widgets': [
+            {'type': 'Tile', 'props': <Object?>[]},
+          ],
+        });
+    final r = Catalog.run(catalog, () => parseNotation('Column\n  Tile#t pad=20 margin=4\n', catalog: catalog));
+    expect(r.issues.single.message, startsWith('pad= on a call of Tile is left out'));
+    expect((_node(r, 't')['layout'] as Map), isNot(contains('padding')));
+    expect((_node(r, 't')['layout'] as Map)['margin'], 4);
   });
 }
