@@ -98,6 +98,51 @@
   use is recorded as a `definition` with `of: dictionary`, where it was an alias of a line.
 - **`notationWordOrigin(word)`** says where the notation's meaning of a word is written: `base`, `dictionary`, or
   `code` (a word the expander still rewrites, such as the page words).
+### A design at a width (the notation)
+
+A part whose lines differ at a width, and not only its values, writes its design there in a block under it, after
+its own lines:
+
+```
+Row#bar w=fill between middle
+  Text#brand "Acme"
+  Row#links gap=24 phone.direction=vertical
+    Button.ghost "Pricing" onTap={menu=false; scroll pricing}
+  at phone
+    Column w=fill
+      Row w=fill between middle
+        ...#brand
+        IconButton "menu" onTap={menu=!menu}
+      if menu
+        ...#links
+```
+
+- **`at <width>`** under a node line: the lines under it are that line's children where the width holds; its own
+  lines show everywhere else. The width is any condition a key's prefix takes (`at phone`, `at tablet`, `at
+  desktop`, `at max899`, `at min700.tablet`, `at portrait`; `at mobile` is `at phone`). The part's own line (its
+  id, its keys, its events) holds at every width.
+- **`...` and `...#id`** in a block: the part's own lines, or the one with that id (at any depth, with the lines
+  under it), read again there. Each is a second node, its id `<id>_<width>` (`links_phone`,
+  `search_min700_tablet`); an action that names the id (`focus search`, `scroll pricing`) is written for each copy,
+  so it reaches the one shown. The copies share their bindings and a defined word's own state.
+- **Several blocks** hold in the order written, the later winning where two hold: write the wider first. A width
+  no block holds shows the part's own lines.
+- **Reflow** leaves a block's lines as written, and still fits the part's own lines where no block holds (the hide
+  rules a block gives them do not make them the writer's); what it gives the part itself is undone where a block
+  holds.
+- **Page words:** under a website's `Nav` (or `Header`, `TopBar`) a block that holds on a phone is the bar there,
+  and the Nav writes no menu of its own; under a `Table` the block's lines go in its frame in place of its header
+  and rows, `...` its cells (a list of cards on a phone); an app's `Sidebar` with a block is still its drawer on a
+  phone, with its own lines.
+- **Said, and not read:** `at` at the margin, under an `each` or an `if`, inside another block, in a definition's
+  lines, under `App`, under a `Grid`, under a line that takes no lines, with a breakpoint's name (`at minTablet`),
+  a block a later one shadows, a `...#id` no line has, anything written on a `...` line, and a part's line written
+  after its blocks. Each says what to write instead.
+- **Expanded to what renders today**: twins with media rules, no new node or property. The first line of each
+  block is named `at <width>`; `printNotation` reads that back and prints the block, a line read again as `...#id`
+  (or `...`). Twins written by hand print as twins.
+- **The prompt** teaches it in one sentence where widths are taught; the reference's responsive page has a section
+  on it.
 
 ## 37.0.0
 

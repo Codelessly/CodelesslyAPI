@@ -21,6 +21,7 @@ import '../props.dart';
 import '../suggest.dart' show didYouMean;
 import '../theme.dart' show ThemeTokens;
 import '../triggers.dart' show KeyCombo;
+import 'at_rules.dart';
 import 'bind_form.dart';
 import 'brackets.dart';
 import 'declared.dart';
@@ -47,6 +48,7 @@ import '../widgets/flex.dart' show FlexProps;
 part 'notation_events.dart';
 part 'paint_words.dart';
 part 'state_words.dart';
+part 'at_width.dart';
 
 /// An id as a line writes it after `#` (design 13, section 3): letters,
 /// digits and `_`, its parts joined by single hyphens, as a JSON or HTML id
@@ -1988,6 +1990,9 @@ class _Parser {
   final _overlays = <_Parser>[];
   _Parser? _block;
 
+  /// The `at` blocks of the text (at_width.dart).
+  final _at = _AtWidths();
+
   /// Whether the block being read is left out (its id was taken).
   bool _blockSkipped = false;
 
@@ -2731,6 +2736,8 @@ class _Parser {
 
   /// Reads one line (without its newline).
   void line(String raw) {
+    // An `at` block ends at the next line not indented past it (at_width.dart).
+    if (_at.open != null && !_continues && !_at.feeding) _atBefore(raw);
     // The lines under an overlay's head are its canvas's; the next line at
     // the margin ends it.
     if (_host == null && !_continues) {
@@ -2847,6 +2854,7 @@ class _Parser {
     if (raw.trim().isEmpty || raw.trimLeft().startsWith('//')) return;
     // An answer wrapped in a code fence: the fence is not notation.
     if (raw.trimLeft().startsWith('```')) return;
+    if (_atLine(raw)) return; // `at phone` and the lines of its block (at_width.dart)
     if (_componentLine(raw)) return;
     final indent = raw.length - raw.trimLeft().length;
     // (At the indent the page words move the node lines to: a box in a Nav
@@ -2900,6 +2908,7 @@ class _Parser {
     } else {
       _from = null;
       for (var (l, from) in _definedLines(indent, raw.trim())) {
+        if (_atInDefinition(l, from)) continue;
         _from = from;
         // A line a defined word stands for reads the alias table as the
         // page's lines do (`Input onSubmitted=` is onSubmit), unrecorded.
@@ -3541,7 +3550,7 @@ class _Parser {
     // (its _host) wraps its rows of copies only (PageReflow.runNarrow).
     if (!options.reflow || (options.width < 700 && _host == null)) return;
     final reflow = PageReflow(
-      nodes: nodes,
+      nodes: _atReflowView(),
       roles: _roles,
       gridRows: {
         for (final e in _gridRows.entries) e.key: (cols: e.value.cols, gap: e.value.gap),
@@ -3560,7 +3569,7 @@ class _Parser {
       fillsItsPlace: (type) => switch (options.components[type]?.width) { final Map m => m.containsKey('fill'), _ => false },
       listDetailState: _host == null ? _listDetailName : null,
       variableStart: (name) => variables[name]?['value'],
-      kept: {..._keep, ?_componentRootKept()},
+      kept: {..._keep, ?_componentRootKept(), ..._at.tops},
     );
     // A narrow canvas (a dialog, a sheet, a component) keeps its layout; only
     // its rows of copies wrap where the window is narrower still.
@@ -3574,6 +3583,7 @@ class _Parser {
       node['media'] = media;
       if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': media}});
     }
+    _atAfterReflow(rules.keys);
     if (reflow.listDetail case final ListDetail ld) _listDetail(ld);
   }
 
@@ -4623,6 +4633,7 @@ class _Parser {
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
     }
+    if (line == _atMark) return _atMarked();
     // A defined word's lines written where its use is: they go in the node
     // around it (a Grid's cells, a Column's lines with its gap). At the top
     // of a page there is none: a Column holds them.
@@ -10052,6 +10063,7 @@ class _Parser {
       issues.addAll(notationBracketIssues(_rawText.toString()));
       _rawText.clear();
     }
+    _atEnd();
     if (_host == null) {
       _closeBlock();
       // The viewer a gallery of the page opens its photos in, over the window.
@@ -10196,6 +10208,7 @@ class _Parser {
             '@${e.key} binds a variable nothing declares: add state ${e.key}=${jsonEncode(e.value.start())} at the top of the screen (a variable is declared before it is bound).'));
       }
       _unstated.clear();
+      _atActions();
     }
     _literalGrids();
     _ownLegends();

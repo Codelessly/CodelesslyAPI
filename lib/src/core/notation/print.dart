@@ -17,12 +17,15 @@ import '../behaviors.dart' show diffPatch, mergePatch;
 import '../catalog.dart';
 import '../json.dart';
 import '../migrate/migrate.dart' show kOldestSchemaVersion;
+import 'at_rules.dart' show atBlocksOf;
 import 'declared.dart';
 import 'media_words.dart' show mediaConditionWords;
 import 'notation.dart';
 import 'print_events.dart' show printCanvasBlockEvents, printCanvasEvents, printComponentScreenEvents, printNormalized;
 import 'print_fields.dart';
 import 'print_paint.dart' show printPaintLines;
+
+part 'print_at.dart';
 
 /// [document] in the notation. Parse it back with [notationOptionsFor].
 ///
@@ -137,6 +140,21 @@ final class _Printer {
   /// under them read back into other slots, or into their children).
   final _slotLines = <String>{};
 
+  /// The parts not to print with their `at` blocks (they did not read back
+  /// so: their children printed as they are), and in this pass the parts
+  /// printed with them, each of their nodes as printed (without what the
+  /// blocks gave it), the block being printed, the nodes printed under an
+  /// `if`, and how many ids of each type the lines of each node took
+  /// (print_at.dart).
+  final _noAt = <String>{}, _atPrinted = <String>{}, _underIf = <String>{};
+
+  /// The lines of a block not to print as `...` (they did not read back
+  /// so), and those printed so in this pass.
+  final _noCopy = <String>{}, _copiesPrinted = <String>{};
+  final _view = <String, Json>{};
+  ({String suffix, Set<String> own, List<String> all})? _atIn;
+  final _taken = <String, Map<String, int>>{};
+
   // An id the parser reads after `#` (design 13, section 3): letters, digits
   // and `_`, its parts joined by hyphens (`m-logo`).
   static final _idForm = RegExp('^$notationId\$');
@@ -144,9 +162,9 @@ final class _Printer {
 
   String? run() {
     for (var attempt = 0; attempt < 24; attempt++) {
-      final before = _noEach.length + _keepId.length + _slotLines.length + _typedState.length + _noOverlay.length;
+      final before = _noEach.length + _keepId.length + _slotLines.length + _typedState.length + _noOverlay.length + _noAt.length + _noCopy.length;
       final out = _once();
-      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _typedState.length + _noOverlay.length == before) return out;
+      if (out != null || _noEach.length + _keepId.length + _slotLines.length + _typedState.length + _noOverlay.length + _noAt.length + _noCopy.length == before) return out;
     }
     return null;
   }
@@ -159,6 +177,7 @@ final class _Printer {
     _dropped.clear();
     _handEach.clear();
     _dialogParts.clear();
+    _atClear();
     why = null;
     final roots = readStrings(document['roots']);
     final screen = roots.isEmpty ? 'screen' : roots.first;
@@ -510,7 +529,9 @@ final class _Printer {
   /// tree cannot be said (a node missing, reached twice, an id the notation
   /// cannot write).
   bool _walk(String id, int depth, {String? condition}) {
-    final n = readMap(nodes[id]);
+    final n = _view[id] ?? readMap(nodes[id]);
+    if (condition != null) _underIf.add(id);
+    final counted = {..._counts};
     if (n == null) {
       why = 'a node missing';
       return false;
@@ -592,9 +613,9 @@ final class _Printer {
     if (_handList(id, n) case final ({String list, String template}) each) {
       _handEach.add(id);
       _lines.add(_Line(depth + 1, 'each ${_eachName(n)} in ${each.list}${_staggerWord(each.template)}'));
-      return _child(each.template, depth + 2);
+      return _child(each.template, depth + 2) && _took(id, counted);
     }
-    return _under(n, depth + 1, id);
+    return _under(n, depth + 1, id) && _took(id, counted);
   }
 
   /// The grid of an `each` that node [n] is the `Grid` line of, as the parser
@@ -755,9 +776,45 @@ final class _Printer {
   /// condition under an `if` (and `else`), a list over data as `each`; then
   /// its slots.
   bool _under(Json n, int depth, [String? id]) {
-    final kids = readStrings(n['children']);
+    var kids = readStrings(n['children']);
+    // A part's `at` blocks (print_at.dart): its own lines, then each block.
+    final at = id == null || plan != _Plan.full || _noAt.contains(id) ? null : atBlocksOf(n, nodes);
+    if (at != null) {
+      kids = at.own;
+      _view.addAll(at.view);
+      _atPrinted.add(id!);
+    }
+    if (!_kids(kids, depth)) return false;
+    if (at != null && !_atBlocks(at, depth)) return false;
+    final slots = readMap(n['slots']) ?? const {};
+    final named = id != null && _slotLines.contains(id);
+    for (final e in slots.entries) {
+      final c = e.value;
+      if (c is! String) continue;
+      if (named && _printable.hasMatch(e.key)) {
+        _lines.add(_Line(depth, 'slot ${e.key}'));
+        if (!_walk(c, depth + 1)) return false;
+      } else if (!_walk(c, depth)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// The lines of [kids], children of one node: sibling lines that share a
+  /// condition under an `if` (and `else`); under an `if` already
+  /// ([condition]), each line as it is. In an `at` block, a line read again
+  /// from the part's own is `...#id`, and all of them `...`.
+  bool _kids(List<String> kids, int depth, {String? condition}) {
     for (var i = 0; i < kids.length;) {
-      final cond = _condition(kids[i]);
+      if (_atIn != null) {
+        final all = _atAll(kids, i, depth, condition);
+        if (all > 0) {
+          i += all;
+          continue;
+        }
+      }
+      final cond = condition == null ? _condition(kids[i]) : null;
       if (cond != null) {
         var j = i + 1;
         while (j < kids.length && _condition(kids[j]) == cond) {
@@ -770,33 +827,17 @@ final class _Printer {
         }
         if (j - i >= 2 || k > j) {
           _lines.add(_Line(depth, 'if $cond'));
-          for (final c in kids.sublist(i, j)) {
-            if (!_child(c, depth + 1, condition: cond)) return false;
-          }
+          if (!_kids(kids.sublist(i, j), depth + 1, condition: cond)) return false;
           if (k > j) {
             _lines.add(_Line(depth, 'else'));
-            for (final c in kids.sublist(j, k)) {
-              if (!_child(c, depth + 1, condition: '!($cond)')) return false;
-            }
+            if (!_kids(kids.sublist(j, k), depth + 1, condition: '!($cond)')) return false;
           }
           i = k;
           continue;
         }
       }
-      if (!_child(kids[i], depth)) return false;
+      if (!_child(kids[i], depth, condition: condition)) return false;
       i++;
-    }
-    final slots = readMap(n['slots']) ?? const {};
-    final named = id != null && _slotLines.contains(id);
-    for (final e in slots.entries) {
-      final c = e.value;
-      if (c is! String) continue;
-      if (named && _printable.hasMatch(e.key)) {
-        _lines.add(_Line(depth, 'slot ${e.key}'));
-        if (!_walk(c, depth + 1)) return false;
-      } else if (!_walk(c, depth)) {
-        return false;
-      }
     }
     return true;
   }
@@ -813,9 +854,11 @@ final class _Printer {
   }
 
   bool _child(String id, int depth, {String? condition}) {
+    if (_atIn != null && _atCopy(id, depth, condition)) return true;
     final n = readMap(nodes[id]);
-    if (n != null && _each(id, n, depth, condition)) return true;
-    return _walk(id, depth, condition: condition);
+    final counted = {..._counts};
+    if (n != null && _each(id, n, depth, condition)) return _took(id, counted);
+    return _walk(id, depth, condition: condition) && _took(id, counted);
   }
 
   /// A list over data (`bind.data`) as the parser makes it from
@@ -924,6 +967,7 @@ final class _Printer {
             why = 'a line read otherwise without its id';
             return null;
           }
+          if (_atRetry()) return null;
           final type = '${readMap(nodes[id])!['type']}';
           why = catalog.widget(type) == null
               ? 'a type the catalog does not have (a component of a design system not given) — $type'
@@ -1069,6 +1113,9 @@ final class _Printer {
         final out = text(unpruned, rest == null ? null : 'document ${jsonEncode(_sorted(rest))}');
         if (jsonEncode(_sorted(_parse(out))) == jsonEncode(_sorted(document))) return out;
       }
+      // A part printed with its `at` blocks that does not read back: printed
+      // as its children are.
+      if (_atRetry()) return null;
       why = 'the print does not read back';
       return null;
     } on Object catch (e, st) {
