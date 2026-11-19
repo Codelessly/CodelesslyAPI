@@ -19,6 +19,10 @@
   avatar above the name in a narrow sidebar, most often in a component's definition, which is laid out as a
   page's rows are.
 
+### Added
+
+- `ChartSeries.withKind`.
+
 ### Fixed
 
 - Cards side by side in a row that says where its children sit (`Row top`) sit there; on a page they were

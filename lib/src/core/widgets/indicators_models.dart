@@ -165,6 +165,7 @@ final class ChartSeries extends PropRecord {
   bool get endLabel => get(endLabelDef);
 
   ChartSeries withColor(Color color) => ChartSeries._(props.set(colorDef, color));
+  ChartSeries withKind(ChartSeriesKind kind) => ChartSeries._(props.set(kindDef, kind));
 
   static ChartSeries? fromJson(Object? json) => readMap(json) == null ? null : ChartSeries._(Props.fromJson(spec, json));
   static const codec = ListCodec<ChartSeries>(ValueCodec(fromJson, _recordOut, PropType.record('ChartSeries', spec)));
