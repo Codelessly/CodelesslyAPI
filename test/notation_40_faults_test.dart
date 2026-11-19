@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  themeReadTests();
   saidTests();
   wordsTests();
   itemsTests();
@@ -614,5 +615,25 @@ Column
 ''');
       expect(r.issues.single.message, contains('"{c.icon}"'));
     });
+  });
+}
+
+void themeReadTests() {
+  test('theme.<name> in a page expression is the theme color of that name, or the look the notation words take', () {
+    final r = _parse('''
+state on=true
+Column
+  Box#a w=40 h=40 fill={on ? theme.ember : theme.line}
+  Box#b w=40 h=40 fill={theme.primary}
+  Box#c w=40 h=40 fill={theme.colors.ember}
+  Box#d w=40 h=40 fill={theme.nope}
+''', options: const NotationOptions(themeColors: {'ember'}));
+    expect(r.issues, isEmpty);
+    String fill(String id) => '${(_node(r, id)['bind'] as Map)['decoration.fills[0].color']}';
+    expect(fill('a'), r'${= on ? theme.colors.ember : "#FFE5E7EB"}');
+    expect(fill('b'), r'${theme.primary}');
+    expect(fill('c'), r'${theme.colors.ember}');
+    // A name the theme has nothing under stays as written (a render says so).
+    expect(fill('d'), r'${theme.nope}');
   });
 }

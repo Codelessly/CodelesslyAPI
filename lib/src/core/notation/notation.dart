@@ -11716,7 +11716,31 @@ class _Parser {
   /// `and`, `or`, `not`; a call on a value (`rows.filter(…)`, `n.toFixed(2)`,
   /// `name.trim()`, `rows.length`) as the function of that name. Text in
   /// quotes is left as it is.
+  static final _themeRead = RegExp(r'(?<![A-Za-z0-9_.])theme\.([A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_(])');
+
+  /// What an expression reads of the theme by a name alone that is not one
+  /// of its own values: the theme's color of that name.
+  static const _themeOwn = {'colors', 'text', 'isDark', 'brightness', 'mode', 'hasDark', 'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'};
+
+  late final Map<String, Object?> _themeLooks = notationThemeReads(options);
+
   String _natural(String expr) {
+    // `theme.accent` in an expression of the page, where the theme has a
+    // color called accent: that color (`theme.colors.accent`), as the name
+    // alone is after a color key. (It read nothing: the theme's colors are
+    // under `colors`, so a fill worked out from one drew none.)
+    if (expr.contains('theme.') && (options.themeColors.isNotEmpty || options.palette.isNotEmpty)) {
+      expr = expr.replaceAllMapped(_themeRead, (m) {
+        final name = m[1]!;
+        if (_themeOwn.contains(name)) return m[0]!;
+        if (options.palette.containsKey(name) || (options.themeColors.contains(name) && !ThemeTokens.notationRoles.containsKey(name))) return 'theme.colors.$name';
+        // A look the theme gives the notation's own words (`theme.accent`,
+        // `theme.line`, `theme.mutedInk`), as a defined word's lines read it.
+        return switch (_themeLooks[name]) { final String look => jsonEncode(look), _ => m[0]! };
+      });
+    } else if (expr.contains('theme.')) {
+      expr = expr.replaceAllMapped(_themeRead, (m) => switch (_themeOwn.contains(m[1]) ? null : _themeLooks[m[1]]) { final String look => jsonEncode(look), _ => m[0]! });
+    }
     // Minutes and seconds from seconds, under the names models reach for.
     if (expr.contains('formatTime(') || expr.contains('formatSeconds(')) {
       expr = expr.replaceAll(RegExp(r'\bformat(Time|Seconds)\('), 'duration(');
