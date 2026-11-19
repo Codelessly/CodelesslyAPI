@@ -107,4 +107,50 @@ Column w=fill
       expect(((_node(r, '${hugs}Item')['layout'] as Map)['height'] as Map), {'hug': 0});
     });
   });
+
+  group('copies of an each placed in a Grid\'s cells', () {
+    const timetable = '''
+state slots=["9:00","10:00"]
+state shown=[{"t":"A","col":2,"row":1}]
+Column w=fill
+  Grid#g cols=3 gap=8 mainAxisExtent=60
+    each t in slots
+      Column#time columnStart=1 rowStart={index + 1} h=fill
+        Text "{t}"
+    each s in shown
+      Column#session columnStart={s.col} rowStart={s.row} h=fill
+        Text "{s.t}"
+''';
+
+    test('the place written on the line under the each is the copy\'s, in rows of the height written', () {
+      final r = _parse(timetable);
+      expect(r.issues, isEmpty);
+      final times = _children(r, 'g').first;
+      final item = _node(r, '${times}Item');
+      expect((item['layout'] as Map)['columnStart'], 1);
+      expect((item['bind'] as Map)['layout.rowStart'], r'${= index + 1}');
+      expect((_node(r, 'time')['layout'] as Map), isNot(contains('columnStart')));
+      expect(_props(r, times), containsPair('mainAxisExtent', 60));
+      expect(_props(r, times), isNot(contains('shrinkWrapRows')));
+    });
+
+    test('two eaches that place their copies are one grid: their lists lie over each other', () {
+      final r = _parse(timetable);
+      expect(_node(r, 'g')['type'], 'stack');
+      expect(_children(r, 'g').map((k) => _node(r, k)['type']), ['gridView', 'gridView']);
+    });
+
+    test('eaches whose copies take the next free cell stay one under another', () {
+      final r = _parse('''
+state a=[1,2]
+Column w=fill
+  Grid#g cols=3
+    each x in a
+      Text "{x}"
+    each y in a
+      Text "{y}"
+''');
+      expect(_node(r, 'g')['type'], 'column');
+    });
+  });
 }

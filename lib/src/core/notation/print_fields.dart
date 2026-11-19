@@ -952,7 +952,7 @@ final class _NodeLine {
     // A grid of a cell shape whose rows are still their content's (a document
     // made before round 11b): `childAspectRatio` alone now gives rows of that
     // shape, so the rows it keeps are said.
-    if (type == 'gridView' && props['childAspectRatio'] != null && props['shrinkWrapRows'] == true) {
+    if (type == 'gridView' && (props['childAspectRatio'] != null || props['mainAxisExtent'] != null) && props['shrinkWrapRows'] == true) {
       words.add('shrinkWrapRows=true');
       doneProps.add('shrinkWrapRows');
     }

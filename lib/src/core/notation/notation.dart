@@ -5064,7 +5064,7 @@ class _Parser {
         if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
-            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
+            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio') && !g.cellLayout.containsKey('mainAxisExtent')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
             : across
                 ? {
                     'scrollable': false,
@@ -9272,7 +9272,7 @@ class _Parser {
       nodes[list] = {
         'type': 'gridView',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
+        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio') && !g.cellLayout.containsKey('mainAxisExtent')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
         'bind': {
           'data': _formula('range(${cells.length})'),
           if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,
@@ -9636,6 +9636,61 @@ class _Parser {
     }
   }
 
+  /// Where a cell of a grid goes (CSS grid's placement).
+  static const _cellPlace = ['columnStart', 'rowStart', 'columnSpan', 'rowSpan'];
+
+  /// The copies of an `each` under a Grid are its cells: a place written on
+  /// the one line under the each (`columnStart=1 rowStart={index + 1}`) is
+  /// the copy's, the grid's item (it was on the line inside the copy, which
+  /// the grid does not read, and every copy took the next free cell).
+  void _gridPlace(String itemId) {
+    final listId = _parentOf[itemId];
+    final item = nodes[itemId];
+    if (listId == null || item == null || nodes[listId]?['type'] != 'gridView' || !_gridLists.containsKey(listId)) return;
+    final kids = readStrings(item['children']);
+    if (kids.length != 1) return;
+    final line = nodes[kids.single]!;
+    final layout = readMap(line['layout']), bind = readMap(line['bind']);
+    final itemLayout = <String, Object?>{}, itemBind = <String, Object?>{};
+    for (final k in _cellPlace) {
+      if (layout?.remove(k) case final Object v) itemLayout[k] = v;
+      if (bind?.remove('layout.$k') case final Object v) itemBind['layout.$k'] = v;
+    }
+    if (itemLayout.isEmpty && itemBind.isEmpty) return;
+    if (bind != null && bind.isEmpty) line.remove('bind');
+    final patch = <String, Object?>{
+      if (itemLayout.isNotEmpty) 'layout': itemLayout,
+      if (itemBind.isNotEmpty) 'bind': itemBind,
+    };
+    nodes[itemId] = mergePatch(item, patch);
+    _patches
+      ..add({'op': 'set', 'id': kids.single, 'node': {...line}..remove('children')})
+      ..add({'op': 'patch', 'id': itemId, 'patch': patch});
+  }
+
+  /// A Grid of more than one `each` whose copies each say their cell (a
+  /// timetable: the times down its first column, the sessions in their
+  /// tracks' columns and their slots' rows) is one grid: the lists the eaches
+  /// make lie over each other in a stack, each placing its copies in the
+  /// same columns and rows. (They were grids one under another, each placing
+  /// its copies in rows of its own.)
+  void _gridOverlay(_Grid g) {
+    final grid = nodes[g.id];
+    if (grid == null || grid['type'] != 'column') return;
+    final kids = readStrings(grid['children']);
+    if (kids.length < 2) return;
+    for (final k in kids) {
+      if (_gridLists[k] != g.id || nodes[k]?['type'] != 'gridView') return;
+      final item = nodes['${k}Item'];
+      final placed = readMap(item?['layout']) ?? const {}, bound = readMap(item?['bind']) ?? const {};
+      bool says(String key) => placed[key] != null || bound['layout.$key'] != null;
+      if (!says('columnStart') || !says('rowStart')) return;
+    }
+    // (A column's props, its gap among them, are not a stack's.)
+    nodes[g.id] = ({...grid}..remove('props'))..['type'] = 'stack';
+    _patches.add({'op': 'set', 'id': g.id, 'node': {...nodes[g.id]!}});
+  }
+
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
   static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*');
@@ -9714,6 +9769,8 @@ class _Parser {
     _removable(open);
     if (open.each != null) _selectThrough(open.id);
     if (open.each == null && open.condition == null) _listOfLines(open.id);
+    if (open.each != null) _gridPlace(open.id);
+    if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {

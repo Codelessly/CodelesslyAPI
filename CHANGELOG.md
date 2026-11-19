@@ -9,6 +9,12 @@
 - **An `each` across a row of a height of its own** (`Row h=102` over the days of a week) makes copies as tall as
   the row, at each width the row gives a height, so a copy written `h=fill` fills it. They hugged their content,
   centred in the row. Across a row with no height of its own the copies hug as before.
+- **The copies of an `each` under a `Grid` take the cell their line says**: `columnStart`, `rowStart`,
+  `columnSpan` and `rowSpan` written on the one line under the `each` place the copy; every copy took the next
+  free cell. Two or more `each`es under one Grid whose copies all say their cell are one grid (a timetable's times
+  and sessions); they were grids one under another.
+- **A `Grid` with `mainAxisExtent` over an `each` has rows of that height**; they hugged their content. A document
+  made before keeps its rows when printed (`shrinkWrapRows=true`).
 
 ### Fixed
 
