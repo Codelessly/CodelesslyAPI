@@ -256,7 +256,7 @@ define Rows
         (((_nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == 'text' && (n['props'] as Map)['text'] == text))['props'] as Map)['style'] as Map)['fontSize'] as num?;
     const page = 'Page\n  Section\n    Text.heading1 "Head"\n    Text.heading2 "Two"\n    Text.heading3 "Three"\n    Text.pageTitle "Title"\n    Text.heading1 "Own" size=40\n';
 
-    test('in a Page's Section: heading1 and pageTitle 64 (an app's heading1 is 30), heading2 38 and heading3 24', () {
+    test('in a Section of a Page: heading1 and pageTitle 64 (the heading1 of an app is 30), heading2 38 and heading3 24', () {
       final r = _parse(page, const NotationOptions(width: 1440));
       expect([for (final t in ['Head', 'Two', 'Three', 'Title', 'Own']) sizeOf(r, t)], [64, 38, 24, 64, 40]);
     });
