@@ -106,7 +106,9 @@ Storage, variables and the clipboard live in memory for one run: steps and `--na
 wrote, and each size starts afresh, as does each run (nothing persists between runs, so a "restored on reload"
 state is captured by writing it first: `--tap save --navigate home`). `downloadFile` saves its file under
 `<out>/downloads/<capture>/` and `copyToClipboard` copies in memory; both are listed in the output and in the
-diagnostics file (`downloads`, `clipboard`). `openLink` opens nothing.
+diagnostics file (`downloads`, `clipboard`). `openLink` opens nothing. `pickFile` picks the files `--pick-file
+<path>` names (repeatable; without it nothing is picked and the chain ends there), and `share`, with no share
+panel, copies its link.
 
 ### Comparing with a reference
 
