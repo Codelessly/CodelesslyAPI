@@ -24,6 +24,10 @@
 - **A flip card (`flip.axis=…`) of more than two lines is said at its line**: its first line is the front and its
   second the back, so a second of three lines was hidden as the back (the word on a study card). Where its lines
   are shown by an `if` and its `else`, they are read as the two faces, a column of each.
+- **A `Nav` out of a page's frame** (in a component, or a column of its own) **is a bar**: its `NavItem`s and
+  `NavLink`s sit side by side at their own widths, its `Link`s are quiet buttons, and on a phone it goes onto a
+  further line where it has no room (unless it says how it wraps). Each item took an equal share of the row, one
+  letter a line on a phone.
 
 ### Added
 

@@ -1079,8 +1079,13 @@ final class PageWords {
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
       if (!framed) {
-        open();
-        return out..add((indent: at, text: 'Row$mark w=fill between middle${parts.has('gap') ? '' : ' gap=16'}${parts.all}'));
+        // A bar still (in a component, out of a page's frame): its items sit
+        // side by side. As a sidebar's, each took a share of the row's width,
+        // one letter a line on a phone. Where they have no room (a phone)
+        // they go onto a further line.
+        open(frame: 'Nav');
+        final wraps = RegExp(r'(^|\s)([a-z]+\.)?wrap\b').hasMatch(rest) ? '' : ' phone.wrap=true runSpacing=8';
+        return out..add((indent: at, text: 'Row$mark w=fill between middle${parts.has('gap') ? '' : ' gap=16'}$wraps${parts.all}'));
       }
       final gap = parts.take('gap') ?? '24';
       if (inApp) {

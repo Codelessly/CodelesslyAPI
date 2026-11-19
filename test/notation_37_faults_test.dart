@@ -291,4 +291,18 @@ Column w=fill
       expect(_children(r, 'card'), hasLength(3));
     });
   });
+
+  test('NavLinks in a Nav out of the frame of a page sit side by side, and the bar wraps on a phone', () {
+    final r = _parse('''
+Column w=fill
+  Nav#bar w=fill
+    NavLink#explore "Explore"
+    NavLink "City guides"
+''', options: const NotationOptions(width: 1440));
+    final bar = _node(r, 'bar');
+    final link = _node(r, 'explore');
+    // Its own width, not a share of the row's.
+    expect((link['layout'] as Map)['width'], isNot(containsPair('fill', 0)));
+    expect(bar['media'], contains(equals({'maxWidth': 699, 'patch': {'props': {'wrap': true}}})));
+  });
 }
