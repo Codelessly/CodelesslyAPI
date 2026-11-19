@@ -817,7 +817,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 607
+      "words": 625
     },
     {
       "topic": "design-systems-a-design-system",
@@ -831,7 +831,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 320
+      "words": 338
     },
     {
       "topic": "design-systems-examples",

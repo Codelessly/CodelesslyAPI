@@ -17,7 +17,9 @@ colors and text styles (`color=primary`). Its manifest is JSON; see the JSON ref
 ## Defined words
 
 Before a `define` (or a `primitive`), look the word up in [index.md](index.md): the notation may have it already
-(`copy` and `focus` are actions, `Splitter` a control), and a word it has is not defined again.
+(`copy` and `focus` are actions, `Splitter` a control), and a word it has is not defined again. A verb such as
+`copy` is in the verbs table on [events.md](events.md#events-actions); the index lists its action,
+`copyToClipboard`.
 
 `define` at the margin, and the word as a line would use it, each value its default; under it, indented, the lines
 it stands for. Those lines read the word's strings and keys by name in braces; `...` on a line of its own is where
