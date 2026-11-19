@@ -1,6 +1,7 @@
 // The one schema this package reads: a document, publish model or bundle of
 // any other schema (or with none) is refused, saying the schema found and
 // the one read; and nothing in the package reads an older one.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart';
@@ -71,5 +72,39 @@ void main() {
     }
     expect(found, isEmpty);
     expect(Directory('lib/src/core/migrate').existsSync(), isFalse);
+  });
+
+  test('every layout document checked in is of schema 3', () {
+    final older = <String>[];
+    for (final dir in ['test', 'tool', 'example', 'docs', 'dictionary']) {
+      if (!Directory(dir).existsSync()) continue;
+      for (final f in Directory(dir).listSync(recursive: true).whereType<File>()) {
+        if (!f.path.endsWith('.json') || f.path.endsWith('document.schema.json')) continue;
+        final Object? json;
+        try {
+          json = jsonDecode(f.readAsStringSync());
+        } on Object {
+          continue;
+        }
+        void walk(Object? v, String at) {
+          if (v is Map) {
+            final nodes = v['nodes'];
+            final isDocument = v['roots'] is List && nodes is Map && nodes.values.any((n) => n is Map && n['type'] is String);
+            if (isDocument && v['schema'] != 3) older.add('${f.path}$at: "schema": ${v['schema']}');
+            if (v['schema'] == 2) older.add('${f.path}$at: "schema": 2');
+            for (final e in v.entries) {
+              walk(e.value, '$at/${e.key}');
+            }
+          } else if (v is List) {
+            for (var i = 0; i < v.length; i++) {
+              walk(v[i], '$at/$i');
+            }
+          }
+        }
+
+        walk(json, '');
+      }
+    }
+    expect(older.toSet(), isEmpty);
   });
 }
