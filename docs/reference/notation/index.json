@@ -381,21 +381,21 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7343
+      "words": 7353
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 567
+      "words": 571
     },
     {
       "topic": "lists-a-table-of-records",
       "file": "lists.md",
       "anchor": "lists-a-table-of-records",
       "title": "A table of records",
-      "words": 927
+      "words": 933
     },
     {
       "topic": "lists-a-list-of-its-own-line",
@@ -631,14 +631,14 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7494
+      "words": 7503
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 125
+      "words": 134
     },
     {
       "topic": "charts-words",
@@ -703,14 +703,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3782
+      "words": 3790
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 1016
+      "words": 1024
     },
     {
       "topic": "navigation-over-the-page",

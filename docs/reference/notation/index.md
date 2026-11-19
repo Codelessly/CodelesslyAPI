@@ -15,14 +15,14 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 2635 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 1947 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 12895 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 7343 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 7353 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3401 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 5702 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3530 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 3560 |
-| [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 7494 |
+| [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 7503 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 1446 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 3782 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 3790 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 2123 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 420 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts and its design system. | 468 |
