@@ -47,8 +47,8 @@ Column stretch scroll h=fill
 
 A website's text is a website's size. Under a `Page`, outside its bar, a `Text` whose line says no size takes:
 `heading1` and `pageTitle` 64, `heading2` 38, `heading3` 24, `title` 22, `heading` 18, running text (`Text`,
-`bodySecondary`, `muted`, `strong`) 16, `small` and `mono` 14, `caption` 13; a phone's headline is smaller
-(reflow). A style the site's theme gives a size keeps it, and a theme that sizes `body` sizes the styles drawn
+`bodySecondary`, `muted`, `strong`) 16, `small` and `mono` 14, `caption` 13; on a phone the headlines are smaller
+(reflow) and `heading3` and `title` are 18. A style the site's theme gives a size keeps it, and a theme that sizes `body` sizes the styles drawn
 from it. An app's sizes are the theme's own (`heading1` 30, body 13). A quiet button in a bar
 (`Button.ghost "Pricing" onTap={go pricing}`) is a link: 15 semibold on a website, and drawn selected (the
 accent's tint and ink) on the page it goes to, unless the line says `selected=` itself. A `Section tint` stands

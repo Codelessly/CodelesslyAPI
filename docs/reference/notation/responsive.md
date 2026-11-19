@@ -194,8 +194,9 @@ defaults:
   window; `phone.basis=300` on the copy is the least width there. The cells of a `Grid` that are as tall as their
   row are as tall as themselves where the grid wraps.
 - A page's bar (its first `Nav`) is one line on a phone: the brand, the icon buttons, and a menu button that
-  opens its links and its other labelled buttons in a column under the bar (a button keeps its kind there, as wide
-  as the menu). The bar never wraps: its brand gives way, its text ending in an ellipsis. A bar with no links
+  opens its links in a column under the bar. Its other labelled buttons stay in the bar where they fit beside the
+  brand (a short name and one button); where they do not, they are in the menu too (a button keeps its kind
+  there, as wide as the menu). A bar whose links are in its menu does not wrap. A bar with no links
   folds nothing and has no menu button. A button that says where it shows (`hide=tablet`) or stands under an `if`
   is left to that; a line written `show=phone` in the bar is your own menu, and none is made. A `Nav` written
   among the lines of a defined word is the page's bar all the same. A second `Nav` in a page is a strip of the

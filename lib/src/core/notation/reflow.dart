@@ -868,7 +868,7 @@ final class PageReflow {
     // short brand and its one call to action), and the menu has the links.
     final shown = [for (final k in kids) if (_need(k) > 0) k];
     final need = shown.fold<num>(0, (sum, k) => sum + _need(k)) + 12 * math.max(0, shown.length - 1);
-    final folds = width != reflowPhoneMax || need > 320;
+    final folds = width != reflowPhoneMax || need > 340;
     if (folds) {
       for (final k in buttons) {
         _hide(k, width);
