@@ -219,4 +219,39 @@ Column w=fill
     // Texts that wrap: the row wraps before it overflows, as before.
     expect(_node(r, 'label')['media'], isNotEmpty);
   });
+
+  group('the bar of an app whose sidebar is a drawer', () {
+    String page(String bar) => '''
+canvas "Progress" w=1440 h=900
+App
+  Sidebar
+    NavItem "Decks" icon=style
+    NavItem "Insights" icon=insights selected
+  Main
+    Nav
+$bar
+    Column pad=24
+      Text "Your progress"
+''';
+
+    Map<String, Object?>? title(NotationResult r) => (r.document['nodes'] as Map).values
+        .cast<Map>()
+        .where((n) => n['type'] == 'text' && (n['props'] as Map?)?['text'] == 'Progress')
+        .firstOrNull
+        ?.cast<String, Object?>();
+
+    test('names the page beside its menu button when what names it there is hidden', () {
+      final r = _parse(page('      Text "Lexi / Progress" hide=phone'), options: const NotationOptions(width: 1440));
+      final t = title(r);
+      expect(t, isNotNull);
+      // Shown where the menu button is, and taking the bar's room.
+      expect(t!['media'], isNotEmpty);
+      expect((t['layout'] as Map)['flex'], 1);
+    });
+
+    test('a bar that names the page at every width gets no second title', () {
+      final r = _parse(page('      Text "Progress / overview"'), options: const NotationOptions(width: 1440));
+      expect(title(r), isNull);
+    });
+  });
 }

@@ -9652,6 +9652,51 @@ class _Parser {
     }
   }
 
+  /// An app's bar where the sidebar is a drawer (its menu button shows)
+  /// with nothing there that names the page (a breadcrumb or a title
+  /// hidden at that width, `Breadcrumb … hide=phone`): the page's name
+  /// (`canvas "Progress"`) beside the menu button, at the widths the button
+  /// shows. The bar had the button alone.
+  void _barTitle(String navId) {
+    final nav = nodes[navId];
+    final kids = readStrings(nav?['children']);
+    final menu = kids.where((k) => _roles[k] == 'appmenu').firstOrNull;
+    final name = readString(_canvasPatch?['name'])?.trim();
+    if (nav == null || menu == null || name == null || name.isEmpty || _overlay != null) return;
+    // Hidden at the widths the menu button shows: a rule that hides it below
+    // a desktop's width, or a line that is not drawn at all.
+    bool hiddenThere(Json n) {
+      if (n['visible'] == false) return true;
+      for (final r in readList(n['media']) ?? const []) {
+        final rule = readMap(r);
+        if (rule != null && rule['maxWidth'] is num && readMap(rule['patch'])?['visible'] == false) return true;
+      }
+      return false;
+    }
+
+    bool names(String id) {
+      final n = nodes[id];
+      if (n == null || id == menu || hiddenThere(n)) return false;
+      final type = n['type'];
+      if (type == 'text' || type == 'Breadcrumb' || type == 'breadcrumbs') return true;
+      return (type == 'row' || type == 'column') && readStrings(n['children']).any(names);
+    }
+
+    if (kids.any(names)) return;
+    final id = _id('text');
+    final style = options.textStyles['barTitle'] ?? options.textStyles['strong'];
+    nodes[id] = {
+      'type': 'text',
+      // It takes the bar's room: in a bar that spreads its lines it sat at the far end.
+      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'flex': 1},
+      'props': {'text': name, 'maxLines': 1, 'overflow': 'ellipsis', if (style != null) 'style': _copyValue(style)},
+      if (readList(nodes[menu]?['media']) case final List m) 'media': _copyValue(m),
+    };
+    _parentOf[id] = navId;
+    (nav['children'] as List).insert(kids.indexOf(menu) + 1, id);
+    _patches.add({'op': 'set', 'id': id, 'parent': navId, 'index': kids.indexOf(menu) + 1, 'node': nodes[id]});
+  }
+
   /// Where a cell of a grid goes (CSS grid's placement).
   static const _cellPlace = ['columnStart', 'rowStart', 'columnSpan', 'rowSpan'];
 
@@ -9795,6 +9840,7 @@ class _Parser {
     if (open.each == null && open.condition == null) _listOfLines(open.id);
     if (open.each != null) _gridPlace(open.id);
     if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
+    if (_roles[open.id] == 'nav') _barTitle(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {
