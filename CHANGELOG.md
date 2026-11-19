@@ -18,6 +18,9 @@
   `maxLines=1 overflow=ellipsis`, beside an avatar): the texts give way. It wrapped where it had no room, the
   avatar above the name in a narrow sidebar, most often in a component's definition, which is laid out as a
   page's rows are.
+- **An app's bar shows the page's name beside its menu button** where the sidebar is a drawer and nothing in the
+  bar names the page at that width (a `Breadcrumb … hide=phone`): the name its `canvas` line gives, taking the
+  bar's room. The bar had the menu button alone.
 
 ### Added
 
