@@ -9,9 +9,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:codelessly_api/codelessly_api.dart' show Catalog, standardCatalog;
+import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
 import '../tool/dictionary/closure.dart';
+import '../tool/dictionary/generate.dart';
 
 void main() {
   final files = readDictionary('dictionary');
@@ -64,9 +67,43 @@ void main() {
     });
   });
 
-  test('the definitions read, but for the one a definition cannot stand for', () {
-    final problems = readDefinitionsProblems(files.values);
-    expect(problems, ['Shortcut.txt:2: the first line Shortcut stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.']);
+  test('the definitions read', () {
+    expect(readDefinitionsProblems(files.values), isEmpty);
+  });
+
+  group('the built-in dictionary (docs/design/23 section 5.2)', () {
+    test('lib/src/core/notation/dictionary.g.dart holds the texts of dictionary/ for the built-in words', () {
+      expect(File(generatedPath).readAsStringSync().replaceAll('\r\n', '\n'), generatedDictionary(), reason: 'run dart run tool/dictionary/generate.dart');
+      expect(notationDictionaryWords, builtInWords.toSet());
+      for (final w in builtInWords) {
+        expect(recorded[w]?['closes'], isTrue, reason: '$w is built in: its closure is exact');
+      }
+    });
+
+    NotationResult read(String text, [NotationOptions options = const NotationOptions()]) => Catalog.run(standardCatalog, () => parseNotation(text, options: options));
+
+    test('a word of it is read from its definition, and recorded as the dictionary\'s', () {
+      final r = read('state cart=[1,2]\ncomputed total={sum(cart)}\nColumn\n  Text "{total}"\n', const NotationOptions().open());
+      expect(r.issues, isEmpty);
+      final u = r.vocabulary.single;
+      expect((u.kind, u.word, u.of, u.to), ('definition', 'computed', 'dictionary', 'computed'));
+      expect(isDictionaryDefinition(notationDictionary['computed']!.single), isTrue);
+    });
+
+    test('a design system\'s definition of the word wins; a page\'s own is not used, as before', () {
+      final ds = read('computed total={1}\nColumn\n  Text "x"\n', const NotationOptions().define({'computed.txt': 'computed\n  key k onPress={toast "the design system\'s"}\n'}));
+      expect(jsonEncode(ds.document), contains('the design system'));
+      expect(jsonEncode(ds.document), isNot(contains('"total"')));
+      final page = read('state a=1\ncomputed total={a}\nColumn\n  Text "{total}"\ndefine computed\n  key m onPress={toast "mine"}\n');
+      expect(jsonEncode(page.document), isNot(contains('mine')));
+      expect(page.issues.single.message, startsWith('The notation already has computed, read as a state line'));
+    });
+
+    test('where a word\'s meaning is written: the base, the dictionary, or code', () {
+      String? origin(String w) => Catalog.run(standardCatalog, () => notationWordOrigin(w));
+      expect([for (final w in const ['Column', 'Text', 'state', 'computed', 'Sidebar', 'NavItem', 'H2', 'Shortcut', 'StickyNote']) origin(w)],
+          ['base', 'base', 'base', 'dictionary', 'code', 'code', 'code', 'code', null]);
+    });
   });
 
   group('closure, as recorded', () {
@@ -81,6 +118,13 @@ void main() {
         expect(c.closesUpToSpelling, r['closesUpToSpelling']);
         expect(c.results.where((x) => x.comparison.equal && x.issues.isEmpty).length, r['equal']);
         expect(c.results.fold<int>(0, (n, x) => n + x.comparison.same), r['same'], reason: 'nodes the same for $w');
+        // And under each design system's theme (dictionary/themes).
+        for (final t in closureThemes().entries) {
+          final tr = (r['themes'] as Map)[t.key] as Map;
+          final ct = closure(w, uses, files.values, theme: t.value);
+          expect(ct.results.where((x) => x.comparison.equal && x.issues.isEmpty).length, tr['equal'], reason: '$w under ${t.key}');
+          expect(ct.results.fold<int>(0, (n, x) => n + x.comparison.same), tr['same'], reason: 'nodes the same for $w under ${t.key}');
+        }
       });
     }
     test('the frame family, renamed together', () {

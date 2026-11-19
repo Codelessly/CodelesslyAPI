@@ -292,7 +292,11 @@ final class _Inventory {
       add(e.key, 'b', 'line rewrite', 'vocabulary.dart NotationVocabulary.core.types (line: ${e.value.line})', tallies: ['type:${e.key}'],
           standsFor: 'lineRewrites[\'${e.value.line}\'] (vocabulary.dart _${e.value.line}Line${e.value.line == 'confirmDialog' ? 's' : ''})');
     }
-    if (!lineRewrites.keys.toSet().containsAll({'shortcut', 'computed', 'confirmDialog'})) problems.add('lineRewrites changed: ${lineRewrites.keys}');
+    if (!lineRewrites.keys.toSet().containsAll({'shortcut', 'confirmDialog'})) problems.add('lineRewrites changed: ${lineRewrites.keys}');
+    // The built-in dictionary: definitions in base words, data (docs/design/23 section 5.2).
+    for (final w in notationDictionaryWords.toList()..sort()) {
+      add(w, 'd', 'built-in dictionary', 'dictionary/$w.txt (lib/src/core/notation/dictionary.g.dart)', tallies: ['type:$w'], standsFor: 'its definition');
+    }
     // Contextual rewrites of base words (hand-kept: no word set of their own).
     for (final c in const [
       ('Text (with a look)', 'a Text with fill, radius or a border is a Box around the Text', 'PageWords._rewrite and _textBox (page_words.dart)'),

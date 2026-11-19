@@ -247,8 +247,15 @@ CommandPalette#palette "Commands" placeholder="Type a command"
       expect(((_node(r, 'screen')['actions'] as List).single as Map)['trigger'], {'type': 'keyDown', 'key': 'escape', 'when': r'${= n>0}'});
     });
 
-    test('computed is a state written as its formula', () {
-      _same('state a=1\nstate b=2\ncomputed total={a+b}\nColumn\n  Text "{total}"\n', 'state a=1\nstate b=2\nstate total=a+b\nColumn\n  Text "{total}"\n', word: 'computed');
+    test('computed is a state written as its formula: a word of the built-in dictionary (docs/design/23)', () {
+      const alias = 'state a=1\nstate b=2\ncomputed total={a+b}\nColumn\n  Text "{total}"\n', ours = 'state a=1\nstate b=2\nstate total=a+b\nColumn\n  Text "{total}"\n';
+      for (final options in [_page, _openPage, const NotationOptions(), const NotationOptions().open()]) {
+        final a = parseNotation(alias, catalog: standardCatalog, options: options), b = parseNotation(ours, catalog: standardCatalog, options: options);
+        expect(a.issues, isEmpty);
+        expect(jsonEncode(a.document), jsonEncode(b.document));
+        final used = a.vocabulary.where((u) => u.word == 'computed').single;
+        expect((used.kind, used.of, used.to, used.node), ('definition', 'dictionary', 'computed', null));
+      }
     });
 
     test('ConfirmDialog is a Dialog with its two buttons, at the margin or written inside the page', () {
@@ -353,7 +360,7 @@ Dialog#ask "Reset?" "Really."
 
     test('every alias of the built-in table is one of the above', () {
       const tested = {
-        'Shortcut', 'shortcut', 'computed', 'ConfirmDialog', 'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
+        'Shortcut', 'shortcut', 'ConfirmDialog', 'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
         'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock', 'QRCode', 'QrCode',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);

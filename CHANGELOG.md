@@ -55,6 +55,49 @@
   stretched to the tallest whatever the row said. A row that says nothing keeps its cards equally tall.
 - A line of a length of its own that grows at another width (`w=280 phone.grow`) takes the room it is given there;
   it kept its length and the row ran past the window.
+### Defined words (`define`)
+
+- **A value a body works out from the use's written values is worked out as the use is read.** `radius={size/4}`
+  with `size=40` is `radius=10`, `"{upper(label)}"` is the label in capitals, `Text.{level == 1 ? "heading1" :
+  "heading3"}` is the variant, and an `if` (with its `else`) that reads only written values keeps the branch taken
+  and writes nothing for the others. An expression that reads the page's state is read at run time, as before.
+  Nothing draws differently; a document built from a definition has fixed values where it had bindings of the
+  same values, and no hidden line where an `if` was false.
+- **`...` as a word of a body line** marks the line that takes the words a use writes beyond the signature: the
+  universal words, and every other key, flag or event, read there as on a page's line (they were recorded as words
+  the definition does not have). The root keeps the use's id.
+- **A body's lines may carry a role** (`Row~app`, `Column~section`, …): the reflow lays them out at a tablet's and a
+  phone's width as it does the page words'. A role on a body's root was refused.
+- **A word may stand for a statement**: a body of `key`, `state` or `every` lines alone is those lines where the use
+  is, and its word may be lowercase (`computed total={…}` over `state ...`). `key {…}` in such a body takes the
+  chord worked out from the use.
+
+- **A body may read the theme as `{theme.<name>}`**: the looks the notation's own words take from the theme
+  (`accent`, `line`, `paneFill`, `mutedInk`, `contentWidth`, `sectionPad`, … and `theme.style.<name>`, a text style's
+  name when the theme has it), worked out as the word is used under whatever theme the page is read with. A look
+  the theme does not give leaves its key out; any other `theme.` name is read as the page runs; a name that is
+  neither is an issue that lists the names.
+- **A dotted key in a body reads the use's values** (`hovered.fill={tint}`); it was left as written.
+- **A call worked out from written values** inside an expression that still reads the state is worked out as the
+  use is read (`{on ? "#FF2563EB" : coalesce(null, "#FF6B7280")}`).
+
+- **More of a body reads the use**: an event of a trigger with fields (`onKeyDown(key=c)={onCompose}`), an `on …` line
+  (`on valueChanged(variable=x)={onSeen}`, before the body's root too), and a variable a key names by its name
+  (`measure.variable="box"`, the word's own when its body states it). An action's field named like a parameter
+  (`downloadFile text={text}`) keeps its name.
+- **A record line of a definition (`customPaint`, `animation`) is its body's**: written after the page it was also
+  drawn on the page's node open above the definition; written before the page it was refused.
+
+### The built-in dictionary
+
+- **Words the notation has may be definitions in its own base words**, shipped in the package
+  (`notationDictionary`, `notationDictionaryWords`) and read under a design system's definitions: a design
+  system's definition or component of the same name is the word, and a page's own `define` of it is not used, as
+  for any word the notation has.
+- **`computed` is the first**: `computed total={…}` is read from its definition (a `state` line), as before. Its
+  use is recorded as a `definition` with `of: dictionary`, where it was an alias of a line.
+- **`notationWordOrigin(word)`** says where the notation's meaning of a word is written: `base`, `dictionary`, or
+  `code` (a word the expander still rewrites, such as the page words).
 
 ## 37.0.0
 

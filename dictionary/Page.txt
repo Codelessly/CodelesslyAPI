@@ -1,4 +1,4 @@
-// A website page: it scrolls, its sections stack. It does not say: that it is the frame its Section, Nav and Footer read (they are a page's bands only inside it); the site's own fill (a theme's siteFill).
+// A website page: it scrolls, its sections stack. It does not say: that it is the frame its Section, Nav and Footer read (they are a page's bands only inside it).
 Page
-  Column w=fill scroll stretch
+  Column~page w=fill h=fill scroll stretch fill={theme.siteFill} ...
     ...

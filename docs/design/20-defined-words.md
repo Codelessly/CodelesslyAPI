@@ -499,3 +499,264 @@ The twenty standalone runs' final answers (each with all the runs' aliases), cou
 
 So two thirds of the "100%" is words that mean what they say; a seventh were named and never read, and the rest stands
 in for a primitive the writers already described.
+
+## 13. What a body says beyond fixed lines (the dictionary's needs, note 23)
+
+Note 23 wrote 28 words the expander writes in Dart as definitions and found ten things the code does that a
+definition could not say (its section 3, G1 to G10). Five of them are said now, each in the grammar a page already
+has. Nothing a body wrote before means anything else, and no picture changes: where the document changes, it is a
+value written where a binding of the same value was.
+
+### 13.1 Values worked out as the use is read (G2)
+
+```
+IconTile "name" size=40
+  Box w={size} h={size} radius={round(size/4)} center middle
+    Icon "{coalesce(name, "star")}" size={round(size/2)}
+```
+
+An expression of a body that, once the use's values are put in, **names nothing** (no variable of the page, no row
+of an `each`, no state of the word's own, no value the use gave as `{…}`) reads nothing at run time, so it is worked
+out as the use is read, as the formula engine would: `IconTile size=48` is `radius=12`, `size=24`, `Icon "star"`.
+An expression that still names something is left to the engine, as before (`IconTile size={n}` is a binding of
+`(n)/4`). It holds wherever a body reads its values:
+
+| written in a body | worked out to |
+|---|---|
+| `key={…}` | the value (`radius=10`, `fill=#FF2563EB`, `label="Save"`); nothing leaves the key out; `visible` true is left out, false is `visible=false` |
+| `"… {…} …"` | the text spliced in (`"{upper(label)}"` with `"People"` is `"PEOPLE"`) |
+| `if …`, `else if …`, `else` | the branch taken is its lines, moved out to where the `if` was; the others are not written (`if badge` with no badge given writes nothing) |
+| `Word.{…}` | the variant (`Text.{level == 1 ? "heading1" : "heading3"}` with `level=1` is `Text.heading1`) |
+| `key {…}` (a statement, 13.4) | the chord, written bare |
+
+What it works out: numbers, texts in quotes, `true`, `false`, `null`, a colour (`#FF2563EB`, a text); `+ - * / %`,
+`== != < <= > >=`, `&& || !`, `?:` and parentheses; and `upper`, `lower`, `trim`, `replace`, `round`, `floor`,
+`ceil`, `abs`, `min`, `max`, `coalesce`, `if`, with the engine's meanings (`coalesce` skips empty texts; truth is the
+engine's: `""`, `0`, `null`, `false` are false). Anything else (a list, another function, a text compared with a
+number) is left to the engine.
+
+Why no mark of its own (a `{= …}` for "now", say): the writers of the corpora wrote `{size/4}`, `if badge` and
+`"{upper(label)}"` meaning exactly this, and no one wrote a second kind of brace. The two readings cannot disagree
+on what is shown: an expression that names nothing has the same value at run time as now. A body that means "at
+run time" reads something that changes (a variable, a row), and such an expression is never worked out early. What
+changes is the document: a fixed value where a binding of it was, and no hidden node where an `if` was false (Cards'
+`AttachmentTile` with no `onDownload` has no download button, where it had one hidden), which an editor shows as
+what it is.
+
+### 13.2 The line that takes a use's other words (G3)
+
+```
+Section gap=32
+  Column~section w=fill center pad=[24,64,24,64]
+    Column w=fill maxw=1120 gap={gap} ...
+      ...
+```
+
+A body line may carry `...` as a word of its own (after its head, outside its strings and braces): **the use's
+words go there**, not on the root. Those are the universal words (section 2), as before, and with the mark every
+other word the use writes that the signature does not name: a key (`tablet.w=64`, `id=pricing`), a flag, an event.
+They are then read as a page's line reads them (a word that line does not have is recorded or said there, as on any
+line), where without the mark they are recorded as words the definition does not have (open) or an issue (closed).
+The words go where the mark is, and a key the line writes too is the use's (`Box2 pad=4` over `Column pad=24 ...`
+is `pad=4`). The root keeps the use's id; with several lines at the margin (13.3) the id goes on the marked line too.
+A word's own parameters still go where the body reads them: `IconTile`'s `color` on its icon, with `color={color}`
+there.
+
+`...` at the start of a line is still a slot (section 3): a slot holds the lines under a use, `...` after a head
+the words on the use's line.
+
+### 13.3 Several lines at the margin (G4)
+
+```
+SidebarFooter gap=2 pad=[0,8,0,0]
+  Spacer
+  Column w=fill gap={gap} pad={pad} border-top=#FFE5E7EB ...
+    ...
+```
+
+A body of several lines side by side was already its lines written where the use is (section 2). What was missing
+is where a use's words go: a Column holding the lines took them. With the mark of 13.2 they go on the marked line,
+and the lines stay where the use is (`SidebarFooter` is a Spacer and a ruled column in its sidebar, not a column
+holding both).
+
+### 13.4 A role on the root (G5)
+
+`Row~app`, `Column~section`, `Column~sidebar`, `Column~main`, `Column~pane`, `Row~nav`, `Column~foot`: a body's
+lines may say which frame they are, after the type, as the page words' lines do. The reflow lays them out at a
+tablet's and a phone's width by it (a section's padding, a sidebar folded to a rail), and the role is taken off
+before the line is read. Before, a body's root with a role was refused ("the first line … is a node"): a role is
+read on any line of a body, root or not.
+
+### 13.5 A word that stands for a statement (G7)
+
+```
+// A keyboard shortcut of the screen.
+Shortcut "keys" key keys combo hint description label onPress
+  key {replace(coalesce(keys, key, combo), " ", "")} ... onPress={onPress}
+
+// A value worked out from the state.
+computed
+  state ...
+```
+
+A body of statement lines alone (`key`, `state`, `every`, with no node) is **those lines, written where the use
+is**: `Shortcut "v" hint="V" onPress={go board}` is `key v onPress={go board}`, `computed total={sum(cart)}` is `state
+total={sum(cart)}`. Such a word may be lowercase, as a statement is (`computed`); every other word is still
+capitalised. The statement reads the use's values as any line does: `{…}` worked out (13.1) is the chord, written
+bare, and `...` takes the use's other words where it is written (`Shortcut "enter" when trim(draft)!="" onPress=…`
+is `key enter when trim(draft)!="" onPress=…`; `when={…}` the same, braced). A `state` line with a name of its own
+(`state open=false`) is still the word's own state, renamed to the use's (section 4); `state ...` is the use's.
+
+### 13.6 What is still not said
+
+- **G1, the frame a use is under** (a `NavItem` in a bar or a sidebar, a heading in an app or on a website):
+  section 14.
+- **G9, the theme**: section 16.
+- **G6, G8 and G10** are the base: overlays, lines that read or move other lines, what is written outside a use's
+  lines (note 23 section 5.1).
+- **Whether a value was written** cannot be asked apart from its value: `if name` with a name `"{row.icon}"` is read
+  at run time (the text may be empty), where the code tests only that a name was written.
+
+## 14. A meaning chosen by the frame a use is under (G1): the options, not built
+
+Most page words mean one thing in a sidebar and another in a bar, on a website and in an app: `NavItem` takes the
+width in a sidebar and sits beside the others in a bar; `Brand` has padding and a 15 px name in a sidebar, none and
+17 px at the start of a bar; `H1` is `Text.heading1` at 60 px in a website's section and `Text.title` in an app;
+`Link` is a quiet button in a bar and accent text elsewhere. Section 5 chooses a meaning by what a use gives, never by
+where it is. This is the most widely needed extension (note 23 table G1: sixteen words), and it needs a decision
+first, because what a "frame" is changes as the frames themselves move to the dictionary.
+
+**What the code reads.** `PageWords` keeps the lines open above the one being read, each with the frame it opened
+(`Page`, `App`, `Section`, `Nav`, `Sidebar`, `Main`, `Pane`, `Foot`, `Table`; a plain line opens none, an `if` or an
+`each` passes its parent's on). A word asks either its parent's frame (`NavItem`: is the line directly above a
+`Nav`?) or whether a frame is anywhere above it (`Link`: any `Nav`; `Heading`: an `App` at the top, or a `Section` of
+a `Page` and no `Nav` or `Foot` between). The frames are named by the code, not by the words written: `Header`,
+`TopBar` and `AppBar` open `Nav`; `Aside` and `Rail` open `Sidebar`; a website's `Footer` opens `Section` and an
+app's opens `Foot`.
+
+**The form, in every option.** A meaning names the frames it is for before its word, as a CSS selector does, `>`
+for "directly under":
+
+```
+NavItem "label" icon!                      // anywhere else (the sidebar's look)
+Nav > NavItem "label" icon!                // a line written directly in a bar
+  Row gap=10 middle pad=[10,7,10,7] radius=6 ...
+    …
+Section H1 "text"                          // in a website's section
+  Text.heading1 "{text}" size=60 ...
+App H1 "text"                              // in an app
+  Text.title "{text}" ...
+App Nav Heading "text" level=1             // in an app's top bar
+  Text.heading3 "{text}" ...
+```
+
+A use is read with the meanings whose frames it is under; of those, the one that names the most frames (the most
+specific), then as section 5 says. A meaning that names no frame is for anywhere. The question is what the names
+before the word mean.
+
+**Option A: the code's frames.** The names are `PageWords`' frames, asked of `PageWords` as the use's line is read
+(it has read every line above). It is exact for every word in note 23 today (the closure test can take H1, Brand,
+Link, NavItem and Heading to their frames), and it costs a callback from the parser to `DefinedWords`. But the names
+are the code's, not the writer's (`Nav` stands for `Header` too; a website's `Footer` is a `Section`), and they last
+only as long as the frames are code: once `Sidebar` is a definition, nothing opens a `Sidebar` frame.
+
+**Option B: the words written above.** The names are the lines' first words as written (`Sidebar > NavItem`,
+`Header > NavItem`). A writer reads it at once and a definition can name its own frame words (`Pane > ListRow`). But
+each meaning lists every other name of its frame (`Nav, Header, TopBar > NavItem`), which puts the synonyms back in
+the package that the owner wants in the project's vocabulary; and a frame's synonym added to the vocabulary does not
+reach the meanings.
+
+**Option C: the roles.** The names are the roles the frame lines carry (section 13.4): `~nav > NavItem`, `~sidebar
+Brand`, `~section H1`, `~app Heading`. A frame is whatever line says it is one, written by a page word in code today
+and by a definition's root tomorrow (`Sidebar` as `Column~sidebar …`), so it survives the frames' own move and needs
+no synonyms: `Header` is a `~nav` because its expansion says so. The reflow already reads the same marks. What it
+costs: the parser must keep each open line's role (it does, after the line is read: `_roles`), a page word's root
+must carry its role even where it carries none today (a website's `Footer` band is `~section`, its `Nav` row `~nav`;
+`Foot` is `~foot`), and a role that differs from the code's frame changes which meaning is chosen (a website's
+`Footer` is a `Section` frame to the code and is `~section` too, so they agree; a `Nav` outside any frame opens no
+frame and carries no role, so they agree).
+
+**The recommendation is C**, with the code's frames (A) as the way to check it: during the move, a use's chosen
+meaning by role and by the code's frame are compared over the corpora, and a difference is a role missing on a line.
+It is medium-sized in code (the selector in the signature, the role stack, the choice) but it decides the names a
+dictionary's frame words are written with, which is the owner's to settle. It is not built: no word can move by it
+until the frame words carry the roles the dictionary would read, and the words that would close by it also read the
+theme (13.6), so none of them moves yet.
+
+## 15. The built-in dictionary
+
+A word the notation has may be a definition in its base words instead of Dart code (note 23 section 5.2). Such a word
+is a file of the package's `dictionary/` folder, named in `builtInWords` of `tool/dictionary/generate.dart`, which
+writes the files' texts into `lib/src/core/notation/dictionary.g.dart` (`notationDictionaryTexts`): the notation
+runs in apps and on the web and reads no files. `notationDictionary` reads them once; the parser reads them under the
+design system's definitions, so:
+
+- a design system's definition of the word, or its component of that name, is the word, as either is over a page
+  word;
+- a page's own `define` of it is not used and is said (`notationBuiltInWord`), as for every word the notation has;
+- a use is recorded as kind `definition`, `of: dictionary`, `to` the meaning read (the SDK's vocabulary record:
+  `resolved: definition`, `definedBy: dictionary`, `origin: dictionary`);
+- `notationWordOrigin(word)` says where the notation's meaning of a word is written: `base` (a node type, a
+  statement), `dictionary`, or `code` (a page word, a heading, a line the alias table rewrites).
+
+A word is added only when its closure is exact over every use (`CLOSURE.md` marks it built in) and the expansions of
+its uses are the same documents before and after its code is removed. The first is `computed` (section 13.5's
+`computed` over `state ...`).
+
+## 16. The theme read in a body (G9)
+
+The owner's decision: a definition reads the theme as `{theme.<name>}`. The names are the looks the page words read
+(`notationThemeReads`, from `NotationOptions`, which the design system's or the site's theme fills, or the core's
+looks with none), and each is what the page words write:
+
+| name | the page words' value | read by (today, in code) |
+|---|---|---|
+| `accent` | the accent, as the theme names it (`primary`) or its value | NavItem, Brand, IconTile, Link, Dots |
+| `accentText` | the accent as text on a light page; nothing when the theme has none | Link |
+| `line` | the rule colour | Sidebar, Pane, Footer, SidebarFooter, the foot |
+| `selectedFill` | the chosen item's fill | NavItem, IconTile |
+| `surface`, `overlaySurface` | what a drawer's panel and an app's foot are drawn on; the role an overlay is drawn in with no theme (`surface`), else nothing | Drawer, the foot |
+| `track` | a progress's track | Dots |
+| `band`, `siteFill`, `paneFill`, `sideFill`, `iconTile` | a tinted section's fill, a website's ground, a pane's, a sidebar's, an icon's tile; nothing when the theme names none | Section, Page, Nav, Sidebar, IconTile |
+| `hoverFill` | an item's tint under the pointer: the theme's role `hoverFill` when the document names its colours, else `#0F111827` | NavItem |
+| `quietInk`, `mutedInk`, `faintInk` | a dark theme's inks for items at rest; nothing in a light theme | NavItem, NavSection, Brand |
+| `contentWidth`, `narrowWidth`, `sidebarWidth`, `sidebarRail`, `sectionPad`, `gutter` | the theme's sizes (`sidebarRail` only where the page reflows, 700 wide and up) | Section, Nav, Sidebar |
+| `siteHeadline` | a website's headline size, 60, or nothing when the theme's `heading1` or `pageTitle` has a display size | Heading, H1–H3 |
+| `style.<name>` | the text style's name when the theme has it, else nothing | every heading, the overlays' titles, NavItem's count |
+
+**Read as the use is expanded**, not left for the renderer: the page words write the value (or the theme's name for
+it) into the line as they read it, so a definition that writes the same gives the same document under every theme,
+named or not, light or dark (the dark inks are in the options). `fill={theme.paneFill}` alone after a key is the
+value as the page words write it (`fill=card` named, `fill=#FFFFFFFF` not), and nothing leaves the key out, as `if
+paneFill != null` does in the code. In an expression a colour is written as the page words write one there: its
+value in quotes, a role as `theme.primary`, a colour the theme names as `theme.colors.<name>` (read at run time, as
+`Dots` reads it); a size is its number; a style its name in quotes, so `Text.{coalesce(theme.style.caption,
+"muted")}` and `{coalesce(theme.mutedInk, "#FF6B7280")}` work out as the use is read (section 13.1, which now also
+works out a call such as `coalesce(…)` inside an expression that still reads the state). Any other `theme.` name is
+the theme the app runs with (`theme.colors.ink`, `theme.isDark`), left as written; a name that is neither is an issue
+on the use that lists the names. A page's own `define` and a design system's definitions read it the same way.
+
+With it the dictionary's words differ from the code's under Cards' and Desk's themes exactly where they differ at
+the core's looks (note 23 section 9): the theme is no longer a reason a word does not close. `NavSection` and `Brand`
+still differ under Desk, where its sidebar is a rail at a tablet's width and the code hides their labels there: that
+is the frame (section 14).
+
+## 17. A definition that reacts to its parameter changing: the options, not built
+
+`ThemeMode mode={appearance}`, `FollowingLog request={req}`: the word should run its actions each time the value its
+use gives changes. A body has `on load={…}` (once) and `on valueChanged(variable=x)={…}`, which names a variable, not
+an expression; the use gave an expression (`(appearance)`, or `(prefs.mode)`), so the body has nothing to name.
+
+- **A. A reaction on a parameter**: a body line `on mode changed={setThemeMode mode={mode}}` (or `on change(mode)`).
+  As the use is expanded, a use's value that is a variable (`{appearance}`) becomes `on
+  valueChanged(variable=appearance)`; any other expression gets a derived state of the use's own (`state
+  mode_themeMode1={prefs.mode}`) and the reaction names it. A written value (`mode="dark"`) never changes, so the line
+  is left out. Small in `define.dart`; it needs the engine to raise `valueChanged` for a derived state, which is
+  not checked.
+- **B. A parameter bound both ways**: the signature says `mode=@` and the body reacts to its own variable (`on
+  valueChanged(variable=mode)`). A use that binds its variable (`mode=@appearance`) gets the reaction; a use that
+  gives an expression does not. No new grammar, but the writer must bind, which the corpus writers did not.
+- **C. Leave it to the use**: the word applies its value on load, and the page's control runs the action on change
+  (today's workaround in `ThemeMode`).
+
+A is the form writers wrote; it is left for a decision because it adds a statement form to a body.

@@ -14,6 +14,7 @@
 // is plain lines, read as if the page had written them.
 import '../catalog.dart' show Catalog;
 import 'bind_form.dart';
+import 'define_fold.dart';
 import 'notation.dart';
 import 'universal.dart';
 import 'vocabulary.dart';
@@ -38,7 +39,14 @@ final class NotationDefinition {
     required this.body,
     this.primitive = false,
     this.bare = false,
+    this.statement = false,
   });
+
+  /// A word that stands for a statement (docs/design/20 section 13): its
+  /// body is `key`, `state` or `every` lines and no node, written where the
+  /// use is (`Shortcut "ctrl+k" onPress={…}` is a `key` line). Its word may
+  /// be lowercase (`computed`), as a statement's is.
+  final bool statement;
 
   /// Declared with `primitive` (docs/design/20 section 12): a word for what
   /// no line can express, standing in for it. A use reads as a definition's
@@ -105,6 +113,17 @@ final class NotationDefinition {
   String at(int line) => '$file:$line';
 
   bool isFlag(String key) => parameters[key] == 'true' || parameters[key] == 'false';
+
+  /// The body line marked `...`, which takes the words a use writes beyond
+  /// the signature (docs/design/20 section 13); -1: none (they go on the
+  /// root, and only the universal words do).
+  int get rest => body.indexWhere(_marked);
+
+  /// Every body line marked `...` (one in each branch of an `if` that is
+  /// decided as the use is read takes them alike).
+  Set<int> get rests => {for (var i = 0; i < body.length; i++) if (_marked(body[i])) i};
+
+  static bool _marked(({int indent, String text, int line}) l) => !l.text.startsWith('...') && restMarkAt(l.text) >= 0;
 
   /// The names of its slots in body order (`''` the default slot).
   List<String> get slots => [
@@ -243,8 +262,72 @@ String declared(String line) {
 }
 final _event = RegExp(r'^on[A-Z][A-Za-z0-9]*$');
 
+/// The names a definition's body reads as `theme.<name>` while a use is
+/// expanded (docs/design/20 section 16): the looks the page words read, as
+/// [notationThemeReads] gives them. `theme.style.<name>` is a text style's
+/// name when the theme has it.
+const notationThemeNames = [
+  'accent', 'accentText', 'line', 'selectedFill', 'surface', 'overlaySurface', 'track', 'band', 'siteFill', 'paneFill', 'sideFill', 'iconTile', //
+  'hoverFill', 'quietInk', 'mutedInk', 'faintInk', 'contentWidth', 'narrowWidth', 'sidebarWidth', 'sidebarRail', 'sectionPad', 'gutter', 'siteHeadline',
+];
+
+/// The run-time theme's own names (a binding reads them in the app: SDK
+/// themeValues): left to it, and no issue.
+const _runtimeTheme = {
+  'primary', 'onPrimary', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', 'radius', 'buttonRadius', 'iconStyle', //
+  'colors', 'text', 'spacing', 'radii', 'sizes', 'shadows', 'durations', 'curves', 'isDark', 'brightness', 'mode', 'hasDark',
+};
+
+/// A line's role mark after its type (`Row~app`, `Column~section`: the
+/// frame the reflow lays out by, docs/design/20 section 13): the line
+/// without it, and the role (empty: none).
+({String text, String role}) splitRole(String text) {
+  final m = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*)~([a-z]+)(?=[\s#]|$)').firstMatch(text);
+  if (m == null || text == notationSplice) return (text: text, role: '');
+  return (text: '${m[1]}${text.substring(m.end)}', role: m[2]!);
+}
+
+/// A line whose variant is worked out (`Text.{level == 1 ? "heading1" :
+/// "heading3"} "…"`): its head up to the variant's closing brace, and the
+/// rest; null for any other line.
+({String head, String rest})? splitWorkedVariant(String text) {
+  final m = RegExp(r'^[A-Z][A-Za-z0-9]*\.\{').firstMatch(text);
+  if (m == null) return null;
+  final close = _braceEnd(text, m.end - 1);
+  return (head: text.substring(0, close), rest: text.substring(close));
+}
+
+/// [text] with the role mark [role] after its type and variants.
+String withRole(String text, String role) {
+  if (role.isEmpty) return text;
+  final m = RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*').firstMatch(text);
+  if (m == null) return text;
+  return '${m[0]}~$role${text.substring(m.end)}';
+}
+
+/// Whether a part of a body line is the mark of the line that takes what a
+/// use writes beyond its signature (`...`, docs/design/20 section 13).
+bool _restMark(LinePart p) => p.kind == 'word' && p.raw == '...';
+
+/// Where [text] (a line after its head) writes the mark `...` as a word of
+/// its own, outside its strings and braces; -1: nowhere.
+int restMarkAt(String text) {
+  var depth = 0;
+  for (var i = 0; i < text.length; i++) {
+    final c = text[i];
+    if (c == '"' || c == "'") {
+      i = _stringEnd(text, i) - 1;
+      continue;
+    }
+    if (c == '{' || c == '[' || c == '(') depth++;
+    if (c == '}' || c == ']' || c == ')') depth--;
+    if (depth == 0 && text.startsWith('...', i) && i > 0 && text[i - 1] == ' ' && (i + 3 == text.length || text[i + 3] == ' ')) return i;
+  }
+  return -1;
+}
+
 /// A line of a body before its root: the word's own state and timers.
-bool _preamble(String text) => RegExp(r'^(state|every|key)\s').hasMatch(text);
+bool _preamble(String text) => RegExp(r'^(state|every|key|on)\s').hasMatch(text);
 
 /// The definitions written in one text.
 List<NotationDefinition> _read(String file, String text, List<String> problems) {
@@ -287,8 +370,17 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
   final primitive = signature.trim().startsWith('primitive ');
   final sig = declared(signature);
   final parts = LineParts.of(sig);
-  if (parts == null || !RegExp(r'^[A-Z]').hasMatch(parts.word)) {
+  // A body of statements alone (`key …`, `state …`): the word stands for a
+  // statement, and may be written lowercase, as a statement is.
+  final margin = body.isEmpty ? 0 : body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
+  final statement = !primitive && body.isNotEmpty && body.where((l) => l.indent == margin).every((l) => _preamble(l.text) || RegExp(r'^(key|state|every)\s*\.\.\.').hasMatch(l.text));
+  if (parts == null || !RegExp(statement ? r'^[A-Za-z]' : r'^[A-Z]').hasMatch(parts.word)) {
     problems.add('$file:$line: a signature starts with the word it defines, capitalised (StickyNote "text" fill=#FFFDE68A).');
+    return null;
+  }
+  // A statement of the notation's own grammar is never a word's.
+  if (_statements.difference(const {'computed'}).union(const {'define', 'primitive', 'component'}).contains(parts.word)) {
+    problems.add('$file:$line: ${parts.word} is a statement of the notation: a definition gives a word of its own.');
     return null;
   }
   if (body.isEmpty && !primitive) {
@@ -443,7 +535,9 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     for (final l in lines)
       if (l.indent == 0 && !_preamble(l.text)) l,
   ];
-  if (roots.isEmpty || (roots.first.text != notationSplice && (LineParts.of(roots.first.text) == null || const {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'define'}.contains(LineParts.of(roots.first.text)!.word)))) {
+  // `Row~app`: a role mark on the root is the root's (the reflow reads it).
+  final rootParts = roots.isEmpty ? null : LineParts.of(switch (splitWorkedVariant(splitRole(roots.first.text).text)) { final w? => 'X${w.rest}', null => splitRole(roots.first.text).text });
+  if (!(statement && roots.isEmpty) && (roots.isEmpty || (roots.first.text != notationSplice && (rootParts == null || const {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'define'}.contains(rootParts.word))))) {
     problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.');
     return null;
   }
@@ -478,6 +572,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     body: lines,
     primitive: primitive,
     bare: primitive && body.isEmpty,
+    statement: statement && roots.isEmpty,
   );
 }
 
@@ -490,7 +585,7 @@ const notationSplice = 'Column~splice';
 /// The events the actions on [text] forward: a name `on…` written where an
 /// action starts (`onTap={onPick(c)}`, `{on ? onA : onB}`, `{x=1; onDone}`).
 Iterable<String> _forwarded(String text) sync* {
-  for (final m in RegExp(r'(?<![A-Za-z0-9_])on[A-Z][A-Za-z0-9]*=\{').allMatches(text)) {
+  for (final m in RegExp(r'(?<![A-Za-z0-9_])(?:on[A-Z][A-Za-z0-9]*|on\s+[A-Za-z]+)(?:\([^()]*\))?=\{').allMatches(text)) {
     final open = m.end - 1, close = _braceEnd(text, open);
     if (close - 1 <= open + 1) continue;
     final inner = text.substring(open + 1, close - 1);
@@ -516,7 +611,7 @@ bool definedPassThrough(String key, [String? value]) {
 /// Whether a use's bare word goes on its root: a universal flag.
 bool definedPassThroughWord(String word) => notationUniversal[word]?.kind == UniversalKind.flag;
 
-const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived', 'computed'};
+const _statements = {'if', 'each', 'else', 'for', 'every', 'key', 'on', 'state', 'project', 'node', 'document', 'let', 'const', 'var', 'derived', 'computed'};
 
 /// A line the expansion gives: its indent, its text, and where it was
 /// written when it comes from a definition (`StickyNote.txt:3`; null: the
@@ -545,6 +640,7 @@ final class DefinedWords {
     this.internal,
     this.bindsVariable,
     this.builtIn,
+    this.theme = const {},
   })  : counts = counts ?? {},
         page = page ?? {};
 
@@ -556,6 +652,10 @@ final class DefinedWords {
   /// (notationBuiltInDefinition), or null: such a definition read as the
   /// text arrives is not used, and this is said.
   final String? Function(String word)? builtIn;
+
+  /// What a body reads as `theme.<name>` (docs/design/20 section 16): the
+  /// looks the page words read, by name, as they write them ([notationThemeReads]).
+  final Map<String, Object?> theme;
 
   /// A variable of the page a use binds (`Stepper @servings`), at its
   /// column, with what a state line for it would start at (as written).
@@ -704,7 +804,7 @@ final class DefinedWords {
       text = '${m[1]}${m[2]}${RegExp(r'^[A-Za-z_]').hasMatch(fixed) ? '#$fixed' : ''}${text.substring(m.end)}';
     }
     final parts = LineParts.of(text);
-    var defs = parts == null || _statements.contains(parts.word) || !has(parts.word) ? null : _of(parts.word);
+    var defs = parts == null || !has(parts.word) || (_statements.contains(parts.word) && !(_of(parts.word)?.any((d) => d.statement) ?? false)) ? null : _of(parts.word);
     // A component's word with named meanings defined (`Stepper#steps`): one
     // of them when the use fits it better than the component's own names.
     if (parts != null && defs == null && !_statements.contains(parts.word)) {
@@ -857,7 +957,12 @@ final class DefinedWords {
     // text, an icon, a control; a list's words only on a container whose
     // use says reorder or selectable); else a word the definition does not
     // have.
-    final rootText = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text), orElse: () => d.body.first).text;
+    // A body line marked `...` takes them instead, with every other word the
+    // use writes that the signature does not name (docs/design/20 section
+    // 13): the word's lines are then read as a page's are.
+    final restAt = d.rest;
+    final restLines = d.rests;
+    final rootText = restAt >= 0 ? d.body[restAt].text : d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text), orElse: () => d.body.first).text;
     final rootWord = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(rootText) ?? '';
     final rootKind = _all.containsKey(rootWord)
         ? ''
@@ -901,6 +1006,9 @@ final class DefinedWords {
         case 'string':
           if (strings < d.strings.length) {
             values[d.strings[strings]] = x.raw;
+          } else if (restAt >= 0) {
+            // A further text (`when trim(draft)!=""`): the marked line's.
+            root.add(x);
           } else {
             unknown('parameter', 'string${strings + 1}', x.raw, col(x), 'A ${d.word} takes ${d.strings.length} string${d.strings.length == 1 ? '' : 's'}. It takes: ${takes()}.');
           }
@@ -932,6 +1040,9 @@ final class DefinedWords {
             values[k] = path ? '{$v}' : v;
           } else if (definedPassThrough(k, v) && (!const {'duration', 'delay', 'stagger'}.contains(k) || p.pair('animate') != null) && universal(x)) {
             // On its root.
+          } else if (restAt >= 0) {
+            // On the line marked `...`, as the page would read it there.
+            root.add(x);
           } else {
             unknown(x.isEvent ? 'event' : 'parameter', k, v, col(x), 'A ${d.word} has no "$k". It takes: ${takes()}.');
           }
@@ -966,6 +1077,8 @@ final class DefinedWords {
             } else {
               values['value'] = x.raw;
             }
+          } else if (restAt >= 0) {
+            root.add(x);
           } else {
             unknown('flag', x.raw, null, col(x), 'A ${d.word} has no "${x.raw}". It takes: ${takes()}.');
           }
@@ -992,11 +1105,11 @@ final class DefinedWords {
     // own), and the body's actions that name it name the use's.
     final renamed = <String, String>{};
     final ids = <String>{};
-    final bodyRoot = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text));
+    final bodyRoot = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text), orElse: () => d.body.first);
     for (final l in d.body) {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
-      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
+      if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*(?:~[a-z]+)?#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
         renamed[m[1]!] = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
         ids.add(m[1]!);
       }
@@ -1041,31 +1154,49 @@ final class DefinedWords {
         internal?.call('${p}_$uid');
       }
     }
-    final sub = _Substitution(d, values, actions, renamed, ids);
+    final sub = _Substitution(d, values, actions, renamed, ids, theme);
 
     // The body, with the use's values put in.
     final lines = <({int indent, String text, int line})>[
       for (final s in own) (indent: 0, text: s, line: d.line),
     ];
     var rooted = false;
-    for (final l in d.body) {
+    for (var k = 0; k < d.body.length; k++) {
+      final l = d.body[k];
       // A variable the use binds is the page's: the body's own state line
       // for it is not read.
       final state = RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)\s*=').firstMatch(l.text)?[1];
       if (state != null && ((state == d.bind && bound != null) || boundParams.containsKey(state))) continue;
       var t = sub.line(l.text);
       if (t == null) continue;
-      if (!rooted && l.indent == 0 && !_preamble(l.text)) {
+      final isRoot = !rooted && l.indent == 0 && !_preamble(l.text);
+      if (isRoot) {
         rooted = true;
         // Lines written where the use is, when it gives the root nothing of
-        // its own; else a Column with the use's id and words.
-        t = t == notationSplice ? (root.isEmpty && p.id.isEmpty ? t : _rooted('Column', uid, root)) : _rooted(t, uid, root);
+        // its own; else a Column with the use's id and words. With a line
+        // marked `...` the use's words are that line's, and so is its id
+        // when the lines are written where the use is.
+        if (restAt >= 0) {
+          t = t == notationSplice ? t : (restLines.contains(k) ? _mergedAt(t, root, id: uid) : _rooted(t, uid, const []));
+        } else {
+          t = t == notationSplice ? (root.isEmpty && p.id.isEmpty ? t : _rooted('Column', uid, root)) : _rooted(t, uid, root);
+        }
+      } else if (restLines.contains(k)) {
+        t = _mergedAt(t, root, id: d.body.first.text == notationSplice && p.id.isNotEmpty ? uid : null);
       }
       lines.add((indent: l.indent, text: t, line: l.line));
     }
+    if (sub.unknownTheme.isNotEmpty) {
+      _issue(column, '${d.at(d.line)}: ${d.word} reads ${sub.unknownTheme.map((n) => 'theme.$n').join(', ')}, which the theme does not give a definition. It gives: ${notationThemeNames.map((n) => 'theme.$n').join(', ')}, and theme.style.<name> (a text style\'s name, or nothing).');
+    }
+    // An `if` whose condition reads nothing at run time is decided here.
+    final decided = _decideIfs(lines);
+    lines
+      ..clear()
+      ..addAll(decided);
     // Its words expanded in turn, with the same definitions.
     final inner =
-        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, internal: internal, bindsVariable: bindsVariable);
+        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, internal: internal, bindsVariable: bindsVariable, theme: theme);
     final expanded = <DefinedLine>[];
     for (final l in lines) {
       expanded.addAll(inner.rewrite(l.indent, l.text, from: d.at(l.line)));
@@ -1094,6 +1225,13 @@ final class DefinedWords {
   /// The line [t] with the words [given] over its own (an event's actions
   /// after its own), and with the id [id] when given.
   static String _merged(String t, List<LinePart> given, {String? id}) {
+    final (:text, :role) = splitRole(t);
+    if (role.isNotEmpty) return withRole(_merged(text, given, id: id), role);
+    if (splitWorkedVariant(t) case final w?) {
+      final merged = _merged('X${w.rest}', given, id: id);
+      final at = merged.indexOf(RegExp(r'[\s#]|$'));
+      return '${w.head}${id == null || !merged.startsWith('X#') ? '' : merged.substring(1, at)}${merged.substring(at)}';
+    }
     final p = LineParts.of(t);
     if (p == null) return t;
     final parts = [...p.parts];
@@ -1113,6 +1251,114 @@ final class DefinedWords {
       parts.insert(tail < 0 || g.kind == 'tail' ? parts.length : tail, g);
     }
     return ['${p.word}${p.variant}${id == null ? p.id : '#$id'}', for (final x in parts) x.raw].join(' ');
+  }
+
+  /// [t], the line marked `...`, with the words [given] where the mark is
+  /// (a key the line gives too is the use's), and the id [id] when given.
+  static String _mergedAt(String t, List<LinePart> given, {String? id}) {
+    final (:text, :role) = splitRole(t);
+    final p = LineParts.of(text);
+    if (p == null || !p.parts.any(_restMark)) {
+      // The mark after a value the line works out (`key {…} ... onPress`):
+      // the words go where it is, as written.
+      final at = restMarkAt(t);
+      if (at < 0) return t;
+      final words = _joined(given).join(' ');
+      return '${t.substring(0, at)}$words${t.substring(at + 3)}'.replaceAll(RegExp(r'  +(?=[^"]*$)'), ' ').trimRight();
+    }
+    final keys = {for (final g in given) if (g.kind == 'pair') g.key};
+    final words = {for (final g in given) if (g.kind == 'word') g.raw};
+    final out = <String>[];
+    for (final x in p.parts) {
+      if (_restMark(x)) {
+        out.addAll(_joined([for (final g in given) if (g.kind != 'tail') g]));
+      } else if (!(x.kind == 'pair' && keys.contains(x.key)) && !(x.kind == 'word' && words.contains(x.raw))) {
+        out.add(x.raw);
+      }
+    }
+    out.addAll([for (final g in given) if (g.kind == 'tail') g.raw]);
+    return withRole(['${p.word}${p.variant}${id == null ? p.id : '#$id'}', ...out].join(' '), role);
+  }
+
+  /// [parts] as written: a part written right after the one before it
+  /// (`trim(draft)!=` and `""`) is one word with it.
+  static List<String> _joined(List<LinePart> parts) {
+    final out = <String>[];
+    for (var i = 0; i < parts.length; i++) {
+      final x = parts[i];
+      final before = i == 0 ? null : parts[i - 1];
+      if (before != null && before.at >= 0 && x.at == before.at + before.raw.length && out.isNotEmpty) {
+        out.last = '${out.last}${x.raw}';
+      } else {
+        out.add(x.raw);
+      }
+    }
+    return out;
+  }
+
+  /// [lines] with each `if` (and its `else if`, `else`) whose condition
+  /// reads nothing at run time (the use's written values put in) decided:
+  /// the branch taken is its lines, moved out to where the `if` was; the
+  /// others are left out. An `if` that reads anything stays, for the engine.
+  static List<({int indent, String text, int line})> _decideIfs(List<({int indent, String text, int line})> lines) {
+    final out = <({int indent, String text, int line})>[];
+    // A chain decided so far, by the indent of its `if`: a branch taken
+    // (true), or every branch so far false.
+    final chain = <int, bool>{};
+    int? skipAbove;
+    final shifts = <({int at, int by})>[];
+    for (var i = 0; i < lines.length; i++) {
+      final l = lines[i];
+      if (skipAbove != null) {
+        if (l.indent > skipAbove) continue;
+        skipAbove = null;
+      }
+      while (shifts.isNotEmpty && l.indent <= shifts.last.at) {
+        shifts.removeLast();
+      }
+      chain.removeWhere((k, _) => k > l.indent);
+      final by = shifts.fold<int>(0, (n, s) => n + s.by);
+      int step() => i + 1 < lines.length && lines[i + 1].indent > l.indent ? lines[i + 1].indent - l.indent : 0;
+      final elseIf = RegExp(r'^else\s+if\s+(.+)$').firstMatch(l.text);
+      final isElse = RegExp(r'^else\s*$').hasMatch(l.text);
+      final iff = RegExp(r'^if\s+(.+)$').firstMatch(l.text);
+      if ((elseIf != null || isElse) && chain.containsKey(l.indent)) {
+        if (chain[l.indent]!) {
+          skipAbove = l.indent;
+          continue;
+        }
+        final v = isElse ? true : foldExpression(elseIf![1]!);
+        if (identical(v, unknown)) {
+          // Read at run time from here: the branches before it were false.
+          chain.remove(l.indent);
+          out.add((indent: l.indent - by, text: 'if ${elseIf![1]}', line: l.line));
+          continue;
+        }
+        if (foldTruthy(v)) {
+          chain[l.indent] = true;
+          shifts.add((at: l.indent, by: step()));
+        } else {
+          skipAbove = l.indent;
+        }
+        continue;
+      }
+      chain.remove(l.indent);
+      if (iff != null) {
+        final v = foldExpression(iff[1]!);
+        if (!identical(v, unknown)) {
+          if (foldTruthy(v)) {
+            chain[l.indent] = true;
+            shifts.add((at: l.indent, by: step()));
+          } else {
+            chain[l.indent] = false;
+            skipAbove = l.indent;
+          }
+          continue;
+        }
+      }
+      out.add((indent: l.indent - by, text: l.text, line: l.line));
+    }
+    return out;
   }
 }
 
@@ -1243,7 +1489,44 @@ final class _Use {
 
 /// A use's values put into its definition's body.
 final class _Substitution {
-  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids);
+  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids, this.theme);
+
+  /// The looks a body reads as `theme.<name>` ([notationThemeReads]).
+  final Map<String, Object?> theme;
+
+  /// The names read as `theme.<name>` that are neither the looks a body
+  /// reads nor the run-time theme's.
+  final unknownTheme = <String>{};
+
+  /// `theme.<name>` (or `theme.style.<name>`) at [at] of [text], as a body
+  /// reads it while the use is expanded: its value, and where it ends; null
+  /// when it is the run-time theme's (`theme.colors.ink`, `theme.isDark`).
+  ({Object? value, int end})? _themeAt(String text, int at) {
+    final m = RegExp(r'theme\.([A-Za-z_][A-Za-z0-9_]*)(?:\.([A-Za-z_][A-Za-z0-9_]*))?').matchAsPrefix(text, at);
+    if (m == null) return null;
+    final name = m[1]!;
+    if (name == 'style') {
+      if (m[2] == null) return null;
+      final styles = theme['style'];
+      return (value: styles is Set && styles.contains(m[2]) ? m[2] : null, end: m.end);
+    }
+    if (notationThemeNames.contains(name)) return (value: theme[name], end: m.start + 6 + name.length);
+    if (!_runtimeTheme.contains(name)) unknownTheme.add(name);
+    return null;
+  }
+
+  /// A theme's value in an expression, as the page words write it there: a
+  /// colour by its value in quotes, a role by `theme.<role>`, a colour the
+  /// theme names by `theme.colors.<name>` (read at run time), a number as
+  /// its digits, a text style's name in quotes.
+  static String _themeExpression(Object? v) => switch (v) {
+        null => 'null',
+        final num n => foldNumber(n),
+        final String s when s.startsWith('#') => '"$s"',
+        final String s when const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(s) => 'theme.$s',
+        final String s => 'theme.colors.$s',
+        _ => 'null',
+      };
   final NotationDefinition d;
 
   /// The ids written in the body (keys of [renamed]): an action may name one
@@ -1350,6 +1633,12 @@ final class _Substitution {
       final word = m[0]!;
       final before = i == 0 ? '' : text[i - 1];
       final call = m.end < text.length && text[m.end] == '(';
+      if ((word == 'theme' && before != '.' ? _themeAt(text, i) : null) case final t?) {
+        final style = text.startsWith('theme.style.', i);
+        b.write(style ? (t.value == null ? 'null' : '"${t.value}"') : _themeExpression(t.value));
+        i = t.end;
+        continue;
+      }
       i = m.end;
       if (before == '.' || call) {
         b.write(word);
@@ -1358,13 +1647,17 @@ final class _Substitution {
       } else if (d.events.contains(word)) {
         // An event in an expression: whether the use gave it.
         b.write(actions.containsKey(word) ? 'true' : 'false');
+      } else if (_isParameter(word) && RegExp(r'^\s*=(?!=)').hasMatch(text.substring(i))) {
+        // `downloadFile text={…}`, `playSound sound={…}`: an action's field
+        // named like a parameter keeps its name; its value is the use's.
+        b.write(word);
       } else if (_isParameter(word)) {
         b.write(_expression(word));
       } else {
         b.write(word);
       }
     }
-    return b.toString();
+    return foldCalls(b.toString());
   }
 
   /// A string `"…"`: its `{p}` the use's value, its other `{…}` read.
@@ -1387,7 +1680,10 @@ final class _Substitution {
         if (_identifier.hasMatch(n) && renamed[n] == null && _isParameter(n)) {
           b.write(_inString(n));
         } else {
-          b.write('{${expression(inner)}}');
+          final e = expression(inner);
+          final v = foldExpression(e);
+          final t = identical(v, unknown) || v == null ? null : foldText(v);
+          b.write(t ?? '{$e}');
         }
         i = close;
         continue;
@@ -1438,7 +1734,18 @@ final class _Substitution {
       i = end;
     }
     b.write(inner.substring(i));
-    final done = expression(b.toString()).replaceAllMapped(RegExp('\u0000(\\d+)\u0000'), (m) => put[int.parse(m[1]!)]);
+    var done = expression(b.toString()).replaceAllMapped(RegExp('\u0000(\\d+)\u0000'), (m) => put[int.parse(m[1]!)]);
+    // `link {href}`: the address worked out as the use is read, written bare.
+    done = done.replaceAllMapped(RegExp(r'(?<![A-Za-z0-9_.])(link|scroll|go|open)\s+\{'), (m) => '\u0002${m[0]}');
+    while (done.contains('\u0002')) {
+      final at = done.indexOf('\u0002');
+      final open = done.indexOf('{', at);
+      final close = _braceEnd(done, open);
+      final v = foldExpression(done.substring(open + 1, close - 1));
+      final t = identical(v, unknown) || v == null ? null : foldText(v);
+      final word = done.substring(at + 1, open);
+      done = '${done.substring(0, at)}$word${t != null && !t.contains(RegExp(r'[\s;{}]')) ? t : done.substring(open, close)}${done.substring(close)}';
+    }
     return [
       for (final a in _actionList(done))
         if (a.trim().isNotEmpty) a.trim(),
@@ -1448,6 +1755,9 @@ final class _Substitution {
   /// One line of the body with the use's values put in (null: nothing left).
   String? line(String text) {
     if (text == notationSplice) return text;
+    // `Row~app …`: the line read without its role mark, which is put back.
+    final (text: plain, :role) = splitRole(text);
+    if (role.isNotEmpty) return switch (line(plain)) { final String t => withRole(t, role), null => null };
     if (text.startsWith('...')) {
       // A slot's holding column reads the use's values too.
       final slot = slotOf(text);
@@ -1466,8 +1776,23 @@ final class _Substitution {
       final reorder = m[3] != null && _identifier.hasMatch(list) ? m[3]! : '';
       return 'each ${renamed[m[1]!] ?? m[1]} in $list$reorder';
     }
+    // `on valueChanged(variable=x)={onSeen}`: a reaction of the screen, the
+    // use's actions where it names the word's events.
+    if (RegExp(r'^on\s+([A-Za-z]+(?:\([^()]*\))?)=\{(.*)\}\s*$').firstMatch(text) case final m?) {
+      return 'on ${_fields(m[1]!)}={${actionsOf(m[2]!)}}';
+    }
     if (RegExp(r'^(every|key)\s+(.*?)\s+(on[A-Z][A-Za-z0-9]*)=\{(.*)\}\s*$').firstMatch(text) case final m?) {
-      return '${m[1]} ${expression(m[2]!)} ${m[3]}={${actionsOf(m[4]!)}}';
+      return '${m[1]} ${_statementWords(m[2]!)} ${m[3]}={${actionsOf(m[4]!)}}';
+    }
+    if (RegExp(r'^([A-Z][A-Za-z0-9]*)\.\{').firstMatch(text) case final m?) {
+      final close = _braceEnd(text, m.end - 1);
+      final e = expression(text.substring(m.end, close - 1));
+      final v = foldExpression(e);
+      final rest = text.substring(close).trim();
+      final after = rest.isEmpty ? '' : line('X $rest')?.substring(1) ?? '';
+      if (v is String && RegExp(r'^[A-Za-z][A-Za-z0-9]*$').hasMatch(v)) return '${m[1]}.$v$after';
+      if (!identical(v, unknown) && (v == null || v == '')) return '${m[1]}$after';
+      return '${m[1]}.{$e}$after';
     }
     final p = LineParts.of(text);
     if (p == null || _statements.contains(p.word)) return expression(text);
@@ -1482,16 +1807,39 @@ final class _Substitution {
           if (v.startsWith('@')) {
             // `open=@open`: the variable the use binds, or the use's own.
             parts.add('$k=${_mark(v)}');
-          } else if (x.isEvent && whole != null) {
+          } else if ((x.isEvent || RegExp(r'^on[A-Z][A-Za-z0-9]*\(').hasMatch(k)) && whole != null) {
+            // An event (`onTap={onPick}`, and one of a trigger with fields:
+            // `onKeyDown(key=c)={onCompose}`): the use's actions put in.
             final a = actionsOf(whole);
-            if (a.isNotEmpty) parts.add('$k={$a}');
+            if (a.isNotEmpty) parts.add('${_fields(k)}={$a}');
           } else if (whole != null && _identifier.hasMatch(whole) && renamed[whole] == null && _isParameter(whole)) {
             var given = _value(whole);
             // A string that is one value read from the state is that value.
             if (given != null && RegExp(r'^"\{[^{}"]*\}"$').hasMatch(given)) given = given.substring(1, given.length - 1);
             if (given != null && given.isNotEmpty) parts.add('$k=$given');
+          } else if (whole != null && RegExp(r'^theme\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(whole) && _themeAt(whole, 0) != null) {
+            // `fill={theme.paneFill}`: the look as the page words write it
+            // (a value, or the theme's name for it); none leaves the key out.
+            final v = _themeAt(whole, 0)!.value;
+            if (v != null) parts.add('$k=${v is num ? foldNumber(v) : v}');
           } else if (whole != null) {
-            parts.add('$k={${expression(whole)}}');
+            final e = expression(whole);
+            // Reading nothing at run time, it is worked out here: a value
+            // that is nothing leaves the key out (a hidden line stays hidden),
+            // and a line shown is shown without saying so.
+            final v = foldExpression(e);
+            if (identical(v, unknown)) {
+              parts.add('$k={$e}');
+            } else if (k == 'visible' && (v == null || v is bool)) {
+              if (!foldTruthy(v)) parts.add('$k=false');
+            } else if (v != null) {
+              final w = foldWritten(v);
+              parts.add(w == null ? '$k={$e}' : '$k=$w');
+            }
+          } else if ((k == 'variable' || k.endsWith('.variable')) && renamed[v.replaceAll('"', '')] != null) {
+            // `measure.variable="box"`: a variable named by its name is the
+            // word's own when its body states it.
+            parts.add('$k=${v.startsWith('"') ? '"${renamed[v.replaceAll('"', '')]}"' : renamed[v]}');
           } else if (v.startsWith('"')) {
             parts.add('$k=${_string(v)}');
           } else if (v.startsWith('[')) {
@@ -1530,6 +1878,43 @@ final class _Substitution {
     final to = id.isEmpty ? null : renamed[id.substring(1)];
     if (to != null) id = '#$to';
     return ['${p.word}${p.variant}$id', ...parts].join(' ');
+  }
+
+  /// What a `key` or `every` line writes before its event, the use's values
+  /// put in: a `{…}` that reads nothing at run time is its value, written
+  /// bare (`key {coalesce(keys, key)}` with keys="ctrl+k" is `key ctrl+k`).
+  String _statementWords(String words) {
+    final out = StringBuffer();
+    var i = 0;
+    while (i < words.length) {
+      if (words[i] == '{') {
+        final close = _braceEnd(words, i);
+        final e = expression(words.substring(i + 1, close - 1));
+        final v = foldExpression(e);
+        final t = identical(v, unknown) || v == null ? null : foldText(v);
+        out.write(t != null && !t.contains(RegExp(r'[\s"]')) ? t : '{$e}');
+        i = close;
+        continue;
+      }
+      final next = words.indexOf('{', i);
+      final end = next < 0 ? words.length : next;
+      out.write(expression(words.substring(i, end)));
+      i = end;
+    }
+    return out.toString();
+  }
+
+  /// An event's name with its trigger's fields (`onHold(holdMs=300)`,
+  /// `valueChanged(variable=x)`): each field's value read as the body's (a
+  /// state of the word's own is the use's), its name kept.
+  String _fields(String k) {
+    final open = k.indexOf('(');
+    if (open < 0 || !k.endsWith(')')) return k;
+    final fields = [
+      for (final f in k.substring(open + 1, k.length - 1).split(','))
+        if (RegExp(r'^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$').firstMatch(f) case final m?) '${m[1]}=${renamed[m[2]] ?? (m[2]!.startsWith('"') ? _string(m[2]!) : m[2])}' else f.trim(),
+    ];
+    return '${k.substring(0, open)}(${fields.join(',')})';
   }
 
   /// A body's `@name` (or `@row.done`): the variable the use binds, the

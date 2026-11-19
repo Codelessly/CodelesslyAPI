@@ -38,10 +38,23 @@ List<String> readDefinitionsProblems(Iterable<DictionaryFile> files) => readDefi
 /// definition of its own name.
 String dictName(String word) => '${word}Dict';
 
+/// The themes the closure runs under besides the core's looks: a design
+/// system's `theme` (dictionary/themes/<name>.json, copied from the SDK's
+/// design_systems/<name>/design_system.json), by name.
+Map<String, Json> closureThemes({String dir = 'dictionary/themes'}) => {
+      for (final f in (Directory(dir).listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList()..sort((a, b) => a.path.compareTo(b.path))))
+        f.uri.pathSegments.last.replaceAll('.json', ''): (jsonDecode(f.readAsStringSync()) as Map).cast<String, Object?>(),
+    };
+
+/// The options of a page at [width] under [theme] (a design system's theme,
+/// read as the SDK reads one), or the core's looks.
+NotationOptions closureOptions(double width, Json? theme) =>
+    theme == null ? NotationOptions(width: width) : NotationOptions.fromTheme(ThemeTokens.fromJson(theme).toJson(), width: width);
+
 /// The page [text] expanded as a site page is (open vocabulary, so that a
 /// word no definition has stands in the same way on both sides), at [width].
-Json expandPage(String text, {double width = 1440, Map<String, String> definitions = const {}, NotationOptions? base}) {
-  var options = base ?? NotationOptions(width: width);
+Json expandPage(String text, {double width = 1440, Map<String, String> definitions = const {}, NotationOptions? base, Json? theme}) {
+  var options = base ?? closureOptions(width, theme);
   options = options.open();
   if (definitions.isNotEmpty) options = options.define(definitions);
   return Catalog.run(standardCatalog, () => parseNotation(text, options: options).document);
@@ -49,8 +62,8 @@ Json expandPage(String text, {double width = 1440, Map<String, String> definitio
 
 /// The issues of the page [text] with [definitions] (a definition's own
 /// problems are said against its file).
-List<String> pageIssues(String text, {double width = 1440, Map<String, String> definitions = const {}}) {
-  var options = NotationOptions(width: width).open();
+List<String> pageIssues(String text, {double width = 1440, Map<String, String> definitions = const {}, Json? theme}) {
+  var options = closureOptions(width, theme).open();
   if (definitions.isNotEmpty) options = options.define(definitions);
   return Catalog.run(standardCatalog, () => [for (final i in parseNotation(text, options: options).issues) '$i']);
 }
@@ -307,7 +320,7 @@ final class WordClosure {
 /// [word]'s closure over [uses], with the dictionary's [files] (every word of
 /// them renamed, so that its definitions read each other). [renamed] is what
 /// is renamed in the uses: [word] alone, or a family of words at once.
-WordClosure closure(String word, List<({String from, String text})> uses, Iterable<DictionaryFile> files, {Set<String>? renamed}) {
+WordClosure closure(String word, List<({String from, String text})> uses, Iterable<DictionaryFile> files, {Set<String>? renamed, Json? theme}) {
   final all = {for (final f in files) ...f.words};
   final defs = renamedDefinitions(files, all);
   final which = renamed ?? {word};
@@ -316,14 +329,14 @@ WordClosure closure(String word, List<({String from, String text})> uses, Iterab
       for (final w in closureWidths)
         () {
           final viaDefinition = renameWords(u.text, which);
-          final code = expandPage(u.text, width: w);
-          final defined = expandPage(viaDefinition, width: w, definitions: defs);
+          final code = expandPage(u.text, width: w, theme: theme);
+          final defined = expandPage(viaDefinition, width: w, definitions: defs, theme: theme);
           // The issues the definition's side has that the code's has not
           // (by message: a renamed word is longer, so columns move).
           String plain(String i) => i.replaceAll(RegExp(r'line \d+:\d+: '), '').replaceAll('Dict', '');
-          final before = {for (final i in pageIssues(u.text, width: w)) plain(i)};
+          final before = {for (final i in pageIssues(u.text, width: w, theme: theme)) plain(i)};
           final issues = [
-            for (final i in pageIssues(viaDefinition, width: w, definitions: defs))
+            for (final i in pageIssues(viaDefinition, width: w, definitions: defs, theme: theme))
               if (!before.contains(plain(i))) i,
           ];
           return (from: u.from, width: w, comparison: Comparison(code, defined), spelt: Comparison(code, defined, spelling: true), issues: issues);

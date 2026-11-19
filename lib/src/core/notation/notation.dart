@@ -25,6 +25,7 @@ import 'bind_form.dart';
 import 'brackets.dart';
 import 'declared.dart';
 import 'define.dart';
+import 'dictionary.dart';
 import 'formula_names.dart';
 import 'keys.dart';
 import 'media_words.dart';
@@ -1616,6 +1617,15 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
   if (word.isEmpty) return null;
   final c = catalog ?? Catalog.current;
+  // A word of the built-in dictionary, unless the design system defines it.
+  if (notationDictionary[word] case final defs? when !vocabulary.definitions.containsKey(word)) {
+    final d = defs.first;
+    return switch (d.statement ? RegExp(r'^[a-z]+').stringMatch(d.body.first.text) : null) {
+      'state' => '$word, read as a state line: state total={…}',
+      'key' => '$word, read as the notation\'s shortcut line: key mod+k onPress={…}',
+      _ => '$word, a word of the notation\'s dictionary: ${d.signature}',
+    };
+  }
   if (PageWords.words.contains(word)) return '$word, a word of the page (its frames and their lines: App, Sidebar, Rail, Main, Nav, Section, Footer, Dialog…): $word …';
   if (RegExp(r'^H[1-4]$').hasMatch(word)) return '$word, a heading: $word "text"';
   final lower = '${word[0].toLowerCase()}${word.substring(1)}';
@@ -1630,6 +1640,58 @@ String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary v
       null => '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}',
     };
   }
+  return null;
+}
+
+/// The looks a definition's body reads as `theme.<name>` under [options]
+/// (docs/design/20 section 16), each as the page words read and write it:
+/// the design system's or the site's theme, the core's looks with none, a
+/// dark theme's inks; null where the page words write nothing. `style` is the
+/// names of the theme's text styles.
+Map<String, Object?> notationThemeReads(NotationOptions options) => {
+      'accent': options.accent,
+      'accentText': options.accentText,
+      'line': options.line,
+      'selectedFill': options.selectedFill,
+      'surface': options.surface,
+      'overlaySurface': identical(options.card, defaultCard) && options.surface == '#FFFFFFFF' ? 'surface' : null,
+      'track': options.track,
+      'band': options.band,
+      'siteFill': options.siteFill,
+      'paneFill': options.paneFill,
+      'sideFill': options.sideFill,
+      'iconTile': options.iconTile,
+      'hoverFill': options.roles ? 'hoverFill' : '#0F111827',
+      'quietInk': options.quietInks?.$1,
+      'mutedInk': options.quietInks?.$2,
+      'faintInk': options.quietInks?.$3,
+      'contentWidth': options.contentWidth,
+      'narrowWidth': options.narrowWidth,
+      'sidebarWidth': options.sidebarWidth,
+      'sidebarRail': options.reflow && options.width >= 700 ? options.sidebarRail : null,
+      'sectionPad': options.sectionPad,
+      'gutter': options.gutter,
+      'siteHeadline': options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
+      'style': options.textStyles.keys.toSet(),
+    };
+
+/// Where the notation's meaning of [word] (a line's first word) is written:
+/// `base` (a node type of the notation or the catalog, a statement: the
+/// renderer and the parser implement it), `dictionary` (a definition of the
+/// built-in dictionary, written in base words: docs/design/23), `code` (a
+/// word the expander still rewrites into other lines in Dart: a page word, a
+/// heading, a line of another shape the alias table names), or null (no word
+/// of the notation's: a design system's, a writer's, unknown).
+String? notationWordOrigin(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
+  if (word.isEmpty) return null;
+  if (notationDictionary.containsKey(word)) return 'dictionary';
+  if (PageWords.words.contains(word) || RegExp(r'^H[1-4]$').hasMatch(word)) return 'code';
+  if (vocabulary.types[word]?.line != null) return 'code';
+  const statements = {'state', 'project', 'if', 'else', 'each', 'for', 'key', 'every', 'node', 'document', 'let', 'derived', 'const', 'var', 'define', 'primitive', 'component'};
+  if (statements.contains(word)) return 'base';
+  final c = catalog ?? Catalog.current;
+  final lower = '${word[0].toLowerCase()}${word.substring(1)}';
+  if (notationTypes.containsKey(word) || (word[0] == word[0].toUpperCase() && c.widget(lower) != null)) return 'base';
   return null;
 }
 
@@ -2218,7 +2280,9 @@ class _Parser {
   /// written out as the lines they stand for before a line is read; and,
   /// while those lines are read, where they are written (`StickyNote.txt:3`).
   late final DefinedWords _defined = DefinedWords(
-    options.vocabulary.definitions,
+    // The built-in dictionary's words, under the design system's.
+    {...notationDictionary, ...options.vocabulary.definitions},
+    theme: notationThemeReads(options),
     open: options.openVocabulary,
     record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
     issue: _issue,
@@ -2243,10 +2307,10 @@ class _Parser {
     // word replaces the component there (docs/design/20 section 6).
     used: (d, parts, node, column) => _use(d.primitive ? 'primitive' : 'definition', parts.word, column,
         to: d.label,
-        node: _bareRoot(d, parts, node),
+        node: d.statement ? null : _bareRoot(d, parts, node),
         parts: parts,
         of: d.file != 'page'
-            ? null
+            ? (isDictionaryDefinition(d) ? 'dictionary' : null)
             : options.vocabulary.definitions[d.word] != null
                 ? 'page, over ${options.vocabulary.definitions[d.word]!.first.file}'
                 : _componentNames(d.word) != null && d.name == null
@@ -2661,6 +2725,10 @@ class _Parser {
   String? _root;
   int _line = 0;
 
+  /// Whether the line being read is a `define`'s or a `primitive`'s, or
+  /// under one.
+  bool _inDeclaration = false;
+
   /// Reads one line (without its newline).
   void line(String raw) {
     // The lines under an overlay's head are its canvas's; the next line at
@@ -2783,7 +2851,11 @@ class _Parser {
     final indent = raw.length - raw.trimLeft().length;
     // (At the indent the page words move the node lines to: a box in a Nav
     // or a Section is two deeper than written.)
-    if (_paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
+    // The lines of a `define` (or `primitive`) are the definition's: a record
+    // line among them (`customPaint`) is its body's, not the page's (it was
+    // put on the node open above the definition, or said to have none).
+    if (indent == 0) _inDeclaration = isDeclaration(raw.trimRight());
+    if (!_inDeclaration && _paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.

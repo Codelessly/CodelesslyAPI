@@ -1,4 +1,5 @@
-// The foot of a sidebar, kept at its end: a spacer takes the room above it, a rule parts it from the items. It does not say: the Spacer is a line beside it (a body is one line), so here the foot pushes itself down with a grown spacer of its own.
+// The foot of a sidebar, kept at its end: a spacer takes the room above it, a rule parts it from the items. It does not say: that it is a foot only in a sidebar (it reads the line it is under).
 SidebarFooter gap=2 pad=[0,8,0,0]
-  Column w=fill gap={gap} pad={pad} border-top=#FFE5E7EB
+  Spacer
+  Column w=fill gap={gap} pad={pad} border-top={theme.line} ...
     ...

@@ -7,3 +7,12 @@ App
       NavItem "Settings" icon="settings"
   Main
     Text "Mail"
+### written: a brand in a sidebar's foot, and a foot outside a sidebar
+App
+  Sidebar
+    NavItem "Home" icon="home"
+    SidebarFooter
+      Brand "Acme" icon="bolt"
+  Main
+    SidebarFooter
+      Text "Not in a sidebar"

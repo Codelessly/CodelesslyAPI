@@ -324,8 +324,6 @@ final class NotationVocabulary {
       // `key mod+k onPress={…}`.
       'Shortcut': TypeAlias(line: 'shortcut'),
       'shortcut': TypeAlias(line: 'shortcut'),
-      // A value worked out from the state: ours is `state name=formula`.
-      'computed': TypeAlias(line: 'computed'),
       // A question with a yes and a no, over the page: a Dialog with its two
       // buttons.
       'ConfirmDialog': TypeAlias(line: 'confirmDialog'),
@@ -503,7 +501,20 @@ final class LineParts {
       String? key;
       while (i < n && text[i] != ' ') {
         final c = text[i];
-        if (c == '=' && key == null && i > start && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(text.substring(start, i))) {
+        // `hovered.fill={…}`, `motion.translateY={p}`: a dotted key whose value
+        // is braced or a list is a key=value too (a word, its value would end
+        // at its first space).
+        // `onKeyDown(key=c)={…}`: an event of a trigger with fields.
+        if ((key == null && i == start ? RegExp(r'on[A-Z][A-Za-z0-9]*\([^()]*\)=[{]').matchAsPrefix(text, start) : null) case final ev?) {
+          key = text.substring(start, ev.end - 2);
+          i = closeOfBalanced(ev.end - 1);
+          break;
+        }
+        if (c == '=' &&
+            key == null &&
+            i > start &&
+            (RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(text.substring(start, i)) ||
+                (i + 1 < n && (text[i + 1] == '{' || text[i + 1] == '[') && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*(\.[A-Za-z_][A-Za-z0-9_-]*)+$').hasMatch(text.substring(start, i))))) {
           key = text.substring(start, i);
           i++;
           // `x=@0.5`, `x=@"text"`, `x=@[0, 100]`: a signature's bound
@@ -584,7 +595,6 @@ typedef LineRewrite = List<String>? Function(LineParts parts, String text);
 /// The rewrites [TypeAlias.line] names.
 final Map<String, LineRewrite> lineRewrites = {
   'shortcut': _shortcutLine,
-  'computed': _computedLine,
   'confirmDialog': _confirmDialogLines,
 };
 
@@ -611,15 +621,6 @@ List<String>? _shortcutLine(LineParts p, String text) {
     if (m != null) when = m[1]!.trim();
   }
   return ['key $combo${when == null || when.isEmpty ? '' : ' when $when'} onPress=${event.value}'];
-}
-
-/// `computed total={sum(cart,x=>x.price)}`: a state written as its formula.
-List<String>? _computedLine(LineParts p, String text) {
-  final m = RegExp(r'^[A-Za-z]+\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(text);
-  if (m == null) return null;
-  var formula = m[2]!.trim();
-  if (formula.startsWith('{') && formula.endsWith('}')) formula = formula.substring(1, formula.length - 1).trim();
-  return ['state ${m[1]}=$formula'];
 }
 
 /// `ConfirmDialog#ask "Delete this plan?" "This cannot be undone."

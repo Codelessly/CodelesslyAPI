@@ -325,3 +325,86 @@ design note before code, and each is done when the closure test of its words pas
 - The pictures: 13 words, 48 uses, three sizes, compared by the share of matching pixels and the first row that differs;
   no state was driven (no tap, no hover, no open overlay).
 - "Taught" is a token of the prompt's text, not a judgement of whether the prompt explains the word.
+
+## 8. After the first extensions (2026-11-18, later)
+
+`define` now says G2, G3, G4, G5 and G7 (note 20 section 13); G1 is designed and not built (note 20 section 14:
+it needs the owner's choice of what names a frame). The dictionary was rewritten with them, `computed` was added
+(a statement word), and uses were added for the shapes the code reads that a definition does not (`Shortcut space
+onPress=…`, `Shortcut "F2" onKey=…`; a Brand in a sidebar's foot, a foot outside a sidebar). The closure, before
+(37.0.0) and after, expansions the same of all and nodes the same:
+
+| word | before | after | still differs |
+|---|---|---|---|
+| `computed` | not written | 12 of 12, 1,103 of 1,103: **closes** | moved to the built-in dictionary |
+| `Shortcut` | 0 of 18, 588 of 618 | 18 of 21, 624 of 627 | closes on every corpus use; a chord written as a bare word and an event under another name (`onKey=`) the code reads |
+| `SidebarFooter` | 0 of 3, 39 of 69 | 3 of 6, 127 of 146 | closes on its sidebar use; a Brand in the foot (the code opens a sidebar frame for the foot: G1), a foot outside a sidebar (no word there in the code); the theme's rule (G9) |
+| `NavSection` | 3 of 9, 257 of 272 | 6 of 9, 267 of 272 | a label worked out from the state: the code shows it as written, the definition in capitals at run time (whether a value was written cannot be asked: note 20 13.6); the rail (G1); the theme's ink (G9) |
+| `Link` | 3 of 12, 725 of 739 | 6 of 12, 728 of 739 | in a bar a quiet button that joins the phone menu (G1, G8); the theme's accent (G9) |
+| `Section` | 2 of 15, 670 of 720 | 6 of 15, 681 of 720 | `compact`, `bleed`, `tint`; a plain Section after a plain one starts half down (G8); outside a Page (G1); the theme's band (G9) |
+| `Nav` | 0 of 15, 703 of 1,143 | 4 of 15, 876 of 1,143 | a website's bar (G1), its phone menu (G8), the drawer's button (G8) |
+| `Brand` | 3 of 9, 354 of 375 | 3 of 9, 369 of 375 | at the start of a bar: no padding, a 17 px name (G1); the accent (G9) |
+| `IconTile` | 0 of 9, 450 of 471 | 0 of 9, 459 of 471 | the code draws a star for an icon written unquoted where the text goes (`IconTile {p.icon}`) and a text child for a bare word (`IconTile t.icon`), the definition reads the icon; `if name` reads a worked-out name at run time; the theme's accent and tile (G9) |
+| `App`, `Main`, `Sidebar`, `Pane`, `Page` | 0/15 175, 4/15 545, 2/12 599, 0/18 1,741, 0/9 359 | 0/15 179, 4/15 548, 2/12 599, 0/18 1,741, 0/9 359 | the frame their lines read (G1); the drawer, the window's foot, the rule beside Main (G8); the canvas's height (G10); fills (G9) |
+| `H1`, `H2`, `H3`, `Heading` | 3/6, 0/6, 0/6, 0/15 | the same | a text style by frame and level (G1, G9), a website's display size, and H1 marking its section a hero, which the section's buttons read (G8) |
+| `NavItem` | 0 of 18 (9 up to spelling), 1,612 of 1,712 | the same | the bar and the rail (G1), the code's spelling of `selected` (and its `_expr` bug), the theme (G9) |
+| `Dots` | 3 of 9 | the same | the shapes the code refuses (question 6); the accent and track (G9) |
+| `Footer` | 0 of 9 | the same | an app's foot and a website's band (G1), the window's foot (G8) |
+| `Table` | 0 of 18 | the same | the n-th line and the columns written out (G8) |
+| `Dialog`, `Sheet`, `Drawer`, `Menu`, `Popover`, `Lightbox`, `ConfirmDialog` | 0 of all | the same | a block of its own (G6, the owner's decision: base) |
+
+Three findings shape what moves next:
+
+- **The theme (G9) blocks every page word.** The code reads the design system's accent, line, fills, inks and
+  text styles for every page word, `Dots` and `IconTile` included; a definition writes the core's values. The
+  closure runs at the core's looks, so it cannot see this, but the corpora's design systems would (Cards'
+  `IconTile`, Desk's sidebars). No page word can move until a definition can name a theme value, which this note
+  keeps as base (5.1).
+- **The page words read each other.** A word moved out of `PageWords` is gone from its frame stack: `SidebarFooter`
+  opens a sidebar frame its `Brand` reads, `H1` marks its section a hero for the buttons after it, a `Link` joins its
+  bar's phone menu. A move has to keep what the other words read of it, which is G1 and G8.
+- **The statement words move first.** `computed` reads neither the theme nor a frame: it closed exactly and moved
+  (note 20 section 15). `Shortcut` would follow once the shapes above are read, or once the owner accepts that
+  `Shortcut space …` and `onKey=` stop being read (they are corpus shapes).
+
+The proof for `computed` (section 5.2's bar): every use the corpora have, 12 pages (its 4 harvested uses, and the
+answer they come from read whole, in its 8 pages) at 1440, 834 and 390, open and closed (72 expansions), gave byte-identical
+documents and identical issues before and after the move; the vocabulary record differs only in that each of its
+84 uses is recorded as a definition of the dictionary where it was an alias of a line. The SDK's design systems,
+examples and tests and the reference examples write no `computed`; the API's tests pass; the notation coverage is
+byte-identical (1,356 documents, 30,954 node lines, real gaps 0); print never wrote `computed` (it prints the
+`state` line, as before); the four documents that use it render byte-identical PNGs at the three sizes (12
+captures).
+
+## 9. With the theme read (G9)
+
+The dictionary reads the theme where the code does (note 20 section 16), and the closure runs each use under Cards'
+and Desk's themes as well as the core's looks (`dictionary/themes/`; their themes only, not their components). Per
+word, the expansions the same at the core's looks / under Cards / under Desk, before the theme reads and after:
+
+| word | before | after | still differs |
+|---|---|---|---|
+| Dots | 3/9, 3/9, 0/9 | 3/9, 3/9, 3/9 | the shapes the code refuses (question 6) |
+| Brand | 3/9, 3/9, 0/9 | 3/9, 3/9, 1/9 | the bar (G1); under Desk the rail hides its name at a tablet's width (G1) |
+| NavSection | 6/9, 6/9, 2/9 | 6/9, 6/9, 2/9 | a label worked out from the state; the rail (G1) |
+| Link | 6/12, 0/12, 0/12 | 6/12, 6/12, 6/12 | the bar and its phone menu (G1, G8) |
+| Section | 6/15, 0/15, 0/15 | 6/15, 6/15, 6/15 | compact, bleed, tint; plain after plain (G8); outside a Page (G1) |
+| Nav | 4/15, 0/15, 0/15 | 4/15, 4/15, 4/15 | a website's bar (G1), its phone menu, the drawer's button (G8) |
+| Sidebar | 2/12, 0/12, 0/12 | 2/12, 2/12, 2/12 | outside an App, the rail, the drawer (G1, G8) |
+| SidebarFooter | 3/6, 3/6, 0/6 | 3/6, 3/6, 3/6 | a Brand in the foot, a foot outside a sidebar (G1) |
+| H2, H3 | 0/6, 1/6, 0/6; 0/6 each | 3/6 under each | an app's heading (G1) |
+| H1 | 3/6 each | the same | an app's title (G1); marks its section a hero for the buttons after it (G8) |
+| Heading | 0/15 each | the same | the level by frame (G1), the hero (G8) |
+| IconTile | 0/9 each | the same | the code's star and text child for an unquoted icon; a worked-out name read at run time |
+| NavItem, Main, Pane, App, Page, Footer, Table, Shortcut | | each theme as at the core's looks | as section 8 |
+| the overlays | 0 each | the same | G6 |
+
+**No further word closes in every context**, so none moved: what is left is the frame (G1), what other lines read
+of a word (G8), the shapes the code reads that a definition does not, and the overlays.
+
+**With G1 built** (and the theme reads), these would close over their uses: `Brand` (its bar meaning, and the rail
+read from the sidebar it is in), `H2` and `H3` (their app meaning), and `SidebarFooter` if a definition can also be
+the frame its lines read (its Brand). `H1` and `Heading` need G8 besides (the hero mark the section's buttons read),
+`NavSection` a way to ask whether a label was written, `Link`, `Nav`, `Section`, `Sidebar`, `Main`, `Pane`, `App`,
+`Page`, `Footer` and `NavItem` G8 (the phone menu, the drawer, the window's foot, the rule beside Main, the
+plain-after-plain spacing) and, for NavItem, the code's spelling of `selected`. So G1 alone moves three or four words.
