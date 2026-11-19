@@ -12,6 +12,17 @@ is the site's, declared in `site.json` (`"favourites": {"value": [], "persist": 
 variable is not named after what the runtime gives every formula: `data`, `route`, `storage`, `screen`, `theme`,
 `auth`, `drag`, `perf`, `script`, `speech` (`state perfText=…`, not `state perf=…`).
 
+`state x=0` is a whole number, and a fraction set into it is rounded: one that holds a fraction says so
+(`state read:decimal=0`).
+
+```notation
+state read:decimal=0
+Column gap=8
+  Column scroll h=200 onScroll={read=result.fraction}
+    Text "A long text"
+  Text "{round(read * 100)}% read"
+```
+
 A formula variable is worked out and kept up to date: `state total:decimal={price * qty}`. With parameters it is a
 function the formulas call: `state usd(n):text={'$' + round(n)}`.
 

@@ -17,7 +17,8 @@ Column w=40 h=40 onKeyDown(key=Enter)={emit go} onEnterViewport(visibleFraction=
 The screen's timers and keys are lines of their own after the tree: `every 1s onTick={…}` (a `timer`),
 `key mod+k onPress={…}` (a `keyDown` of the screen); `when cond` after the interval or key runs it only while
 `cond` holds. Any other reaction of the screen is an `on` line: `on`, the trigger's name, its fields in
-parentheses, `=` and the actions: `on load={…}` when the screen opens, `on backPressed={…}` for the system's back.
+parentheses, `=` and the actions: `on load={…}` when the screen opens, `on backPressed={…}` for the system's back,
+`on valueChanged(variable=draft)={…}` when a variable changes.
 
 ```notation
 state step=0
@@ -27,6 +28,7 @@ every 1s onTick={step=step+1}
 key mod+k onPress={step=0}
 on load={saved=coalesce(storage.saved, [])}
 on backPressed(when={step > 0})={step=step-1}
+on valueChanged(variable=step)={saved=append(saved,step)}
 ```
 
 ### Trigger fields
@@ -61,7 +63,18 @@ read there too (`title="…"`, `message="…"`, `confirmLabel="…"`, `cancelLab
 A click's `result` holds `x`, `y`, `globalX`, `globalY` and the keys held: `shift`, `alt`, `meta` (Control or
 Command, the platform's "add to" key), `ctrl` (Control). A drag's (every move) holds `dx`, `dy` (the move since the
 last event), `x`, `y`, `globalX`, `globalY`, `startX`, `startY`, `pointerCount`; a drag's end holds `vx`, `vy` (the
-speed). A text field's change is the text itself (`result`, not `result.text`).
+speed). A text field's change is the text itself (`result`, not `result.text`). A press that reads the keys held
+(a list whose rows are chosen this way needs none of it: `selectable`,
+[lists.md](lists.md#lists-a-list-chosen-from-and-swiped)):
+
+```notation
+state rows=[{"id":"a","name":"Ada"},{"id":"b","name":"Lin"}]
+state chosen=[]
+Column gap=8
+  each item in rows
+    Text "{item.name}" onTap={result.meta ? chosen=append(chosen,item.id) : chosen=[item.id]}
+    Text "Open" onTap={result.shift ? emit openBeside : emit open}
+```
 
 {{verbs}}
 

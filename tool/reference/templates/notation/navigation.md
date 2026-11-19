@@ -119,8 +119,17 @@ A Dialog, Sheet or Drawer that must not close while something is typed says so o
 `blockBack={dirty}`) keeps Escape, a tap outside and back from closing it while it holds; `guardText="Discard the
 draft?"` asks that first (a yes runs `onDiscard={…}` and closes); `onBackPressed={open keepDraft}` runs instead.
 With no design system the panel is drawn in the theme's `surface` and its title in `onSurface`, so it follows the
-site's theme and its dark mode; a `Drawer` has no rule at its side unless its line writes a `border`. For example
-`Dialog#compose "New message" guard={draft != ""} guardText="Discard the draft?" onDiscard={draft=""}`.
+site's theme and its dark mode; a `Drawer` has no rule at its side unless its line writes a `border`. A dialog that
+asks before unsaved work is discarded:
+
+```notation width=1280 expands
+state draft=""
+Column gap=12
+  Button "Compose" onTap={open compose}
+Dialog#compose "New message" guard={draft != ""} guardText="Discard the draft?" onDiscard={draft=""}
+  Input "Message" @draft multiline
+  Button "Send" onTap={draft=""; close}
+```
 
 In a site an overlay is a screen of the whole site. Two pages may each write one id (`Drawer#nav` on the board page
 and on the list page): written alike on both, it is one overlay; drawn differently, `expand` gives each page its own,

@@ -16,6 +16,9 @@ colors and text styles (`color=primary`). Its manifest is JSON; see the JSON ref
 <a id="design-systems-defined-words"></a>
 ## Defined words
 
+Before a `define` (or a `primitive`), look the word up in [index.md](index.md): the notation may have it already
+(`copy` and `focus` are actions, `Splitter` a control), and a word it has is not defined again.
+
 `define` at the margin, and the word as a line would use it, each value its default; under it, indented, the lines
 it stands for. Those lines read the word's strings and keys by name in braces; `...` on a line of its own is where
 the lines written under a use go. A defined word is written out where it is used. A word that keeps a value is

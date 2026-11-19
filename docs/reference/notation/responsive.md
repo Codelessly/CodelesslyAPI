@@ -40,6 +40,9 @@ A line shown only on a phone under a bar (`Row#phoneSearch show=phone` for the f
 its own: give it the bar's `fill=` and move the bar's `border-bottom` onto it, or write it inside the bar's column,
 so the field sits in the bar and not on the page's background.
 
+A tap that does different things at different widths reads the window in its action: `onTap={screen.width < 700 ?
+open detail : picked=item.id}` opens a sheet on a phone and fills the pane beside the list on a desktop.
+
 <a id="responsive-a-design-at-a-width"></a>
 ## A design at a width
 

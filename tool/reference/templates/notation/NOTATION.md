@@ -72,6 +72,9 @@ Column gap=8
   button in one border ([forms.md](forms.md#forms-a-number-with-its-buttons)).
 - `Grid cols=3 gap=8` lays the lines under it in columns; `List` is a column of rows; `Image "url"` a picture;
   `Avatar "Maya Reyes"` a round mark with initials; `Pages` a swiped row of pages.
+- `Calendar @day marks=["2026-03-04"]` is a month on the page with a dot under each day listed (records
+  `{date, label}`: a short text under it); `Barcode "text" symbology=qrCode` draws a QR code of the text
+  (`code128`, `ean13`: bars).
 - An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector). In
   the sidebar write `Brand`, `NavSection "Group"`, `NavItem "Label" icon=… selected={…}` and a `Footer` (pinned at
   its end) instead of styling rows by hand ([navigation.md](navigation.md#navigation-a-sidebar)). A

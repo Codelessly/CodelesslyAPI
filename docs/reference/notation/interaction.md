@@ -48,6 +48,8 @@ What a writer from the web expects that is otherwise here:
   line is said.
 - The plus key is `key +` (or `key plus`), with a modifier `key mod++`.
 - While a dialog (a canvas opened with `openModal`) is open, its own `key` lines run and the page's under it do not.
+- A `key` line with no Ctrl, Cmd or Alt (`key j`, `key Enter`) waits while a text field has the caret: the field
+  takes the key. `key Escape`, and a key with `mod` or `alt`, run while typing.
 - A letter is its own key with Shift or without: `key j` is not Shift+J; write `key shift+j` for that. A sign typed
   with Shift is written as itself: `key ?`, `key !` (not `key shift+/`).
 - `focus search` reaches a field inside a component the page calls when it is the only one of that id on screen;

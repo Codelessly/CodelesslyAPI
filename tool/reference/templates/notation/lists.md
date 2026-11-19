@@ -132,6 +132,20 @@ ListView h=120 scrollDirection=horizontal
     Text "{item.name}" w=100
 ```
 
+## A list that follows its newest entry
+
+`follow` on an each, with the height it scrolls in, is a log or a chat: `each line in lines follow h=180` opens at
+its end and stays there as entries are added (the list's `stickToEnd`). `follow grow` takes the room its column
+leaves instead of a height (a chat over its composer).
+
+```notation
+state lines=["Connected","Ready"]
+Column gap=8
+  each item in lines follow h=180
+    Text "{item}"
+  Button "Add" onTap={lines=append(lines,"Synced")}
+```
+
 ## A list chosen from and swiped
 
 `selectable selected=@chosen` on the line an each is under makes its rows chosen as a desktop list's are (a press
