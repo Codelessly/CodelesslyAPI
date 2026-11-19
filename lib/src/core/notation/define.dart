@@ -1836,6 +1836,10 @@ final class _Substitution {
               final w = foldWritten(v);
               parts.add(w == null ? '$k={$e}' : '$k=$w');
             }
+          } else if ((k == 'variable' || k.endsWith('.variable')) && renamed[v.replaceAll('"', '')] != null) {
+            // `measure.variable="box"`: a variable named by its name is the
+            // word's own when its body states it.
+            parts.add('$k=${v.startsWith('"') ? '"${renamed[v.replaceAll('"', '')]}"' : renamed[v]}');
           } else if (v.startsWith('"')) {
             parts.add('$k=${_string(v)}');
           } else if (v.startsWith('[')) {

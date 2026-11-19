@@ -304,5 +304,14 @@ define Hotkey "keys" key hint onPress
       expect(r.issues, isEmpty);
       expect(jsonEncode(r.document), contains('"variable":"n"'));
     });
+
+    test('a variable a key names by a string (measure.variable) is the word\'s own when the body states it', () {
+      final r = _read('Column\n  Frame2\n  Frame2\ndefine Frame2\n  state box={}\n  Column w=fill measure.variable="box"\n    Text "{box.width}"\n');
+      expect(r.issues, isEmpty);
+      final doc = jsonEncode(r.document);
+      expect(doc, allOf(contains('"box_frame21"'), contains('"box_frame22"')));
+      expect((_node(r, 'frame21')['measure'] as Map)['variable'], 'box_frame21');
+      expect((_node(r, 'frame22')['measure'] as Map)['variable'], 'box_frame22');
+    });
   });
 }
