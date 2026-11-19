@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  drawingTests();
   gridWidthTests();
   wordOverParameterTests();
   componentParamTests();
@@ -358,5 +359,78 @@ Column w=fill
       {'mainAxisSpacing': 4, 'crossAxisSpacing': 4},
       {'mainAxisExtent': 226},
     ]));
+  });
+}
+
+void drawingTests() {
+  group('drawing words that were kept and drew nothing', () {
+    test('clip=true cuts what is in the box at its edge; clip=false does not', () {
+      final r = _parse('''
+Column
+  Stack#a w=300 h=60 radius=9 clip=true
+    Box w=fill h=200
+  Stack#b w=300 h=60 clip=false
+    Box w=fill h=200
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'a')['decoration'] as Map)['clip'], 'antiAlias');
+      expect((_node(r, 'b')['decoration'] as Map?)?['clip'] ?? 'none', 'none');
+    });
+
+    test('two sides of a border on one line are both drawn', () {
+      final r = _parse('''
+Column
+  Row#cell w=120 h=40 border-right=#FFD0D0D0 border-bottom=#FFD0D0D0
+    Text "cell"
+  Row#three w=120 h=40 border-top=#FFD0D0D0 border-left=#FFD0D0D0 border-bottom=#FFD0D0D0
+    Text "cell"
+  Row#one w=120 h=40 border-bottom=#FFD0D0D0
+    Text "cell"
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'cell')['decoration'] as Map)['strokeSides'], 'bottomRight');
+      expect((_node(r, 'three')['decoration'] as Map)['strokeSides'], 'noRight');
+      expect((_node(r, 'one')['decoration'] as Map)['strokeSides'], 'bottom');
+      expect((_node(r, 'cell')['decoration'] as Map)['strokes'], [
+        {'color': '#FFD0D0D0'},
+      ]);
+    });
+
+    test('sides of two colours: one colour is drawn, and that is said', () {
+      final r = _parse('''
+Column
+  Row#cell w=120 h=40 border-right=#FFD0D0D0 border-bottom=#FF000000
+    Text "cell"
+''');
+      expect(r.issues.single.message, contains('one colour'));
+      expect((_node(r, 'cell')['decoration'] as Map)['strokeSides'], 'bottomRight');
+    });
+
+    test('a box pinned to both edges with no size there fills between them', () {
+      final r = _parse('''
+Stack w=222 h=112
+  box#pinned x={"start":3,"end":3} y={"start":12,"end":2}
+    customPaint viewBox=[240,100] fit=fill
+      line p1=[0,53] p2=[240,53] stroke=#FF000000 strokeWidth=2
+  box#sized x={"start":3,"end":3} y={"start":12,"end":2} h=20
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, 'pinned')['layout'] as Map)['height'], {'fill': 0});
+      expect((_node(r, 'pinned')['layout'] as Map)['width'], {'fill': 0});
+      expect((_node(r, 'sized')['layout'] as Map)['height'], 20);
+    });
+
+    test('an IconButton\'s fill is its own ground, written or worked out', () {
+      final r = _parse('''
+state playing=false
+Row
+  IconButton#a "pause" fill=#FFF5B56B color=#FF21160D
+  IconButton#b "pause" fill={playing ? "#FFF5B56B" : "#FF000000"}
+''');
+      expect(r.issues, isEmpty);
+      expect((_props(r, 'a')['style'] as Map)['backgroundColor'], '#FFF5B56B');
+      expect(_node(r, 'a')['decoration'], isNull);
+      expect((_node(r, 'b')['bind'] as Map)['props.style.backgroundColor'], contains('playing'));
+    });
   });
 }

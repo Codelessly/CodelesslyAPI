@@ -1604,6 +1604,25 @@ const _borderSides = {
   'border-bottom': 'bottom', 'border-top': 'top', 'border-left': 'left', 'border-right': 'right', //
   'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
 };
+/// The name of the stroke sides [sides] (of left, top, right, bottom).
+String _sidesName(Set<String> sides) {
+  const order = ['left', 'top', 'right', 'bottom'];
+  final s = [for (final o in order) if (sides.contains(o)) o];
+  return switch (s.length) {
+    1 => s.single,
+    2 => switch (s.join('+')) {
+        'top+bottom' => 'topBottom',
+        'left+right' => 'leftRight',
+        'top+right' => 'topRight',
+        'right+bottom' => 'bottomRight',
+        'left+bottom' => 'bottomLeft',
+        _ => 'topLeft',
+      },
+    3 => 'no${order.firstWhere((o) => !sides.contains(o)).replaceFirstMapped(RegExp('^.'), (m) => m[0]!.toUpperCase())}',
+    _ => 'all',
+  };
+}
+
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
 /// A flag word written with `=true` or `=false` (after a size's condition or
 /// not): the condition, the word, the value.
@@ -5470,6 +5489,8 @@ class _Parser {
     final positional = <String>[];
     final node = <String, Object?>{};
     final props = <String, Object?>{}, layout = <String, Object?>{}, decoration = <String, Object?>{}, bind = <String, Object?>{};
+    // The sides the line's border-<side> words name, so far.
+    final sidesWritten = <String>{};
     final reactions = <Json>[];
     // The reactions `menu=` gave the line, by trigger: what the line's own
     // onRightClick or onLongPress does runs in the same reaction before the
@@ -6696,6 +6717,13 @@ class _Parser {
           decoration['clip'] = raw;
           continue;
         }
+        // `clip=true`: as the bare word clip, what is in it is cut at its
+        // edge (round corners too); `clip=false`: not. (`true` is no way
+        // of clipping the document has: it was kept and nothing was cut.)
+        if (key == 'clip' && (raw == 'true' || raw == 'false') && spec.prop('clip') == null) {
+          decoration['clip'] = raw == 'true' ? 'antiAlias' : 'none';
+          continue;
+        }
         if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
           _use('alias', key, col, of: 'parameter', to: to, on: written);
           key = to;
@@ -6777,6 +6805,18 @@ class _Parser {
           if (v != 'none' && v != 'transparent' && v != false && v != 0) _framedSelects.add(id);
         }
         if (type == 'dropdown' && !component && key == 'underline') _ownFrameSaid.add(id);
+        // `IconButton "play_arrow" fill=accent`: the button's own ground
+        // (its style's), which it draws under its icon; a fill on the node
+        // is not drawn by a button.
+        if (key == 'fill' && type == 'iconButton' && !component) {
+          if (raw.startsWith('=')) {
+            bind['props.style.backgroundColor'] = _namedIn(_read(raw.substring(1)), 'fill');
+            buttonLook ??= <String, Object?>{};
+          } else {
+            (buttonLook ??= <String, Object?>{})['backgroundColor'] = _named(_value(raw), 'fill');
+          }
+          continue;
+        }
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
@@ -7024,10 +7064,18 @@ class _Parser {
         // A hairline round it: `border=#FFE5E7EB`, or one that follows data: `border={on?"#FF2563EB":"#FFE5E7EB"}`.
         // A hairline on one side: border-bottom=#FFE5E7EB (a bar's rule, a pane's edge).
         if (_borderSides[key] case final String side when !raw.startsWith('=')) {
-          decoration['strokes'] = [
-            {'color': _named(_value(raw), 'stroke')},
-          ];
-          decoration['strokeSides'] = side;
+          final stroke = {'color': _named(_value(raw), 'stroke')};
+          // A second side on the line (`border-right=rule border-bottom=rule`)
+          // is drawn with the first (it replaced it: one stroke of two).
+          // A node's sides are one colour: another's is said.
+          final before = sidesWritten.isEmpty ? null : readList(decoration['strokes'])?.firstOrNull;
+          if (before != null && jsonEncode(before) != jsonEncode(stroke)) {
+            _issue(col, 'The sides of one border are one colour: $key=$raw is drawn in the colour of the side before it. A side of another colour is a line of its own (a Box w=fill h=1 fill=â€¦ at that edge).');
+          } else {
+            decoration['strokes'] = [stroke];
+          }
+          sidesWritten.add(side);
+          decoration['strokeSides'] = _sidesName(sidesWritten);
           continue;
         }
         // …one that follows data: border-bottom={active ? accent : transparent}.
@@ -7035,7 +7083,8 @@ class _Parser {
           decoration['strokes'] = [
             {'color': '#00000000'},
           ];
-          decoration['strokeSides'] = side;
+          sidesWritten.add(side);
+          decoration['strokeSides'] = _sidesName(sidesWritten);
           bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
           continue;
         }
@@ -8149,6 +8198,13 @@ class _Parser {
           props['style'] = style..['color'] = _named(_value(ink), 'text');
         }
       }
+    }
+    // A node pinned to both edges of its Stack along an axis
+    // (`y={"start":12,"end":2}`) with no size written there is as long as
+    // the room between them: a fill, not its content's length (a box with
+    // only a paint under it has none: it collapsed to nothing).
+    for (final (pos, size) in const [('x', 'width'), ('y', 'height')]) {
+      if (layout[pos] case {'start': num _, 'end': num _} when !layout.containsKey(size)) layout[size] = {'fill': 0};
     }
     // In a grid a child is as wide as its cell and as tall as it says (its
     // row is as tall as its tallest child).
