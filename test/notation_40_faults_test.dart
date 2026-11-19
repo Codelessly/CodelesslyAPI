@@ -440,18 +440,20 @@ Row
 }
 
 void valueTextTests() {
-  test('a value read in a text inside a braced value, written as a document writes it ("\${p.x}"), is the value', () {
+  test('a place read from a text that is one value, also written as a document writes a read, is the number', () {
     final r = _parse(r'''
 state pins=[{"id":"a","mapX":-0.5,"mapY":0.5}]
 Stack w=400 h=200
   each p in pins
     Box#pin x={"align":"${p.mapX}"} y={"align":"{p.mapY}"} w=66 h=28
+    Select#price items=["${fixed(p.mapX, 2)}"]
 ''');
     expect(r.issues, isEmpty);
     final bind = _node(r, 'pin')['bind'] as Map;
-    expect(bind['layout.x'], isNot(contains(r'"$"')));
-    expect(bind['layout.x'], contains('item.mapX'));
-    expect(bind['layout.y'], contains('item.mapY'));
+    expect(bind['layout.x'], r'${= {"align": (item.mapX)}}');
+    expect(bind['layout.y'], r'${= {"align": (item.mapY)}}');
+    // In a text a `$` before a value is a dollar sign, as before (a price).
+    expect('${_node(r, 'price')['bind']}', contains(r'"$" + (fixed(item.mapX, 2))'));
   });
 
   test('a state\'s fill on a Text keeps the text: the look only, and the box to write is said', () {

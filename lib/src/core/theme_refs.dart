@@ -190,7 +190,7 @@ Map<String, List<String>> unknownThemeColors(LayoutDocument doc, ThemeTokens the
     final color = theme.color(name) ?? theme.notationRole(name);
     if (color == null && at != null) {
       final ids = out[name] ??= [];
-      if (!ids.contains(at)) ids.add(at!);
+      if (!ids.contains(at)) ids.add(at);
     }
     return color;
   }, theme.textStyle);

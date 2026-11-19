@@ -659,7 +659,7 @@ final class DefinedWords {
   /// What is said of a definition of a word the notation already has
   /// (notationBuiltInDefinition), or null: such a definition read as the
   /// text arrives is not used, and this is said.
-  final String? Function(String word)? builtIn;
+  final String? Function(String word, bool primitive)? builtIn;
 
   /// What a body reads as `theme.<name>` (docs/design/20 section 16): the
   /// looks the page words read, by name, as they write them ([notationThemeReads]).
@@ -888,7 +888,7 @@ final class DefinedWords {
     for (final p in problems) {
       issue?.call(1, p);
     }
-    if ((def == null ? null : builtIn?.call(def.word)) case final said?) {
+    if ((def == null ? null : builtIn?.call(def.word, def.primitive)) case final said?) {
       issue?.call(1, 'page:${d.line}: $said');
       return;
     }

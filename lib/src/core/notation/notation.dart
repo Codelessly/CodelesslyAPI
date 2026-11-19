@@ -1642,7 +1642,7 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 /// site's `define`, `primitive` or component of such a name is not used,
 /// and is said at the definition (before, `define Card` was not used, with
 /// no word).
-String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
+String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core, bool primitive = false}) {
   if (word.isEmpty) return null;
   final c = catalog ?? Catalog.current;
   if (PageWords.words.contains(word)) return '$word, a word of the page (its frames and their lines: App, Sidebar, Rail, Main, Nav, Section, Footer, Dialog…): $word …';
@@ -1653,7 +1653,14 @@ String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary v
   // as Calendar, DataTable as Table) is not a word it has: a page's or a
   // site's own definition of the name is the one read, as it is over a
   // dictionary's. (The alias won, and the writer's month grid was a bare
-  // date picker with its parameters left out.)
+  // date picker with its parameters left out.) A `primitive` of the name
+  // has no lines to read in its place (a labelled box would stand in for
+  // what the notation draws): there the alias is the notation's word still.
+  if (primitive) {
+    if (vocabulary.types[word] case final a? when !vocabulary.definitions.containsKey(word)) {
+      return '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}';
+    }
+  }
   return null;
 }
 
@@ -2330,7 +2337,10 @@ class _Parser {
     textVariable: (name) => variables[name]?['type'] == 'text',
     eachItem: (name) => _stack.any((o) => o.each == name),
     internal: (name) => _top._internal.add(name),
-    builtIn: (word) => switch (_builtIn(word)) { final what? => notationBuiltInDefinition(word, what), _ => null },
+    builtIn: (word, primitive) => switch (_builtIn(word, primitive: primitive)) {
+      final what? => notationBuiltInDefinition(word, what, kind: primitive ? 'primitive' : 'definition'),
+      _ => null,
+    },
     bindsVariable: (name, column, start) => _bindsVariable(name, column, () {
       if (start == null) return '';
       final v = _value(start.trim());
@@ -2477,8 +2487,8 @@ class _Parser {
   /// What the notation has under [word] that a writer's definition does not
   /// replace ([notationBuiltInWord]); null for a design system's component,
   /// which a page's own definition may replace.
-  String? _builtIn(String word) =>
-      _componentNames(word) != null ? null : notationBuiltInWord(word, catalog: catalog, vocabulary: options.vocabulary);
+  String? _builtIn(String word, {bool primitive = false}) =>
+      _componentNames(word) != null ? null : notationBuiltInWord(word, catalog: catalog, vocabulary: options.vocabulary, primitive: primitive);
 
   bool _ownType(String word) =>
       notationTypes.containsKey(word) ||
@@ -4575,14 +4585,14 @@ class _Parser {
       final more = readPageDefinitions(definitions, others: others);
       // A word the notation has is the notation's (said where the more text
       // is read: a site's definition file).
-      more.words.removeWhere((w, _) => _builtIn(w) != null);
+      more.words.removeWhere((w, defs) => _builtIn(w, primitive: defs.every((d) => d.primitive)) != null);
       _defined.preread(more.words);
     }
     final own = readPageDefinitions(text, others: others);
     // A word the notation has is the notation's: the text's definition of it
     // is not used, and said where it is written.
     for (final w in own.words.keys.toList()) {
-      if (_builtIn(w) case final what?) {
+      if (_builtIn(w, primitive: own.words[w]!.every((d) => d.primitive)) case final what?) {
         for (final d in own.words.remove(w)!) {
           issues.add(NotationIssue(d.line, 1, notationBuiltInDefinition(w, what, kind: d.primitive ? 'primitive' : 'definition')));
         }
@@ -6673,7 +6683,7 @@ class _Parser {
             // A list whose texts read values (items=["Lemons, {2 * n}"]):
             // each such text is its parts joined.
             final decoded = jsonDecode(raw);
-            if (_readsValues(decoded)) raw = '=${_formulaSource(decoded)}';
+            if (_readsValues(decoded)) raw = '=${_formulaSource(decoded, numbers: const {'x', 'y', 'w', 'h'}.contains(key))}';
           } catch (_) {
             _issue(col, 'Not a list of values. One that is worked out is written in braces: $key={$raw}.');
             continue;
@@ -11576,17 +11586,20 @@ class _Parser {
 
   /// [json] as a formula, each text that reads values (`"{n} left"`) as its
   /// parts joined (`(n) + " left"`).
-  String _formulaSource(Object? json) {
+  String _formulaSource(Object? json, {bool numbers = false}) {
     switch (json) {
+      // Where a number is read (a place, a size: `x={"align":"{p.mapX}"}`),
+      // a text that is one value is that value, also written as a document
+      // writes a read (`"${p.mapX}"`: the `$` is no part of a number; it
+      // was kept, the place read "$0.6" and the pin went to a corner).
+      case final String s when numbers && RegExp(r'^\$?\{[^{}]+\}$').hasMatch(s.trim()):
+        final t = s.trim();
+        return '(${_natural(t.substring(t.indexOf('{') + 1, t.length - 1).trim())})';
       case final String s when _spans(s).isNotEmpty:
         final parts = <String>[];
         var at = 0;
         for (final (start, end) in _spans(s)) {
-          // `"${p.mapX}"`, a value read as a document writes it: the `$` is
-          // the reading's, not a character of the text (it was kept, and
-          // the text read "$0.6": no number where one was meant).
-          final before = start > at && s[start - 1] == r'$' ? start - 1 : start;
-          if (before > at) parts.add(jsonEncode(s.substring(at, before)));
+          if (start > at) parts.add(jsonEncode(s.substring(at, start)));
           parts.add('(${_natural(s.substring(start + 1, end - 1).trim())})');
           at = end;
         }
@@ -11595,9 +11608,9 @@ class _Parser {
         if (!parts.first.startsWith('"')) parts.insert(0, '""');
         return '(${parts.join(' + ')})';
       case final List l:
-        return '[${l.map(_formulaSource).join(', ')}]';
+        return '[${l.map((e) => _formulaSource(e, numbers: numbers)).join(', ')}]';
       case final Map m:
-        return '{${m.entries.map((e) => '${jsonEncode(e.key)}: ${_formulaSource(e.value)}').join(', ')}}';
+        return '{${m.entries.map((e) => '${jsonEncode(e.key)}: ${_formulaSource(e.value, numbers: numbers)}').join(', ')}}';
       default:
         return jsonEncode(json);
     }
