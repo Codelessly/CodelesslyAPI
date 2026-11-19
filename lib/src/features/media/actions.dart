@@ -1,4 +1,4 @@
-// The media library's action types: speech, sound, images, capture, print and file downloads. One immutable
+// The media library's action types: speech, sound, images, capture, print, files picked and saved, and sharing. One immutable
 // class per type, decoded through its ActionSpec ([mediaActionSpecs]); the
 // SDK's media feature runs them.
 
@@ -40,7 +40,111 @@ final class DownloadFileAction extends MediaAction {
   Json get fieldsJson => {'fileName': fileName, 'text': text, 'mimeType': mimeType};
 }
 
-/// The media library's action types: speech, sound, images, capture, print.
+/// How a [PickFileAction] gives what is in a picked file.
+enum PickedFileContent {
+  /// As a `data:` URL (`data`): an image's `url`, a `cloudFiles` action's
+  /// `source`.
+  dataUrl,
+
+  /// As text (`text`): the file read as UTF-8.
+  text,
+
+  /// Not at all: the record has the name, the size and the type only.
+  none,
+}
+
+/// Opens the device's file chooser and gives the page what was picked,
+/// uploading nothing. `${result}` is the file's record, `{"name", "size"
+/// (bytes), "type" (its MIME type, "" when unknown), "data"}`: `data` is
+/// the file as a `data:` URL, which an image shows as its `url` and a
+/// `cloudFiles` action uploads as its `source` (the record itself is a
+/// source too). With [multiple] `${result}` is a list of records. With
+/// [content] `text` the record has `text` (the file read as UTF-8) in
+/// place of `data`; with `none` neither. When the person picks nothing the
+/// chain stops there: the actions after it do not run. [accept] names the
+/// kinds offered, as HTML's `accept` does: MIME types (`image/*`,
+/// `application/pdf`) and extensions (`.csv`), separated by commas; a file
+/// of another kind, or one over [maxSizeMB], fails the action
+/// (`invalid-file-type`, `file-too-large`). JSON: `{"type": "pickFile",
+/// "accept": "image/*,.pdf"}`; written `pickFile accept="image/*,.pdf";
+/// files=append(files, result)`.
+final class PickFileAction extends MediaAction {
+  const PickFileAction({
+    this.accept = '',
+    this.multiple = false,
+    this.content = PickedFileContent.dataUrl,
+    this.maxSizeMB = 10,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'pickFile';
+  @override
+  String get type => typeName;
+
+  /// The kinds of file offered (an expression): MIME types and extensions,
+  /// separated by commas. Empty: any file.
+  final String accept;
+
+  /// Whether several files can be picked: `${result}` is then a list.
+  final bool multiple;
+  final PickedFileContent content;
+
+  /// The largest file taken, in megabytes.
+  final double maxSizeMB;
+
+  static PickFileAction _fromJson(Json m, _Common c) => PickFileAction(
+    accept: _s(m, 'accept'),
+    multiple: _b(m, 'multiple', false),
+    content: _e(PickedFileContent.values, m, 'content', PickedFileContent.dataUrl),
+    maxSizeMB: _d(m, 'maxSizeMB', 10),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get fieldsJson => {
+    if (accept.isNotEmpty) 'accept': accept,
+    if (multiple) 'multiple': true,
+    if (content != PickedFileContent.dataUrl) 'content': content.name,
+    if (maxSizeMB != 10) 'maxSizeMB': writeDouble(maxSizeMB),
+  };
+}
+
+/// Opens the device's share panel with a [text], a [url] and a [title]
+/// (each an expression; at least a text or a URL). `${result}` is
+/// `{"shared", "copied"}`: `shared` when the panel took it; where the
+/// platform has no share panel (or the app gives none) the URL, or with no
+/// URL the text, is copied to the clipboard instead and `copied` is true;
+/// both false when the person closed the panel. `${screen.url}` is the
+/// address of the page it runs on. JSON: `{"type": "share", "title":
+/// "${story.title}", "url": "${screen.url}"}`; written `share
+/// title={story.title} url={screen.url}; result.copied ? toast "Link
+/// copied"`.
+final class ShareAction extends MediaAction {
+  const ShareAction({this.text = '', this.url = '', this.title = '', super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'share';
+  @override
+  String get type => typeName;
+  final String text, url, title;
+
+  static ShareAction _fromJson(Json m, _Common c) => ShareAction(
+    text: _s(m, 'text'), url: _s(m, 'url'), title: _s(m, 'title'),
+    enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+
+  @override
+  Json get fieldsJson => {
+    if (text.isNotEmpty) 'text': text,
+    if (url.isNotEmpty) 'url': url,
+    if (title.isNotEmpty) 'title': title,
+  };
+}
+
+/// The media library's action types: speech, sound, images, capture, print,
+/// files in and out, sharing.
 sealed class MediaAction extends ActionDef {
   const MediaAction({super.enabled, super.nonBlocking, super.when});
 }
@@ -282,4 +386,6 @@ const List<ActionSpec> mediaActionSpecs = [
   ActionSpec(PlaySoundAction.typeName, label: 'Play sound', fields: PlaySoundFields.all, decode: PlaySoundAction._fromJson, requires: ['sound']),
   ActionSpec(CaptureScreenshotAction.typeName, label: 'Capture screenshot', fields: CaptureScreenshotFields.all, decode: CaptureScreenshotAction._fromJson, requires: ['capture']),
   ActionSpec(DownloadFileAction.typeName, label: 'Download file', fields: DownloadFileFields.all, decode: DownloadFileAction._fromJson, requires: ['files']),
+  ActionSpec(PickFileAction.typeName, label: 'Pick file', fields: PickFileFields.all, decode: PickFileAction._fromJson, requires: ['files']),
+  ActionSpec(ShareAction.typeName, label: 'Share', fields: ShareFields.all, decode: ShareAction._fromJson, requires: ['share']),
 ];

@@ -5,7 +5,7 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 final package = PluginPackage.fromJson({
-  'schema': 2,
+  'schema': 3,
   'id': 'acme.ui',
   'catalog': {
     'widgets': [

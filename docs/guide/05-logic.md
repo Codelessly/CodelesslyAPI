@@ -127,7 +127,7 @@ color); a value that can't be read leaves the property as it was.
 | `type` | Class |
 |---|---|
 | `navigate`, `openModal`, `closeModal`, `openLink` | `NavigateAction`, `OpenModalAction`, `CloseModalAction`, `OpenLinkAction` |
-| `setVariable`, `animateVariable`, `setValue`, `setVariant`, `setStorage` | State |
+| `setVariable`, `setValue`, `setVariant`, `setStorage` | State |
 | `if`, `forEach`, `delay`, `confirm` | Flow |
 | `callFunction`, `runScript` | The app's code and scripts |
 | `callApi`, `loadCloudData`, `reloadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
@@ -135,7 +135,7 @@ color); a value that can't be read leaves the property as it was.
 | `callApi`, `loadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
 | `auth`, `paywall` | Accounts and purchases |
 | `showToast`, `haptic`, `playSound`, `speak`, `copyToClipboard` | Feedback |
-| `submitForm`, `editText`, `focus`, `scrollTo`, `playAnimation`, `controlTrack`, `controlDismissible`, `controlTransform` | Inputs and motion |
+| `submitForm`, `editText`, `focus`, `scrollTo`, `animate`, `controlTrack`, `controlDismissible`, `controlTransform` | Inputs and motion |
 | `captureScreenshot` | Capture (`${result.image}`, a PNG `data:` URL) |
 
 Every action has `enabled`, `nonBlocking` (not awaited) and `when` (a predicate). An unknown `type` decodes as

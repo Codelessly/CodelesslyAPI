@@ -1,8 +1,8 @@
 {
-  "version": "38.0.0",
+  "version": "39.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4341
+    "words": 4344
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4341
+      "words": 4344
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 600
+      "words": 599
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -95,7 +95,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-the-references",
       "title": "The references",
-      "words": 999
+      "words": 1003
     },
     {
       "topic": "layout",
@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5028
+      "words": 5013
     },
     {
       "topic": "layout-sizes",
@@ -131,7 +131,7 @@
       "file": "layout.md",
       "anchor": "layout-keys-every-line-takes",
       "title": "Keys every line takes",
-      "words": 649
+      "words": 634
     },
     {
       "topic": "layout-words",
@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 12977
+      "words": 12936
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9868
+      "words": 9827
     },
     {
       "topic": "forms-behaviors",
@@ -509,7 +509,7 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 5759
+      "words": 5829
     },
     {
       "topic": "events-an-event",
@@ -523,7 +523,7 @@
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 3869
+      "words": 3939
     },
     {
       "topic": "interaction",
@@ -581,7 +581,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3536
+      "words": 3560
     },
     {
       "topic": "animation-the-animate-words",
@@ -595,7 +595,7 @@
       "file": "animation.md",
       "anchor": "animation-animation-lines",
       "title": "Animation lines",
-      "words": 520
+      "words": 544
     },
     {
       "topic": "animation-transitions",
@@ -638,7 +638,7 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8004
+      "words": 7503
     },
     {
       "topic": "charts-writing-a-chart",
@@ -652,14 +652,14 @@
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6673
+      "words": 6160
     },
     {
       "topic": "charts-records",
       "file": "charts.md",
       "anchor": "charts-records",
       "title": "Records",
-      "words": 1063
+      "words": 1075
     },
     {
       "topic": "charts-examples",
@@ -717,7 +717,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3822
+      "words": 4069
     },
     {
       "topic": "navigation-page-frames",
@@ -731,14 +731,14 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 539
+      "words": 736
     },
     {
       "topic": "navigation-screens",
       "file": "navigation.md",
       "anchor": "navigation-screens",
       "title": "Screens",
-      "words": 45
+      "words": 95
     },
     {
       "topic": "navigation-words",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 16339
+      "words": 13937
     },
     {
       "topic": "values-writing-a-value",
@@ -939,14 +939,14 @@
       "file": "values.md",
       "anchor": "values-enums",
       "title": "Enums",
-      "words": 10625
+      "words": 10681
     },
     {
       "topic": "values-records",
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 4751
+      "words": 2293
     },
     {
       "topic": "values-examples",
@@ -961,14 +961,14 @@
       "anchor": "page-data",
       "title": "Data (feature layer)",
       "summary": "The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission.",
-      "words": 1657
+      "words": 1660
     },
     {
       "topic": "data-actions",
       "file": "data.md",
       "anchor": "data-actions",
       "title": "Actions",
-      "words": 1519
+      "words": 1522
     },
     {
       "topic": "data-examples",
@@ -1026,8 +1026,15 @@
       "file": "media.md",
       "anchor": "page-media",
       "title": "Media (feature layer)",
-      "summary": "The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads and preloading images.",
-      "words": 1820
+      "summary": "The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads, picking a file, sharing and preloading images.",
+      "words": 2435
+    },
+    {
+      "topic": "media-a-file-picked-and-sharing",
+      "file": "media.md",
+      "anchor": "media-a-file-picked-and-sharing",
+      "title": "A file picked, and sharing",
+      "words": 182
     },
     {
       "topic": "media-words",
@@ -1041,7 +1048,7 @@
       "file": "media.md",
       "anchor": "media-actions",
       "title": "Actions",
-      "words": 731
+      "words": 1152
     },
     {
       "topic": "media-examples",
@@ -1078,7 +1085,7 @@
       "anchor": "page-levels",
       "title": "Levels and trust",
       "summary": "The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md).",
-      "words": 542
+      "words": 545
     },
     {
       "topic": "level-core",
@@ -1113,7 +1120,7 @@
       "file": "levels.md",
       "anchor": "level-full",
       "title": "4. Full vocabulary (full)",
-      "words": 97
+      "words": 98
     },
     {
       "topic": "level-features",
@@ -1127,7 +1134,7 @@
       "file": "levels.md",
       "anchor": "levels-trust",
       "title": "Trust",
-      "words": 145
+      "words": 147
     }
   ],
   "items": {
@@ -1197,7 +1204,6 @@
       "barChart": "charts.md#node-barChart",
       "lineChart": "charts.md#node-lineChart",
       "plotChart": "charts.md#node-plotChart",
-      "graph": "charts.md#node-graph",
       "barcode": "charts.md#node-barcode",
       "video": "media.md#node-video",
       "embeddedVideo": "media.md#node-embeddedVideo",
@@ -1340,6 +1346,8 @@
       "playSound": "media.md#action-playSound",
       "captureScreenshot": "media.md#action-captureScreenshot",
       "downloadFile": "media.md#action-downloadFile",
+      "pickFile": "media.md#action-pickFile",
+      "share": "media.md#action-share",
       "emitEvent": "engage.md#action-emitEvent"
     },
     "valueType": {
@@ -1421,16 +1429,6 @@
       "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",
-      "GraphCrosshair": "values.md#type-GraphCrosshair",
-      "GraphGuide": "values.md#type-GraphGuide",
-      "GraphInteractions": "values.md#type-GraphInteractions",
-      "GraphMark": "values.md#type-GraphMark",
-      "GraphPane": "values.md#type-GraphPane",
-      "GraphSelection": "values.md#type-GraphSelection",
-      "GraphStyle": "values.md#type-GraphStyle",
-      "GraphTransform": "values.md#type-GraphTransform",
-      "GraphXAxis": "values.md#type-GraphXAxis",
-      "GraphYAxis": "values.md#type-GraphYAxis",
       "Keyframe": "values.md#type-Keyframe",
       "PathFollow": "values.md#type-PathFollow",
       "Pose": "values.md#type-Pose",
@@ -1530,6 +1528,7 @@
       "ParticleShape": "values.md#enum-ParticleShape",
       "PathOrient": "values.md#enum-PathOrient",
       "PaywallOperation": "values.md#enum-PaywallOperation",
+      "PickedFileContent": "values.md#enum-PickedFileContent",
       "PlotChartGridAnchor": "values.md#enum-PlotChartGridAnchor",
       "PlotChartMarkerPosition": "values.md#enum-PlotChartMarkerPosition",
       "PlotChartMarkerShape": "values.md#enum-PlotChartMarkerShape",

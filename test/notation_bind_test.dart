@@ -4,8 +4,7 @@
 // takes `@low @high`; a bound variable is declared; `bind=` is refused with
 // the line as it is written now; a definition binds through `@value`,
 // `name=@` and a plain `value=1`; the printer writes `@name`; and the
-// rewrite of a line from `bind=` to `@` that the parser's message and the
-// SDK's migrate tool share.
+// rewrite of a line from `bind=` to `@` that the parser's message shows.
 import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';

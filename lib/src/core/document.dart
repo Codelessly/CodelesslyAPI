@@ -2,16 +2,49 @@ import 'package:meta/meta.dart';
 
 import 'catalog.dart';
 import 'json.dart';
-import 'migrate/migrate.dart';
 import 'node.dart';
 
-export 'migrate/migrate.dart' show kSchemaVersion, kOldestSchemaVersion, schemaOf;
+/// The schema version this package reads and writes: a document, publish
+/// model, bundle or other stored JSON of any other schema is refused
+/// ([UnsupportedSchemaException]).
+const int kSchemaVersion = 3;
 
-/// One step that upgrades a document's JSON from schema `n - 1` to `n`.
-typedef SchemaMigration = Json Function(Json document, {MigrationReport? report});
+/// Thrown when JSON this package decodes is not of [kSchemaVersion]: its
+/// `schema` is another number, or it has none. [message] names the schema
+/// found and the one this package reads.
+final class UnsupportedSchemaException implements FormatException {
+  const UnsupportedSchemaException(this.schema, {this.what = 'The document'});
 
-/// Upgrades by the version they produce: 3 is [migrate2to3].
-const Map<int, SchemaMigration> schemaMigrations = {3: migrate2to3};
+  /// The `schema` the JSON has: null when it has none.
+  final Object? schema;
+
+  /// What was being read, as the message starts: `The document`, `The publish model`.
+  final String what;
+
+  @override
+  String get message => switch (schema) {
+        null => '$what has no "schema"; codelessly_api reads schema $kSchemaVersion only ("schema": $kSchemaVersion).',
+        final num n when n == n.toInt() => '$what is in schema ${n.toInt()}; codelessly_api reads schema $kSchemaVersion only.',
+        final s => '$what has "schema": ${s is String ? '"$s"' : s}; codelessly_api reads schema $kSchemaVersion only.',
+      };
+
+  @override
+  Object? get source => null;
+
+  @override
+  int? get offset => null;
+
+  @override
+  String toString() => 'UnsupportedSchemaException: $message';
+}
+
+/// Throws an [UnsupportedSchemaException] (naming [what]) unless [json]'s
+/// `schema` is [version] (default [kSchemaVersion]).
+void requireSchema(Json json, {String what = 'The document', int version = kSchemaVersion}) {
+  final schema = json['schema'];
+  if (schema is num && schema == version) return;
+  throw UnsupportedSchemaException(schema, what: what);
+}
 
 /// A layout: a set of node trees (one per canvas/screen) in one flat map.
 @immutable
@@ -66,19 +99,21 @@ final class LayoutDocument {
         catalog: catalog,
       );
 
-  /// Decodes a document of any schema with [catalog] (default:
-  /// [Catalog.current]), upgrading it first: a schema-2 document (or one
-  /// with no `schema`) is migrated in memory ([migrate2to3]). Never throws:
-  /// entries that aren't nodes are dropped; a node or action type the
-  /// catalog doesn't declare is kept as it is.
+  /// Decodes a document of schema [kSchemaVersion] with [catalog] (default:
+  /// [Catalog.current]). A map of any other schema, or with no `schema`, is
+  /// refused: it throws an [UnsupportedSchemaException] saying the schema
+  /// found and the one read. Otherwise it never throws: JSON that is not a
+  /// map is an empty document, entries that aren't nodes are dropped, and a
+  /// node or action type the catalog doesn't declare is kept as it is.
   static LayoutDocument fromJson(Object? json, {Catalog? catalog}) {
     final c = catalog ?? Catalog.current;
     return identical(c, Catalog.current) ? _fromJson(json, c) : Catalog.run(c, () => _fromJson(json, c));
   }
 
   static LayoutDocument _fromJson(Object? json, Catalog catalog) {
-    var m = readMap(json) ?? const {};
-    m = migrateSchema(m);
+    final m = readMap(json);
+    if (m == null) return LayoutDocument(catalog: catalog);
+    requireSchema(m);
     final raw = readMap(m['nodes']) ?? const {};
     final nodes = <String, Node>{
       for (final e in raw.entries)
@@ -94,19 +129,6 @@ final class LayoutDocument {
       },
       catalog: catalog,
     );
-  }
-
-  /// [json] upgraded to [kSchemaVersion] (a document with no `schema` is
-  /// read as [kOldestSchemaVersion]); [report] collects what changed.
-  static Json migrateSchema(Json json, {MigrationReport? report}) {
-    var version = schemaOf(json);
-    var out = json;
-    while (version < kSchemaVersion) {
-      version++;
-      final step = schemaMigrations[version];
-      if (step != null) out = step(out, report: report);
-    }
-    return out;
   }
 
   Json toJson() => {

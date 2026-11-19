@@ -65,3 +65,22 @@ abstract final class DownloadFileFields {
   static const mimeType = PropDef<String>('mimeType', Codecs.string, 'text/plain');
   static const List<PropDef<Object?>> all = [fileName, text, mimeType];
 }
+
+/// [PickFileAction].
+abstract final class PickFileFields {
+  static const accept = PropDef<String>('accept', Codecs.string, '',
+      doc: 'The kinds of file offered, as HTML accept: MIME types (image/*, application/pdf) and extensions (.csv), separated by commas; an expression. Empty: any file.');
+  static const multiple = PropDef<bool>('multiple', Codecs.bool, false, doc: 'Several files: the result is a list of records.');
+  static const content = PropDef<PickedFileContent>('content', EnumCodec(PickedFileContent.values), PickedFileContent.dataUrl,
+      doc: 'What the record holds of the file: data (a data: URL), text (read as UTF-8), or neither.');
+  static const maxSizeMB = PropDef<double>('maxSizeMB', Codecs.double, 10, doc: 'The largest file taken, in megabytes.');
+  static const List<PropDef<Object?>> all = [accept, multiple, content, maxSizeMB];
+}
+
+/// [ShareAction].
+abstract final class ShareFields {
+  static const text = PropDef<String>('text', Codecs.string, '', doc: 'The text shared, an expression.');
+  static const url = PropDef<String>('url', Codecs.string, '', doc: 'The link shared, an expression: "\${screen.url}" is this page.');
+  static const title = PropDef<String>('title', Codecs.string, '', doc: 'A title for the share panel, an expression.');
+  static const List<PropDef<Object?>> all = [text, url, title];
+}

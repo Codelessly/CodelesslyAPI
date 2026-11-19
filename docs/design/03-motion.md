@@ -515,7 +515,7 @@ scale, when the margin is uneven), set explicitly so a pressed
 refused with the path to write (`movedPathHint`). A state style that moves a node keeps its motion layer at rest
 in the SDK, as the scale layer was kept (a layer added mid-press lost the tap).
 
-**Over the corpus** (docs/design/schema-3-migration-report.md, "30.1.0's one-way steps": 106 documents, 0 failures, a fixed point, no new
+**Over the corpus** (30.1.0's one-way steps: 106 documents, 0 failures, a fixed point, no new
 validation errors): 172 nodes' `layout.rotation` became `motion.rotate`, 3 of them (restaurant-B's menu accents,
 an uneven margin) with the pivot's offset as a translation; 6 bound rotations (reference-site's FAQ chevrons,
 petri's dial) bind `motion.rotate`; 6 `scale` transitions (the SDK's event_desktop fixtures) are `motion.scale`

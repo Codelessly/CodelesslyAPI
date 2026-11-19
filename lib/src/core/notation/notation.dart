@@ -2112,6 +2112,18 @@ class _Parser {
       return;
     }
     _top._idAt.putIfAbsent(o.id, () => (line: _line, condition: null));
+    // `stop=@name`: the variable is bound, so it is declared; any other form says how it is written.
+    if (o.stop case final String stop) {
+      if (o.action['stopVariable'] case final String name) {
+        _bindsVariable(name, 1, () => 0);
+      } else {
+        _issue(
+            1,
+            o.action.containsKey('snapHeights')
+                ? 'The stop of a Sheet is kept in a variable: stop=@name (state name=0), which holds the stop it rests at as stops= writes it (0 while it is closed), and moves the open sheet when it is set. "stop=$stop" is left out.'
+                : 'stop=@name is the stop a Sheet with stops rests at: give the Sheet its stops (stops=[0.5,1]). "stop=$stop" is left out.');
+      }
+    }
     final first = _overlays.isEmpty;
     // In it everything is laid out as on a card: a narrow canvas of its own.
     final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);
@@ -4052,7 +4064,7 @@ class _Parser {
 
   Json? _documentPatch;
 
-  /// What a `document id="checkout" schema=2 scope=page_variables` line
+  /// What a `document id="checkout" scope=page_variables` line
   /// says: the document's own `id` and `schema`, and the scope its `state`
   /// lines are kept in (docs/design/22 section 4.5).
   final _documentWords = <String, Object?>{};
@@ -4262,7 +4274,7 @@ class _Parser {
   }
 
   /// The words of a `document` line (after `document`): `id="…"`,
-  /// `schema=<n>`, `scope=<canvas id or page_variables>`, `conditions={…}`
+  /// `schema=3` (the only one), `scope=<canvas id or page_variables>`, `conditions={…}`
   /// (the document's own conditions, as their JSON: design 22, 2.1). False
   /// when the line is not one (its first word is no key of it).
   bool _documentLine(String text, int column) {
@@ -4271,7 +4283,7 @@ class _Parser {
     for (final w in words) {
       final ok = switch (w.key) {
         'id' => w.value is String,
-        'schema' => w.value is int,
+        'schema' => w.value == 3,
         'scope' => w.value is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(w.value! as String),
         'conditions' => w.value is Map || w.value is List,
         _ => false,
@@ -4517,7 +4529,7 @@ class _Parser {
     }
     final patch = _documentPatch;
     final words = {
-      for (final k in const ['id', 'schema', 'conditions'])
+      for (final k in const ['id', 'conditions'])
         if (_documentWords.containsKey(k)) k: _documentWords[k],
     };
     Json patched(Json d) {
@@ -4751,8 +4763,8 @@ class _Parser {
       if (j is Map) _documentPatch = mergePatch(_documentPatch ?? const {}, j.cast<String, Object?>(), keepNulls: true);
       return;
     }
-    // `document id="checkout" schema=2 scope=page_variables`: the document's
-    // own id and schema, and where its state lines are kept (a canvas id, or
+    // `document id="checkout" scope=page_variables`: the document's
+    // own id, and where its state lines are kept (a canvas id, or
     // page_variables for every canvas of the page).
     if (indent == 0 && RegExp(r'^document\s+[A-Za-z]+=').hasMatch(line)) {
       if (_documentLine(line.substring(9), column + 9)) return;

@@ -1,6 +1,5 @@
 // The short forms of [NodeAnimation] (`{"preset": "pulse"}`), each a pure
-// function of its params to tracks. (Schema 2's `loops`, `effectAnimations`
-// and motion keys are turned into animations by the schema-3 migration.)
+// function of its params to tracks.
 // Shared by the editor and the SDK: the SDK plays only the expanded form.
 part of 'behaviors.dart';
 
@@ -250,12 +249,6 @@ abstract final class AnimationPresets {
   /// The properties a legacy motion keyframe could name.
   static const legacyKeyframeProperties = [
     'translateX', 'translateY', 'scale', 'scaleX', 'scaleY', 'opacity', 'rotate', 'rotateX', 'rotateY', 'pathProgress', //
-  ];
-
-  /// The properties of a legacy motion that animated.
-  static const legacyMotionProperties = [
-    'translateX', 'translateY', 'scale', 'shiftX', 'shiftY', 'scaleX', 'scaleY', 'opacity', 'rotate', 'rotateX', //
-    'rotateY', 'pathProgress', 'blur',
   ];
 
   /// The id of the layer blur a legacy `motion.blur` became.

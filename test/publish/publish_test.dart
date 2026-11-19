@@ -104,7 +104,7 @@ void main() {
     });
 
     test('still decodes from junk', () {
-      final l = PublishLayout.fromJson({'breakpoints': [1, {'minWidth': 3}], 'fonts': 'x', 'lastUpdated': 'never'});
+      final l = PublishLayout.fromJson({'schema': 3, 'breakpoints': [1, {'minWidth': 3}], 'fonts': 'x', 'lastUpdated': 'never'});
       expect(l.breakpoints, isEmpty);
       expect(l.fonts, isEmpty);
       expect(l.lastUpdated, isNull);
@@ -242,7 +242,7 @@ void main() {
   test('a bundle holds the app and its layouts', () {
     final bundle = PublishBundle.fromJson({
       'schema': 3,
-      'model': {'projectId': 'p', 'layouts': {'home': {}}},
+      'model': {'schema': 3, 'projectId': 'p', 'layouts': {'home': {}}},
       'layouts': {'home': {...layoutJson}..remove('id')},
     });
     expect(bundle.model.projectId, 'p');
@@ -255,6 +255,7 @@ void main() {
   group('screens shown over other screens', () {
     test('a canvas keeps the screen it opens over and whether it is see-through', () {
       final layout = PublishLayout.fromJson({
+        'schema': 3,
         'id': 'L',
         'roots': ['photo'],
         'nodes': {

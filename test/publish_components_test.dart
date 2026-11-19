@@ -5,7 +5,7 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 const card = {
-  'schema': 2,
+  'schema': 3,
   'id': 'Card',
   'roots': ['card'],
   'widget': {
@@ -23,7 +23,7 @@ const card = {
 void main() {
   test('the stored component round-trips, its document a component document', () {
     final c = PublishComponent.fromJson({
-      'schema': 2,
+      'schema': 3,
       'id': 'Card',
       'version': 3,
       'digest': 'abc',
@@ -59,7 +59,7 @@ void main() {
       'widget': card['widget'],
       'roots': card['roots'],
       'id': 'Card',
-      'schema': 2,
+      'schema': 3,
     };
     expect(canonicalJson(reordered), canonicalJson(card));
     expect(PublishComponent(document: LayoutDocument.fromJson(card)).digestInput, canonicalJson(LayoutDocument.fromJson(card).toJson()));
@@ -67,7 +67,7 @@ void main() {
 
   test('a stored component keeps its document as stored: written back and digested as the publisher wrote it', () {
     final raw = {...card, 'nodes': {...card['nodes']! as Map, 'extra': {'type': 'box', 'zzz': 1}}};
-    final c = PublishComponent.fromJson({'schema': 2, 'id': 'Card', 'document': raw});
+    final c = PublishComponent.fromJson({'schema': 3, 'id': 'Card', 'document': raw});
     expect(c.toJson()['document'], raw);
     expect(c.digestInput, canonicalJson(raw));
     expect(c.copyWith(version: 2).digestInput, canonicalJson(raw));
@@ -76,7 +76,7 @@ void main() {
 
   test('the model lists components and each layout its closure; fonts of called components come with the layout', () {
     final model = PublishModel.fromJson({
-      'schema': 2,
+      'schema': 3,
       'projectId': 'p',
       'layouts': {
         'home': {'canvases': [{'id': 'home'}], 'fonts': ['a'], 'components': ['Header', 'Button']},
@@ -111,8 +111,8 @@ void main() {
 
   test('a bundle carries its components; one without writes none', () {
     final bundle = PublishBundle.fromJson({
-      'schema': 2,
-      'model': {'projectId': 'p', 'components': {'Card': {'version': 1}}},
+      'schema': 3,
+      'model': {'schema': 3, 'projectId': 'p', 'components': {'Card': {'version': 1}}},
       'layouts': {},
       'components': {
         'Card': {'version': 1, 'document': card},

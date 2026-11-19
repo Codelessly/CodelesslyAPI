@@ -15,8 +15,8 @@ import 'dart:convert';
 
 import '../behaviors.dart' show diffPatch, mergePatch;
 import '../catalog.dart';
+import '../document.dart' show kSchemaVersion, requireSchema, UnsupportedSchemaException;
 import '../json.dart';
-import '../migrate/migrate.dart' show kOldestSchemaVersion;
 import 'at_rules.dart' show atBlocksOf;
 import 'declared.dart';
 import 'media_words.dart' show mediaConditionWords;
@@ -28,10 +28,13 @@ import 'print_paint.dart' show printPaintLines;
 part 'print_at.dart';
 
 /// [document] in the notation. Parse it back with [notationOptionsFor].
+/// A document of a schema other than [kSchemaVersion], or with none, is
+/// refused ([UnsupportedSchemaException]).
 ///
 /// [whole], when given, is told why a document had to be printed whole as
 /// data (a single `document {…}` line): the measure's breakdown.
 String printNotation(Json document, {required Catalog catalog, void Function(String why)? whole}) {
+  requireSchema(document);
   document = printNormalized(document, catalog); // one spelling of what the API reads in two (print_events.dart)
   document = _componentNormalized(document);
   final options = notationOptionsFor(document);
@@ -72,19 +75,16 @@ NotationOptions notationOptionsFor(Json document) {
 /// A document in the parser's spelling of what the API reads two ways
 /// (design 22, 4.9): a declaration's empty parameter list (`"widget":
 /// {"props": []}`) is none, as `widgetSpecFromJson` reads it; a preview with
-/// no `props` has empty ones, as `ComponentPreview` reads it; a document with
-/// no `schema` is of the oldest (`schemaOf`), written `document schema=2`.
+/// no `props` has empty ones, as `ComponentPreview` reads it.
 /// [document] itself when it has none of them.
 Json _componentNormalized(Json document) {
   final widget = readMap(document['widget']);
   final previews = readList(document['previews']);
   final emptyProps = widget != null && widget['props'] is List && (widget['props']! as List).isEmpty;
   final bare = previews != null && previews.any((p) => p is Map && !p.containsKey('props'));
-  final schema = !document.containsKey('schema');
-  if (!emptyProps && !bare && !schema) return document;
+  if (!emptyProps && !bare) return document;
   return {
     ...document,
-    if (schema) 'schema': kOldestSchemaVersion,
     if (emptyProps) 'widget': {...widget}..remove('props'),
     if (bare) 'previews': [for (final p in previews) p is Map && !p.containsKey('props') ? {...p, 'props': <String, Object?>{}} : p],
   };
@@ -414,9 +414,9 @@ final class _Printer {
 
   // --- the document's own fields ------------------------------------------
 
-  /// `document id="checkout" schema=2 scope=page_variables`: the document's
+  /// `document id="checkout" scope=page_variables`: the document's
   /// id where the parser gives another (a page has none, a component's is
-  /// its name), a schema other than 3, the scope of its state lines where
+  /// its name), the scope of its state lines where
   /// the parser would keep them elsewhere ([scope]), and its `conditions`
   /// as their JSON (`conditions={"plans":[…]}`).
   String? _documentWords({String? scope}) {
@@ -424,8 +424,6 @@ final class _Printer {
     final id = document['id'];
     final given = readMap(document['widget'])?['type'];
     if (id is String && id != given) words.add('id=${jsonEncode(id)}');
-    final schema = document['schema'];
-    if (schema is int && schema != 3) words.add('schema=$schema');
     if (scope != null && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(scope)) words.add('scope=$scope');
     final conditions = document['conditions'];
     if (conditions is Map || conditions is List) words.add('conditions=${jsonEncode(_sorted(conditions))}');

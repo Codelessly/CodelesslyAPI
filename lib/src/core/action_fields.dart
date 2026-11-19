@@ -216,6 +216,10 @@ abstract final class OpenModalFields {
   static const maxHeightFactor = PropDef<double>('maxHeightFactor', Codecs.double, 1);
   static const snapHeights = PropDef<List<double>>('snapHeights', Codecs.doubles, [],
       doc: 'Bottom sheet height stops as increasing fractions of available height, e.g. [0.5, 0.9].');
+  static const stopVariable = PropDef<String>('stopVariable', Codecs.string, '',
+      doc: 'The name of a variable: the stop of snapHeights the open sheet rests at (0.5, 1), read and written. The sheet '
+          'writes it as it opens and when it is moved to another stop; setting it moves the open sheet to the nearest '
+          'stop; a sheet opened while it holds one of the stops opens there. 0 while the sheet is closed.');
   static const cover = PropDef<bool>('cover', Codecs.bool, false,
       doc: 'A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device).');
   static const enterScale = PropDef<double>('enterScale', Codecs.double, 1);
@@ -223,7 +227,7 @@ abstract final class OpenModalFields {
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showDragHandle, //
-    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, popoverArrow, hoverCard, hoverDelayMs, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor, snapHeights,
+    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, popoverArrow, hoverCard, hoverDelayMs, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor, snapHeights, stopVariable,
     cover, enterScale, routeTransition,
   ];
 }

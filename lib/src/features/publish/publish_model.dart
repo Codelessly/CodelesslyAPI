@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import '../../core/catalog.dart';
 import '../../core/document.dart';
 import '../../core/json.dart';
-import '../../core/migrate/migrate.dart';
 import 'app_identity.dart';
 import '../../core/breakpoints.dart';
 import 'publish_component.dart';
@@ -15,52 +14,11 @@ import '../../core/theme.dart';
 /// and writes. Layouts carry the document schema ([kSchemaVersion]).
 const int kPublishSchemaVersion = 3;
 
-/// Upgrades of a publish model's (or bundle's) JSON, by the version they
-/// produce: 3 is [migratePublish2to3].
-const Map<int, SchemaMigration> publishSchemaMigrations = {3: migratePublish2to3};
-
-/// A schema-2 publish model's or bundle's JSON as schema 3: a bundle's
-/// layouts migrated as documents ([migrate2to3], each named by its id in
-/// [report]); the model's own keys are unchanged. Schema 3 is returned as
-/// given. Never throws.
-Json migratePublish2to3(Json json, {MigrationReport? report}) {
-  if (schemaOf(json) >= 3) return json;
-  final out = <String, Object?>{...json, 'schema': 3};
-  // The theme's natural line height flags (a model's `theme`, a layout's).
-  for (final k in const ['theme']) {
-    if (out[k] != null) out[k] = dropNaturalLineHeightFlags(out[k], report: report, at: '/$k');
-  }
-  final model = readMap(json['model']);
-  if (model != null) out['model'] = migratePublish2to3(model, report: report);
-  final layouts = readMap(json['layouts']);
-  if (model != null && layouts != null) {
-    out['layouts'] = {
-      for (final e in layouts.entries)
-        e.key: switch (readMap(e.value)) {
-          final Json l => _named(report, e.key, () => migrate2to3(l, report: report)),
-          _ => e.value,
-        },
-    };
-  }
-  return out;
-}
-
-T _named<T>(MigrationReport? report, String name, T Function() run) {
-  if (report == null) return run();
-  final before = report.document;
-  report.document = before.isEmpty ? name : '$before/$name';
-  try {
-    return run();
-  } finally {
-    report.document = before;
-  }
-}
-
 /// Where published data comes from. A project's
 /// publish model is `publish/{projectId}` (a Firestore document), each
 /// layout `publish/{projectId}/layouts/{layoutId}` and each component
 /// `publish/{projectId}/components/{type}`, in the current format with
-/// `schema: 3` (schema 2 is migrated when read); the preview's and the templates' the same under
+/// `schema: 3` (any other schema is refused when read); the preview's and the templates' the same under
 /// `publish_preview` and `templates`. A slug's bundle is the storage file
 /// `publish/{slug}.json`.
 enum PublishSource {
@@ -476,11 +434,13 @@ final class PublishModel {
           ?fonts[id],
       ];
 
-  /// Decodes a publish model of any schema, upgrading it first. Never
-  /// throws.
+  /// Decodes a publish model of schema [kPublishSchemaVersion]. A map of
+  /// any other schema, or with no `schema`, is refused: it throws an
+  /// [UnsupportedSchemaException]. Otherwise it never throws (JSON that is
+  /// not a map is an empty model).
   static PublishModel fromJson(Object? json) {
-    var m = readMap(json) ?? const {};
-    m = migratePublishSchema(m);
+    final m = readMap(json) ?? const {};
+    if (json is Map) requireSchema(m, what: 'The publish model', version: kPublishSchemaVersion);
     final layouts = readMap(m['layouts']) ?? const {};
     final fonts = readMap(m['fonts']) ?? const {};
     final components = readMap(m['components']) ?? const {};
@@ -527,19 +487,6 @@ final class PublishModel {
     'schema', 'projectId', 'slug', 'entryLayoutId', 'entryPageId', 'entryCanvasId', 'pages', 'layouts', //
     'layoutIDMap', 'disabledLayouts', 'overlayLayoutIds', 'backdropLayoutIds', 'theme', 'fonts', 'apis', 'variables', 'components', 'appIdentity', 'breakpoints', 'lastUpdated',
   };
-
-  /// [json] (a publish model or bundle) upgraded to [kPublishSchemaVersion]
-  /// (none is read as schema 2); [report] collects what changed.
-  static Json migratePublishSchema(Json json, {MigrationReport? report}) {
-    var version = schemaOf(json);
-    var out = json;
-    while (version < kPublishSchemaVersion) {
-      version++;
-      final step = publishSchemaMigrations[version];
-      if (step != null) out = step(out, report: report);
-    }
-    return out;
-  }
 
   Json toJson() => {
         'schema': kPublishSchemaVersion,
@@ -635,9 +582,13 @@ final class PublishBundle {
 
   /// Its layouts and components decode with [catalog] (default:
   /// `Catalog.current`).
+  /// A bundle with a `schema` other than [kPublishSchemaVersion] is refused
+  /// ([UnsupportedSchemaException]), as is its model or a layout of another
+  /// schema (a bundle may leave its own `schema` out: its model and layouts
+  /// carry theirs).
   static PublishBundle fromJson(Object? json, {Catalog? catalog}) {
-    var m = readMap(json) ?? const {};
-    m = PublishModel.migratePublishSchema(m);
+    final m = readMap(json) ?? const {};
+    if (m.containsKey('schema')) requireSchema(m, what: 'The bundle', version: kPublishSchemaVersion);
     final layouts = readMap(m['layouts']) ?? const {};
     final components = readMap(m['components']) ?? const {};
     return PublishBundle(

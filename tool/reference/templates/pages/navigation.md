@@ -49,6 +49,13 @@ reads it as empty: give the page a default (`coalesce(find(trips, 'id', route.id
 any screen; give it the size of the dialog. `{"type": "showToast", "message": "Saved", "style": "success"}` shows a
 short message; `confirm` asks yes or no and runs `actions` or `cancelActions`.
 
+A bottom sheet with `snapHeights` (`[0.5, 1]`, shares of the window's height) rests at one of them and is dragged
+between them. `"stopVariable": "sheetStop"` keeps the stop it rests at in that variable, both ways: the sheet writes
+it as it opens and when it is moved to another stop, and setting the variable moves the open sheet to the nearest
+stop. A sheet opened while the variable holds one of its stops opens there, else at the lowest; the variable is `0`
+while the sheet is closed. `${screen.url}` is the address of the page as shown (a browser's URL; in an app the
+location a link opens the screen with, or empty).
+
 ### Overlays and the keyboard
 
 Every modal (`dialog`, `bottomSheet`, `sideSheet`, `popover`, `fullScreen`, `adaptive`) and the built-in

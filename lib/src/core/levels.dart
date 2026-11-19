@@ -94,7 +94,7 @@ const Map<String, Level> actionLevels = {
   'setVariant': _d, 'setThemeMode': _d,
   // Full vocabulary.
   'animate': _f, 'controlTrack': _f, 'controlDismissible': _f, 'controlTransform': _f, 'haptic': _f,
-  'runScript': _f, 'speak': _f, 'playSound': _f, 'captureScreenshot': _f, 'downloadFile': _f, 'preloadImages': _f,
+  'runScript': _f, 'speak': _f, 'playSound': _f, 'captureScreenshot': _f, 'downloadFile': _f, 'pickFile': _f, 'share': _f, 'preloadImages': _f,
   'print': _f,
   // Feature layers.
   'callApi': _p, 'setStorage': _p, 'cloudDocuments': _p, 'loadCloudData': _p, 'reloadCloudData': _p,

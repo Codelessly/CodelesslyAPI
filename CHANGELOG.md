@@ -1,3 +1,104 @@
+## 39.0.0
+
+Schema 3 is the only schema the package reads, and three things a page could not say: which stop an open sheet
+rests at, a file picked on the device without uploading it, and the device's share panel with the page's own
+address. With CodelesslySDK 39.0.0. Read the first section before upgrading.
+
+### Behaviour changes (read before upgrading)
+
+**Schema 2 documents are refused**
+
+- **Documents of schema 2 are no longer read.** `LayoutDocument.fromJson`, `PublishLayout.fromJson`,
+  `PublishComponent.fromJson` (its document), `PublishModel.fromJson` and `PublishBundle.fromJson` throw an
+  `UnsupportedSchemaException` (a `FormatException`) for JSON of any schema other than 3, saying the schema it
+  found and the one it reads: `The document is in schema 2; codelessly_api reads schema 3 only.` (`The publish
+  model ...`, `The bundle ...` for those).
+- **What to do with a schema 2 document: convert it with 38.0.0 before upgrading.** 38.0.0 is the last release
+  that reads schema 2: load each document, publish model and bundle with it (`LayoutDocument.fromJson`, or
+  `migrateJson` on the JSON) and save what `toJson` gives, which is schema 3. Then upgrade. 39.0.0 has no
+  converter.
+- **A document with no `"schema"` is refused too** (it was read as schema 2): `The document has no "schema";
+  codelessly_api reads schema 3 only ("schema": 3).` A bundle may leave its own `schema` out, as before; its
+  model and layouts carry theirs. JSON that is not a map still decodes as an empty document or model.
+- **`printNotation` prints documents of schema 3 only**, refusing any other with the same exception. The notation
+  no longer writes or reads `document schema=2`: a `document` line takes `schema=3` or no `schema`.
+- **Older spellings are no longer read:** a submit-form action with the removed newsletter settings and no
+  `service` is a local submission; a text field's `validator` given as an object (`{"type": "required"}`) reads
+  as none; a node's `component` marker `{"marker": "component"}` is an instance (write `"role": "main"`); a
+  signature pad's `signLineOffset` and `showSignMark` are gone (write `signLineBottom` and `signLineMark`).
+
+**Sheets**
+
+- **A `Sheet` whose highest stop is over nine tenths is as tall as that stop** (`stops=[0.5,1]` reaches the top
+  of the window): its `maxHeightFactor` is the highest stop. It was 0.9 whatever the stops, and a stop above it
+  was dropped, so `stops=[0.5,1]` had the one stop. A sheet with no stop over 0.9 is unchanged.
+
+**The `share` word**
+
+- **`share` in an event is the share action** (`onTap={share url={screen.url}}`). A page that wrote `share` there
+  for something of its own had an unknown action, said as an issue; it now opens the share panel.
+
+### Added
+
+- **The stop a sheet rests at, in a variable.** `Sheet#story "Title" stops=[0.5,1] stop=@sheetStop` (the open
+  action's `stopVariable`, a variable's name) binds the stop both ways. The variable holds the stop as `stops=`
+  writes it (`0.5`, `1`): the sheet writes it as it opens and whenever it is dragged, or moved by its handle or
+  the keyboard, to another stop; setting it (`sheetStop=1`) moves the open sheet to the nearest stop (and the
+  variable takes that stop); a sheet opened while it holds one of its stops opens there, else at the lowest. It
+  is `0` while the sheet is closed. The variable is declared (`state sheetStop=0`); `stop=` given anything but
+  `@name`, or on a sheet without stops, is said with what to write.
+
+  ```
+  state sheetStop=0
+  Column gap=12
+    Button "Read" onTap={open story}
+  Sheet#story "The tide tables" stops=[0.5,1] stop=@sheetStop
+    Text.muted "A summary" visible={sheetStop < 1}
+    Button.ghost "Read it all" visible={sheetStop < 1} onTap={sheetStop=1}
+    Text "The whole article" visible={sheetStop == 1}
+  ```
+
+- **`pickFile`: a file picked on the device, given to the page, uploading nothing** (`PickFileAction`, in the
+  media library beside `downloadFile`). `result` is the file's record, `{name, size, type, data}`: `size` in
+  bytes, `type` its MIME type (`""` when unknown) and `data` the file as a `data:` URL, which an image shows and a
+  `cloudFiles` action takes as its `source` (so does the record). Fields: `accept` (the kinds offered, as HTML's
+  `accept`: `"image/*,.pdf"`; empty for any file), `multiple` (`result` is then a list of records), `content`
+  (`dataUrl`, or `text` for the file's text in place of `data`, or `none` for neither) and `maxSizeMB` (10). A
+  file of another kind or over the size fails the action (`invalid-file-type`, `file-too-large`); when nothing is
+  picked the actions after it do not run.
+
+  ```
+  state files=[]
+  Column gap=12
+    Button "Attach" icon="attach_file" onTap={pickFile accept="image/*,.pdf"; files=append(files, result)}
+    each f in files
+      Text "{f.name} ({f.size} bytes)"
+  ```
+
+- **`share`: the device's share panel** (`ShareAction`, in the media library), with a `text`, a `url` and a
+  `title`, each an expression. `result` is `{shared, copied}`: where there is no share panel the URL (with no URL,
+  the text) is copied to the clipboard and `copied` is true; both are false when the person closes the panel.
+  `share title="Trip notes" url={screen.url}; result.copied ? toast "Link copied"`.
+- **`screen.url`**, the address of the page as shown, is named in the reference (codelessly_sdk gives it: a
+  browser's URL; in an app the location a link opens the screen with, or empty).
+- **The reference** has each: `stop=@name` and `screen.url` in `notation/navigation.md` and `navigation.md`,
+  `pickFile` and `share` in `notation/media.md` and `media.md`, each with an example. The open prompt's line for
+  a `Sheet` names `stop=@at` beside `stops=`.
+- `UnsupportedSchemaException` and `requireSchema`, exported with `kSchemaVersion` from `core.dart`.
+
+### Removed
+
+- The schema-2 reading: `migrate2to3`, `migrateDocument`, `migrateJson2to3`, `migrateJson`, `migrateNode2to3`,
+  `migrateNode`, `migratePublish2to3`, `LayoutDocument.migrateSchema`, `PublishModel.migratePublishSchema`,
+  `schemaMigrations`, `publishSchemaMigrations`, `SchemaMigration`, `MigrationReport`, `MigrationEntry`,
+  `MigrationEntryKind`, `jsonEncodeShort`, `migrationReportMarkdown`, `MigrationStep`, `MigrationScope`,
+  `schema3Steps`, `isLayoutDocumentJson`, `dropNaturalLineHeightFlags`, `copyJson`, `schemaOf`,
+  `kOldestSchemaVersion`, `schema2PathHint`, `movedPathHint` and `olderSchemaPathHint`;
+  `AnimationPresets.legacyMotionProperties`; `Track.frictionRate`; `SignatureProps.signLineOffset` and
+  `SignatureProps.showSignMark`.
+- The guide's chapter on migrating to schema 3 and the old shapes in its animation and gestures chapters;
+  `docs/design/schema-3-migration-report.md`.
+
 ## 38.0.0
 
 A part's own design at a width (`at phone`), more of what a `define` can say, dictionaries of definitions in

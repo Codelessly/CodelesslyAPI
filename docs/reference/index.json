@@ -1,13 +1,13 @@
 {
-  "version": "38.0.0",
+  "version": "39.0.0",
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6184
+      "words": 6191
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6169
+      "words": 6172
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header).",
-      "words": 10407
+      "words": 10392
     },
     {
       "topic": "layout-layout-fields",
@@ -25,7 +25,7 @@
       "anchor": "layout-layout-fields",
       "title": "Layout fields",
       "summary": "A node's `\"layout\"`: its size, spacing and placement in its parent.",
-      "words": 548
+      "words": 533
     },
     {
       "topic": "layout-which-sizing-modes-each-parent-allows",
@@ -345,7 +345,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 14019
+      "words": 13979
     },
     {
       "topic": "forms-triggers",
@@ -545,7 +545,7 @@
       "anchor": "page-navigation",
       "title": "Screens, navigation, modals and toasts",
       "summary": "Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions).",
-      "words": 4792
+      "words": 4976
     },
     {
       "topic": "navigation-triggers",
@@ -577,7 +577,7 @@
       "anchor": "navigation-modals-and-toasts",
       "title": "Modals and toasts",
       "summary": "`{\"type\": \"openModal\", \"to\": \"<canvas id>\"}` shows another canvas over the screen, at its design size (`presentation`: `dialog`, `bottomSheet`, `fullScreen`, a popover anchored to a node...).",
-      "words": 74
+      "words": 187
     },
     {
       "topic": "navigation-overlays-and-the-keyboard",
@@ -889,7 +889,7 @@
       "anchor": "page-animation",
       "title": "Animation and motion",
       "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4769
+      "words": 4742
     },
     {
       "topic": "animation-triggers",
@@ -1145,7 +1145,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 7716
+      "words": 7160
     },
     {
       "topic": "charts-progress-from-state",
@@ -1169,7 +1169,7 @@
       "anchor": "page-data",
       "title": "Data: APIs, cloud data, storage and form submission",
       "summary": "The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms.",
-      "words": 2308
+      "words": 2311
     },
     {
       "topic": "data-call-an-api-and-show-the-result",
@@ -1248,8 +1248,8 @@
       "file": "media.md",
       "anchor": "page-media",
       "title": "Media: video, audio, web views, speech and sound",
-      "summary": "The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images.",
-      "words": 1998
+      "summary": "The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file, picking a file, sharing and preloading images.",
+      "words": 2550
     },
     {
       "topic": "media-control-a-player-from-state",
@@ -1266,6 +1266,22 @@
       "title": "Save a file",
       "summary": "`{\"type\": \"downloadFile\", \"fileName\": \"trip.txt\", \"text\": \"${brief}\", \"mimeType\": \"text/plain\"}` offers the text as a file (the browser's download, a save dialog elsewhere); `${result.saved}` says whether it was saved.",
       "words": 46
+    },
+    {
+      "topic": "media-pick-a-file-without-uploading-it",
+      "file": "media.md",
+      "anchor": "media-pick-a-file-without-uploading-it",
+      "title": "Pick a file without uploading it",
+      "summary": "`{\"type\": \"pickFile\", \"accept\": \"image/*,.pdf\"}` opens the device's file chooser; `${result}` is the picked file's record, `{\"name\", \"size\", \"type\", \"data\"}` (`data` a `data:` URL: an image's `url`, or a `cloudFiles` action's `source` when it is uploaded after all).",
+      "words": 69
+    },
+    {
+      "topic": "media-share",
+      "file": "media.md",
+      "anchor": "media-share",
+      "title": "Share",
+      "summary": "`{\"type\": \"share\", \"title\": \"${story.title}\", \"url\": \"${screen.url}\"}` opens the device's share panel; `${result.shared}` says whether it took it.",
+      "words": 43
     },
     {
       "topic": "media-read-along-text",
@@ -1297,7 +1313,7 @@
       "anchor": "page-publish",
       "title": "Publish, managed components and plugins",
       "summary": "What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins.",
-      "words": 672
+      "words": 681
     },
     {
       "topic": "publish-the-publish-model-s-parts",
@@ -1305,7 +1321,7 @@
       "anchor": "publish-the-publish-model-s-parts",
       "title": "The publish model's parts",
       "summary": "",
-      "words": 346
+      "words": 355
     },
     {
       "topic": "publish-a-page-s-url-and-title",
@@ -1393,7 +1409,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 1537
+      "words": 1564
     },
     {
       "topic": "render-what-it-does",
@@ -1441,7 +1457,7 @@
       "anchor": "render-what-a-run-keeps",
       "title": "What a run keeps",
       "summary": "Storage, variables and the clipboard live in memory for one run: steps and `--navigate` see what earlier steps wrote, and each size starts afresh, as does each run (nothing persists between runs, so a \"restored on reload\" state is captured by writing it first: `--tap save --navigate home`).",
-      "words": 75
+      "words": 102
     },
     {
       "topic": "render-comparing-with-a-reference",
@@ -1457,7 +1473,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 16006
+      "words": 13652
     },
     {
       "topic": "values-value-types",
@@ -2016,7 +2032,6 @@
       "barChart": "charts.md#node-barChart",
       "lineChart": "charts.md#node-lineChart",
       "plotChart": "charts.md#node-plotChart",
-      "graph": "charts.md#node-graph",
       "barcode": "charts.md#node-barcode",
       "video": "media.md#node-video",
       "embeddedVideo": "media.md#node-embeddedVideo",
@@ -2159,6 +2174,8 @@
       "playSound": "media.md#action-playSound",
       "captureScreenshot": "media.md#action-captureScreenshot",
       "downloadFile": "media.md#action-downloadFile",
+      "pickFile": "media.md#action-pickFile",
+      "share": "media.md#action-share",
       "emitEvent": "engage.md#action-emitEvent"
     },
     "valueType": {
@@ -2240,16 +2257,6 @@
       "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",
-      "GraphCrosshair": "values.md#type-GraphCrosshair",
-      "GraphGuide": "values.md#type-GraphGuide",
-      "GraphInteractions": "values.md#type-GraphInteractions",
-      "GraphMark": "values.md#type-GraphMark",
-      "GraphPane": "values.md#type-GraphPane",
-      "GraphSelection": "values.md#type-GraphSelection",
-      "GraphStyle": "values.md#type-GraphStyle",
-      "GraphTransform": "values.md#type-GraphTransform",
-      "GraphXAxis": "values.md#type-GraphXAxis",
-      "GraphYAxis": "values.md#type-GraphYAxis",
       "Keyframe": "values.md#type-Keyframe",
       "PathFollow": "values.md#type-PathFollow",
       "Pose": "values.md#type-Pose",
@@ -2349,6 +2356,7 @@
       "ParticleShape": "values.md#enum-ParticleShape",
       "PathOrient": "values.md#enum-PathOrient",
       "PaywallOperation": "values.md#enum-PaywallOperation",
+      "PickedFileContent": "values.md#enum-PickedFileContent",
       "PlotChartGridAnchor": "values.md#enum-PlotChartGridAnchor",
       "PlotChartMarkerPosition": "values.md#enum-PlotChartMarkerPosition",
       "PlotChartMarkerShape": "values.md#enum-PlotChartMarkerShape",
