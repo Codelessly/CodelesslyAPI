@@ -41,6 +41,11 @@ said. With CodelesslySDK 40.0.0.
   has a state called `mail`) is the name, as it is on a line of the notation's own; it was bound to the state. A
   text state of the name could be meant, so that is said with what to write (`icon={mail}`). An `each`'s item of
   the name is read as before, and a parameter that is no name reads a variable as before (`bpm=bpm`).
+- **`theme.<name>` in a page's expression is the theme's color of that name** (`fill={on ? theme.ember : theme.line}`
+  reads `theme.colors.ember`), or, where the theme has no such color, the look the notation's own words take
+  (`theme.accent`, `theme.line`, `theme.mutedInk`: what a defined word's lines read). It read nothing: a theme's
+  colors are under `theme.colors`. The theme's own values (`theme.primary`, `theme.isDark`, `theme.text…`) read
+  as before.
 - **A place or a size read from a text that is one value is the number** (`x={"align":"{p.mapX}"}`, also written
   `"${p.mapX}"`): it was the text `"$0.6"`, which is no place.
 
