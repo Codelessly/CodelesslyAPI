@@ -1245,6 +1245,14 @@ double _distance(int a, int b) {
 /// SSUI's text styles (design_systems/ssui/design_system.json, `theme
 /// .textStyles` with its colors), written out so a document needs no
 /// theme: SSUI's own names, and the short words an agent reaches for.
+/// The sizes of a website's text styles (under a `Page`), where the theme
+/// gives a style no size of its own: a display headline, its headings in
+/// proportion, running text at 16. An app's are [defaultTextVariants]'.
+const Map<String, num> notationSiteType = {
+  'pageTitle': 64, 'heading1': 64, 'heading2': 38, 'heading3': 24, 'title': 22, 'heading': 18, 'sectionTitle': 18, //
+  'body': 16, 'bodySecondary': 16, 'muted': 16, 'strong': 16, 'danger': 16, 'success': 16, 'small': 14, 'mono': 14, 'caption': 13,
+};
+
 const Map<String, Object> defaultTextVariants = {
   // SSUI's names.
   'pageTitle': {'fontSize': 20, 'fontWeight': 600, 'color': '#FF111827'},
@@ -2953,7 +2961,17 @@ class _Parser {
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     // A website's headline at a display size, unless the theme gives its
     // own headline one (a heading1 or pageTitle of 32 and up).
-    siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
+    siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : notationSiteType['heading1'],
+    siteType: () {
+      bool sized(String name) => options.themeTextStyles[name]?['fontSize'] is num;
+      // A theme that sizes its body sizes what is drawn from it.
+      const fromBody = {'body', 'bodySecondary', 'muted', 'strong', 'small', 'caption', 'mono', 'danger', 'success'};
+      final headline = options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null;
+      return {
+        for (final e in notationSiteType.entries)
+          if (!sized(e.key) && !(sized('body') && fromBody.contains(e.key)) && !(headline && (e.key == 'heading1' || e.key == 'pageTitle')) && options.textStyles.containsKey(e.key)) e.key: e.value,
+      };
+    }(),
     selectedFill: options.selectedFill,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),

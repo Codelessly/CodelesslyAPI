@@ -440,4 +440,58 @@ Column
       expect(_at(r, grid, 834), isEmpty);
     });
   });
+
+  group('a website\'s type', () {
+    num? sizeOf(NotationResult r, String text) => ((_node(r, _idOf(r, text))['props'] as Map)['style'] as Map?)?['fontSize'] as num?;
+
+    test('under a Page, in a Section or not: a display headline, headings in proportion, running text at 16', () {
+      final r = _parse('''
+Page
+  Nav
+    Text.title "Brand"
+  Column maxw=960 pad=24
+    Text.heading1 "Hero"
+    Text.bodySecondary "Lead"
+  Section
+    Text.heading2 "Two"
+    Text.heading3 "Three"
+    Text "Body"
+    Text.small "Small"
+    Text.caption "Caption"
+    Card
+      Text.strong "Strong"
+    Text "Own" size=13
+''');
+      expect([for (final t in ['Hero', 'Lead', 'Two', 'Three', 'Body', 'Small', 'Caption', 'Strong', 'Own']) sizeOf(r, t)], [64, 16, 38, 24, 16, 14, 13, 16, 13]);
+      expect(sizeOf(r, 'Brand'), 20, reason: 'a bar\'s text is the bar\'s');
+    });
+
+    test('an app\'s text is an app\'s', () {
+      final r = _parse('''
+App
+  Main
+    Text.heading1 "Title"
+    Text "Body"
+''');
+      expect(sizeOf(r, 'Title'), 30);
+      expect(sizeOf(r, 'Body'), anyOf(isNull, 13));
+    });
+
+    test('a theme that sizes its body sizes what is drawn from it; its headings still take a website\'s sizes', () {
+      final r = _parse('''
+Page
+  Section
+    Text.heading2 "Two"
+    Text "Body"
+    Text.small "Small"
+''', NotationOptions.fromTheme(const {
+        'textStyles': {
+          'body': {'fontSize': 15},
+        },
+      }, width: 1440));
+      expect(sizeOf(r, 'Two'), 38);
+      expect(sizeOf(r, 'Body'), 15);
+      expect(sizeOf(r, 'Small'), isNot(14));
+    });
+  });
 }

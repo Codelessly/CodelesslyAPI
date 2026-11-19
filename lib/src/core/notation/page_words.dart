@@ -45,6 +45,7 @@ final class PageWords {
     this.accentName,
     this.accent = '#FF2563EB',
     this.siteHeadline,
+    this.siteType = const {},
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
@@ -96,6 +97,12 @@ final class PageWords {
   /// its own. A 30 px headline over a 1440 page read as a section's title
   /// (round 11: the web's were 48 to 150 px).
   final num? siteHeadline;
+
+  /// The sizes of a website's text styles by name (`heading1`, `heading2`,
+  /// `body`, `small`…; `body` is a `Text` with no style): those the theme
+  /// gives no size of its own. A website's page written with an app's sizes
+  /// (a 13 px paragraph, a 24 px section heading) read as a form.
+  final Map<String, num> siteType;
 
   /// The indent of the plain Section just written under a Page (no ground,
   /// no bleed), while nothing else has been written beside it.
@@ -1304,10 +1311,17 @@ final class PageWords {
     if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection) {
       _open.lastWhere((l) => l.frame == 'Section').hero = true;
     }
-    if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection && !parts.has('size')) {
-      if (_headlineSize(1) case final num display) {
+    // A website's text is a website's size: its headline a display size,
+    // the headings under it in proportion, its running text 16, wherever it
+    // is written under the Page (a Section, a column of the page's own, a
+    // card), but in its bar. A line that says its size or its style, a style
+    // the theme gives a size, and a style worked out (`Text.{…}`) are as
+    // written.
+    if (word == 'Text' && site && !inApp && root == 'Page' && !_open.any((l) => l.frame == 'Nav') && !mark.startsWith('.{') && !const ['size', 'fontSize', 'style', 'from'].any(parts.has)) {
+      final name = mark.startsWith('.') ? mark.substring(1).split('#').first : 'body';
+      if (siteType[name] case final num size) {
         open(frame: null);
-        return out..add((indent: at, text: '$text size=${_n(display.toDouble())}'));
+        return out..add((indent: at, text: '$text size=${_n(size.toDouble())}'));
       }
     }
     // `Row … phone.direction=vertical`: a row that is a column at some width
