@@ -5064,7 +5064,7 @@ class _Parser {
         if (reorderNow || listSelect) 'focusGroup': {'axis': g != null ? 'both' : across ? 'horizontal' : 'vertical', 'wrap': false},
         // Under a Grid, the repeated lines are its cells.
         'props': g != null
-            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio') && !g.cellLayout.containsKey('mainAxisExtent')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
+            ? {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout}
             : across
                 ? {
                     'scrollable': false,
@@ -9284,7 +9284,7 @@ class _Parser {
       nodes[list] = {
         'type': 'gridView',
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio') && !g.cellLayout.containsKey('mainAxisExtent')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
+        'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
         'bind': {
           'data': _formula('range(${cells.length})'),
           if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,

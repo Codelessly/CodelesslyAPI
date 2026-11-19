@@ -131,7 +131,7 @@ Column w=fill
       expect((item['bind'] as Map)['layout.rowStart'], r'${= index + 1}');
       expect((_node(r, 'time')['layout'] as Map), isNot(contains('columnStart')));
       expect(_props(r, times), containsPair('mainAxisExtent', 60));
-      expect(_props(r, times), isNot(contains('shrinkWrapRows')));
+      // Rows at least that high (the renderer's), their content's when longer.
     });
 
     test('two eaches that place their copies are one grid: their lists lie over each other', () {
