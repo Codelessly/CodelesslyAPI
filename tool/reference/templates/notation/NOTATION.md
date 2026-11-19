@@ -224,6 +224,10 @@ Column pad=48 phone.pad=16
   Text "Wide" phone.size=14 hide=tablet
 ```
 
+A part whose lines differ at a width writes them in a block under it, after its own lines: `at phone`, the lines
+under it the part's children there, `...#links` one of its own lines placed again (a design at a width, on
+[responsive.md](responsive.md)).
+
 A page expanded at a desktop's width gets rules for a tablet and a phone of its own (reflow: bands wrap, an app's
 window drops its side panes); a line with its own rules, a Row of a list or of a toolbar, and a line written `keep`
 are left as written. A component's own rules (its root's `tablet.w=64`) hold where it is called, unless the call
