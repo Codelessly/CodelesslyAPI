@@ -1702,6 +1702,236 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `gridX` | number (≥ 0) | `0` | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 | `gridY` | number (≥ 0) | `0` | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 
+<a id="type-GraphCrosshair"></a>
+### GraphCrosshair
+
+The crosshair: a line through the row under the pointer and one at its value, tagged on both axes.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `enabled` | `true`/`false` | `false` |  |
+| `on` | text | `"both"` | `hover`, `longPress`, `both`, or `touch` (a hover, and a finger from the moment it is down). |
+| `magnet` | text | `""` | The row field its value snaps to; empty for the pointer's own. |
+| `vertical` | `true`/`false` | `true` |  |
+| `horizontal` | `true`/`false` | `true` |  |
+| `line` | text | `"dashed"` | `dashed`, `dotted` or `solid`. |
+| `dot` | number (≥ 0) | `0` | A dot of this radius where the lines cross, ringed `dotStroke` wide. |
+| `dotStroke` | number (≥ 0) | `0` |  |
+| `timeLabel` | text | `"axis"` | Where the row's label is written: `axis`, `top` or `none`. |
+| `timeFormat` | text | `""` |  |
+| `priceTag` | `true`/`false` | `true` |  |
+
+<a id="type-GraphGuide"></a>
+### GraphGuide
+
+Something drawn at a place of a pane's scales, over its marks: a line up the pane (`x`), a line across it (`y`), a dot (`x` and `y`) or a tinted stretch (`from` to `to`). A place on x is a number on a linear scale, a row's key on rows.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `x` | JSON |  |  |
+| `y` | number |  |  |
+| `from` | JSON |  |  |
+| `to` | JSON |  |  |
+| `color` | [Color](#type-Color) |  |  |
+| `line` | text | `"solid"` | `solid`, `dashed` or `dotted`. |
+| `width` | number (≥ 0) | `1` |  |
+| `label` | text | `""` |  |
+| `labelColor` | [Color](#type-Color) |  |  |
+| `radius` | number (≥ 0) | `3.5` | A dot's radius, and its inside when it is not the dot's own color. |
+| `fill` | [Color](#type-Color) |  |  |
+| `below` | `true`/`false` | `false` | The label is under the dot or the line. |
+
+<a id="type-GraphInteractions"></a>
+### GraphInteractions
+
+What each gesture does to a graph whose view is the user's (an x scale with no fit).
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `dragPan` | `true`/`false` | `true` | A drag on the plot pans the view. |
+| `wheelZoom` | `true`/`false` | `true` | The wheel zooms about the pointer. |
+| `pinchZoom` | `true`/`false` | `true` | Two fingers zoom about their middle. |
+| `axisScale` | `true`/`false` | `true` | A drag on the y axis scales it; on the x axis, zooms. |
+| `doubleTapReset` | `true`/`false` | `true` | A double tap on an axis fits it again. |
+| `fling` | `true`/`false` | `true` |  |
+
+<a id="type-GraphMark"></a>
+### GraphMark
+
+What a graph draws of its rows: one mark.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `type` | text | `"line"` | `line`, `area`, `bar`, `candle`, or in a polar pane `arc`. |
+| `y` | text | `""` | The row field of the mark's value. |
+| `open` | text | `""` | A candle's fields (a bar with `open` and `close` is colored by its direction). |
+| `high` | text | `""` |  |
+| `low` | text | `""` |  |
+| `close` | text | `""` |  |
+| `name` | text | `""` |  |
+| `color` | [Color](#type-Color) |  |  |
+| `colorField` | text | `""` | A row field holding the row's own color. |
+| `colors` | list of text | `[]` | Colors row by row (a slice's, a bar's), where the row gives none. |
+| `upColor` | [Color](#type-Color) |  |  |
+| `downColor` | [Color](#type-Color) |  |  |
+| `stack` | text |  |  |
+| `radius` | number (≥ 0) | `0` | A bar's corner radius (the top of a stack). |
+| `labels` | `true`/`false` | `false` | A bar's value is written over it. |
+| `width` | number (≥ 0) | `1.5` | A line's width. |
+| `curved` | `true`/`false` | `false` |  |
+| `fillOpacity` | number (≥ 0, ≤ 1) | `0.18` | An area: its fill's opacity, whether it fades to nothing at the bottom, or the color it runs to there. |
+| `fade` | `true`/`false` | `false` |  |
+| `fillTo` | [Color](#type-Color) |  |  |
+| `endDot` | number (≥ 0) | `0` | A dot of this radius on the last row (0: none), with a ring that swells and fades when `pulse`. |
+| `endDotColor` | [Color](#type-Color) |  |  |
+| `pulse` | `true`/`false` | `false` |  |
+| `overlay` | number |  | The mark is on a scale of its own, standing in this share of the pane from its bottom (volume under a price). |
+| `segmentBy` | text | `""` | A line breaks where this row field changes, and the parts outside the x scale's band in use are drawn at `dimInactive` of their opacity. |
+| `dimInactive` | number (≥ 0, ≤ 1) | `1` |  |
+| `inner` | number (≥ 0, ≤ 1) | `0` | An arc: the hole's share of the radius (0: a pie), the room between slices and where the first starts (degrees, clockwise from the top). |
+| `gap` | number (≥ 0) | `0` |  |
+| `startAngle` | number | `0` |  |
+
+<a id="type-GraphPane"></a>
+### GraphPane
+
+One pane of a graph with several: marks over the shared x scale, on a y scale of its own.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `grow` | number (≥ 0) | `1` | Its share of the graph's height. |
+| `coord` | text | `"rect"` |  |
+| `yAxis` | [GraphYAxis](#type-GraphYAxis) | `{}` |  |
+| `marks` | list of [GraphMark](#type-GraphMark) | `[]` |  |
+| `guides` | list of [GraphGuide](#type-GraphGuide) | `[]` |  |
+| `priceLines` | list of JSON | `[]` | Lines at a value, tagged on the axis: `{value \| field, label, color, line, tag, note}` (`field`: the last row's, a last price). |
+| `markers` | list of JSON | `[]` |  |
+
+<a id="type-GraphSelection"></a>
+### GraphSelection
+
+The selection: the row (or the one bar or slice) under the pointer or a finger, or pinned by a tap. The graph draws it apart and says what it holds in a tooltip.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `on` | text | `"none"` | `none`, `hover` (the pointer, or a finger while it is down), `tap` (a tap selects and stays; a tap on it again lets go) or `both`. |
+| `by` | text | `"row"` | `row`: everything the row has. `mark`: the one bar or slice. |
+| `dim` | number (≥ 0, ≤ 1) | `0.35` | The opacity of what is not selected while something is (1: as it is). |
+| `band` | [Color](#type-Color) |  | A fill behind the selected row, the height of the pane. |
+| `grow` | number (≥ 0) | `4` | How much larger a selected slice is drawn. |
+| `dot` | number (≥ 0) | `4` | A dot of this radius on each line at the selected row (0: none). |
+| `tooltip` | `true`/`false` | `true` |  |
+| `title` | text | `""` |  |
+| `tooltipFill` | [Color](#type-Color) |  |  |
+| `tooltipText` | [Color](#type-Color) |  |  |
+| `total` | `true`/`false` | `false` | A last tooltip row with the sum of the row's marks. |
+
+<a id="type-GraphStyle"></a>
+### GraphStyle
+
+A graph's colors and text.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `background` | [Color](#type-Color) |  | Its ground; clear when not given. |
+| `grid` | [Color](#type-Color) |  |  |
+| `text` | [Color](#type-Color) |  | The axes' labels. |
+| `crosshair` | [Color](#type-Color) |  |  |
+| `tag` | [Color](#type-Color) |  | A value's tag on an axis, and its text. |
+| `tagText` | [Color](#type-Color) |  |  |
+| `separator` | [Color](#type-Color) |  | The line between two panes. |
+| `fontSize` | number (≥ 0) | `11` |  |
+| `fontFamily` | text |  |  |
+| `topInset` | number (≥ 0) | `0` | Room above the panes. |
+
+<a id="type-GraphTransform"></a>
+### GraphTransform
+
+A field worked out from the rows before each row.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `type` | text | `"sma"` | `sma`, `ema`, `rsi` (written to `as`) or `bollinger` (to `as` with `Mid`, `Upper`, `Lower` after it). |
+| `field` | text | `""` |  |
+| `as` | text | `""` |  |
+| `period` | whole number (≥ 1) | `20` |  |
+| `k` | number | `2` | Bollinger: how many deviations the bands stand off. |
+
+<a id="type-GraphXAxis"></a>
+### GraphXAxis
+
+A graph's x scale: where each row stands, what is written under it, and the view of it the user moves.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `scale` | text | `"index"` | `index`: rows evenly spaced, one place each. `linear`: each row where its `field`'s number is, between `min` and `max` (the rows' own least and most when not given). |
+| `field` | text | `""` |  |
+| `min` | number |  |  |
+| `max` | number |  |  |
+| `label` | text | `"t"` | The row field written under a row (and at the head of a tooltip). |
+| `format` | text | `"MMM d"` | A date pattern, when the label is a time (milliseconds, or ISO text); empty writes the labels as they are. |
+| `fit` | text | `"none"` | `none`: the view is the user's to pan and zoom. `bars`: every row has its place across the plot. `points`: the first and last rows are at its edges. |
+| `slots` | whole number |  | With a fit: the places across the plot, when more than the rows there are (a day not over yet). |
+| `tickValues` | JSON |  |  |
+| `tickEvery` | whole number |  | A label every this many rows; null lets the graph choose. |
+| `ticks` | text | `"step"` | `step` (every n-th row) or `calendar` (the rows that start an hour, a day, a month, a year). |
+| `labels` | `true`/`false` | `true` |  |
+| `grid` | `true`/`false` | `true` | Whether a line is drawn up each pane at every tick. |
+| `axisHeight` | number (≥ 0) | `24` |  |
+| `barSpacing` | number (≥ 0) | `8` | Rows: pixels from one row to the next at rest, and how close and far zooming may bring them. |
+| `minBarSpacing` | number (≥ 0) | `0.5` |  |
+| `maxBarSpacing` | number (≥ 0) | `80` |  |
+| `rightOffset` | number | `3` | Rows: the empty places right of the last row at rest. |
+| `follow` | text | `"end"` | `end`: a new row is followed while the last row is in view. `none`. |
+| `clamp` | `true`/`false` | `true` |  |
+| `overscroll` | `true`/`false` | `false` | Whether the view may go past the rows there are. |
+| `moreHistory` | `true`/`false` | `true` | Whether there are older rows to load, and how near the first row (in rows) the view comes before the graph asks (its `scroll` trigger with `nearStart`). |
+| `historyThreshold` | number (≥ 0) | `10` |  |
+| `morph` | number (≥ 0) | `0` | Milliseconds a line takes to change its shape to new rows' (0: at once). |
+| `bands` | list of JSON | `[]` |  |
+
+<a id="type-GraphYAxis"></a>
+### GraphYAxis
+
+A pane's y scale.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `domain` | text | `"visible"` | `visible`: fitted to the rows in view. `data`: to all rows. `fixed`: `min` to `max`. |
+| `min` | number |  |  |
+| `max` | number |  |  |
+| `margins` | list of number | `[]` | Room above and below the fitted values, `[top, bottom]`, as shares of their span (`[0.1, 0.1]` when not given). |
+| `include` | list of number | `[]` | Values the fitted domain always holds (zero, a goal). |
+| `mode` | text | `"linear"` | `linear`, or `percent`: labels are the change from the first row in view. |
+| `side` | text | `"right"` | `right` or `left`: where the axis is (one side for the whole graph: left when any pane says so). |
+| `width` | number (≥ 0) | `56` | The axis's width; 0 for none. |
+| `labels` | `true`/`false` | `true` |  |
+| `decimals` | whole number (≥ 0) | `2` |  |
+| `prefix` | text | `""` | Written before and after each label (`$`, `k`, `%`). |
+| `suffix` | text | `""` |  |
+| `ticks` | whole number (≥ 0) | `5` | About how many round ticks the axis has. |
+| `tickValues` | JSON |  |  |
+
 <a id="type-Keyframe"></a>
 ### Keyframe
 

@@ -291,6 +291,7 @@
                 "plotChart",
                 "barChart",
                 "lineChart",
+                "graph",
                 "barcode",
                 "path",
                 "external",

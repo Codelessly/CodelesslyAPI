@@ -4001,6 +4001,702 @@
       },
       "additionalProperties": false
     },
+    "model.GraphCrosshair": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "on": {
+          "type": "string"
+        },
+        "magnet": {
+          "type": "string"
+        },
+        "vertical": {
+          "type": "boolean"
+        },
+        "horizontal": {
+          "type": "boolean"
+        },
+        "line": {
+          "type": "string"
+        },
+        "dot": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "dotStroke": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "timeLabel": {
+          "type": "string"
+        },
+        "timeFormat": {
+          "type": "string"
+        },
+        "priceTag": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphGuide": {
+      "type": "object",
+      "properties": {
+        "x": {},
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "from": {},
+        "to": {},
+        "color": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "line": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "label": {
+          "type": "string"
+        },
+        "labelColor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "radius": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "fill": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "below": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphInteractions": {
+      "type": "object",
+      "properties": {
+        "dragPan": {
+          "type": "boolean"
+        },
+        "wheelZoom": {
+          "type": "boolean"
+        },
+        "pinchZoom": {
+          "type": "boolean"
+        },
+        "axisScale": {
+          "type": "boolean"
+        },
+        "doubleTapReset": {
+          "type": "boolean"
+        },
+        "fling": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphMark": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "y": {
+          "type": "string"
+        },
+        "open": {
+          "type": "string"
+        },
+        "high": {
+          "type": "string"
+        },
+        "low": {
+          "type": "string"
+        },
+        "close": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "colorField": {
+          "type": "string"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "upColor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "downColor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stack": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "radius": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "labels": {
+          "type": "boolean"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "curved": {
+          "type": "boolean"
+        },
+        "fillOpacity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "fade": {
+          "type": "boolean"
+        },
+        "fillTo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "endDot": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "endDotColor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pulse": {
+          "type": "boolean"
+        },
+        "overlay": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "segmentBy": {
+          "type": "string"
+        },
+        "dimInactive": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "inner": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "gap": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "startAngle": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphPane": {
+      "type": "object",
+      "properties": {
+        "grow": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "coord": {
+          "type": "string"
+        },
+        "yAxis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.GraphYAxis"
+            },
+            {
+              "type": [
+                "string",
+                "boolean",
+                "number"
+              ]
+            }
+          ]
+        },
+        "marks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.GraphMark"
+          }
+        },
+        "guides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.GraphGuide"
+          }
+        },
+        "priceLines": {
+          "type": "array",
+          "items": {}
+        },
+        "markers": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphSelection": {
+      "type": "object",
+      "properties": {
+        "on": {
+          "type": "string"
+        },
+        "by": {
+          "type": "string"
+        },
+        "dim": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "band": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "grow": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "dot": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "tooltip": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "tooltipFill": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tooltipText": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphStyle": {
+      "type": "object",
+      "properties": {
+        "background": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "grid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "crosshair": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tag": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tagText": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "separator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fontSize": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "fontFamily": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "topInset": {
+          "type": "number",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphTransform": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "as": {
+          "type": "string"
+        },
+        "period": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "k": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphXAxis": {
+      "type": "object",
+      "properties": {
+        "scale": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "fit": {
+          "type": "string"
+        },
+        "slots": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tickValues": {},
+        "tickEvery": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ticks": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "boolean"
+        },
+        "grid": {
+          "type": "boolean"
+        },
+        "axisHeight": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "barSpacing": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "minBarSpacing": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "maxBarSpacing": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "rightOffset": {
+          "type": "number"
+        },
+        "follow": {
+          "type": "string"
+        },
+        "clamp": {
+          "type": "boolean"
+        },
+        "overscroll": {
+          "type": "boolean"
+        },
+        "moreHistory": {
+          "type": "boolean"
+        },
+        "historyThreshold": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "morph": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "bands": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.GraphYAxis": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "margins": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "mode": {
+          "type": "string"
+        },
+        "side": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "labels": {
+          "type": "boolean"
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "suffix": {
+          "type": "string"
+        },
+        "ticks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tickValues": {}
+      },
+      "additionalProperties": false
+    },
     "model.HeroTag": {
       "type": "object",
       "properties": {
@@ -7155,6 +7851,7 @@
             "plotChart",
             "barChart",
             "lineChart",
+            "graph",
             "barcode",
             "path",
             "external",
@@ -16017,6 +16714,160 @@
                     "type": "integer",
                     "minimum": 0
                   }
+                },
+                "additionalProperties": false
+              },
+              "children": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "graph"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "rowKey": {
+                    "type": "string"
+                  },
+                  "xAxis": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphXAxis"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "marks": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/model.GraphMark"
+                    }
+                  },
+                  "yAxis": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphYAxis"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "coord": {
+                    "type": "string"
+                  },
+                  "guides": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/model.GraphGuide"
+                    }
+                  },
+                  "panes": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/model.GraphPane"
+                    }
+                  },
+                  "transforms": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/model.GraphTransform"
+                    }
+                  },
+                  "selection": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphSelection"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "crosshair": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphCrosshair"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "interactions": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphInteractions"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "style": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphStyle"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "animationDuration": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "animateIn": {
+                    "type": "boolean"
+                  },
+                  "view": {},
+                  "selected": {}
                 },
                 "additionalProperties": false
               },

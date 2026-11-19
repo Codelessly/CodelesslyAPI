@@ -71,6 +71,7 @@ held is now here (the old links still land on the right line):
 - <a id="node-barChart"></a>`barChart`: [charts.md#node-barChart](charts.md#node-barChart)
 - <a id="node-lineChart"></a>`lineChart`: [charts.md#node-lineChart](charts.md#node-lineChart)
 - <a id="node-plotChart"></a>`plotChart`: [charts.md#node-plotChart](charts.md#node-plotChart)
+- <a id="node-graph"></a>`graph`: [charts.md#node-graph](charts.md#node-graph)
 - <a id="node-barcode"></a>`barcode`: [charts.md#node-barcode](charts.md#node-barcode)
 - <a id="node-video"></a>`video`: [media.md#node-video](media.md#node-video)
 - <a id="node-embeddedVideo"></a>`embeddedVideo`: [media.md#node-embeddedVideo](media.md#node-embeddedVideo)

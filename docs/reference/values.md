@@ -201,6 +201,216 @@ The places a released node settles at (`GesturePhysics.snap`).
 | `gridX` | double | `0` | ≥ 0 | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 | `gridY` | double | `0` | ≥ 0 | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 
+<a id="type-GraphCrosshair"></a>
+### GraphCrosshair
+
+The crosshair: a line through the row under the pointer and one at its value, tagged on both axes.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `enabled` | bool | `false` |  |  |
+| `on` | String | `"both"` |  | `hover`, `longPress`, `both`, or `touch` (a hover, and a finger from the moment it is down). |
+| `magnet` | String | `""` |  | The row field its value snaps to; empty for the pointer's own. |
+| `vertical` | bool | `true` |  |  |
+| `horizontal` | bool | `true` |  |  |
+| `line` | String | `"dashed"` |  | `dashed`, `dotted` or `solid`. |
+| `dot` | double | `0` | ≥ 0 | A dot of this radius where the lines cross, ringed `dotStroke` wide. |
+| `dotStroke` | double | `0` | ≥ 0 |  |
+| `timeLabel` | String | `"axis"` |  | Where the row's label is written: `axis`, `top` or `none`. |
+| `timeFormat` | String | `""` |  |  |
+| `priceTag` | bool | `true` |  |  |
+
+<a id="type-GraphGuide"></a>
+### GraphGuide
+
+Something drawn at a place of a pane's scales, over its marks: a line up the pane (`x`), a line across it (`y`), a dot (`x` and `y`) or a tinted stretch (`from` to `to`). A place on x is a number on a linear scale, a row's key on rows.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `x` | Object | unset |  |  |
+| `y` | double | unset |  |  |
+| `from` | Object | unset |  |  |
+| `to` | Object | unset |  |  |
+| `color` | [Color](values.md#type-Color) | unset |  |  |
+| `line` | String | `"solid"` |  | `solid`, `dashed` or `dotted`. |
+| `width` | double | `1` | ≥ 0 |  |
+| `label` | String | `""` |  |  |
+| `labelColor` | [Color](values.md#type-Color) | unset |  |  |
+| `radius` | double | `3.5` | ≥ 0 | A dot's radius, and its inside when it is not the dot's own color. |
+| `fill` | [Color](values.md#type-Color) | unset |  |  |
+| `below` | bool | `false` |  | The label is under the dot or the line. |
+
+<a id="type-GraphInteractions"></a>
+### GraphInteractions
+
+What each gesture does to a graph whose view is the user's (an x scale with no fit).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `dragPan` | bool | `true` |  | A drag on the plot pans the view. |
+| `wheelZoom` | bool | `true` |  | The wheel zooms about the pointer. |
+| `pinchZoom` | bool | `true` |  | Two fingers zoom about their middle. |
+| `axisScale` | bool | `true` |  | A drag on the y axis scales it; on the x axis, zooms. |
+| `doubleTapReset` | bool | `true` |  | A double tap on an axis fits it again. |
+| `fling` | bool | `true` |  |  |
+
+<a id="type-GraphMark"></a>
+### GraphMark
+
+What a graph draws of its rows: one mark.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `type` | String | `"line"` |  | `line`, `area`, `bar`, `candle`, or in a polar pane `arc`. |
+| `y` | String | `""` |  | The row field of the mark's value. |
+| `open` | String | `""` |  | A candle's fields (a bar with `open` and `close` is colored by its direction). |
+| `high` | String | `""` |  |  |
+| `low` | String | `""` |  |  |
+| `close` | String | `""` |  |  |
+| `name` | String | `""` |  |  |
+| `color` | [Color](values.md#type-Color) | unset |  |  |
+| `colorField` | String | `""` |  | A row field holding the row's own color. |
+| `colors` | List<String> | `[]` |  | Colors row by row (a slice's, a bar's), where the row gives none. |
+| `upColor` | [Color](values.md#type-Color) | unset |  |  |
+| `downColor` | [Color](values.md#type-Color) | unset |  |  |
+| `stack` | String | unset |  |  |
+| `radius` | double | `0` | ≥ 0 | A bar's corner radius (the top of a stack). |
+| `labels` | bool | `false` |  | A bar's value is written over it. |
+| `width` | double | `1.5` | ≥ 0 | A line's width. |
+| `curved` | bool | `false` |  |  |
+| `fillOpacity` | double | `0.18` | ≥ 0, ≤ 1 | An area: its fill's opacity, whether it fades to nothing at the bottom, or the color it runs to there. |
+| `fade` | bool | `false` |  |  |
+| `fillTo` | [Color](values.md#type-Color) | unset |  |  |
+| `endDot` | double | `0` | ≥ 0 | A dot of this radius on the last row (0: none), with a ring that swells and fades when `pulse`. |
+| `endDotColor` | [Color](values.md#type-Color) | unset |  |  |
+| `pulse` | bool | `false` |  |  |
+| `overlay` | double | unset |  | The mark is on a scale of its own, standing in this share of the pane from its bottom (volume under a price). |
+| `segmentBy` | String | `""` |  | A line breaks where this row field changes, and the parts outside the x scale's band in use are drawn at `dimInactive` of their opacity. |
+| `dimInactive` | double | `1` | ≥ 0, ≤ 1 |  |
+| `inner` | double | `0` | ≥ 0, ≤ 1 | An arc: the hole's share of the radius (0: a pie), the room between slices and where the first starts (degrees, clockwise from the top). |
+| `gap` | double | `0` | ≥ 0 |  |
+| `startAngle` | double | `0` |  |  |
+
+<a id="type-GraphPane"></a>
+### GraphPane
+
+One pane of a graph with several: marks over the shared x scale, on a y scale of its own.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `grow` | double | `1` | ≥ 0 | Its share of the graph's height. |
+| `coord` | String | `"rect"` |  |  |
+| `yAxis` | [GraphYAxis](values.md#type-GraphYAxis) | `{}` |  |  |
+| `marks` | List<[GraphMark](values.md#type-GraphMark)> | `[]` |  |  |
+| `guides` | List<[GraphGuide](values.md#type-GraphGuide)> | `[]` |  |  |
+| `priceLines` | List<Object> | `[]` |  | Lines at a value, tagged on the axis: `{value \| field, label, color, line, tag, note}` (`field`: the last row's, a last price). |
+| `markers` | List<Object> | `[]` |  |  |
+
+<a id="type-GraphSelection"></a>
+### GraphSelection
+
+The selection: the row (or the one bar or slice) under the pointer or a finger, or pinned by a tap. The graph draws it apart and says what it holds in a tooltip.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `on` | String | `"none"` |  | `none`, `hover` (the pointer, or a finger while it is down), `tap` (a tap selects and stays; a tap on it again lets go) or `both`. |
+| `by` | String | `"row"` |  | `row`: everything the row has. `mark`: the one bar or slice. |
+| `dim` | double | `0.35` | ≥ 0, ≤ 1 | The opacity of what is not selected while something is (1: as it is). |
+| `band` | [Color](values.md#type-Color) | unset |  | A fill behind the selected row, the height of the pane. |
+| `grow` | double | `4` | ≥ 0 | How much larger a selected slice is drawn. |
+| `dot` | double | `4` | ≥ 0 | A dot of this radius on each line at the selected row (0: none). |
+| `tooltip` | bool | `true` |  |  |
+| `title` | String | `""` |  |  |
+| `tooltipFill` | [Color](values.md#type-Color) | unset |  |  |
+| `tooltipText` | [Color](values.md#type-Color) | unset |  |  |
+| `total` | bool | `false` |  | A last tooltip row with the sum of the row's marks. |
+
+<a id="type-GraphStyle"></a>
+### GraphStyle
+
+A graph's colors and text.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `background` | [Color](values.md#type-Color) | unset |  | Its ground; clear when not given. |
+| `grid` | [Color](values.md#type-Color) | unset |  |  |
+| `text` | [Color](values.md#type-Color) | unset |  | The axes' labels. |
+| `crosshair` | [Color](values.md#type-Color) | unset |  |  |
+| `tag` | [Color](values.md#type-Color) | unset |  | A value's tag on an axis, and its text. |
+| `tagText` | [Color](values.md#type-Color) | unset |  |  |
+| `separator` | [Color](values.md#type-Color) | unset |  | The line between two panes. |
+| `fontSize` | double | `11` | ≥ 0 |  |
+| `fontFamily` | String | unset |  |  |
+| `topInset` | double | `0` | ≥ 0 | Room above the panes. |
+
+<a id="type-GraphTransform"></a>
+### GraphTransform
+
+A field worked out from the rows before each row.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `type` | String | `"sma"` |  | `sma`, `ema`, `rsi` (written to `as`) or `bollinger` (to `as` with `Mid`, `Upper`, `Lower` after it). |
+| `field` | String | `""` |  |  |
+| `as` | String | `""` |  |  |
+| `period` | int | `20` | ≥ 1 |  |
+| `k` | double | `2` |  | Bollinger: how many deviations the bands stand off. |
+
+<a id="type-GraphXAxis"></a>
+### GraphXAxis
+
+A graph's x scale: where each row stands, what is written under it, and the view of it the user moves.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `scale` | String | `"index"` |  | `index`: rows evenly spaced, one place each. `linear`: each row where its `field`'s number is, between `min` and `max` (the rows' own least and most when not given). |
+| `field` | String | `""` |  |  |
+| `min` | double | unset |  |  |
+| `max` | double | unset |  |  |
+| `label` | String | `"t"` |  | The row field written under a row (and at the head of a tooltip). |
+| `format` | String | `"MMM d"` |  | A date pattern, when the label is a time (milliseconds, or ISO text); empty writes the labels as they are. |
+| `fit` | String | `"none"` |  | `none`: the view is the user's to pan and zoom. `bars`: every row has its place across the plot. `points`: the first and last rows are at its edges. |
+| `slots` | int | unset |  | With a fit: the places across the plot, when more than the rows there are (a day not over yet). |
+| `tickValues` | Object | unset |  |  |
+| `tickEvery` | int | unset |  | A label every this many rows; null lets the graph choose. |
+| `ticks` | String | `"step"` |  | `step` (every n-th row) or `calendar` (the rows that start an hour, a day, a month, a year). |
+| `labels` | bool | `true` |  |  |
+| `grid` | bool | `true` |  | Whether a line is drawn up each pane at every tick. |
+| `axisHeight` | double | `24` | ≥ 0 |  |
+| `barSpacing` | double | `8` | ≥ 0 | Rows: pixels from one row to the next at rest, and how close and far zooming may bring them. |
+| `minBarSpacing` | double | `0.5` | ≥ 0 |  |
+| `maxBarSpacing` | double | `80` | ≥ 0 |  |
+| `rightOffset` | double | `3` |  | Rows: the empty places right of the last row at rest. |
+| `follow` | String | `"end"` |  | `end`: a new row is followed while the last row is in view. `none`. |
+| `clamp` | bool | `true` |  |  |
+| `overscroll` | bool | `false` |  | Whether the view may go past the rows there are. |
+| `moreHistory` | bool | `true` |  | Whether there are older rows to load, and how near the first row (in rows) the view comes before the graph asks (its `scroll` trigger with `nearStart`). |
+| `historyThreshold` | double | `10` | ≥ 0 |  |
+| `morph` | double | `0` | ≥ 0 | Milliseconds a line takes to change its shape to new rows' (0: at once). |
+| `bands` | List<Object> | `[]` |  |  |
+
+<a id="type-GraphYAxis"></a>
+### GraphYAxis
+
+A pane's y scale.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `domain` | String | `"visible"` |  | `visible`: fitted to the rows in view. `data`: to all rows. `fixed`: `min` to `max`. |
+| `min` | double | unset |  |  |
+| `max` | double | unset |  |  |
+| `margins` | List<double> | `[]` |  | Room above and below the fitted values, `[top, bottom]`, as shares of their span (`[0.1, 0.1]` when not given). |
+| `include` | List<double> | `[]` |  | Values the fitted domain always holds (zero, a goal). |
+| `mode` | String | `"linear"` |  | `linear`, or `percent`: labels are the change from the first row in view. |
+| `side` | String | `"right"` |  | `right` or `left`: where the axis is (one side for the whole graph: left when any pane says so). |
+| `width` | double | `56` | ≥ 0 | The axis's width; 0 for none. |
+| `labels` | bool | `true` |  |  |
+| `decimals` | int | `2` | ≥ 0 |  |
+| `prefix` | String | `""` |  | Written before and after each label (`$`, `k`, `%`). |
+| `suffix` | String | `""` |  |  |
+| `ticks` | int | `5` | ≥ 0 | About how many round ticks the axis has. |
+| `tickValues` | Object | unset |  |  |
+
 <a id="type-Keyframe"></a>
 ### Keyframe
 
