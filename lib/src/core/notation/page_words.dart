@@ -16,9 +16,6 @@
 //       Nav                   its top bar
 //     Pane w=320              a further fixed-width pane (a list, details)
 //
-// and three small parts: `NavItem "Orders" icon="inbox" selected` (a line of
-// a sidebar), `Link "Docs"` and `Heading "Title"`.
-//
 // Each is written out as the plain lines it stands for (a Column, a Row, a
 // Text), before the notation reads them: the sizes, the content width and
 // the scrolling are the frame's, and nothing else of the notation changes.

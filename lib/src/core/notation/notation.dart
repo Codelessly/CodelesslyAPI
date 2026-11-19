@@ -1612,16 +1612,15 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 /// What the notation already has under [word], in one line with its
 /// signature, or null when it has nothing a writer's definition would hide:
 /// a type of the notation or of the catalog (`Card`, `Text`), a page word
-/// (`App`, `Rail`, `Footer`), a heading (`H2`), or a name [vocabulary]'s
-/// alias table reads as one of those (`Shortcut`, a `key` line). A design
+/// (`App`, `Rail`, `Footer`), or a name [vocabulary]'s alias table reads as
+/// one of those (`RangeSlider`, a `Slider`). A design
 /// system's component (a page's definition may replace it, docs/design/20
 /// section 6) and a word the design system defines are not.
 ///
 /// The owner's decision (2026-11-18): a built-in word wins. A page's or a
 /// site's `define`, `primitive` or component of such a name is not used,
-/// and is said at the definition (before, `primitive Shortcut` turned every
-/// shortcut of test 10's kanban board into a labelled box, and `define Card`
-/// was not used, with no word).
+/// and is said at the definition (before, `define Card` was not used, with
+/// no word).
 String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
   if (word.isEmpty) return null;
   final c = catalog ?? Catalog.current;

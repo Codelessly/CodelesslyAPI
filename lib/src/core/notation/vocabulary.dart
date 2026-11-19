@@ -217,8 +217,7 @@ final class TypeAlias {
 /// the tools):
 ///
 ///     {
-///       "types":      {"RangeSlider": {"to": "Slider", "requires": ["low", "high"], "parameters": {"from": "low", "to": "high"}},
-///                      "Shortcut": {"line": "shortcut"}},
+///       "types":      {"RangeSlider": {"to": "Slider", "requires": ["low", "high"], "parameters": {"from": "low", "to": "high"}}},
 ///       "parameters": {"*": {"disabled": "!enabled"}, "ListTile": {"subtitle": "$text"}},
 ///       "flags":      {"*": {"disabled": "enabled=false"}},
 ///       "events":     {"*": {"onClick": "onTap"}},
