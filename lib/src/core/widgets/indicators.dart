@@ -863,93 +863,66 @@ abstract final class BarcodeProps {
 /// is a graph written out: a bar chart is bar marks over rows that fill the
 /// plot, a donut one arc mark in a polar pane.
 ///
-/// Its parts are JSON objects by their own names. A graph with one pane
-/// writes it as [marks], [y] and [coord]; several panes are [panes].
+/// Its parts are records: their fields are dotted keys on the node's line
+/// (`xAxis.label=month`, `selection.on=both`, `marks[0].y=web`). A graph
+/// with one pane writes it as [marks], [yAxis], [coord] and [guides];
+/// several panes are [panes].
 abstract final class GraphProps {
   /// The rows: one per place on the x scale (a month, a day, a slice).
   static const data = PropDef<List<Json>>('data', Codecs.jsonList, []);
 
   /// The row field that names a row across updates (its time, its label):
-  /// how an update is told from a new row and from older rows put before.
+  /// how an update is told from a new row and from older rows put before,
+  /// and how marks find where they were when they move to new values.
   static const rowKey = PropDef<String>('rowKey', Codecs.string, 't');
 
-  /// The x scale: `label` (the row field written under a row), `format` (a
-  /// date pattern, when the label is a time), `fit` (`none`: the view is
-  /// the user's to pan and zoom; `bars`: every row has its place across
-  /// the plot; `points`: the first and last rows at its edges), `ticks`
-  /// (`step` or `calendar`), `tickEvery`, `labels`, `grid`, `axisHeight`,
-  /// `barSpacing`, `rightOffset`, `minBarSpacing`, `maxBarSpacing`,
-  /// `overscroll`, `follow`, `moreHistory`, `historyThreshold`, `slots`,
-  /// `morph` (ms a line takes to move to new rows), `bands`. With `scale`
-  /// `linear` each row stands where its `field`'s number is between `min`
-  /// and `max` (the view is that stretch and does not move). `tickValues`
-  /// are the ticks themselves (`12` or `{value, label}`); `format` empty
-  /// writes the labels as they are.
-  static const x = PropDef<Json>('x', Codecs.json, {});
+  /// The x scale.
+  static const xAxis = PropDef<GraphXAxis>('xAxis', GraphXAxis.codec, GraphXAxis.empty);
 
-  /// The marks of a graph with one pane, drawn in order. Each has a `type`:
-  /// `bar` (`y`; `stack`: bars with the same stack stand on one another,
-  /// others side by side; `radius`), `line` and `area` (`y`, `width`,
-  /// `curved`, `fillOpacity`, `fade`, `endDot`, `pulse`), `candle` (`open`,
-  /// `high`, `low`, `close`, `upColor`, `downColor`), `arc` in a polar pane
-  /// (`y`; `inner`: the hole's share of the radius, 0 a pie; `gap` and
-  /// `startAngle` in degrees). All take `name`, `color`, `colorField` (a
-  /// row field holding the row's own color) and `colors` (row by row); a
-  /// bar takes `labels` (its value written over it), an area `fillTo` (its
-  /// color at the bottom).
-  static const marks = PropDef<List<Json>>('marks', Codecs.jsonList, []);
+  /// The marks of a graph with one pane, drawn in order.
+  static const marks = PropDef<List<GraphMark>>('marks', GraphMark.codec, []);
 
-  /// The y scale of a graph with one pane: `domain` (`visible`: fitted to
-  /// the rows in view; `data`: to all rows; `fixed` with `min` and `max`),
-  /// `include` (values always in the domain), `margins` (`[top, bottom]`,
-  /// shares of the span), `mode` (`linear` or `percent`), `side` (`right`
-  /// or `left`), `width` (the axis's; 0 for none), `labels`, `decimals`,
-  /// `prefix`, `suffix`, `ticks` (about how many), `tickValues` (the ticks
-  /// themselves: `12` or `{value, label}`).
-  static const y = PropDef<Json>('y', Codecs.json, {});
+  /// The y scale of a graph with one pane.
+  static const yAxis = PropDef<GraphYAxis>('yAxis', GraphYAxis.codec, GraphYAxis.empty);
 
   /// `rect` (marks over the x scale) or `polar` (the rows round a center:
   /// `arc` marks, no axes) for a graph with one pane.
   static const coord = PropDef<String>('coord', Codecs.string, 'rect');
 
   /// What is drawn at places of the scales, over the marks of a graph with
-  /// one pane: `{x}` a line up the pane, `{y}` a line across it, `{x, y}` a
-  /// dot, `{from, to}` a tinted stretch; each with `color`, `line` (`solid`,
-  /// `dashed`, `dotted`), `width`, `label`, `labelColor`, `radius`, `fill`,
-  /// `below`. A place is a number on a linear x scale, a row's key on rows.
-  static const guides = PropDef<List<Json>>('guides', Codecs.jsonList, []);
+  /// one pane.
+  static const guides = PropDef<List<GraphGuide>>('guides', GraphGuide.codec, []);
 
-  /// Several panes over the one x scale, each `{grow, y, coord, marks,
-  /// guides, priceLines, markers}`. With panes, [marks], [y], [coord] and
-  /// [guides] are not read.
-  static const panes = PropDef<List<Json>>('panes', Codecs.jsonList, []);
+  /// Several panes over the one x scale. With panes, [marks], [yAxis],
+  /// [coord] and [guides] are not read.
+  static const panes = PropDef<List<GraphPane>>('panes', GraphPane.codec, []);
 
-  /// Fields worked out from the rows: `{type: sma | ema | rsi | bollinger,
-  /// field, as, period, k}`.
-  static const transforms = PropDef<List<Json>>('transforms', Codecs.jsonList, []);
+  /// Fields worked out from the rows.
+  static const transforms = PropDef<List<GraphTransform>>('transforms', GraphTransform.codec, []);
 
-  /// The selection: `on` (`none`, `hover`, `tap`, or `both`: hover, and a
-  /// tap pins), `by` (`row`, or `mark`: the one bar or slice), `dim` (the
-  /// opacity of the rest), `band` (a fill behind the selected row), `grow`
-  /// (a selected slice's), `dot` (on each line at the row), `tooltip`,
-  /// `title` (a row field), `total`, `tooltipFill`, `tooltipText`.
-  static const selection = PropDef<Json>('selection', Codecs.json, {});
+  /// The selection (hover, tap); off unless its `on` says.
+  static const selection = PropDef<GraphSelection>('selection', GraphSelection.codec, GraphSelection.empty);
 
-  /// The crosshair: `enabled`, `on` (`hover`, `longPress`, `both`,
-  /// `touch`), `magnet` (the row field its price snaps to), `vertical`,
-  /// `horizontal`, `line`, `dot`, `timeLabel`, `timeFormat`, `priceTag`.
-  static const crosshair = PropDef<Json>('crosshair', Codecs.json, {});
+  /// The crosshair; off unless `enabled`.
+  static const crosshair = PropDef<GraphCrosshair>('crosshair', GraphCrosshair.codec, GraphCrosshair.empty);
 
-  /// What each gesture does: `dragPan`, `wheelZoom`, `pinchZoom`,
-  /// `axisScale`, `doubleTapReset`, `fling` (each true unless said).
-  static const interactions = PropDef<Json>('interactions', Codecs.json, {});
+  /// What each gesture does.
+  static const interactions =
+      PropDef<GraphInteractions>('interactions', GraphInteractions.codec, GraphInteractions.empty);
 
-  /// Its colors and text: `background`, `grid`, `text`, `crosshair`, `tag`,
-  /// `tagText`, `separator`, `fontSize`, `fontFamily`, `topInset`.
-  static const style = PropDef<Json>('style', Codecs.json, {});
+  /// Its colors and text.
+  static const style = PropDef<GraphStyle>('style', GraphStyle.codec, GraphStyle.empty);
 
-  /// The view, set from state: `{last: n}` (the last n rows across the
-  /// plot) or `{barSpacing, rightOffset}`. Usually bound.
+  /// Milliseconds the marks take to move to new values when the rows
+  /// change in a running app (0: at once).
+  static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 300);
+
+  /// The marks grow from zero when the graph first shows.
+  static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
+
+  /// The view, set from state: on rows `{last: n}` (the last n rows across
+  /// the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from,
+  /// to}`. Usually bound.
   static const view = PropDef<Object?>('view', Codecs.any, null);
 
   /// The pinned selection, set from state: `{index}` or `{index, mark}`;
@@ -957,7 +930,8 @@ abstract final class GraphProps {
   static const selected = PropDef<Object?>('selected', Codecs.any, null);
 
   static const spec = WidgetSpec('graph', props: [
-    data, rowKey, x, marks, y, coord, guides, panes, transforms, selection, crosshair, interactions, style, view, selected,
+    data, rowKey, xAxis, marks, yAxis, coord, guides, panes, transforms, selection, crosshair, interactions, style, //
+    animationDuration, animateIn, view, selected,
   ], doc: 'Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. '
       'Fires `changed` with `\${result.view}`, `\${result.cursor}` and `\${result.selection}` (`index`, `key`, `label`, '
       '`row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves '
