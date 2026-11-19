@@ -157,7 +157,9 @@ final class NotationResult {
 /// places where it has no room for a label above it (the text input pass of
 /// round 11, codelessly_sdk docs/research/text-input-round-11.md):
 /// - `composer`: a multi-line field in a row beside a button;
-/// - `toolbar`: a field among icon buttons (a stepper's, a toolbar's);
+/// - `toolbar`: a field among icon buttons (a stepper's, a toolbar's), a
+///   field beside chips (a tag row's "Add tag"), or a field in a row of a
+///   set height under 56 (a formula bar, 40 high);
 /// - `entry`: one field beside a text button (add an item, a comment, a
 ///   promo code, a newsletter's email), except in the row that ends a form
 ///   (its column has fields before the row and none after it) where the
@@ -202,7 +204,9 @@ final class NotationResult {
   final alone = inRow && !beside.any(fields.contains);
   final byButton = alone && beside.any(buttons.contains);
   final composer = byButton && multiline;
-  final toolbar = byButton && beside.contains('iconButton');
+  const chips = {'chip', 'choiceChip', 'filterChip', 'actionChip', 'inputChip'};
+  final Object? rowHeight = inRow ? (readMap(node(row)?['layout']) ?? const <String, Object?>{})['height'] : null;
+  final toolbar = (byButton && beside.contains('iconButton')) || (alone && beside.any(chips.contains)) || (inRow && rowHeight is num && rowHeight < 56);
   final d = readMap(props['decoration']) ?? const <String, Object?>{};
   final b = readMap(n['bind']) ?? const <String, Object?>{};
   final labelAndHint = ((d['labelText'] is String && (d['labelText']! as String).isNotEmpty) || b['props.decoration.labelText'] != null) &&
@@ -8278,6 +8282,12 @@ class _Parser {
       final cross = readMap(holder?['props'])?['crossAxisAlignment'];
       if (readMap(holder?['props'])?['scrollable'] == true && (cross == null || cross == 'start' || cross == 'stretch')) layout['align'] = 'topCenter';
     }
+    // A field for a number, written with no width in a row (a stepper's
+    // between its minus and its plus), is a number's width: 96, not the 240
+    // a field for words takes.
+    if (!component && type == 'textField' && inRow && props['keyboardType'] == 'number' && !layout.containsKey('width') && !layout.containsKey('flex') && !bind.containsKey('layout.width')) {
+      layout['width'] = 96;
+    }
     // A table's cell holds what is written for it inside the column's width:
     // a row of its own (a picture beside a name and an email) gives way too
     // (it ran past a narrow column: 202 wide, needing 206, an exception).
@@ -10154,6 +10164,54 @@ class _Parser {
     _patches.add({'op': 'patch', 'id': id, 'patch': fill});
   }
 
+  /// A Toggle, Checkbox or Radio in a row that already shows its label as a
+  /// text (`Text "Single sign-on"` … `Toggle "Single sign-on"`, a settings
+  /// row): the control's string is its spoken name there, not a second
+  /// label drawn beside the first. Alone, or beside other words, it is its
+  /// label as before.
+  void _labelSaidOnce(String id) {
+    final row = nodes[id];
+    if (row == null || row['type'] != 'row') return;
+    final kids = [
+      for (final c in (row['children'] as List? ?? const []))
+        if (c is String && nodes.containsKey(c)) c,
+    ];
+    String norm(Object? t) => '$t'.trim().toLowerCase();
+    for (final k in kids) {
+      final n = nodes[k]!;
+      if (!const {'switch', 'checkbox', 'radio'}.contains(n['type'])) continue;
+      final props = readMap(n['props']);
+      final label = props?['label'];
+      final bound = readMap(n['bind'])?['props.label'];
+      if ((label is! String || label.trim().isEmpty) && bound == null) continue;
+      if (props?['semanticLabel'] != null) continue;
+      // What the rest of the row shows.
+      var said = false;
+      void look(String at) {
+        final m = nodes[at];
+        if (m == null || said) return;
+        if (m['type'] == 'text') {
+          final text = readMap(m['props'])?['text'], textBound = readMap(m['bind'])?['props.text'];
+          if (bound != null ? (textBound == bound || text == bound) : (text is String && norm(text) == norm(label))) said = true;
+        }
+        for (final c in (m['children'] as List? ?? const [])) {
+          if (c is String) look(c);
+        }
+      }
+
+      for (final other in kids) {
+        if (other != k) look(other);
+      }
+      if (!said) continue;
+      final Json change = {
+        'props': {'label': null, 'semanticLabel': ?(bound == null ? label : null)},
+        if (bound != null) 'bind': {'props.label': null, 'props.semanticLabel': bound},
+      };
+      nodes[k] = mergePatch(n, change);
+      _patches.add({'op': 'patch', 'id': k, 'patch': change});
+    }
+  }
+
   void _close(_Open open) {
     if (open.splice || _silence(open)) return;
     _paneGround(open);
@@ -10166,6 +10224,7 @@ class _Parser {
     if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
     if (_roles[open.id] == 'nav') _barTitle(open.id);
     _cellFills(open.id);
+    _labelSaidOnce(open.id);
     if (open.each == null && open.condition == null) _flipFaces(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).

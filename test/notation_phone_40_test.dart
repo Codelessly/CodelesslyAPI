@@ -574,4 +574,58 @@ App
       expect((_node(r, _parentOf(r, _idOf(r, 'Fixed')))['layout'] as Map)['align'], isNull);
     });
   });
+
+  group('controls in a row', () {
+    test('a Toggle beside a text that already says its label keeps the string as its spoken name', () {
+      final r = _parse('''
+state sso=false
+Column
+  Row gap=12 middle
+    Column grow gap=3
+      Text.strong "Single sign-on"
+      Text.muted "Require members to sign in."
+    Toggle "Single sign-on" @sso
+  Row gap=12 middle
+    Text "Notifications"
+    Toggle "Email me" @sso
+  Toggle "Dark mode" @sso
+''');
+      final toggles = _nodes(r).values.where((n) => (n as Map)['type'] == 'switch').map((n) => ((n as Map)['props'] as Map)).toList();
+      expect(toggles[0]['label'], isNull);
+      expect(toggles[0]['semanticLabel'], 'Single sign-on');
+      expect(toggles[1]['label'], 'Email me');
+      expect(toggles[2]['label'], 'Dark mode');
+    });
+
+    test('a number field with no width in a row is 96 wide', () {
+      final r = _parse('''
+state reps=5
+Row middle gap=2
+  IconButton "remove" onTap={reps=reps-1}
+  Input "Reps" value={reps} type=number onChange={reps=result}
+  IconButton "add" onTap={reps=reps+1}
+''');
+      final field = _nodes(r).values.firstWhere((n) => (n as Map)['type'] == 'textField') as Map;
+      expect((field['layout'] as Map)['width'], 96);
+    });
+
+    test('a field beside chips, or in a row of a set height with no room above it, has its label as its hint', () {
+      final r = _parse('''
+state tag=""
+state f=""
+Column
+  Row gap=6 middle
+    Chip "fieldwork"
+    Input "Add tag" @tag
+  Row h=40 middle gap=8
+    Text.mono "B4"
+    Input "Formula" @f grow
+''');
+      for (final n in _nodes(r).values.where((n) => (n as Map)['type'] == 'textField')) {
+        final d = (((n as Map)['props'] as Map)['decoration'] as Map);
+        expect(d['labelText'], isNull);
+        expect(d['hintText'], anyOf('Add tag', 'Formula'));
+      }
+    });
+  });
 }
