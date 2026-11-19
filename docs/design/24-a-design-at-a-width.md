@@ -589,3 +589,48 @@ Run from `CodelesslySDK` (36.0.0, `b2cccb8b`, its API the `track-b` checkout) wi
 `COUNTS.md` is `python count_widths.py <dsl-api-11 folder>`, over round 11 at `wt-r11/x/experiments/dsl-api-11`.
 It lists every twin, the structure twins, the `if` lines over width states, the `screen.width` lines and the web
 counts behind section 2.
+
+## 12. As built (stage 1, and stage 3's printer)
+
+Questions 1, 3 and 7 as recommended: a block replaces the part's children, a default line is named by its id only,
+and the prompt teaches `at` (one sentence where widths are taught). Where the build differs from the sections above:
+
+- **Conditions.** Widths in pixels, the size words and orientations. A breakpoint by its name (`at minTablet`) is
+  an issue for now: a block's lines are hidden outside its range by the complement of each bound (`at
+  min700.tablet` is hidden at `max699` and at `min1024`), which a breakpoint's name cannot say.
+- **The reflow and the part (3.7).** The block's lines are kept (none of the reflow's rules), the expander's hide
+  rules on the default lines do not count, and neither does a rule of a default line (or of a line under it) that
+  holds only where a block holds (`phone.w=fill` on a line a phone shows by `...#list`): with it, a window written
+  as experiment 6's drops its first pane at 834, and the list and the reading pane share the rest. The part itself is not left alone: what the
+  reflow gives it to fit its default lines (a row that wraps on a tablet) stays, and a rule after it undoes it where
+  a block holds. A window's pane (`Sidebar`, `Main`, `Pane`) keeps the reflow's rules whole, so a Sidebar with a
+  block is still hidden on a phone, where its drawer is.
+- **Page words (section 7's "pass a block by", done for stage 1).** A website's `Nav` (`Header`, `TopBar`) with a
+  block writes no menu of its own; a block there that does not hold on a phone is an issue (the phone is where the
+  Nav's menu is). A `Table`'s block goes in its frame, its header and rows being its default lines, and `...` is
+  its cells as written (fragment 5 renders). An app's first `Sidebar` with a block keeps its drawer, which repeats
+  its own lines, not the block's. `App` with a block is an issue (question 4 is not built: its panes, drawer and
+  button are code that copies and places lines), as are `Grid` (its lines are cells), `Pages` and a line with
+  slots.
+- **Copies.** A defined word's use read again keeps its state: its copy is named after the use (`<use id>_<width>`,
+  or the use's own made-up id when it has none) and the state its copy declares is renamed back to the use's.
+  The vocabulary record is the line's own: the copy is not recorded again, and what a copied line has wrong is said
+  once, on its own line. A `...#id` whose line has a block of its own is said (that block is not read again: a
+  block inside a block).
+- **Actions per copy (question 5).** `focus` and `scroll` naming a copied id are written once per copy, after the
+  original; an action already followed by its copies (a print read back) is not doubled. Rendered: `key mod+k
+  onPress={focus search}` focuses `search` at 1440 and 834 and `search_phone` at 390; the hidden copy's focus
+  does nothing.
+- **Focus, caret and scroll across a bound** (a widget test resizing one session: CodelesslySDK
+  `test/notation/at_width_test.dart`). The text typed is kept (both copies bind it). Narrowed to a phone, the shown
+  copy has no focus, its caret is at the end of the text and its list at the top; the hidden field loses the focus.
+  Widened again, the desktop's field has no focus but keeps its own caret where it was left, and its list keeps
+  its scroll position (a hidden node keeps its state).
+- **Printing (stage 3).** The mark is the block's first lines' `name` (`at phone`), set only on a line with no name
+  of its own. A copy prints as `...#id` (or a run of them as `...`) when it equals its default line up to its ids
+  and its own size (a row placed in a column fills it), and the print, read back, gives the document; otherwise
+  the copy is written out, and a part whose blocks do not read back prints as twins.
+- **Streams.** A block is read when the next line not indented past it arrives: its rules and the default lines'
+  are sent then as patches.
+- **Section 6's bug** was fixed before this build (37.0.0): experiment 8's Nav with its own `show=phone` menu
+  button expands to that one button and no `navMenu` column.
