@@ -1649,9 +1649,11 @@ String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary v
   final lower = '${word[0].toLowerCase()}${word.substring(1)}';
   final type = notationTypes[word]?.type ?? (c.widget(lower) != null ? lower : null);
   if (type != null) return '$word, a word of the notation (a $type): $word "text" key=value …';
-  if (vocabulary.types[word] case final a? when !vocabulary.definitions.containsKey(word)) {
-    return '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}';
-  }
+  // A name the notation reads as another of its words (an alias: MonthGrid
+  // as Calendar, DataTable as Table) is not a word it has: a page's or a
+  // site's own definition of the name is the one read, as it is over a
+  // dictionary's. (The alias won, and the writer's month grid was a bare
+  // date picker with its parameters left out.)
   return null;
 }
 

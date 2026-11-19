@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  wordsTests();
   itemsTests();
   valueTextTests();
   drawingTests();
@@ -500,6 +501,57 @@ Column
       // Plain texts are as before.
       expect(_props(r, 'plain')['items'], ['system', 'dark']);
       expect((_node(r, 'plain')['bind'] as Map)['props.value'], r'${appearance}');
+    });
+  });
+}
+
+void wordsTests() {
+  group('a writer\'s own words', () {
+    test('a Footer among a defined word\'s lines under a Sidebar is the sidebar\'s foot', () {
+      final r = _parse('''
+define Links current="a"
+  NavItem "Photos" icon=photo
+  Footer
+    Text#storage "Storage"
+App
+  Sidebar#side
+    Links current="a"
+  Main
+    Text "x"
+''');
+      expect(r.issues, isEmpty);
+      final kids = _children(r, 'side');
+      expect(kids, hasLength(3));
+      expect(_node(r, kids[1])['type'], 'spacer');
+      expect(_children(r, kids[2]).single, startsWith('storage'));
+    });
+
+    test('a page\'s define of a name the notation reads as another word (an alias) is the one read', () {
+      final r = _parse('''
+define MonthGrid month="Nov"
+  Column gap=4
+    Text "my grid {month}"
+Column
+  MonthGrid#mg month="Dec"
+''');
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'mg')['type'], 'column');
+      expect(_nodes(r).where((n) => (n['props'] as Map?)?['text'] == 'my grid Dec'), hasLength(1));
+      // Without a definition the name is still the notation's Calendar.
+      expect(_node(_parse('Column\n  MonthGrid#mg\n'), 'mg')['type'], 'calendar');
+    });
+
+    test('a define of a word the notation has itself is not used, and that is said', () {
+      final r = _parse('''
+define Card "t"
+  Column
+    Text "{t}"
+define Rail
+  Column w=64
+Column
+  Card#c "x"
+''');
+      expect(r.issues.map((i) => i.message), [contains('already has Card'), contains('already has Rail')]);
     });
   });
 }
