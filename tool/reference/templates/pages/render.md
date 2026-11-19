@@ -77,7 +77,8 @@ The render step reports what rendering shows: `render_exception` (naming the nod
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`, `formula_failed` (a formula that could not be worked out when the screen ran:
+`component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have),
+`paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran:
 the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout`
 (a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
 notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it). Links to a screen that is missing are one
