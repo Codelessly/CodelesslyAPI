@@ -136,7 +136,7 @@ extension on PageWords {
     parts.word('sticky');
     final rowH = compact ? 36 : (comfortable ? 52 : 44);
     final headH = compact ? 32 : 40;
-    final head = band ?? siteFill ?? '#FFF8FAFC';
+    final head = band ?? siteFill ?? _headBand;
     final shown = sort == null ? list : "sortBy($list, replace($sort, '-', ''), startsWith($sort, '-') ? 'desc' : 'asc')";
     final id = mark.contains('#') ? mark.substring(mark.indexOf('#') + 1) : null;
     String sub(String name) => id == null ? '' : '#$id-$name';
@@ -185,7 +185,7 @@ extension on PageWords {
         // in its `selected` state). Under a theme's names it is the theme's
         // selected tint (`activeTint`), which follows dark mode.
         text: 'Row${sub('row')} w=fill minHeight=$rowH pad=[16,6,16,6] gap=16 border-bottom=$line hovered.fill=$head'
-            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedFill.startsWith('#') ? _mix(surface, accent, .1) : selectedFill}'}',
+            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedFill.startsWith('#') || selectedFill == 'subtleFill' ? _mix(surface, accent, .1) : selectedFill}'}',
       ),
       if (select != null) ...[
         (indent: at + 8, text: 'Row w=16'),

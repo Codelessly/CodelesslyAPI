@@ -4,6 +4,21 @@ With the CodelesslySDK of the same release.
 
 ### Behaviour changes (read before upgrading)
 
+- **Dark mode with no design system: the notation's parts are drawn in the theme's roles**
+  (`ThemeTokens.notationRoles`): `line` (hairlines, a card's and a table's line), `subtleFill` (a selected or neutral
+  fill, a track, an avatar's disc), `neutralTint`, `card` (cards, tiles, a dialog's and a drawer's panel), `band` (a
+  table's header band), `hoverFill`, `headingText` (`Text.title` and `Text.heading` where the theme has no style for
+  them), `quietText`, `mutedText` and `faintText` (a sidebar's items at rest, their icons, group labels), `surface` and
+  `onSurface`. Each has a light value, the one the notation wrote before, and a dark one made from the theme's ink
+  and ground where the ground is dark (luminance under 0.35): ink at 16 % for `line`, at 10 % for the fills, at 80,
+  60 and 40 % for the quiet inks, the ground 6 % lighter for `card` and `surface`, 3 % for `band`, the ink itself for
+  `headingText` and `onSurface`. `NotationOptions.fromTheme(roles: true)` (a site's theme with no design system,
+  written by name) writes the role names, which `ThemeRefs` resolves in the mode the site is shown in
+  (`ThemeTokens.notationRole`), so a site that declares light and `dark` colors switches every part with
+  `setThemeMode`; a theme that names a color of a role's name keeps its own. Without `roles` the values are written,
+  as before. On a light ground nothing draws differently; on a dark ground a title and a heading with no style of the
+  theme's are in its ink (they were `#FF111827`, dark on dark), and a table's header band, a sidebar item's hover and
+  a neutral badge are dark.
 - **A search field shows the magnifier**: a field the notation reads as a search (`Input "Search…"`, also `Find…`
   and `Filter…`, a `Search` line, or a field in a top bar whose text or id says search) has `icon="search"` before
   its text unless the line writes its own icon; `icon=none` leaves it out.

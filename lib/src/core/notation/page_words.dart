@@ -61,6 +61,7 @@ final class PageWords {
     this.menu = false,
     this.sidebarMenu,
     this.surface = '#FFFFFFFF',
+    this.themeRoles = false,
     this.overlaySurface,
     this.viewer,
     this.takesViewer = _none,
@@ -167,6 +168,18 @@ final class PageWords {
 
   /// What a drawer's panel is drawn on when the theme names no pane fill.
   final String surface;
+
+  /// Whether what the words draw by themselves with no theme color for it
+  /// (a sidebar item's tint under the pointer, a table's header band) is
+  /// written by the theme's role for it (`hoverFill`, `band`:
+  /// ThemeTokens.notationRoles), light or dark as the site is shown.
+  final bool themeRoles;
+
+  /// The tint of a sidebar's item under the pointer.
+  String get _hoverFill => themeRoles ? 'hoverFill' : '#0F111827';
+
+  /// What a table's header band is with no band of the theme's.
+  String get _headBand => themeRoles ? 'band' : '#FFF8FAFC';
 
   /// With no theme of its own (no design system): the theme's role an
   /// overlay's panel is drawn in (`surface`), and its title and close button
@@ -829,7 +842,7 @@ final class PageWords {
   /// tint is the accent as the theme names it at an eighth of its strength,
   /// so it follows the site's own accent and its dark mode.
   String _navFill(String ink) =>
-      selectedFill == '#FFE5E7EB' ? 'fills=[{"color":"$ink","opacity":0.12}]' : 'fill=$selectedFill';
+      selectedFill == '#FFE5E7EB' || selectedFill == 'subtleFill' ? 'fills=[{"color":"$ink","opacity":0.12}]' : 'fill=$selectedFill';
 
   /// A quoted label in capitals (`"People & access"` is `"PEOPLE & ACCESS"`); one with a value in it as written.
   static String _upper(String quoted) => quoted.contains('{') ? quoted : quoted.toUpperCase();
@@ -1148,7 +1161,7 @@ final class PageWords {
       // icon shows the icon alone: its label, count and shortcut had no room.
       final railed = across || icon == null ? '' : _railHide();
       // Under the pointer an item that is not the chosen one is tinted.
-      final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=#0F111827';
+      final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=$_hoverFill';
       final weight = on
           ? 'weight=600 color=$ink'
           : selected != null

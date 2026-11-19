@@ -312,6 +312,72 @@ final class ThemeTokens {
 
   static const ThemeTokens none = ThemeTokens();
 
+  /// The roles the notation draws its own parts in where a site names no
+  /// design system (a hairline, a card, a table's header band, a sidebar's
+  /// items at rest, a hover and a selected fill...), by name. Each has a
+  /// light value, the one the notation always wrote, and a dark one made
+  /// from the theme's ink and ground where the ground is dark (its
+  /// luminance under 0.35): so a dark site draws them legibly, and a site
+  /// with light and [dark] colors switches them with its mode. A color the
+  /// theme names itself wins ([color]). Read through [ThemeRefs] (a
+  /// document's color named `line`) and [notationRole].
+  static const notationRoles = {
+    'line': 0xFFE5E7EB, // a hairline: a pane's edge, a bar's rule, a card's and a table's line
+    'subtleFill': 0xFFE5E7EB, // a neutral or selected fill, a progress bar's track, an avatar's disc
+    'neutralTint': 0xFFF3F4F6, // a neutral badge's fill
+    'card': 0xFFFFFFFF, // a card, a tile, a dialog's and a drawer's panel
+    'band': 0xFFF8FAFC, // a table's header band and a row under the pointer
+    'hoverFill': 0x0F111827, // a sidebar's item under the pointer
+    'headingText': 0xFF111827, // a title and a heading the theme has no style for
+    'quietText': 0xFF374151, // a sidebar's or a bar's item at rest
+    'mutedText': 0xFF6B7280, // its icon, a group's label, a brand's line under it
+    'faintText': 0xFF9CA3AF, // what is fainter still
+    'surface': 0xFFFFFFFF, // a panel written in the theme's surface (with no theme of its own)
+    'onSurface': 0xFF111111, // its title and close button
+  };
+
+  /// The ground the theme draws on: its `page`, `surface` or
+  /// `primaryBackground`, else its `paper` (`background`, `bg`, `ground`).
+  Color? get ground {
+    for (final n in const ['page', 'surface', 'primaryBackground', 'paper', 'background', 'bg', 'ground']) {
+      if (color(n) case final Color c) return c;
+    }
+    return null;
+  }
+
+  /// Whether [ground] is dark (its luminance under 0.35): the notation's
+  /// roles take their dark values ([notationRoles]).
+  bool get groundIsDark {
+    final g = ground;
+    if (g == null) return false;
+    return 0.2126 * g.red / 255 + 0.7152 * g.green / 255 + 0.0722 * g.blue / 255 < 0.35;
+  }
+
+  /// The notation's role [name] ([notationRoles]) in this theme (already for
+  /// its mode: [forBrightness]): its light value, or on a dark [ground] its
+  /// value made from the theme's ink and ground. Null for another name.
+  Color? notationRole(String name) {
+    final light = notationRoles[name];
+    if (light == null) return null;
+    final g = ground;
+    if (g == null || !groundIsDark) return Color(light);
+    final ink = color('primaryText') ?? color('onSurface') ?? color('ink') ?? const Color(0xFFF3F4F6);
+    Color tint(int alpha) => Color((alpha << 24) | (ink.value & 0xFFFFFF));
+    Color lift(double t) => Color.fromARGB(255, (g.red + (255 - g.red) * t).round(), (g.green + (255 - g.green) * t).round(), (g.blue + (255 - g.blue) * t).round());
+    return switch (name) {
+      'line' => tint(0x29),
+      'subtleFill' || 'neutralTint' => tint(0x1A),
+      'card' || 'surface' => lift(0.06),
+      'band' => lift(0.03),
+      'hoverFill' => tint(0x0F),
+      'quietText' => tint(0xCC),
+      'mutedText' => tint(0x99),
+      'faintText' => tint(0x66),
+      _ => Color(0xFF000000 | (ink.value & 0xFFFFFF)),
+    };
+  }
+
+
   /// The color named [name]: a key of [colors], else a role (`primary`,
   /// `onSurface`...). A color may name another (`"accent": "ember"`).
   Color? color(String name) {
