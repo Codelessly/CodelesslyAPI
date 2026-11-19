@@ -46,6 +46,7 @@ final class PageWords {
     this.accent = '#FF2563EB',
     this.siteHeadline,
     this.siteType = const {},
+    this.page,
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
@@ -103,6 +104,9 @@ final class PageWords {
   /// gives no size of its own. A website's page written with an app's sizes
   /// (a 13 px paragraph, a 24 px section heading) read as a form.
   final Map<String, num> siteType;
+
+  /// The name of the page being read (what `go <name>` goes to), or null.
+  final String? page;
 
   /// The indent of the plain Section just written under a Page (no ground,
   /// no bleed), while nothing else has been written beside it.
@@ -996,6 +1000,13 @@ final class PageWords {
       open(frame: parent?.frame).conditional = true;
       return out..add((indent: at, text: text));
     }
+    // The lines of a defined word of several lines are written where the
+    // word is used: a Nav among them is the page's bar there, a Section the
+    // page's section (a bar written in a define had no gutter and no band).
+    if (text == 'Column~splice') {
+      open(frame: parent?.frame);
+      return out..add((indent: at, text: text));
+    }
     if (word == null || text.startsWith('node ') || text.startsWith('document ')) {
       open();
       return out..add((indent: at, text: text));
@@ -1092,7 +1103,10 @@ final class PageWords {
       final top = plain && _plainSectionAt == indent ? _n((sectionPad / 2).roundToDouble()) : v;
       _plainSectionAt = plain && !parts.has('pad') ? indent : null;
       final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$top,$g,$v]');
-      final banded = tint && band != null && !parts.has('fill') ? ' fill=$band border-top=$line border-bottom=$line' : '';
+      // (A theme with no band of its own: a tenth of mid grey over the page,
+      // a step off whatever its ground is, light or dark. With no fill at
+      // all a tinted section was two sections' padding of bare page.)
+      final banded = tint && !parts.has('fill') ? ' fill=${band ?? '#14808080'} border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
       open(frame: 'Section', shift: 2);
@@ -1110,8 +1124,19 @@ final class PageWords {
         // side by side. As a sidebar's, each took a share of the row's width,
         // one letter a line on a phone. Where they have no room (a phone)
         // they go onto a further line.
-        open(frame: 'Nav');
         final wraps = RegExp(r'(^|\s)([a-z]+\.)?wrap\b').hasMatch(rest) ? '' : ' phone.wrap=true';
+        // Its `maxw` is the widest its items spread, in the middle of the
+        // bar: the bar itself (its fill, its rule) is as wide as its place.
+        // (As the row's own width it ended at 1320 of a 1440 window, its
+        // items off the page's centre.)
+        if (parts.take('maxw') case final String width) {
+          final gap = parts.take('gap') ?? '16';
+          open(frame: 'Nav', shift: 2);
+          return out
+            ..add((indent: at, text: 'Column$mark w=fill center${parts.all}'))
+            ..add((indent: at + 2, text: 'Row w=fill maxw=$width between middle gap=$gap$wraps'));
+        }
+        open(frame: 'Nav');
         return out..add((indent: at, text: 'Row$mark w=fill between middle${parts.has('gap') ? '' : ' gap=16'}$wraps${parts.all}'));
       }
       final gap = parts.take('gap') ?? '24';
@@ -1271,6 +1296,19 @@ final class PageWords {
     }
     // A quiet button in a website's bar (Button.ghost … onTap={…}): the bar
     // hides it on a phone, and its menu there repeats it.
+    // A quiet button in a bar that goes to the page being shown is that
+    // page's link: drawn selected (the accent's tint and ink), unless the
+    // line says when it is. On a website its label is a link's size (15,
+    // semibold) where the line gives it none.
+    if (word == 'Button' && mark.startsWith('.ghost') && !isComponent('Button') && _open.any((l) => l.frame == 'Nav')) {
+      final here = page != null && RegExp('\\sonTap=\\{\\s*go\\s+(?:\\{\\s*)?"?${RegExp.escape(page!)}"?(?:\\s*\\})?\\s*\\}').hasMatch(rest);
+      final current = here && !parts.has('selected') ? ' selected=true' : '';
+      final sized = site && !inApp && !rest.contains('style.textStyle') && !parts.has('size') ? ' style.textStyle.fontSize=15 style.textStyle.fontWeight=600' : '';
+      if (current.isNotEmpty || sized.isNotEmpty) {
+        final end = _tailAt(text);
+        text = '${text.substring(0, end).trimRight()}$sized$current${text.substring(end)}';
+      }
+    }
     // Its other labelled buttons go into that menu with them (a phone's bar
     // is one line: the brand, the icon buttons and the menu button), unless
     // the line says where it shows or stands under a condition.

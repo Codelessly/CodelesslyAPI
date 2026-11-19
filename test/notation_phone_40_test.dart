@@ -494,4 +494,84 @@ Page
       expect(sizeOf(r, 'Small'), isNot(14));
     });
   });
+
+  group('bars and sections', () {
+    test('a quiet button in a bar that goes to the page shown is drawn selected; on a website it is a link\'s size', () {
+      final r = _parse('''
+Page
+  Nav
+    Text.title "Northlight"
+    Button.ghost "Schedule" onTap={go schedule}
+    Button.ghost "Speakers" onTap={go speakers}
+  Section
+    Text "Hello"
+''', const NotationOptions(openVocabulary: true, width: 1440, screen: 'speakers'));
+      final here = _node(r, _idOf(r, 'Speakers')), other = _node(r, _idOf(r, 'Schedule'));
+      expect((here['bind'] as Map)['selected'], isNotNull);
+      expect((other['bind'] as Map?)?['selected'], isNull);
+      expect((((other['props'] as Map)['style'] as Map)['textStyle'] as Map)['fontSize'], 15);
+    });
+
+    test('a bar written among the lines of a defined word is the page\'s bar', () {
+      final r = _parse('''
+Page
+  ShopHeader
+  Section
+    Text "Hello"
+define ShopHeader
+  Box fill=#FF233E32 pad=8
+    Text.caption "Free shipping"
+  Nav
+    Text.title "Fennel & Rye"
+    Button.ghost "Shop" onTap={go shop}
+    Button.ghost "Journal" onTap={go journal}
+''');
+      final bar = _parentOf(r, _idOf(r, 'Fennel & Rye'));
+      final band = _node(r, _parentOf(r, bar));
+      expect((band['layout'] as Map)['padding'], [24, 14, 24, 14], reason: 'the page\'s gutter');
+      expect(((_node(r, bar)['layout'] as Map)['constraints'] as Map)['maxWidth'], isNotNull);
+      expect(_at(r, _idOf(r, 'Shop'), 390)['visible'], false, reason: 'its links fold into its menu');
+    });
+
+    test('a component bar\'s maxw is its items\' width in the middle of the bar, not the bar\'s', () {
+      final r = _parse('''
+Column w=fill
+  Nav fill=#FFFAF5EA pad=[42,13,42,13] maxw=1320
+    Text.title "Fennel & Rye"
+    IconButton "search"
+''');
+      final row = _parentOf(r, _idOf(r, 'Fennel & Rye'));
+      expect(((_node(r, row)['layout'] as Map)['constraints'] as Map)['maxWidth'], 1320);
+      final band = _node(r, _parentOf(r, row));
+      expect((band['layout'] as Map)['constraints'], isNull);
+      expect((band['props'] as Map)['crossAxisAlignment'], 'center');
+      expect(band['decoration'], isNotNull, reason: 'the fill is the band\'s');
+    });
+
+    test('a tinted Section has a ground when the theme names none', () {
+      final r = _parse('''
+Page
+  Section
+    Text "One"
+  Section tint
+    Text "Two"
+''');
+      final section = _parentOf(r, _parentOf(r, _idOf(r, 'Two')));
+      expect(((_node(r, section)['decoration'] as Map)['fills'] as List).single, {'color': '#14808080'});
+    });
+
+    test('a Column with maxw written in the column that scrolls the page stands in its middle', () {
+      final r = _parse('''
+App
+  Main
+    Column scroll grow
+      Column maxw=960 pad=20
+        Text "Story"
+      Column maxw=600 pad=20 w=300
+        Text "Fixed"
+''');
+      expect((_node(r, _parentOf(r, _idOf(r, 'Story')))['layout'] as Map)['align'], 'topCenter');
+      expect((_node(r, _parentOf(r, _idOf(r, 'Fixed')))['layout'] as Map)['align'], isNull);
+    });
+  });
 }

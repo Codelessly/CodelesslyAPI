@@ -2972,6 +2972,7 @@ class _Parser {
           if (!sized(e.key) && !(sized('body') && fromBody.contains(e.key)) && !(headline && (e.key == 'heading1' || e.key == 'pageTitle')) && options.textStyles.containsKey(e.key)) e.key: e.value,
       };
     }(),
+    page: options.screen,
     selectedFill: options.selectedFill,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
@@ -8256,6 +8257,26 @@ class _Parser {
     // and a note in a narrow tile), where it would push past the row's end.
     if (inRow && type == 'column' && !layout.containsKey('width') && !layout.containsKey('flex') && options.width >= 700 && written != 'Card') {
       layout['squeezable'] = true;
+    }
+    // A column of content with a widest width (`Column maxw=960`) written
+    // straight in the column that scrolls the page (an app's Main, a `Column
+    // scroll`) is the page's content: it stands in the middle of the room
+    // left, as a Section's does, unless the line or the column says a side.
+    // (It stood at the left edge of a 1440 window.)
+    if (!component &&
+        const {'column', 'row', 'stack'}.contains(type) &&
+        parent != null &&
+        parent.type == 'column' &&
+        readMap(layout['constraints'])?['maxWidth'] is num &&
+        // (The word `maxw`: a bound written by its field's name, `maxWidth=`,
+        // as a printed document writes it, is that bound and no more.)
+        (pre?.parts.any((p) => p.kind == 'pair' && const {'maxw', 'max-width', 'maxwidth'}.contains(p.key)) ?? false) &&
+        layout['width'] is! num &&
+        !layout.containsKey('align') &&
+        !layout.containsKey('flex')) {
+      final holder = nodes[parent.id];
+      final cross = readMap(holder?['props'])?['crossAxisAlignment'];
+      if (readMap(holder?['props'])?['scrollable'] == true && (cross == null || cross == 'start' || cross == 'stretch')) layout['align'] = 'topCenter';
     }
     // A table's cell holds what is written for it inside the column's width:
     // a row of its own (a picture beside a name and an email) gives way too
