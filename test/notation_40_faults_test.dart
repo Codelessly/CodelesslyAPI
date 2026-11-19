@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  gridWidthTests();
   wordOverParameterTests();
   componentParamTests();
   stateValueTests();
@@ -336,5 +337,26 @@ Column
     expect(lists.first, contains('methods[0].parameters'));
     expect(lists.last, contains('"name":"x"'));
     expect(lists.join(), isNot(contains(r'${parameters}')));
+  });
+}
+
+void gridWidthTests() {
+  test('phone.gap and phone.mainAxisExtent on a Grid are its each\'s cells at that width', () {
+    final r = _parse('''
+state trash=[{"title":"a"},{"title":"b"}]
+Column w=fill
+  Grid#g cols=4 phone.cols=2 gap=12 phone.gap=4 mainAxisExtent=260 phone.mainAxisExtent=226
+    each picture in trash
+      Text "{picture.title}"
+''');
+    expect(r.issues, isEmpty);
+    final grid = _nodes(r).singleWhere((n) => n['type'] == 'gridView');
+    expect((grid['props'] as Map)['mainAxisExtent'], 260);
+    final phone = [for (final m in grid['media'] as List) if ((m as Map)['maxWidth'] == 699) (m['patch'] as Map)['props']];
+    expect(phone, containsAll([
+      {'crossAxisCount': 2},
+      {'mainAxisSpacing': 4, 'crossAxisSpacing': 4},
+      {'mainAxisExtent': 226},
+    ]));
   });
 }

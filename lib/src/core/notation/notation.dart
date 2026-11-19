@@ -1863,6 +1863,10 @@ class _Grid {
   /// grid of an `each` (docs/design/22, 2.4), with the line and column they
   /// were written at (cells written one by one stay in their rows: said).
   final mediaCols = <Json>[];
+
+  /// `phone.gap=4`, `phone.mainAxisExtent=226`: its cells at other widths,
+  /// rules of the grid of an `each`.
+  final mediaCells = <Json>[];
   int mediaLine = 0, mediaColumn = 0;
   bool mediaSaid = false;
 }
@@ -5264,7 +5268,12 @@ class _Parser {
           if (g?.colsFormula case final String cols) 'props.crossAxisCount': cols,
         },
         // `tablet.cols=2` on the Grid: its column count at that width.
-        if (g != null && g.mediaCols.isNotEmpty) 'media': [for (final r in g.mediaCols) _copy(r)],
+        if (g != null && (g.mediaCols.isNotEmpty || g.mediaCells.isNotEmpty))
+          'media': [
+            // The narrower width's rule after the wider's, so it wins where both hold.
+            for (final r in [...g.mediaCols, ...g.mediaCells]..sort((a, b) => ((b['maxWidth'] as num?) ?? double.infinity).compareTo((a['maxWidth'] as num?) ?? double.infinity)))
+              _copy(r),
+          ],
         'children': <Object?>[itemId],
       };
       if (g != null) g.mediaSaid = true;
@@ -6231,6 +6240,22 @@ class _Parser {
               grid.mediaCols
                 ..clear()
                 ..addAll([for (final e in order) e.$2]);
+            }
+          } else if (grid != null && RegExp(r'^(gap|mainAxisExtent|childAspectRatio)=(\d+(?:\.\d+)?)$').firstMatch(ruleWord) != null) {
+            // `phone.gap=4`, `phone.mainAxisExtent=226`: the cells of the grid
+            // its `each` makes, at that width (they were left out, and a
+            // phone drew the desktop's cells).
+            final gm = RegExp(r'^(gap|mainAxisExtent|childAspectRatio)=(\d+(?:\.\d+)?)$').firstMatch(ruleWord)!;
+            final n = num.parse(gm[2]!);
+            if (!_mediaLine) {
+              grid.mediaCells.add({
+                ...m.condition,
+                'patch': {
+                  'props': gm[1] == 'gap' ? {'mainAxisSpacing': n, 'crossAxisSpacing': n} : {gm[1]!: n},
+                },
+              });
+              // The rows of cells written one by one take a gap as a Column does.
+              if (gm[1] == 'gap') mediaWords.add((condition: m.condition, word: ruleWord, column: col));
             }
           } else if (!_mediaLine) {
             mediaWords.add((condition: m.condition, word: ruleWord, column: col));
