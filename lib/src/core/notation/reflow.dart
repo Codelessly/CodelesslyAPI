@@ -308,6 +308,9 @@ final class PageReflow {
     }
     if (found != null) _listDetailRules(found);
     for (final e in nodes.entries) {
+      if (_type(e.value) == 'row' && !_handled.contains(e.key)) _stacksWhereAChildFills(e.key, e.value);
+    }
+    for (final e in nodes.entries) {
       final id = e.key, n = e.value;
       final type = _type(n);
       if (type == 'row' && !_handled.contains(id) && roles[id] != 'app' && _frame(id, n)) {
@@ -337,6 +340,92 @@ final class PageReflow {
           for (final max in e.value.keys.toList()..sort((a, b) => b.compareTo(a))) {'maxWidth': max, 'patch': e.value[max]},
         ],
     };
+  }
+
+  /// A node's own rules that hold at a screen [max] wide (those for that
+  /// width or a wider one), the widest first, as they are applied.
+  Iterable<Json> _ownRulesAt(Json n, int max) sync* {
+    final rules = [
+      for (final r in (n['media'] as List? ?? const []))
+        if (readMap(r) case final Json rule when rule['maxWidth'] is num && (rule['maxWidth'] as num) >= max && rule['minWidth'] == null) rule,
+    ]..sort((a, b) => (b['maxWidth'] as num).compareTo(a['maxWidth'] as num));
+    for (final r in rules) {
+      if (readMap(r['patch']) case final Json patch) yield patch;
+    }
+  }
+
+  /// A row whose child is written as wide as its place at a narrower width
+  /// (`Column w=345 phone.w=fill`, `Select w=180 phone.w=fill`): a child as
+  /// wide as the row leaves no room beside it, so the row is laid out down
+  /// the page there. Each such child, and each that grows, takes a line of
+  /// its own; what is neither (a button, a count) shares a line. A row that
+  /// says its own wrap or direction there, has a height of its own, scrolls,
+  /// or is written `keep` is left as written.
+  void _stacksWhereAChildFills(String id, Json n) {
+    if (_props(n)['wrap'] == true || _props(n)['scrollable'] == true || _layout(n)['height'] is num || kept.contains(id) || gridRows.containsKey(id)) return;
+    final kids = _kids(n);
+    if (kids.length < 2) return;
+    // (A share of the row said with it, `phone.grow`, is a place beside the others.)
+    bool fillsAt(Json kid, int max) {
+      Object? w;
+      var shares = false;
+      for (final p in _ownRulesAt(kid, max)) {
+        final l = readMap(p['layout']);
+        if (l != null && l.containsKey('width')) w = l['width'];
+        if (l != null && l['flex'] != null) shares = true;
+      }
+      return !shares && w is Map && w.containsKey('fill');
+    }
+
+    final widths = <int>{
+      for (final k in kids)
+        if (_layout(nodes[k]!)['width'] case final Object? base when !(base is Map && base.containsKey('fill')))
+          for (final r in (nodes[k]!['media'] as List? ?? const []))
+            if (readMap(r) case final Json rule when rule['maxWidth'] is num && rule['minWidth'] == null && fillsAt(nodes[k]!, (rule['maxWidth'] as num).toInt()))
+              if (readMap(readMap(rule['patch'])?['layout'])?['width'] case final Map w when w.containsKey('fill')) (rule['maxWidth'] as num).toInt(),
+    };
+    for (final max in widths) {
+      // What the row says of itself there.
+      num spacing = _spacing(n);
+      var own = false;
+      for (final p in _ownRulesAt(n, max)) {
+        final props = readMap(p['props']);
+        if (props == null) continue;
+        if (props['spacing'] case final num s) spacing = s;
+        if (props.containsKey('wrap') || props.containsKey('direction')) own = true;
+      }
+      if (own) continue;
+      _add(force: true, id, max, {
+        'props': {'wrap': true, 'runSpacing': spacing},
+      });
+      for (final k in kids) {
+        final kid = nodes[k]!;
+        if (_type(kid) == 'spacer') {
+          if (kid['media'] == null) _add(force: true, k, max, {'visible': false});
+        } else if (fillsAt(kid, max) || (_fills(kid) && _fixedWidthAt(kid, max) == null)) {
+          _add(force: true, k, max, {
+            'layout': {
+              'width': {'fill': 0},
+              'basis': max,
+              'flex': 1,
+              if (_layout(kid)['height'] case final Map h when h.containsKey('fill')) 'height': {'fill': null, 'hug': 0},
+            },
+          });
+          _handled.add(k);
+        }
+      }
+      _handled.add(id);
+    }
+  }
+
+  /// The fixed width a node's own rules give it at a screen [max] wide.
+  num? _fixedWidthAt(Json n, int max) {
+    Object? w = _fixedWidth(n);
+    for (final p in _ownRulesAt(n, max)) {
+      final l = readMap(p['layout']);
+      if (l != null && l.containsKey('width')) w = l['width'];
+    }
+    return w is num && w > 0 ? w : null;
   }
 
   /// An app's window: its main pane is what a phone shows; a tablet keeps
@@ -1043,6 +1132,15 @@ final class PageReflow {
         // A block alone among labels and buttons still keeps a column's width.
         final basis = _choiceBasis(kid, type == 'spacer' ? 0 : blocks[k] != null && !blocks[k]!.light ? 280 : _fields.contains(type) ? 180 : isComponent(type) ? 160 : 96);
         _add(k, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
+        // On a phone what grows keeps the width its own words need (up to
+        // 200 for a column of text, 160 for a text): two columns of
+        // paragraphs side by side each took half a phone, and a heading
+        // beside a box of figures 50 px, a letter to a line.
+        final least = type == 'text' ? 160 : type == 'column' || type == 'row' ? 200 : 0;
+        if (least > basis && !_truncates(k)) {
+          final own = math.min<num>(least, _need(k));
+          if (own > basis) _add(k, reflowPhoneMax, {'layout': {'basis': own}});
+        }
       }
     }
   }
@@ -1080,7 +1178,7 @@ final class PageReflow {
       case 'spacer':
         return 0;
       case 'text':
-        return text(p['text'], switch (readMap(p['style'])?['fontSize']) { final num s => s, _ => 14 });
+        return text(p['text'], switch (readMap(p['style'])?['fontSize']) { final num s => s, _ => displaySizes[readMap(p['style'])?['from']] ?? 14 });
       case 'icon':
         return switch (p['size']) { final num s => s, _ => 24 };
       case 'iconButton':
@@ -1109,7 +1207,10 @@ final class PageReflow {
     // What grows in it (a list row's subject) narrows first: the row is
     // crowded when what keeps its width has no room.
     final shown = [for (final k in kids) if (_need(k) > 0 || (_fills(nodes[k]!) && _type(nodes[k]!) != 'spacer')) k];
-    final need = _sidesPadding(n) + _spacing(n) * math.max(0, shown.length - 1) + shown.fold<num>(0, (s, k) => s + (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null ? 32 : _need(k)));
+    // (What grows gives way down to the least its words can be read at: a
+    // text that ends in an ellipsis to almost nothing, any other to 120.)
+    num least(String k) => _truncates(k) || _type(nodes[k]!) == 'spacer' ? 32 : math.max(32, math.min(120, _need(k)));
+    final need = _sidesPadding(n) + _spacing(n) * math.max(0, shown.length - 1) + shown.fold<num>(0, (s, k) => s + (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null ? least(k) : _need(k)));
     if (need <= _phoneRoom) return;
     final spacing = _spacing(n);
     _add(id, reflowPhoneMax, {

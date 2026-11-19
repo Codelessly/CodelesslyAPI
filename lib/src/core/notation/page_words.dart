@@ -1262,9 +1262,12 @@ final class PageWords {
     }
     // `Row … phone.direction=vertical`: a row that is a column at some width
     // is a Flex, which has a direction to change.
+    // (`phone.axis=vertical`, `phone.direction=column`: the same rule by the
+    // names Flutter's and CSS's own have for it.)
     if ((word == 'Row' || word == 'Column') && !isComponent(word) && _turns.hasMatch(rest)) {
       open(frame: null);
-      return out..add((indent: at, text: 'Flex$mark direction=${word == 'Row' ? 'horizontal' : 'vertical'}${parts.all}'));
+      final all = parts.all.replaceAllMapped(_turn, (m) => '${m[1]}direction=${const {'column': 'vertical', 'row': 'horizontal'}[m[2]] ?? m[2]}');
+      return out..add((indent: at, text: 'Flex$mark direction=${word == 'Row' ? 'horizontal' : 'vertical'}$all'));
     }
     open(frame: null);
     return out..add((indent: at, text: text));
@@ -1304,7 +1307,10 @@ final class PageWords {
   /// look, its size, its padding, whether it shows): `tablet.hidden`,
   /// `phone.pad=4`, `max899.fill=…`.
   /// A rule at another width that turns a line's direction (`phone.direction=vertical`).
-  static final _turns = RegExp(r'(?:^|\s)(?:(?:phone|mobile|tablet|desktop|portrait|landscape|(?:min|max)(?:\d+|[A-Z][A-Za-z0-9]*))\.)+direction=');
+  static final _turns = RegExp(r'(?:^|\s)(?:(?:phone|mobile|tablet|desktop|portrait|landscape|(?:min|max)(?:\d+|[A-Z][A-Za-z0-9]*))\.)+(?:direction|axis)=');
+
+  /// One such rule, by any of its names and values.
+  static final _turn = RegExp(r'((?:(?:phone|mobile|tablet|desktop|portrait|landscape|(?:min|max)(?:\d+|[A-Z][A-Za-z0-9]*))\.)+)(?:direction|axis)=(vertical|horizontal|column|row)(?=\s|$)');
 
   static final _boxRule = RegExp(
       r'^(?:(?:phone|mobile|tablet|desktop|portrait|landscape|(?:min|max)(?:\d+|[A-Z][A-Za-z0-9]*))\.)+(?:fill|radius|border(?:-[a-z]+)?|w|maxw|pad|hidden|visible)(?:=|$)');

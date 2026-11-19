@@ -7109,6 +7109,11 @@ class _Parser {
               } else {
                 (buttonLook ??= <String, Object?>{})[at] = _named(_value(raw), filled ? 'fill' : 'text');
               }
+            case 'radius' when type.endsWith('Button') && spec.prop('style') != null && (bound != null || _value(raw) is num):
+              // A button's corners are its shape's (`Button "Donate" h=44
+              // radius=22` is a pill; `IconButton "play_arrow" radius=22`).
+              (buttonLook ??= <String, Object?>{})['shape'] = {'type': 'roundedRectangle', if (bound == null) 'borderRadius': _value(raw)};
+              if (bound != null) bind['props.style.shape.borderRadius'] = _read(bound);
             case 'size' when step != null && type == 'text':
               // The theme's text sizes: caption, small, body, title, and half again.
               num? of(String name) => readMap(options.textStyles[name])?['fontSize'] as num? ?? readMap(defaultTextVariants[name])?['fontSize'] as num?;
@@ -8353,7 +8358,9 @@ class _Parser {
     // per item, each row as tall as its tallest cell.
     if (parent != null && layout.containsKey('flex')) {
       final listId = _acrossLists[parent.id], list = listId == null ? null : nodes[listId];
-      if (list != null && list['type'] == 'listView' && (list['props'] as Map?)?['scrollDirection'] == 'horizontal') {
+      // (Copies of a least width in a row written to wrap are read below,
+      // once the line's rules at other widths are.)
+      if (list != null && list['type'] == 'listView' && (list['props'] as Map?)?['scrollDirection'] == 'horizontal' && !((list['props'] as Map?)?['wrap'] == true && layout['basis'] is num)) {
         final data = '${(list['bind'] as Map?)?['data'] ?? ''}';
         final inner = data.startsWith(r'${=')
             ? data.substring(3, data.length - 1).trim()
@@ -8656,6 +8663,60 @@ class _Parser {
         }
       }
       if (rules.isNotEmpty) out['media'] = rules;
+    }
+    // Copies that grow from a least width in a row that wraps (`Row wrap`
+    // over an each of `Card basis=265 grow`, CSS's flex-wrap with a
+    // flex-basis): as many equal columns as fit at least that wide, the
+    // copies' own basis at another width (`phone.basis=300`) the least width
+    // there. (They stayed on one line, each a third of a phone.)
+    if (parent == null ? null : _acrossLists[parent.id] case final String listId) {
+      final list = nodes[listId];
+      final own = readMap(out['layout']);
+      final listProps = readMap(list?['props']);
+      if (list != null && list['type'] == 'listView' && listProps?['scrollDirection'] == 'horizontal' && listProps?['wrap'] == true && own != null && own['basis'] is num && own['flex'] is num) {
+        final Json listPatch = {
+          'type': 'gridView',
+          'layout': {'width': {'hug': null, 'fill': 0}},
+          'props': {
+            'scrollable': null,
+            'scrollDirection': null,
+            'spacing': null,
+            'wrap': null,
+            'wrapSpacing': null,
+            'runSpacing': null,
+            'minCrossAxisExtent': own['basis'],
+            'crossAxisSpacing': listProps?['wrapSpacing'] ?? listProps?['spacing'] ?? 0,
+            'mainAxisSpacing': listProps?['runSpacing'] ?? listProps?['wrapSpacing'] ?? 0,
+            'shrinkWrapRows': true,
+            'physics': 'never',
+          },
+          'media': [
+            for (final r in readList(out['media']) ?? const [])
+              if (readMap(r) case final Json rule when readMap(readMap(rule['patch'])?['layout'])?['basis'] is num)
+                {
+                  for (final e in rule.entries)
+                    if (e.key != 'patch') e.key: e.value,
+                  'patch': {
+                    'props': {'minCrossAxisExtent': readMap(readMap(rule['patch'])!['layout'])!['basis']},
+                  },
+                },
+          ],
+        };
+        if ((listPatch['media']! as List).isEmpty) listPatch.remove('media');
+        const Json itemPatch = {
+          'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
+          'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
+        };
+        nodes[listId] = mergePatch(list, listPatch);
+        nodes[parent!.id] = mergePatch(nodes[parent.id]!, itemPatch);
+        _patches
+          ..add({'op': 'set', 'id': listId, 'node': {...nodes[listId]!}})
+          ..add({'op': 'patch', 'id': parent.id, 'patch': itemPatch});
+        own
+          ..remove('flex')
+          ..remove('basis')
+          ..['width'] = {'fill': 0};
+      }
     }
     // A row that wraps has its gap between its lines too (CSS's gap), unless
     // it says runSpacing: its lines touched (`Row gap=12 phone.wrap=true`).
