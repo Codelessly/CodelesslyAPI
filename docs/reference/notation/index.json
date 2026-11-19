@@ -2,7 +2,7 @@
   "version": "39.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4344
+    "words": 4345
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4344
+      "words": 4345
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 599
+      "words": 600
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -581,7 +581,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3560
+      "words": 3536
     },
     {
       "topic": "animation-the-animate-words",
@@ -595,7 +595,7 @@
       "file": "animation.md",
       "anchor": "animation-animation-lines",
       "title": "Animation lines",
-      "words": 544
+      "words": 520
     },
     {
       "topic": "animation-transitions",
@@ -638,7 +638,7 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7503
+      "words": 8004
     },
     {
       "topic": "charts-writing-a-chart",
@@ -652,14 +652,14 @@
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6160
+      "words": 6673
     },
     {
       "topic": "charts-records",
       "file": "charts.md",
       "anchor": "charts-records",
       "title": "Records",
-      "words": 1075
+      "words": 1063
     },
     {
       "topic": "charts-examples",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 13937
+      "words": 16395
     },
     {
       "topic": "values-writing-a-value",
@@ -946,7 +946,7 @@
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 2293
+      "words": 4751
     },
     {
       "topic": "values-examples",
@@ -1085,7 +1085,7 @@
       "anchor": "page-levels",
       "title": "Levels and trust",
       "summary": "The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md).",
-      "words": 545
+      "words": 546
     },
     {
       "topic": "level-core",
@@ -1120,7 +1120,7 @@
       "file": "levels.md",
       "anchor": "level-full",
       "title": "4. Full vocabulary (full)",
-      "words": 98
+      "words": 99
     },
     {
       "topic": "level-features",
@@ -1204,6 +1204,7 @@
       "barChart": "charts.md#node-barChart",
       "lineChart": "charts.md#node-lineChart",
       "plotChart": "charts.md#node-plotChart",
+      "graph": "charts.md#node-graph",
       "barcode": "charts.md#node-barcode",
       "video": "media.md#node-video",
       "embeddedVideo": "media.md#node-embeddedVideo",
@@ -1429,6 +1430,16 @@
       "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",
+      "GraphCrosshair": "values.md#type-GraphCrosshair",
+      "GraphGuide": "values.md#type-GraphGuide",
+      "GraphInteractions": "values.md#type-GraphInteractions",
+      "GraphMark": "values.md#type-GraphMark",
+      "GraphPane": "values.md#type-GraphPane",
+      "GraphSelection": "values.md#type-GraphSelection",
+      "GraphStyle": "values.md#type-GraphStyle",
+      "GraphTransform": "values.md#type-GraphTransform",
+      "GraphXAxis": "values.md#type-GraphXAxis",
+      "GraphYAxis": "values.md#type-GraphYAxis",
       "Keyframe": "values.md#type-Keyframe",
       "PathFollow": "values.md#type-PathFollow",
       "Pose": "values.md#type-Pose",
