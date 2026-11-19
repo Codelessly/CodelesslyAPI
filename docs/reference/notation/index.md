@@ -10,11 +10,11 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | Page | What is in it | Words |
 |---|---|---|
 | [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4280 |
-| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5028 |
+| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5013 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1347 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 2635 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 1947 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 12976 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 12935 |
 | [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 7353 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3401 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 5702 |

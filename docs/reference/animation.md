@@ -81,8 +81,6 @@ A transform painted over the node's layout (Flutter's `Transform`): it moves not
 
 One matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{"translateY": -4, "scale": 1.02, "alignment": [0, 1]}`.
 
-Schema 2's other motion keys (`originX`/`originY`, the flat path keys, `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and shimmer) are rewritten by the schema-3 migration (`migrate2to3`).
-
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `translateX` | double | `0` |  | Pixels. |

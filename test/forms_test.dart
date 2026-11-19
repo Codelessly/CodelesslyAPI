@@ -46,15 +46,6 @@ void main() {
     expect(field.prop(TextFieldProps.autovalidateMode), AutovalidateMode.onUserInteractionIfError);
   });
 
-  test('an older document\'s validator object reads as the expression it named', () {
-    Node field(Object validator) => LayoutDocument.fromJson(_doc({
-          'email': {'type': 'textField', 'layout': {'width': 100, 'height': 56}, 'props': {'validator': validator}},
-        }))['email']!;
-    expect(field({'type': 'required'}).prop(TextFieldProps.validator), r"${= trim(value) == '' ? 'Required.' : ''}");
-    expect(field({'type': 'email', 'message': 'Use your work email'}).prop(TextFieldProps.validator), contains('matches(value'));
-    expect(field({'type': 'none'}).prop(TextFieldProps.validator), '');
-  });
-
   test('a form and a radio group are behaviors that round-trip, and true is the default form', () {
     final doc = LayoutDocument.fromJson(_doc({
       'budget': {

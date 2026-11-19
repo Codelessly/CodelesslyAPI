@@ -677,8 +677,6 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 | `signLineStyle` | [SignLineStyle](values.md#enum-SignLineStyle) | `"solid"` | `solid`, `dashed` |  |
 | `signLineDash` | double | `6` | ≥ 0 | A dashed line's dash and gap lengths. |
 | `signLineGap` | double | `6` | ≥ 0 |  |
-| `signLineOffset` | double | unset | ≥ 0 | An older name for `signLineBottom`, read when that is unset. |
-| `showSignMark` | bool | `true` |  | An older name for `signLineMark`: either off hides the mark. |
 | `signMarkIcon` | [IconData](values.md#type-IconData) | unset |  | The mark as an icon; null is a "×" glyph `signMarkSize` high. |
 | `signMarkSize` | double | `16` | ≥ 0 |  |
 | `signMarkColor` | [Color](values.md#type-Color) | unset |  | Null is `signLineColor`. |

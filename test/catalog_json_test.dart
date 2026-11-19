@@ -115,9 +115,9 @@ void main() {
       })!;
       expect(pluginUpdateTarget(ref, master, sdkVersion: '25.0.0'), 4, reason: 'same major, newest the SDK can run');
       expect(pluginUpdateTarget(const PluginRef(id: 'acme.stars', version: 3, semver: '1.0.0', pin: 2), master), 5);
-      final model = PublishModel.fromJson({'projectId': 'p'}).withPlugins([ref]);
+      final model = PublishModel.fromJson({'schema': 3, 'projectId': 'p'}).withPlugins([ref]);
       expect(PublishModel.fromJson(model.toJson()).plugins, [ref]);
-      expect(PublishModel.fromJson({'projectId': 'p'}).plugins, isEmpty);
+      expect(PublishModel.fromJson({'schema': 3, 'projectId': 'p'}).plugins, isEmpty);
     });
   });
 }

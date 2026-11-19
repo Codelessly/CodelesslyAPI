@@ -8,8 +8,8 @@
 // The stored shape:
 //
 // ```json
-// {"schema": 2, "id": "PlanCard", "version": 3, "digest": "9f2c…", "lastUpdated": 1731456000000,
-//  "fonts": ["Inter/600/false"], "document": {"schema": 2, "id": "PlanCard", "roots": ["card"], "widget": {...}, "nodes": {...}}}
+// {"schema": 3, "id": "PlanCard", "version": 3, "digest": "9f2c…", "lastUpdated": 1731456000000,
+//  "fonts": ["Inter/600/false"], "document": {"schema": 3, "id": "PlanCard", "roots": ["card"], "widget": {...}, "nodes": {...}}}
 // ```
 //
 // `digest` is the sha256 hex of the UTF-8 bytes of [canonicalJson] of
@@ -156,12 +156,13 @@ final class PublishComponent {
   static const Set<String> _keys = {'schema', 'id', 'version', 'digest', 'lastUpdated', 'fonts', 'document'};
 
   /// Decodes a stored component: the document goes through
-  /// [LayoutDocument.fromJson] (its schema migrations included) with
-  /// [catalog]. Never throws; [id] fills a missing `id`.
+  /// [LayoutDocument.fromJson] with [catalog], which refuses a document of
+  /// another schema ([UnsupportedSchemaException]). Otherwise never throws;
+  /// [id] fills a missing `id`.
   static PublishComponent fromJson(Object? json, {Catalog? catalog, String? id}) {
     final m = readMap(json) ?? const {};
     final raw = readMap(m['document']) ?? const {};
-    final document = LayoutDocument.fromJson(raw, catalog: catalog);
+    final document = LayoutDocument.fromJson(m['document'] is Map ? raw : null, catalog: catalog);
     final key = readString(m['id']) ?? id;
     return PublishComponent._stored(
       document: document,

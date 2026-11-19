@@ -38,7 +38,7 @@ flat map:
 
 | Key | Meaning |
 |---|---|
-| `schema` | Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`). |
+| `schema` | Always 3 (`kSchemaVersion`). Required: a document of any other schema, or with none, is refused when it is read (`UnsupportedSchemaException`). |
 | `id` | The layout's id (optional). |
 | `roots` | Canvas ids, in order: the screens of this page. |
 | `nodes` | Every node, by id: `{"<id>": {"type": ..., ...}}`. A node's id is its key here. |
@@ -785,16 +785,16 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4788 |
-| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10407 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4793 |
+| [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10392 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 2963 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4121 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 14019 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 13979 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8037 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4792 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6744 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6342 |
-| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4769 |
+| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4742 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3820 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 828 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7160 |
@@ -803,7 +803,7 @@ section's anchor is its topic.
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
 | [media.md](#page-media) | The `media` feature library: video players, embedded videos, an audio player, web views, reading text aloud, playing sounds, printing, capturing a screenshot, downloading a file and preloading images. | 1998 |
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
-| [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
+| [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 681 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1537 |
 | [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13596 |
@@ -990,7 +990,7 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `height` | [AxisSize](#type-AxisSize) | `0` |  | The node's height: a number (fixed), `{"hug": n}`, `{"fill": n}` or `{"flexible": n}`, as `width`. Without one the node is 0 high. |
 | `constraints` | [BoxConstraints](#type-BoxConstraints) | `{}` |  |  |
 | `margin` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
-| `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
+| `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it. |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
 | `widthFactor` | double | unset | ≥ 0 | A share of the room the parent gives across (Flutter's `FractionallySizedBox.widthFactor`): a progress bar's fill is `0.6` of its track. Unset: sized by `width`. Bind it (`${= item.pct / 100}`) for a bar that follows data. |
 | `heightFactor` | double | unset | ≥ 0 | A share of the room the parent gives down (Flutter's `FractionallySizedBox.heightFactor`). Unset: sized by `height`. |
@@ -3916,8 +3916,6 @@ A signature pad: strokes drawn with a finger or mouse, on a bordered card with a
 | `signLineStyle` | [SignLineStyle](#enum-SignLineStyle) | `"solid"` | `solid`, `dashed` |  |
 | `signLineDash` | double | `6` | ≥ 0 | A dashed line's dash and gap lengths. |
 | `signLineGap` | double | `6` | ≥ 0 |  |
-| `signLineOffset` | double | unset | ≥ 0 | An older name for `signLineBottom`, read when that is unset. |
-| `showSignMark` | bool | `true` |  | An older name for `signLineMark`: either off hides the mark. |
 | `signMarkIcon` | [IconData](#type-IconData) | unset |  | The mark as an icon; null is a "×" glyph `signMarkSize` high. |
 | `signMarkSize` | double | `16` | ≥ 0 |  |
 | `signMarkColor` | [Color](#type-Color) | unset |  | Null is `signLineColor`. |
@@ -7660,8 +7658,6 @@ A transform painted over the node's layout (Flutter's `Transform`): it moves not
 
 One matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{"translateY": -4, "scale": 1.02, "alignment": [0, 1]}`.
 
-Schema 2's other motion keys (`originX`/`originY`, the flat path keys, `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and shimmer) are rewritten by the schema-3 migration (`migrate2to3`).
-
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `translateX` | double | `0` |  | Pixels. |
@@ -10450,7 +10446,7 @@ A page whose canvas has a URL path and a name (its default title):
 | `PublishComponentInfo` | What a publish model knows of one published component without loading it: its version and digest (a cached copy with another digest is stale), when it was published and the fonts its text uses (loaded with the screens that call it). |
 | `AppIdentity` | A published app's identity (the publish model's `appIdentity`). JSON: the identity's own (see the file comment), with every key this version doesn't model kept in `extra`. |
 | `PageIdentity` | One page's (or screen's) title and description override, keyed in `AppIdentity.pages` by an editor page id, or a canvas or layout id. |
-| `StyleSheet` | A project's style sheet (`style_sheets/{projectId}`, `schema: 2`). |
+| `StyleSheet` | A project's style sheet (`style_sheets/{projectId}`), in its own format, version `schema` (not the document schema, `kSchemaVersion`). |
 | `NamedTextStyle` | A named text style. |
 | `CanvasBreakpoint` | Which project breakpoint a canvas of a layout is the design for (DESIGN.md §5.3). A layout with several canvases (one screen, one canvas per breakpoint) shows the one whose switch point is the highest at or below the width it's shown at (see `CanvasBreakpointsForWidth.forWidth`). |
 | `PluginRef` | What a project uses of a hosted plugin: the channel it follows, an optional major pin, and the version (and its digest) the editor built and previewed with. JSON: `{"id": "codelessly.charts", "channel": "stable", "pin": 2, "version": 14, "semver": "2.3.1", "digest": "9f2c…"}`. |

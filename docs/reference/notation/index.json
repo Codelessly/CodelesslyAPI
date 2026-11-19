@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5028
+      "words": 5013
     },
     {
       "topic": "layout-sizes",
@@ -131,7 +131,7 @@
       "file": "layout.md",
       "anchor": "layout-keys-every-line-takes",
       "title": "Keys every line takes",
-      "words": 649
+      "words": 634
     },
     {
       "topic": "layout-words",
@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 12976
+      "words": 12935
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9867
+      "words": 9826
     },
     {
       "topic": "forms-behaviors",

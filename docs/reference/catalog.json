@@ -6,7 +6,7 @@
     "keys": [
       {
         "key": "schema",
-        "doc": "Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`)."
+        "doc": "Always 3 (`kSchemaVersion`). Required: a document of any other schema, or with none, is refused when it is read (`UnsupportedSchemaException`)."
       },
       {
         "key": "id",
@@ -5553,23 +5553,6 @@
           "nullable": false,
           "min": 0.0,
           "doc": ""
-        },
-        {
-          "key": "signLineOffset",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "min": 0.0,
-          "doc": "An older name for `signLineBottom`, read when that is unset."
-        },
-        {
-          "key": "showSignMark",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "An older name for `signLineMark`: either off hides the mark."
         },
         {
           "key": "signMarkIcon",
@@ -11696,7 +11679,7 @@
         "kind": "value",
         "default": 0,
         "nullable": false,
-        "doc": "Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there)."
+        "doc": "Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it."
       },
       {
         "key": "aspectRatio",
@@ -18550,7 +18533,7 @@
       ]
     },
     "Motion": {
-      "doc": "A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.\n\nOne matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{\"translateY\": -4, \"scale\": 1.02, \"alignment\": [0, 1]}`.\n\nSchema 2's other motion keys (`originX`/`originY`, the flat path keys, `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and shimmer) are rewritten by the schema-3 migration (`migrate2to3`).",
+      "doc": "A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.\n\nOne matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{\"translateY\": -4, \"scale\": 1.02, \"alignment\": [0, 1]}`.",
       "fields": [
         {
           "key": "translateX",

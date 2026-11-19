@@ -742,8 +742,6 @@ A signature pad.
 | `signLineStyle` | `solid` `dashed` | `solid` | 4 |  |
 | `signLineDash` | number (≥ 0) | `6` | 4 | A dashed line's dash and gap lengths. |
 | `signLineGap` | number (≥ 0) | `6` | 4 |  |
-| `signLineOffset` | number (≥ 0) |  | 4 | An older name for `signLineBottom`, read when that is unset. |
-| `showSignMark` | `true`/`false` | `true` | 4 | An older name for `signLineMark`: either off hides the mark. |
 | `signMarkIcon` | [IconData](values.md#type-IconData) |  | 4 | The mark as an icon; null is a "×" glyph `signMarkSize` high. |
 | `signMarkSize` | number (≥ 0) | `16` | 4 |  |
 | `signMarkColor` | [Color](values.md#type-Color) |  | 4 | Null is `signLineColor`. |

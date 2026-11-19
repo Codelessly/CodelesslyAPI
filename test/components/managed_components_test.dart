@@ -10,6 +10,7 @@ ManagedComponentVersion version(int n, String semver, {String title = 'Sign in',
     'id': 'sign_in',
     'name': 'Sign in',
     'document': {
+      'schema': 3,
       'roots': ['root'],
       'nodes': {
         'root': {
@@ -362,6 +363,7 @@ void main() {
         'semver': '1.0.0',
         'definition': {
           'document': {
+            'schema': 3,
             'roots': ['root'],
             'nodes': {
               'root': {

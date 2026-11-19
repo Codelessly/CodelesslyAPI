@@ -216,10 +216,6 @@ bool? _loose(Object? v) => switch (v) {
 /// z, plus the path's turn), then [rotateX] and [rotateY] (3D, seen with
 /// [perspective]). JSON (sparse): `{"translateY": -4, "scale": 1.02,
 /// "alignment": [0, 1]}`.
-///
-/// Schema 2's other motion keys (`originX`/`originY`, the flat path keys,
-/// `opacity`, `blur`, the timing, entrance, loop, spin, keyframes and
-/// shimmer) are rewritten by the schema-3 migration (`migrate2to3`).
 @immutable
 final class Motion extends _Value {
   const Motion({
@@ -1162,10 +1158,6 @@ final class Track extends _Value {
   bool get usesViewBox => shape == TrackShape.path && path?.viewBoxSize != null;
   bool get jumpOnTap => allowedInteraction == TrackInteraction.tapAndSlide;
   bool get momentum => physics?.fling ?? false;
-
-  /// The legacy coast rate: the share of speed lost per second as an
-  /// exponential rate (`v *= e^(−rate·dt)`).
-  double get frictionRate => physics == null ? 0 : -math.log(physics!.frictionDrag);
   double get endAngle => startAngle + sweepAngle;
 
   /// Where [value] is along the track (0–1; past them when unbounded).
@@ -2504,8 +2496,7 @@ final class Behaviors extends _Value {
   /// a widget's label style) is merged over it. The nearest one wins, as a
   /// `DefaultTextStyle` replaces the one above it (`{}` gives the base back,
   /// with the font's own line height). Without one: Flutter's defaults (the
-  /// font's own line height). A schema-2 document migrated to schema 3 has
-  /// `{"height": 1.33}` on its top-level nodes: schema 2's base line height.
+  /// font's own line height).
   final TextStyle? defaultTextStyle;
 
   /// A two-sided card that turns over (first child front, second back).

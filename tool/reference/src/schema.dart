@@ -120,7 +120,7 @@ final class SchemaBuilder {
     return {
       r'$schema': 'https://json-schema.org/draft/2020-12/schema',
       r'$id': 'https://codelessly.com/schemas/layout-document.schema.json',
-      'title': 'Codelessly layout document (schema 2)',
+      'title': 'Codelessly layout document (schema $kSchemaVersion)',
       'description': 'Generated from the codelessly_api declarations. It rejects unknown node types, unknown keys, '
           'wrong value types and enum values, and numbers out of bounds. It cannot check: ${schemaLimits.join('; ')}. '
           'It is stricter than the decoders where they read loosely: a number written as text, a color without "#".',

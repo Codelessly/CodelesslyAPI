@@ -80,7 +80,8 @@ final class NamedColorStyle {
   int get hashCode => jsonEquality.hash(toJson());
 }
 
-/// A project's style sheet (`style_sheets/{projectId}`, `schema: 2`).
+/// A project's style sheet (`style_sheets/{projectId}`), in its own format,
+/// version [schema] (not the document schema, `kSchemaVersion`).
 final class StyleSheet {
   const StyleSheet({
     this.textStyles = const [],

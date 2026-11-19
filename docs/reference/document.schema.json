@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://codelessly.com/schemas/layout-document.schema.json",
-  "title": "Codelessly layout document (schema 2)",
+  "title": "Codelessly layout document (schema 3)",
   "description": "Generated from the codelessly_api declarations. It rejects unknown node types, unknown keys, wrong value types and enum values, and numbers out of bounds. It cannot check: references between nodes (children, slots and roots that name no node, a node with two parents, cycles, unreachable nodes); layout fields that only some parents read (x/y outside a stack, flex/align outside a row or column) and sizing modes a parent cannot honor; binding paths (keys of \"bind\") and the names expressions read; action targets (node ids, screens, variables) and the patches interaction states apply; variable values against their type, conditions' node and path references, breakpoint ids; formulas (the language is the SDK's). It is stricter than the decoders where they read loosely: a number written as text, a color without \"#\".",
   "type": "object",
   "properties": {
@@ -11567,20 +11567,6 @@
                   "signLineGap": {
                     "type": "number",
                     "minimum": 0.0
-                  },
-                  "signLineOffset": {
-                    "anyOf": [
-                      {
-                        "type": "number",
-                        "minimum": 0.0
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "showSignMark": {
-                    "type": "boolean"
                   },
                   "signMarkIcon": {
                     "anyOf": [

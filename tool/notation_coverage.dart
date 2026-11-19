@@ -42,9 +42,6 @@ class _Path {
 /// why"): each kind of field the corpus holds that the notation does not say,
 /// on purpose, with the reason. A tail path none of them names is a real gap.
 const _stays = <String, String>{
-  'schema 2': "A schema-2 document's old spelling, which the migration rewrites (a box's `props.path` is a path node's "
-      '`props.data`, `layout.rotation` is `motion.rotate`, a state patch of `self` is the node\'s id, `transitions` as a '
-      'map is a list): the notation says the current schema.',
   'no such field': 'A prop or key the type does not have, or a value its field does not take (a button\'s `size`, an '
       'empty prop name, a text\'s `props.decoration`, `keyboardType: "email"`, a top-level `margin`): no renderer reads '
       'it, and applyOps refuses it.',
@@ -57,15 +54,12 @@ const _stays = <String, String>{
 };
 
 /// The kind of [_stays] that tail path [path] (`props.size`, on a line of
-/// type [type]; a document line's path with `nodes.*.` before a node's) is,
-/// in a document of schema 2 or not ([old]); null: a real gap.
-String? _staysAs(String path, String? type, bool old) {
+/// type [type]; a document line's path with `nodes.*.` before a node's) is;
+/// null: a real gap.
+String? _staysAs(String path, String? type) {
   final p = path.replaceFirst(RegExp(r'^nodes\.\*\.'), '');
   bool on(Set<String> types) => type == null || types.contains(type);
   const buttons = {'FilledButton', 'OutlinedButton', 'TextButton', 'Button', 'Button.outline', 'Button.ghost'};
-  if (old && RegExp(r'^(props\.path|bind\.layout\.rotation|states\.[A-Za-z]+\.self\..+|transitions\.[A-Za-z]+\..+)$').hasMatch(p)) {
-    return 'schema 2';
-  }
   if ((p == 'props.size' || p == 'props.style') && on(buttons)) return 'no such field';
   if (p == 'props.' && on({...buttons, 'Icon'})) return 'no such field';
   if ((p == 'props.decoration' || p == 'props.style.decoration') && on({'Text', 'Text.mono'})) return 'no such field';
@@ -215,8 +209,6 @@ void main(List<String> args) {
       continue;
     }
     if (json is! Map<String, Object?> || json['nodes'] is! Map || json['roots'] is! List) continue;
-    // A document with no schema is of the oldest (schemaOf).
-    final old = json['schema'] is! int || (json['schema']! as int) < 3;
     final String text;
     final catalog = catalogFor(file.path, json);
     try {
@@ -277,12 +269,12 @@ void main(List<String> args) {
           for (final p in seen) {
             (documentPaths[p] ??= _Path()).nodes++;
           }
-          final kinds = {for (final p in seen) _staysAs(p, null, old) ?? ''};
+          final kinds = {for (final p in seen) _staysAs(p, null) ?? ''};
           for (final k in kinds) {
             (staysDocuments[k] ??= <String>{}).add(file.path);
           }
           for (final p in seen) {
-            final kind = _staysAs(p, null, old) ?? '';
+            final kind = _staysAs(p, null) ?? '';
             (staysPaths[kind] ??= <String>{}).add('document $p');
             (staysFiles[kind] ??= <String>{}).add(file.path);
             if (kind.isEmpty) gapPaths.add('document: $p');
@@ -317,12 +309,12 @@ void main(List<String> args) {
         entry.types[word] = (entry.types[word] ?? 0) + 1;
         entry.example ??= examples[p];
         if (entry.files.length < 8 && !entry.files.contains(file.path)) entry.files.add(file.path);
-        final kind = _staysAs(p, word, old) ?? '';
+        final kind = _staysAs(p, word) ?? '';
         (staysPaths[kind] ??= <String>{}).add(p);
         (staysFiles[kind] ??= <String>{}).add(file.path);
         if (kind.isEmpty) gapPaths.add('$word: $p');
       }
-      for (final k in {for (final p in seen) _staysAs(p, word, old) ?? ''}) {
+      for (final k in {for (final p in seen) _staysAs(p, word) ?? ''}) {
         staysLines[k] = (staysLines[k] ?? 0) + 1;
       }
     }
