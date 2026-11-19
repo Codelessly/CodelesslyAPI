@@ -40,6 +40,132 @@ A line shown only on a phone under a bar (`Row#phoneSearch show=phone` for the f
 its own: give it the bar's `fill=` and move the bar's `border-bottom` onto it, or write it inside the bar's column,
 so the field sits in the bar and not on the page's background.
 
+<a id="responsive-a-design-at-a-width"></a>
+## A design at a width
+
+Where a part's lines differ at a width, and not only its values, write `at <width>` under the part, after its own
+lines: the lines under it are the part's children where the width holds, and its own lines show everywhere else.
+The part's own line (its id, its keys, its events) holds at every width; its values at a width stay keys on it. The
+width is any condition a key's prefix takes: `at phone`, `at tablet`, `at desktop`, `at max899`, `at
+min700.tablet`, `at portrait` (`at mobile` is `at phone`).
+
+In a block, `...` is the part's own lines, in order, and `...#links` the one of them with that id, with the lines
+under it: content written once and placed again. A bar whose links are a menu on a phone:
+
+```notation width=1280 expands
+state navMenu=false
+Column#bar w=fill pad=[24,14,24,14]
+  Row#top w=fill between middle
+    Text#brand "Acme" size=18 weight=700
+    Row#links gap=24 middle phone.direction=vertical phone.gap=4
+      Button.ghost "Pricing" onTap={navMenu=false; scroll pricing}
+      Button.ghost "Docs" onTap={navMenu=false; scroll docs}
+    at phone
+      Column w=fill gap=8
+        Row w=fill between middle
+          ...#brand
+          IconButton "menu" tooltip="Menu" onTap={navMenu=!navMenu}
+        if navMenu
+          ...#links
+  Column#pricing w=fill pad=48
+    Text.title "Pricing"
+  Column#docs w=fill pad=48
+    Text.title "Docs"
+```
+
+It reads as:
+
+```notation width=1280
+state navMenu=false
+Column#bar pad=[24,14,24,14]
+  Row#top between
+    Text.heading3#brand "Acme" weight=700
+    Flex#links direction=horizontal gap=24 crossAxisAlignment=center phone.direction=vertical phone.gap=4
+      Button.ghost "Pricing" onTap={navMenu=false; scroll pricing}
+      Button.ghost "Docs" onTap={navMenu=false; scroll docs}
+    at phone
+      Column gap=8 w=fill
+        Row between
+          ...#brand
+          IconButton "menu" tooltip="Menu" onTap={navMenu=!navMenu}
+        if navMenu
+          ...#links
+  Column#pricing pad=48
+    Text.title "Pricing"
+  Column#docs pad=48
+    Text.title "Docs"
+```
+
+A list beside its detail that a phone shows one at a time, with your own state and back button:
+
+```notation width=1280 expands
+state mails=[{"id":"a","from":"Maya","subject":"Roadmap"},{"id":"b","from":"Dev","subject":"Invoice"}]
+state openId="a"
+state reading=false
+Row#window w=fill h=fill
+  Column#list w=340 h=fill scroll phone.w=fill
+    each m in mails
+      Row w=fill pad=12 onTap={openId=m.id; reading=true}
+        Text "{m.from}"
+  Column#reader grow h=fill pad=24
+    Text.title "{find(mails, 'id', openId).subject}"
+  at phone
+    if !reading
+      ...#list
+    else
+      Column w=fill h=fill
+        IconButton "arrow_back" tooltip="Back" onTap={reading=false}
+        ...#reader
+```
+
+It reads as:
+
+```notation width=1280
+state mails=[{"id":"a","from":"Maya","subject":"Roadmap"},{"id":"b","from":"Dev","subject":"Invoice"}]
+state openId="a"
+state reading=false
+Row#window h=fill
+  Column#list scroll w=340 h=fill phone.w={"fill":0}
+    each item in mails
+      Row pad=12 onTap={openId=item.id; reading=true}
+        Text "{item.from}"
+  Column#reader pad=24 h=fill grow
+    Text.title "{find(mails, 'id', openId).subject}"
+  at phone
+    if !reading
+      ...#list
+    else
+      Column w=fill h=fill
+        IconButton "arrow_back" tooltip="Back" onTap={reading=false}
+        ...#reader
+```
+
+- Several blocks hold in the order written, the later winning where both hold, as rules do: write the wider first
+  (`at tablet`, then `at phone`). A width no block holds shows the part's own lines, never another block's. A block
+  a later one holds wherever it does is never shown, and is said.
+- A line `...` brings is the line as written, with its keys at other widths: `phone.w=fill` on the list above
+  holds where the block shows it. Nothing is written on a `...` line; what differs is written on the part's own
+  line with a prefix, or the line is written out in the block.
+- It is a second node: its id is `<id>_<width>` (`links_phone`, `search_min700_tablet`), and an action that names
+  the id (`focus search`, `scroll pricing`) is written for each, so it reaches the one shown. A binding (`@q`) and a
+  defined word's own state are shared by both: what is typed on a desktop is there on a phone. The focus, the caret
+  and a scroll position are the node's: a window that crosses the width shows the other node, without them.
+- Reflow leaves a block's lines as written. The part's own lines are still fitted where no block holds (a window's
+  side pane dropped on a tablet), and what reflow gives the part for them (a row that wraps) is undone where a block
+  holds. A rule of one of its own lines that holds only where a block does (`phone.w=fill`) is the copy's, not a
+  rule that makes the line yours.
+- Under a website's `Nav` a block that holds on a phone is the bar there: the Nav writes no menu of its own. Under
+  a `Table` the block's lines go in the table's frame in place of its header and rows, and `...` is its cells (a
+  list of cards on a phone: `each p in people` / `Column … ` / `...`). An app's `Sidebar` with a block is still its
+  drawer on a phone, with its own lines.
+- Not read, and said: `at` at the margin, under an `each` or an `if` (write it under the line the `each` repeats,
+  each row's design at that width), inside another block, in a definition's lines, under `App` (write it under the
+  pane whose lines change), under a `Grid` (its columns at a width are `phone.cols=1`), a breakpoint by its name
+  (`at minTablet`: write the width in pixels), and a part's line written after its blocks.
+- A document's block prints back as the block: its first lines are named for it (`at phone`, the layer's name in
+  the editor), and a line that is one of the part's own read again prints as `...#id`. Lines written as twins
+  (`hide=phone` beside `show=phone`) print as twins.
+
 <a id="responsive-what-reflow-does"></a>
 ## What reflow does
 

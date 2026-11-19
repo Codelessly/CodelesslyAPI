@@ -2,7 +2,7 @@
   "version": "37.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4280
+    "words": 4324
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4280
+      "words": 4324
     },
     {
       "topic": "notation-a-line",
@@ -74,7 +74,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-pages-at-other-widths",
       "title": "Pages at other widths",
-      "words": 170
+      "words": 214
     },
     {
       "topic": "notation-hover-press-focus",
@@ -667,7 +667,7 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 1446
+      "words": 2288
     },
     {
       "topic": "responsive-keys-at-other-widths",
@@ -675,6 +675,13 @@
       "anchor": "responsive-keys-at-other-widths",
       "title": "Keys at other widths",
       "words": 265
+    },
+    {
+      "topic": "responsive-a-design-at-a-width",
+      "file": "responsive.md",
+      "anchor": "responsive-a-design-at-a-width",
+      "title": "A design at a width",
+      "words": 834
     },
     {
       "topic": "responsive-what-reflow-does",

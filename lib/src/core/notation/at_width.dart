@@ -333,6 +333,14 @@ extension _AtRead on _Parser {
       }
     }
     if (lines.isEmpty) return;
+    // A line read again with blocks of its own: they are not (a block in a
+    // block is not read in this stage).
+    for (final l in lines) {
+      if (at.blocks[at.lines.indexOf(l)] case final List<_AtBlock> inner when inner.isNotEmpty) {
+        _issue(indent + 1,
+            '$text brings line ${l.line} again without its at ${inner.first.words} block: a block inside a block is not read. Write what that line shows at this width here in full, or move the block up to this part.');
+      }
+    }
     final base = lines.map((l) => l.indent).reduce(math.min);
     final issuesBefore = issues.length, wordsBefore = vocabulary.length, nodesBefore = nodes.length;
     final variablesBefore = variables.keys.toSet();

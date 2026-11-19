@@ -218,6 +218,10 @@ void main() {
         'In an at block, ... stands for the part\'s own lines and ...#id for one of them by its id: "...Front" is neither (a slot by name is a definition\'s).',
         'Nothing is written on a ... line (here "gap=4"): what differs at the width is written on the part\'s own line with a prefix (phone.gap=4), or the line is written out in the block.',
       ]);
+      final inner = _parse('Column#page\n  Row#bar\n    Text#a "A"\n    at tablet\n      Text "T"\n  at phone\n    Column\n      ...#bar');
+      expect(_said(inner), [
+        '...#bar brings line 2 again without its at tablet block: a block inside a block is not read. Write what that line shows at this width here in full, or move the block up to this part.',
+      ]);
       final none = _parse('Row#bar\n  Text "A"\n  at phone\n    ...#a');
       expect(_said(none).single, contains('none of its lines has an id: give the line one (Row#a) to name it here'));
     });
