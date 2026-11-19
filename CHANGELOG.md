@@ -16,6 +16,12 @@ With the CodelesslySDK of the same release.
   fields with no button beside them, keep theirs as before. `label="…"` keeps a label above a field anywhere, and
   `print` writes a document's label that way where the line's string would be its placeholder.
 
+### Changed
+
+- **The open prompt names `CodeInput`** (`notationPrompt(open: true)`, what `notation.sh prompt --open` prints), in
+  the line of Input's forms: `Input "Note" multiline is a text area; CodeInput "Code" @code length=6 digits is a
+  one-time code, one field drawn as boxes.` It named no word for a one-time code. The taught prompts are as they were (the page prompt lists `CodeInput` already).
+
 ## Unreleased
 
 - **A Nav whose writer wrote its own phone menu gets no second one**: a line written `show=phone` (or `tablet`) under a `Nav` was not seen (the check read `show:`), so a bar with the writer's own menu button drew two, and its links again under it.

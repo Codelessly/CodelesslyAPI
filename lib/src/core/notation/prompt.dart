@@ -592,6 +592,8 @@ String _openPrompt(String taught, {bool define = true}) {
             '(Link "Sign in" menu=false onTap={go account} is a link that stays in the bar and out of the menu; Input#search "Search" icon="search" @q is a search field, in a bar too;')
         .replaceFirst(' (stops=[0.5,0.9]: heights it rests at)', '')
         .replaceFirst(' today(), formatDate(', ' today(), now() (the time), formatDate(')
+        // A one-time code is one field (six one-digit Inputs were written).
+        .replaceFirst('Input "Note" multiline is a text area.', 'Input "Note" multiline is a text area; CodeInput "Code" @code length=6 digits is a one-time code, one field drawn as boxes.')
         .replaceFirst('; Popover#bio arrow points at it', '')
         .replaceFirst(', ${notationPageFunctions.join(', ')}', ''));
   }
