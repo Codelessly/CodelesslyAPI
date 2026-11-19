@@ -221,7 +221,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
 
   OVER THE PAGE (a dialog, a sheet, a drawer, a menu): write each after the page, at the margin, with an id, its content indented under it as on a card. onTap={open signup} shows it, close closes it (so does a tap outside it). It reads and sets the page's values: a form in a dialog sets them and closes (onTap={saved=true; close}).
     Dialog#signup "Join the waitlist" "A line under the title"    a centered dialog with its title and a close button (w=480)
-    Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet (stops=[0.5,0.9]: heights it rests at)
+    Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet (stops=[0.5,0.9]: heights it rests at; stop=@at: the one it is at)
     Dialog#edit "Edit" guard={name!=""}    while guard holds (on a Sheet too) a tap outside and Escape do not close it: give it a Discard button, or guardText="Discard changes?" onDiscard={name=""} asks then and closes on a yes
     Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w=300); a line tapped in it closes it
     Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are Row gap=10 pad=8 onTap={an action} (an Icon, a Text), and each closes the menu after it
@@ -630,7 +630,7 @@ String _openPrompt(String taught, {bool define = true}) {
         .replaceFirst('; confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text',
             '; announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search')
         .replaceFirst('for the quiet buttons it hides (', 'for the quiet buttons it hides (Input#search "Search" icon="search" @q is a search field, in a bar too; ')
-        .replaceFirst(' (stops=[0.5,0.9]: heights it rests at)', '')
+        .replaceFirst(' (stops=[0.5,0.9]: heights it rests at; stop=@at: the one it is at)', '')
         .replaceFirst(' today(), formatDate(', ' today(), now() (the time), formatDate(')
         // A one-time code is one field (six one-digit Inputs were written).
         .replaceFirst('Input "Note" multiline is a text area.', 'Input "Note" multiline is a text area; CodeInput "Code" @code length=6 digits is a one-time code, one field drawn as boxes.')

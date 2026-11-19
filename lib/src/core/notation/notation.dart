@@ -2112,6 +2112,18 @@ class _Parser {
       return;
     }
     _top._idAt.putIfAbsent(o.id, () => (line: _line, condition: null));
+    // `stop=@name`: the variable is bound, so it is declared; any other form says how it is written.
+    if (o.stop case final String stop) {
+      if (o.action['stopVariable'] case final String name) {
+        _bindsVariable(name, 1, () => 0);
+      } else {
+        _issue(
+            1,
+            o.action.containsKey('snapHeights')
+                ? 'The stop of a Sheet is kept in a variable: stop=@name (state name=0), which holds the stop it rests at as stops= writes it (0 while it is closed), and moves the open sheet when it is set. "stop=$stop" is left out.'
+                : 'stop=@name is the stop a Sheet with stops rests at: give the Sheet its stops (stops=[0.5,1]). "stop=$stop" is left out.');
+      }
+    }
     final first = _overlays.isEmpty;
     // In it everything is laid out as on a card: a narrow canvas of its own.
     final sub = _Parser(catalog, options.sized(width: o.width < 640 ? o.width : 640, screen: o.id), this, o);

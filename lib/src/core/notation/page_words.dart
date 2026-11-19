@@ -356,6 +356,10 @@ final class PageWords {
       for (final s in (parts.take('stops') ?? '').replaceAll(RegExp(r'[\[\]\s]'), '').split(','))
         if (double.tryParse(s) case final double h when h > 0 && h <= 1) h,
     ];
+    // `stop=@name` (a Sheet with stops): the variable that holds the stop
+    // the open sheet rests at, read and written.
+    final stop = parts.take('stop');
+    final stopVariable = stop != null && RegExp(r'^@[A-Za-z_][A-Za-z0-9_]*$').hasMatch(stop) && stops.isNotEmpty ? stop.substring(1) : null;
     final title = parts.string(), note = parts.string();
     final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
     // What heads a dialog or a sheet: its title, a close button, a line under it.
@@ -390,13 +394,23 @@ final class PageWords {
           'sheet',
           id,
           w,
-          {'presentation': 'bottomSheet', 'sheetWidth': w, 'sheetRadius': 20, 'showDragHandle': true, 'maxHeightFactor': 0.9, if (stops.isNotEmpty) 'snapHeights': stops},
+          {
+            'presentation': 'bottomSheet',
+            'sheetWidth': w,
+            'sheetRadius': 20,
+            'showDragHandle': true,
+            // As tall as its highest stop when that is over nine tenths (`stops=[0.5,1]`).
+            'maxHeightFactor': stops.fold<double>(0.9, math.max),
+            if (stops.isNotEmpty) 'snapHeights': stops,
+            'stopVariable': ?stopVariable,
+          },
           // A sheet with stops is as tall as its stop, and scrolls in it.
           [(indent: 0, text: 'Column w=fill${stops.isEmpty ? '' : ' h=fill scroll'} pad=$pad gap=$gap${parts.all}'), ...titled()],
           guard: guard,
           guardText: guardText,
           onDiscard: discard,
           onBack: onBack,
+          stop: stop,
         );
       case 'Drawer':
         // A panel as tall as the window at its side; a tap beside it closes it.
@@ -1439,7 +1453,12 @@ final class Overlay {
       this.guard,
       this.guardText,
       this.onDiscard,
-      this.onBack});
+      this.onBack,
+      this.stop});
+
+  /// What a Sheet's `stop=` is given, as written (`@sheetStop`: the variable
+  /// that holds the stop it rests at); null: nothing.
+  final String? stop;
 
   /// The condition, as written, while which a tap outside, Escape and back
   /// do not close it (`guard={name != ""}`); null: they always do.

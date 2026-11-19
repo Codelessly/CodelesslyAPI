@@ -139,6 +139,22 @@ Dialog#compose "New message" guard={draft != ""} guardText="Discard the draft?" 
   Button "Send" onTap={draft=""; close}
 ```
 
+A Sheet with stops keeps the stop it rests at in a variable: `stop=@name`, read and written. It holds the stop as
+`stops=` writes it (`0.5`, `1`), and `0` while the sheet is closed. The sheet writes it as it opens and when it is
+dragged (or moved by its handle or the keyboard) to another stop; setting it (`sheetStop=1`) moves the open sheet to
+the nearest stop, and a sheet opened while it holds one of its stops opens there. A summary at the low stop and the
+whole article at the high one:
+
+```notation width=390 expands
+state sheetStop=0
+Column gap=12
+  Button "Read" onTap={open story}
+Sheet#story "The tide tables" stops=[0.5,1] stop=@sheetStop
+  Text.muted "A summary" visible={sheetStop < 1}
+  Button.ghost "Read it all" visible={sheetStop < 1} onTap={sheetStop=1}
+  Text "The whole article" visible={sheetStop == 1}
+```
+
 In a site an overlay is a screen of the whole site. Two pages may each write one id (`Drawer#nav` on the board page
 and on the list page): written alike on both, it is one overlay; drawn differently, `expand` gives each page its own,
 `nav--board` and `nav--list` (`<id>--<page>`: no id a writer writes has `--`; a page file of that name is said, and
@@ -152,6 +168,10 @@ other pages write differing ones is said, with what to write. A render step name
 
 Another canvas of the document is a `Canvas#id` block at the margin after the page, its tree under it; `go id`
 opens it. The page's own canvas is the `canvas` line ([document.md](document.md)).
+
+`screen.url` is the address of the page as shown: in a browser the page's URL, in an app the location a link opens
+the screen with (`/trip/coast`), and empty where the screen has none. `copy "{screen.url}"` copies it, and a `share`
+action ([media.md](media.md)) passes it to the device's share panel.
 
 ```notation
 Column

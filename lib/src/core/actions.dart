@@ -321,6 +321,7 @@ final class OpenModalAction extends CoreAction {
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.snapHeights = const [],
+    this.stopVariable = '',
     this.cover = false,
     this.enterScale = 1,
     this.routeTransition,
@@ -398,6 +399,16 @@ final class OpenModalAction extends CoreAction {
   /// Optional bottom sheet stops as fractions of available screen height.
   final List<double> snapHeights;
 
+  /// A variable's name: the stop of [snapHeights] the open sheet rests at,
+  /// read and written. It holds the stop as it is written in [snapHeights]
+  /// (`0.5`, `1`). The sheet writes it when it opens and whenever the
+  /// person moves it to another stop (a drag, the handle, the keyboard);
+  /// setting the variable while the sheet is open moves the sheet to the
+  /// nearest stop. A sheet opened while the variable holds one of its stops
+  /// opens there, else at its lowest. When the sheet closes the variable is
+  /// set to `0`: no stop. Empty: none.
+  final String stopVariable;
+
   /// A dialog that covers the screen (inside [insets]): its screen fills it
   /// and is laid out at that size, so its breakpoint and responsive layouts
   /// follow the device, as a screen navigated to does. Not a page route:
@@ -435,6 +446,7 @@ final class OpenModalAction extends CoreAction {
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     snapHeights: [...?readList(m['snapHeights'])?.map(readDouble).nonNulls],
+    stopVariable: _s(m, 'stopVariable'),
     cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
@@ -469,6 +481,7 @@ final class OpenModalAction extends CoreAction {
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (snapHeights.isNotEmpty) 'snapHeights': [for (final h in snapHeights) writeDouble(h)],
+    if (stopVariable.isNotEmpty) 'stopVariable': stopVariable,
     if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
     'routeTransition': ?routeTransition?.toJson(),

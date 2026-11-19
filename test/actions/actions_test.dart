@@ -25,6 +25,8 @@ final samples = <Json>[
   {'type': 'forEach', 'items': 'rows', 'actions': [{'type': 'copyToClipboard', 'text': r'${result.item}'}]},
   {'type': 'cloudFiles', 'path': 'img', 'kind': 'any', 'allowMultiple': false, 'access': 'private', 'actions': [{'type': 'openLink', 'url': r'${result.url}'}]},
   {'type': 'downloadFile', 'fileName': 'rota.csv', 'text': r'${csv}', 'mimeType': 'text/csv'},
+  {'type': 'pickFile', 'accept': 'image/*,.pdf', 'multiple': true, 'content': 'none', 'maxSizeMB': 25},
+  {'type': 'share', 'text': 'Tide tables', 'url': r'${screen.url}', 'title': r'${story.title}'},
   {'type': 'preloadImages', 'urls': r'${= map(story.pages, p => p.layers.sky)}', 'progressVariable': 'loaded'},
   {'type': 'showToast', 'message': 'Saved', 'title': 'Done', 'style': 'success', 'actionLabel': 'Undo', 'actions': [{'type': 'delay', 'ms': 1}], 'look': {'radius': 8}},
   {'type': 'announce', 'message': r'${count} results'},
