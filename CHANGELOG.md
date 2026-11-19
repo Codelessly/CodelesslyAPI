@@ -11,7 +11,8 @@
   centred in the row. Across a row with no height of its own the copies hug as before.
 - **The copies of an `each` under a `Grid` take the cell their line says**: `columnStart`, `rowStart`,
   `columnSpan` and `rowSpan` written on the one line under the `each` place the copy; every copy took the next
-  free cell. Two or more `each`es under one Grid whose copies all say their cell are one grid (a timetable's times
+  free cell, and such a grid keeps its columns at every width. Two or more `each`es under one Grid whose copies all
+  say their cell are one grid (a timetable's times
   and sessions); they were grids one under another.
 - **A `Grid` with `mainAxisExtent` over an `each` has rows of that height**; they hugged their content. A document
   made before keeps its rows when printed (`shrinkWrapRows=true`).

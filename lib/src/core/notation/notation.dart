@@ -3479,7 +3479,7 @@ class _Parser {
         for (final e in _gridRows.entries)
           if (_keepColumns.contains(e.value.id)) e.key,
         for (final e in _gridLists.entries)
-          if (_keepColumns.contains(e.value)) e.key,
+          if (_keepColumns.contains(e.value) || _placesCells(e.key)) e.key,
       },
       cards: _cards,
       tableRows: _tableRows,
@@ -9666,6 +9666,14 @@ class _Parser {
     _patches
       ..add({'op': 'set', 'id': kids.single, 'node': {...line}..remove('children')})
       ..add({'op': 'patch', 'id': itemId, 'patch': patch});
+  }
+
+  /// Whether the copies of grid list [listId] say their column: the grid
+  /// keeps its columns at every width (fewer would move them out of their
+  /// tracks).
+  bool _placesCells(String listId) {
+    final item = nodes['${listId}Item'];
+    return readMap(item?['layout'])?['columnStart'] != null || readMap(item?['bind'])?['layout.columnStart'] != null;
   }
 
   /// A Grid of more than one `each` whose copies each say their cell (a

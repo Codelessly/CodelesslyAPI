@@ -140,6 +140,14 @@ Column w=fill
       expect(_children(r, 'g').map((k) => _node(r, k)['type']), ['gridView', 'gridView']);
     });
 
+    test('a grid whose copies say their column keeps its columns at a tablet\'s width', () {
+      final r = _parse(timetable, options: const NotationOptions(width: 1280));
+      for (final k in _children(r, 'g')) {
+        final media = (_node(r, k)['media'] as List?) ?? const [];
+        expect(media.where((m) => ((m as Map)['patch'] as Map?)?['props'] is Map && (((m['patch'] as Map)['props'] as Map).containsKey('crossAxisCount'))), isEmpty);
+      }
+    });
+
     test('eaches whose copies take the next free cell stay one under another', () {
       final r = _parse('''
 state a=[1,2]
