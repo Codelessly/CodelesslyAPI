@@ -5048,11 +5048,15 @@ class _Parser {
         nodes[parent.id] = mergePatch(nodes[parent.id]!, patch);
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
       }
+      // Across a row of a height of its own (`Row h=102` over the days of a
+      // week) the list is as tall as the row, so a copy that fills its
+      // height (`Column h=fill`) reaches it; across a hugging row it hugs.
+      final fillsRow = across && !wraps && readMap(nodes[parent.id]?['layout'])?['height'] is num;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {
           'width': across && !wraps ? {'hug': 0} : {'fill': 0},
-          'height': eachGrows ? {'fill': 0} : follows ? eachHeight : {'hug': 0},
+          'height': eachGrows || fillsRow ? {'fill': 0} : follows ? eachHeight : {'hug': 0},
           if (eachGrows) 'flex': 1,
         },
         // Its handles are one stop of the page: arrows go from row to row
@@ -8280,15 +8284,33 @@ class _Parser {
           },
           'bind': {'props.crossAxisCount': '\${= max(1, length($inner))}'},
         };
-        const Json itemPatch = {
-          'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
-          'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
-        };
         // The row's own rules at other widths: a row that is a column there
         // (`phone.direction=vertical`) has one copy a line there (it stayed
         // side by side: test 9, admin 11).
         final rowId = _parentOf[listId!];
         final rowMedia = rowId == null ? null : (nodes[rowId]?['media'] as List?);
+        // A row of a height of its own (`Row h=102` over the days of a week):
+        // its copies are as tall as it, at each width it gives a height
+        // (the grid's rows hugged their cells, centred in the row).
+        num? innerHeight(Object? layout) {
+          final l = readMap(layout);
+          final h = l?['height'];
+          if (h is! num) return null;
+          final pad = l?['padding'];
+          final padV = pad is num ? 2 * pad : (pad is List && pad.length == 4 && pad[1] is num && pad[3] is num ? (pad[1] as num) + (pad[3] as num) : 0);
+          return math.max<num>(0, h - padV);
+        }
+
+        final rowHeight = rowId == null ? null : innerHeight(nodes[rowId]?['layout']);
+        final Json itemPatch = {
+          'layout': {'width': {'hug': null, 'fill': 0}, 'height': rowHeight != null ? {'hug': null, 'fill': 0} : {'fill': null, 'hug': 0}},
+          'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
+        };
+        if (rowHeight != null) {
+          (listPatch['props']! as Json)
+            ..['shrinkWrapRows'] = null
+            ..['mainAxisExtent'] = rowHeight;
+        }
         final gridMedia = <Json>[
           for (final rule in rowMedia ?? const [])
             if (rule is Map && (rule['patch'] as Map?)?['props'] is Map && ((rule['patch'] as Map)['props'] as Map)['direction'] == 'vertical')
@@ -8300,6 +8322,17 @@ class _Parser {
                   'bind': {'props.crossAxisCount': null},
                 },
               },
+          if (rowHeight != null)
+            for (final rule in rowMedia ?? const [])
+              if (rule is Map && readMap(readMap(rule['patch'])?['layout'])?['height'] is num)
+                if (innerHeight({...?readMap(nodes[rowId]?['layout']), ...?readMap(readMap(rule['patch'])?['layout'])}) case final num h)
+                {
+                  for (final e in rule.entries)
+                    if (e.key != 'patch') '${e.key}': e.value,
+                  'patch': {
+                    'props': {'mainAxisExtent': h},
+                  },
+                },
         ];
         if (gridMedia.isNotEmpty) listPatch['media'] = gridMedia;
         // A copy's own width or growth at another width (`tablet.w=272

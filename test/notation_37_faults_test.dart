@@ -66,4 +66,45 @@ Column
       expect(_node(r, 'list')['bind'], containsPair('data', r'${days}'));
     });
   });
+
+  group('an each across a row of a height of its own', () {
+    test('copies that grow are as tall as the row, at each width it gives a height', () {
+      final r = _parse('''
+state days=[1,2,3]
+Column w=fill
+  Row#week h=102 tablet.h=114 pad=[0,1,0,1] keep
+    each d in days
+      Column#cell grow h=fill pad=7
+        Text "{d}"
+''');
+      expect(r.issues, isEmpty);
+      final list = _children(r, 'week').single;
+      expect(_node(r, list)['type'], 'gridView');
+      expect(_props(r, list), containsPair('mainAxisExtent', 100));
+      expect(_props(r, list), isNot(contains('shrinkWrapRows')));
+      final media = (_node(r, list)['media'] as List).cast<Map<String, Object?>>();
+      expect(media.map((m) => (m['patch'] as Map)['props']), contains(equals({'mainAxisExtent': 112})));
+      expect(((_node(r, '${list}Item')['layout'] as Map)['height'] as Map), {'fill': 0});
+    });
+
+    test('copies of a width of their own fill its height; across a hugging row the copies hug as before', () {
+      final r = _parse('''
+state days=[1,2,3]
+Column w=fill
+  Row#fixed h=60
+    each d in days
+      Column w=80 h=fill
+        Text "{d}"
+  Row#hugs
+    each d in days
+      Column grow
+        Text "{d}"
+''');
+      expect(r.issues, isEmpty);
+      expect((_node(r, _children(r, 'fixed').single)['layout'] as Map)['height'], {'fill': 0});
+      final hugs = _children(r, 'hugs').single;
+      expect(_props(r, hugs), containsPair('shrinkWrapRows', true));
+      expect(((_node(r, '${hugs}Item')['layout'] as Map)['height'] as Map), {'hug': 0});
+    });
+  });
 }

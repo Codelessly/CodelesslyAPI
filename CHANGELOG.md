@@ -6,6 +6,9 @@
   the scrolling Column it is: `Column scroll` with the lines and the `each`. It repeated its first line without
   end, or drew nothing when that line was hidden by its `if`. A list with words a Column does not take
   (`stickToEnd`, `reverse`, `separator`…) keeps them and has one item, a column of its lines.
+- **An `each` across a row of a height of its own** (`Row h=102` over the days of a week) makes copies as tall as
+  the row, at each width the row gives a height, so a copy written `h=fill` fills it. They hugged their content,
+  centred in the row. Across a row with no height of its own the copies hug as before.
 
 ### Fixed
 
