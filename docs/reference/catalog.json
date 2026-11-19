@@ -25751,7 +25751,7 @@
       {
         "name": "regexReplace",
         "signature": "regexReplace(text, pattern, to)",
-        "example": "regexReplace(\"WILLOW PHARMACY 044\", \" [0-9]+$\", \"\") → WILLOW PHARMACY; \\$1 in to inserts a group"
+        "example": "regexReplace(\"WILLOW PHARMACY 044\", \" [0-9]+$\", \"\") → WILLOW PHARMACY; $1 in to inserts a group"
       },
       {
         "name": "titleCase",
