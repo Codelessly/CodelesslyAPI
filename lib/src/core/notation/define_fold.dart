@@ -311,6 +311,8 @@ final class _Parser {
       'max' when a.length == 2 => _tidy(_num(arg(0)) > _num(arg(1)) ? _num(arg(0)) : _num(arg(1))),
       'coalesce' when a.isNotEmpty => a.firstWhere((x) => x != null && x != '', orElse: () => a.lastWhere((x) => x != null, orElse: () => null)),
       'if' when a.length == 3 => foldTruthy(arg(0)) ? arg(1) : arg(2),
+      'startsWith' when a.length == 2 => _str(arg(0)).startsWith(_str(arg(1))),
+      'endsWith' when a.length == 2 => _str(arg(0)).endsWith(_str(arg(1))),
       'replace' when a.length == 3 => _str(arg(0)).replaceAll(_str(arg(1)), _str(arg(2))),
       _ => throw const _Unknown(),
     };

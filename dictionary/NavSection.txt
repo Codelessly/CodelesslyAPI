@@ -1,3 +1,3 @@
-// The label over a group of a sidebar's items: small spaced capitals in a quiet ink. It does not say: the label in capitals (the code upper-cases a written label as it reads it; a body can only do it at run time, upper(…)); hidden where its sidebar is a rail.
+// The label over a group of a sidebar's items: small spaced capitals in a quiet ink, a written label put in capitals as it is read. It does not say: a label worked out from the state is shown as written in the code, in capitals here (upper at run time); the theme's quiet ink; hidden where its sidebar is a rail (it reads the line it is under).
 NavSection "label"
-  Text "{label}" size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6]
+  Text "{upper(label)}" size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 w=fill pad=[10,16,10,6] ...

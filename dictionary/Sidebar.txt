@@ -1,4 +1,4 @@
-// A fixed-width pane of an app's window: its lines in a column as tall as the window, ruled off at its right. It does not say: outside an App it is not as tall as the window (it reads the line it is under); the theme's sidebar fill; a width the writer makes narrow at a size (tablet.w=64) makes the items in it show their icons alone there (the code tells the NavItems under it); its lines are copied into the drawer a phone opens; the role mark the reflow reads.
+// A fixed-width pane of an app's window: its lines in a column as tall as the window, ruled off at its right; what else the use writes (tablet.w=64) is the pane's. It does not say: outside an App it is not as tall as the window (it reads the line it is under); the theme's sidebar fill and rule; a width the writer makes narrow at a size makes the items in it show their icons alone there (the code tells the NavItems under it); its lines are copied into the drawer a phone opens.
 Sidebar w=248 pad=[12,16,12,12] gap=2
-  Column w={w} h=fill pad={pad} gap={gap} border-right=#FFE5E7EB
+  Column~sidebar w={w} h=fill pad={pad} gap={gap} border-right=#FFE5E7EB ...
     ...

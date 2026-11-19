@@ -1,4 +1,5 @@
-// The top bar of an app's Main: its ends apart, ruled off below. It does not say: the rule is a Divider after the bar (a body is one line); on a website page it is another bar (a centred row 1120 wide, sticky when asked, with a menu for a phone that repeats the Links written in it, which the code collects from the lines under it); outside a frame it is a plain row; the menu button that opens the window's drawer on a phone; the role mark the reflow reads.
+// The top bar of an app's Main: its ends apart, ruled off below. It does not say: on a website page it is another bar (a centred row 1120 wide, sticky when asked, with a menu for a phone that repeats the Links written in it, which the code collects from the lines under it); outside a frame it is a plain row; the menu button that opens the window's drawer on a phone; the theme's pane fill.
 Nav gap=24 pad=[24,14,24,14]
-  Row w=fill between middle pad={pad} gap={gap}
+  Row~nav w=fill between middle pad={pad} gap={gap} ...
     ...
+  Divider

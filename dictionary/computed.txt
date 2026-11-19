@@ -1,0 +1,3 @@
+// A value worked out from the state: the notation's state line with its formula.
+computed
+  state ...

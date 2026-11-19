@@ -117,7 +117,13 @@ final class NotationDefinition {
   /// The body line marked `...`, which takes the words a use writes beyond
   /// the signature (docs/design/20 section 13); -1: none (they go on the
   /// root, and only the universal words do).
-  int get rest => body.indexWhere((l) => !l.text.startsWith('...') && restMarkAt(l.text) >= 0);
+  int get rest => body.indexWhere(_marked);
+
+  /// Every body line marked `...` (one in each branch of an `if` that is
+  /// decided as the use is read takes them alike).
+  Set<int> get rests => {for (var i = 0; i < body.length; i++) if (_marked(body[i])) i};
+
+  static bool _marked(({int indent, String text, int line}) l) => !l.text.startsWith('...') && restMarkAt(l.text) >= 0;
 
   /// The names of its slots in body order (`''` the default slot).
   List<String> get slots => [
@@ -929,6 +935,7 @@ final class DefinedWords {
     // use writes that the signature does not name (docs/design/20 section
     // 13): the word's lines are then read as a page's are.
     final restAt = d.rest;
+    final restLines = d.rests;
     final rootText = restAt >= 0 ? d.body[restAt].text : d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text), orElse: () => d.body.first).text;
     final rootWord = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(rootText) ?? '';
     final rootKind = _all.containsKey(rootWord)
@@ -973,6 +980,9 @@ final class DefinedWords {
         case 'string':
           if (strings < d.strings.length) {
             values[d.strings[strings]] = x.raw;
+          } else if (restAt >= 0) {
+            // A further text (`when trim(draft)!=""`): the marked line's.
+            root.add(x);
           } else {
             unknown('parameter', 'string${strings + 1}', x.raw, col(x), 'A ${d.word} takes ${d.strings.length} string${d.strings.length == 1 ? '' : 's'}. It takes: ${takes()}.');
           }
@@ -1141,11 +1151,11 @@ final class DefinedWords {
         // marked `...` the use's words are that line's, and so is its id
         // when the lines are written where the use is.
         if (restAt >= 0) {
-          t = t == notationSplice ? t : (k == restAt ? _mergedAt(t, root, id: uid) : _rooted(t, uid, const []));
+          t = t == notationSplice ? t : (restLines.contains(k) ? _mergedAt(t, root, id: uid) : _rooted(t, uid, const []));
         } else {
           t = t == notationSplice ? (root.isEmpty && p.id.isEmpty ? t : _rooted('Column', uid, root)) : _rooted(t, uid, root);
         }
-      } else if (k == restAt) {
+      } else if (restLines.contains(k)) {
         t = _mergedAt(t, root, id: d.body.first.text == notationSplice && p.id.isNotEmpty ? uid : null);
       }
       lines.add((indent: l.indent, text: t, line: l.line));
@@ -1224,7 +1234,7 @@ final class DefinedWords {
       // the words go where it is, as written.
       final at = restMarkAt(t);
       if (at < 0) return t;
-      final words = [for (final g in given) g.raw].join(' ');
+      final words = _joined(given).join(' ');
       return '${t.substring(0, at)}$words${t.substring(at + 3)}'.replaceAll(RegExp(r'  +(?=[^"]*$)'), ' ').trimRight();
     }
     final keys = {for (final g in given) if (g.kind == 'pair') g.key};
@@ -1232,13 +1242,29 @@ final class DefinedWords {
     final out = <String>[];
     for (final x in p.parts) {
       if (_restMark(x)) {
-        out.addAll([for (final g in given) if (g.kind != 'tail') g.raw]);
+        out.addAll(_joined([for (final g in given) if (g.kind != 'tail') g]));
       } else if (!(x.kind == 'pair' && keys.contains(x.key)) && !(x.kind == 'word' && words.contains(x.raw))) {
         out.add(x.raw);
       }
     }
     out.addAll([for (final g in given) if (g.kind == 'tail') g.raw]);
     return withRole(['${p.word}${p.variant}${id == null ? p.id : '#$id'}', ...out].join(' '), role);
+  }
+
+  /// [parts] as written: a part written right after the one before it
+  /// (`trim(draft)!=` and `""`) is one word with it.
+  static List<String> _joined(List<LinePart> parts) {
+    final out = <String>[];
+    for (var i = 0; i < parts.length; i++) {
+      final x = parts[i];
+      final before = i == 0 ? null : parts[i - 1];
+      if (before != null && before.at >= 0 && x.at == before.at + before.raw.length && out.isNotEmpty) {
+        out.last = '${out.last}${x.raw}';
+      } else {
+        out.add(x.raw);
+      }
+    }
+    return out;
   }
 
   /// [lines] with each `if` (and its `else if`, `else`) whose condition
@@ -1632,7 +1658,18 @@ final class _Substitution {
       i = end;
     }
     b.write(inner.substring(i));
-    final done = expression(b.toString()).replaceAllMapped(RegExp('\u0000(\\d+)\u0000'), (m) => put[int.parse(m[1]!)]);
+    var done = expression(b.toString()).replaceAllMapped(RegExp('\u0000(\\d+)\u0000'), (m) => put[int.parse(m[1]!)]);
+    // `link {href}`: the address worked out as the use is read, written bare.
+    done = done.replaceAllMapped(RegExp(r'(?<![A-Za-z0-9_.])(link|scroll|go|open)\s+\{'), (m) => '\u0002${m[0]}');
+    while (done.contains('\u0002')) {
+      final at = done.indexOf('\u0002');
+      final open = done.indexOf('{', at);
+      final close = _braceEnd(done, open);
+      final v = foldExpression(done.substring(open + 1, close - 1));
+      final t = identical(v, unknown) || v == null ? null : foldText(v);
+      final word = done.substring(at + 1, open);
+      done = '${done.substring(0, at)}$word${t != null && !t.contains(RegExp(r'[\s;{}]')) ? t : done.substring(open, close)}${done.substring(close)}';
+    }
     return [
       for (final a in _actionList(done))
         if (a.trim().isNotEmpty) a.trim(),

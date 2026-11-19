@@ -7,3 +7,8 @@ Shortcut "ctrl+k" onPress={focus search}
 Column
   Text "Members"
 Shortcut keys="/" onPress={focus search}
+### written: a chord written as a bare word, and an event under another name (as corpus answers write them)
+Column
+  Text "Player"
+Shortcut space onPress={toast "play"}
+Shortcut "F2" onKey={toast "edit"}

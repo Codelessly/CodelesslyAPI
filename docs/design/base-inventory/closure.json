@@ -10,39 +10,47 @@
   "equalUpToSpelling": 0,
   "expansions": 15,
   "nodes": 501,
-  "same": 175,
+  "same": 179,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "19 of 33 nodes the same; 5 differ, 9 only in the code's, 8 only in the definition's",
+    "summary": "20 of 33 nodes the same; 4 differ, 9 only in the code's, 8 only in the definition's",
     "samples": [
      "r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0; r0.body.0.props.crossAxisAlignment: \"stretch\" / \"start\"",
      "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]; r0.body.0.0.layout.flex: 1 / (none); r0.body.0.0.layout.height.fill: 0 / (none)",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / (none); r0.body.0.0.0.layout.height: {\"hug\":0} / 0; r0.body.0.0.0.layout.padding: 16 / (none)",
      "r0.body.0.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.1.layout.padding: [24,12,24,12] / (none); r0.body.0.1.props.spacing: 12 / 16",
-     "r0.body.0.1.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}]",
-     "only in the code's: r0.body.0.0.0.0 spacer, r0.body.0.0.0.1 listView, r0.body.0.0.0.1.0 column, r0.body.0.0.0.1.0.0 column"
+     "only in the code's: r0.body.0.0.0.0 spacer, r0.body.0.0.0.1 listView, r0.body.0.0.0.1.0 column, r0.body.0.0.0.1.0.0 column",
+     "only in the definition's: r0.body.0.0.1 listView, r0.body.0.0.1.0 column, r0.body.0.0.1.0.0 column, r0.body.0.0.1.0.0.0 row"
     ],
-    "issues": []
+    "issues": [
+     "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "19 of 33 nodes the same; 5 differ, 9 only in the code's, 8 only in the definition's",
+    "summary": "20 of 33 nodes the same; 4 differ, 9 only in the code's, 8 only in the definition's",
     "samples": [
      "r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0; r0.body.0.props.crossAxisAlignment: \"stretch\" / \"start\"",
      "r0.body.0.0.children: [\"r0.body.0.0.0\"] / [\"r0.body.0.0.0\",\"r0.body.0.0.1\"]; r0.body.0.0.layout.flex: 1 / (none); r0.body.0.0.layout.height.fill: 0 / (none)",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / (none); r0.body.0.0.0.layout.height: {\"hug\":0} / 0; r0.body.0.0.0.layout.padding: 16 / (none)",
      "r0.body.0.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.0.1.layout.padding: [24,12,24,12] / (none); r0.body.0.1.props.spacing: 12 / 16",
-     "r0.body.0.1.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}]",
-     "only in the code's: r0.body.0.0.0.0 spacer, r0.body.0.0.0.1 listView, r0.body.0.0.0.1.0 column, r0.body.0.0.0.1.0.0 column"
+     "only in the code's: r0.body.0.0.0.0 spacer, r0.body.0.0.0.1 listView, r0.body.0.0.0.1.0 column, r0.body.0.0.0.1.0.0 column",
+     "only in the definition's: r0.body.0.0.1 listView, r0.body.0.0.1.0 column, r0.body.0.0.1.0.0 column, r0.body.0.0.1.0.0.0 row"
     ],
-    "issues": []
+    "issues": [
+     "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
@@ -58,7 +66,11 @@
      "only in the code's: r0.body.0.0.0.0 spacer, r0.body.0.0.0.1 listView, r0.body.0.0.0.1.0 column, r0.body.0.0.0.1.0.0 column",
      "only in the definition's: r0.body.0.0.1 listView, r0.body.0.0.1.0 column, r0.body.0.0.1.0.0 column, r0.body.0.0.1.0.0.0 row"
     ],
-    "issues": []
+    "issues": [
+     "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
@@ -113,32 +125,36 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "4 of 41 nodes the same; 5 differ, 32 only in the code's, 31 only in the definition's",
+    "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
     "samples": [
      "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.0.props.spacing: 24 / 16",
-     "r0.body.0.0.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}]",
+     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none); r0.body.0.0.props.spacing: 24 / 16",
      "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
      "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row"
+     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
+     "only in the definition's: r0.body.0.1.0 column, r0.body.0.1.0.0 text, r0.body.0.1.0.1 row, r0.body.0.1.0.1.0 text"
     ],
-    "issues": []
+    "issues": [
+     "line 7:36: AppDict.txt:3: AppDict: \"theme\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement",
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "4 of 41 nodes the same; 5 differ, 32 only in the code's, 31 only in the definition's",
+    "summary": "5 of 41 nodes the same; 4 differ, 32 only in the code's, 31 only in the definition's",
     "samples": [
      "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
-     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.0.props.spacing: 24 / 16",
-     "r0.body.0.0.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}]",
+     "r0.body.0.0.layout.padding: [24,14,24,14] / (none); r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none); r0.body.0.0.props.spacing: 24 / 16",
      "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
      "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row"
+     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
+     "only in the definition's: r0.body.0.1.0 column, r0.body.0.1.0.0 text, r0.body.0.1.0.1 row, r0.body.0.1.0.1.0 text"
     ],
-    "issues": []
+    "issues": [
+     "line 7:36: AppDict.txt:3: AppDict: \"theme\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement",
@@ -154,7 +170,9 @@
      "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
      "only in the definition's: r0.body.0.1.0 column, r0.body.0.1.0.0 text, r0.body.0.1.0.1 row, r0.body.0.1.0.1.0 text"
     ],
-    "issues": []
+    "issues": [
+     "line 7:36: AppDict.txt:3: AppDict: \"theme\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "docs/reference/notation/NOTATION.md block 4",
@@ -163,7 +181,7 @@
     "equalUpToSpelling": false,
     "summary": "12 of 26 nodes the same; 4 differ, 10 only in the code's, 0 only in the definition's; document keys roots",
     "samples": [
-     "r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)",
+     "r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\"]; r0.body.1.layout.height.fill: 0 / (none); r0.body.1.layout.height.hug: (none) / 0",
      "r0.body.1.0.children: [\"r0.body.1.0.0\"] / (none); r0.body.1.0.layout.padding: [12,8,12,8] / (none); r0.body.1.0.layout.width.fill: 0 / (none)",
      "r0.body.2.decoration: {\"strokeSides\":\"left\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.2.layout.height.fill: 0 / (none); r0.body.2.layout.height.hug: (none) / 0",
@@ -179,7 +197,7 @@
     "equalUpToSpelling": false,
     "summary": "12 of 26 nodes the same; 4 differ, 10 only in the code's, 0 only in the definition's; document keys roots",
     "samples": [
-     "r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)",
+     "r0.body.0.layout.height.fill: 0 / (none); r0.body.0.layout.height.hug: (none) / 0",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\"]; r0.body.1.layout.height.fill: 0 / (none); r0.body.1.layout.height.hug: (none) / 0",
      "r0.body.1.0.children: [\"r0.body.1.0.0\"] / (none); r0.body.1.0.layout.padding: [12,8,12,8] / (none); r0.body.1.0.layout.width.fill: 0 / (none)",
      "r0.body.2.decoration: {\"strokeSides\":\"left\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.2.layout.height.fill: 0 / (none); r0.body.2.layout.height.hug: (none) / 0",
@@ -258,7 +276,7 @@
   "equalUpToSpelling": 3,
   "expansions": 9,
   "nodes": 375,
-  "same": 354,
+  "same": 369,
   "results": [
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
@@ -267,7 +285,9 @@
     "equalUpToSpelling": true,
     "summary": "equal (63 nodes)",
     "samples": [],
-    "issues": []
+    "issues": [
+     "line 3:49: BrandDict.txt:3: BrandDict: \"font\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
@@ -276,7 +296,9 @@
     "equalUpToSpelling": true,
     "summary": "equal (63 nodes)",
     "samples": [],
-    "issues": []
+    "issues": [
+     "line 3:49: BrandDict.txt:3: BrandDict: \"font\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
@@ -285,7 +307,9 @@
     "equalUpToSpelling": true,
     "summary": "equal (41 nodes)",
     "samples": [],
-    "issues": []
+    "issues": [
+     "line 3:49: BrandDict.txt:3: BrandDict: \"font\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "docs/reference/notation/navigation.md block 1",
@@ -326,39 +350,28 @@
    {
     "from": "docs/reference/notation/navigation.md block 5",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "56 of 62 nodes the same; 2 differ, 4 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"] / (none); r0.body.0.0.1.props.crossAxisAlignment: \"start\" / (none); r0.body.0.0.1.props.spacing: 0 / (none)",
-     "r1.body.0.0.1.children: [\"r1.body.0.0.1.0\",\"r1.body.0.0.1.1\"] / (none); r1.body.0.0.1.layout.squeezable: (none) / true; r1.body.0.0.1.props.crossAxisAlignment: \"start\" / (none)",
-     "only in the code's: r0.body.0.0.1.0 text, r0.body.0.0.1.1 text, r1.body.0.0.1.0 text, r1.body.0.0.1.1 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (62 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "docs/reference/notation/navigation.md block 5",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "56 of 62 nodes the same; 2 differ, 4 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"] / (none); r0.body.0.0.1.props.crossAxisAlignment: \"start\" / (none); r0.body.0.0.1.props.spacing: 0 / (none)",
-     "r1.body.0.0.1.children: [\"r1.body.0.0.1.0\",\"r1.body.0.0.1.1\"] / (none); r1.body.0.0.1.layout.squeezable: (none) / true; r1.body.0.0.1.props.crossAxisAlignment: \"start\" / (none)",
-     "only in the code's: r0.body.0.0.1.0 text, r0.body.0.0.1.1 text, r1.body.0.0.1.0 text, r1.body.0.0.1.1 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (62 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "docs/reference/notation/navigation.md block 5",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "27 of 30 nodes the same; 1 differ, 2 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.0.1.children: [\"r0.body.0.0.1.0\",\"r0.body.0.0.1.1\"] / (none); r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.crossAxisAlignment: \"start\" / (none)",
-     "only in the code's: r0.body.0.0.1.0 text, r0.body.0.0.1.1 text"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (30 nodes)",
+    "samples": [],
     "issues": []
    }
   ]
@@ -736,7 +749,10 @@
      "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
      "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
     ],
-    "issues": []
+    "issues": [
+     "line 56:54: DotsDict.txt:3: DotsDict: \"filled\" is not a parameter the notation has.",
+     "line 56:83: DotsDict.txt:3: DotsDict: \"size\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule",
@@ -750,7 +766,10 @@
      "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
      "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
     ],
-    "issues": []
+    "issues": [
+     "line 56:54: DotsDict.txt:3: DotsDict: \"filled\" is not a parameter the notation has.",
+     "line 56:83: DotsDict.txt:3: DotsDict: \"size\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b03/answers/gym-class-booking.txt ### Schedule",
@@ -764,7 +783,10 @@
      "variables.page_variables: [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"... / [{\"name\":\"tab\",\"type\":\"text\",\"value\":\"schedule\"},{\"name\":\"day\",\"type\":\"integer\",\"value\"...",
      "only in the definition's: r0.body.1.2.2.0.0.0.1.0.0.0 column, r0.body.1.2.2.0.0.0.1.0.0.0.0 column"
     ],
-    "issues": []
+    "issues": [
+     "line 56:54: DotsDict.txt:3: DotsDict: \"filled\" is not a parameter the notation has.",
+     "line 56:83: DotsDict.txt:3: DotsDict: \"size\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b08/answers/watch-face-complications.txt ### Face gallery",
@@ -805,7 +827,10 @@
      "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
      "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
     ],
-    "issues": []
+    "issues": [
+     "line 42:54: DotsDict.txt:3: DotsDict: \"needed\" is not a parameter the notation has.",
+     "line 42:75: DotsDict.txt:3: DotsDict: \"filled\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser",
@@ -819,7 +844,10 @@
      "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
      "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
     ],
-    "issues": []
+    "issues": [
+     "line 42:54: DotsDict.txt:3: DotsDict: \"needed\" is not a parameter the notation has.",
+     "line 42:75: DotsDict.txt:3: DotsDict: \"filled\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/signup-sheet.txt ### Organiser",
@@ -833,7 +861,10 @@
      "variables.page_variables: [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"... / [{\"name\":\"shifts\",\"type\":\"list\",\"value\":[{\"day\":\"Mon\",\"filled\":4,\"id\":\"mon-am\",\"needed\"...",
      "only in the definition's: r0.body.1.2.2.1.0.0.1.0.0.0 column, r0.body.1.2.2.1.0.0.1.0.0.0.0 column"
     ],
-    "issues": []
+    "issues": [
+     "line 42:54: DotsDict.txt:3: DotsDict: \"needed\" is not a parameter the notation has.",
+     "line 42:75: DotsDict.txt:3: DotsDict: \"filled\" is not a parameter the notation has."
+    ]
    }
   ]
  },
@@ -1477,8 +1508,8 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 3,
-  "equalUpToSpelling": 3,
+  "equal": 0,
+  "equalUpToSpelling": 0,
   "expansions": 9,
   "nodes": 471,
   "same": 459,
@@ -1486,28 +1517,34 @@
    {
     "from": "tool/vocabulary/corpus/b01/answers/habit-tracker.txt ### New habit",
     "width": 1440.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (42 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "41 of 42 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.2.0.0.5.0.0.0.bind.props.icon: \"${icon}\" / \"${= coalesce((icon),\\\"star\\\")}\""
+    ],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b01/answers/habit-tracker.txt ### New habit",
     "width": 834.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (42 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "41 of 42 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.2.0.0.5.0.0.0.bind.props.icon: \"${icon}\" / \"${= coalesce((icon),\\\"star\\\")}\""
+    ],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b01/answers/habit-tracker.txt ### New habit",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (42 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "41 of 42 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.2.0.0.5.0.0.0.bind.props.icon: \"${icon}\" / \"${= coalesce((icon),\\\"star\\\")}\""
+    ],
     "issues": []
    },
    {
@@ -1552,35 +1589,35 @@
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/tower-defense-map.txt ### Battle",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "78 of 79 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\""
-    ],
-    "issues": []
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (79 nodes)",
+    "samples": [],
+    "issues": [
+     "line 48:76: IconTileDict.txt:3: A value shown as text is written in a string: \"{t.icon}\"."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/tower-defense-map.txt ### Battle",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "78 of 79 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\""
-    ],
-    "issues": []
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (79 nodes)",
+    "samples": [],
+    "issues": [
+     "line 48:76: IconTileDict.txt:3: A value shown as text is written in a string: \"{t.icon}\"."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/tower-defense-map.txt ### Battle",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "78 of 79 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r1.body.1.0.0.0.0.0.props.icon: \"star\" / \"\""
-    ],
-    "issues": []
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (79 nodes)",
+    "samples": [],
+    "issues": [
+     "line 48:76: IconTileDict.txt:3: A value shown as text is written in a string: \"{t.icon}\"."
+    ]
    }
   ]
  },
@@ -1714,11 +1751,11 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 3,
-  "equalUpToSpelling": 3,
+  "equal": 6,
+  "equalUpToSpelling": 6,
   "expansions": 12,
   "nodes": 739,
-  "same": 725,
+  "same": 728,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b08/answers/census-form.txt ### Review and Submit",
@@ -1750,34 +1787,28 @@
    {
     "from": "tool/vocabulary/corpus/b09/answers/company-timeline.txt ### Event story",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "67 of 68 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.1.2.1.0.4.actions: [{\"actions\":[{\"type\":\"openLink\",\"url\":\"https://chronicle.example/news/series-a\"}],\"trig... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (68 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/company-timeline.txt ### Event story",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "67 of 68 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.1.2.1.0.4.actions: [{\"actions\":[{\"type\":\"openLink\",\"url\":\"https://chronicle.example/news/series-a\"}],\"trig... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (68 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/company-timeline.txt ### Event story",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "51 of 52 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.1.2.1.0.4.actions: [{\"actions\":[{\"type\":\"openLink\",\"url\":\"https://chronicle.example/news/series-a\"}],\"trig... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (52 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -1864,7 +1895,7 @@
   "equalUpToSpelling": 4,
   "expansions": 15,
   "nodes": 883,
-  "same": 545,
+  "same": 548,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b09/answers/pedometer-band.txt ### Band Pages",
@@ -1873,7 +1904,9 @@
     "equalUpToSpelling": true,
     "summary": "equal (56 nodes)",
     "samples": [],
-    "issues": []
+    "issues": [
+     "line 20:39: MainDict.txt:3: MainDict: \"onWake\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/pedometer-band.txt ### Band Pages",
@@ -1882,7 +1915,9 @@
     "equalUpToSpelling": true,
     "summary": "equal (56 nodes)",
     "samples": [],
-    "issues": []
+    "issues": [
+     "line 20:39: MainDict.txt:3: MainDict: \"onWake\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/pedometer-band.txt ### Band Pages",
@@ -1891,7 +1926,9 @@
     "equalUpToSpelling": true,
     "summary": "equal (56 nodes)",
     "samples": [],
-    "issues": []
+    "issues": [
+     "line 20:39: MainDict.txt:3: MainDict: \"onWake\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/notes-app.txt ### Workspace",
@@ -1902,7 +1939,7 @@
     "samples": [
      "r0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
      "r0.body.0.2.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]; r0.body.1.props.scrollable: (none) / true",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r8\",\"type\":\"openModal\"}],\"trig... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.0.1.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.1.0.1.layout.squeezable: (none) / true; r0.body.1.0.1.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":96,\"flex\":1,\"width\":{\"fill\":0}}}}] / (none)"
@@ -1918,7 +1955,7 @@
     "samples": [
      "r0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
      "r0.body.0.2.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]; r0.body.1.props.scrollable: (none) / true",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"]; r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r8\",\"type\":\"openModal\"}],\"trig... / [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee...; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.0.1.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.1.0.1.layout.squeezable: (none) / true; r0.body.1.0.1.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":96,\"flex\":1,\"width\":{\"fill\":0}}}}] / (none)"
@@ -1932,7 +1969,7 @@
     "equalUpToSpelling": false,
     "summary": "100 of 168 nodes the same; 17 differ, 51 only in the code's, 50 only in the definition's",
     "samples": [
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]; r0.body.1.props.scrollable: (none) / true",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
      "r0.body.1.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.props.spacing: 24 / 16",
      "r0.body.1.1.layout.width.fill: 0 / (none); r0.body.1.1.layout.width.hug: (none) / 0; r0.body.1.1.type: \"divider\" / \"splitter\"",
      "r0.body.1.2.layout.width: {\"hug\":0} / 340; r0.body.1.2.type: \"splitter\" / \"column\"; r0.body.1.2.bind: (none) / {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"}",
@@ -1944,34 +1981,28 @@
    {
     "from": "tool/vocabulary/corpus/b07/answers/smart-speaker-display.txt ### Night Clock",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "14 of 15 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.props.scrollable: (none) / true"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (15 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b07/answers/smart-speaker-display.txt ### Night Clock",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "14 of 15 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.props.scrollable: (none) / true"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (15 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b07/answers/smart-speaker-display.txt ### Night Clock",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "14 of 15 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.props.scrollable: (none) / true"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (15 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -2189,25 +2220,25 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 0,
-  "equalUpToSpelling": 0,
+  "equal": 4,
+  "equalUpToSpelling": 4,
   "expansions": 15,
   "nodes": 1143,
-  "same": 703,
+  "same": 876,
   "results": [
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/seat-booking.txt ### Sold-out performance",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 26 nodes the same; 7 differ, 18 only in the code's, 16 only in the definition's",
+    "summary": "19 of 26 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\"] / [\"r0.body.0\",\"r0.body.1\"]",
-     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
+     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}},{\"maxWidth\":699,\"pat...; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true"
+     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true",
+     "only in the code's: r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
     ],
     "issues": []
    },
@@ -2216,14 +2247,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 26 nodes the same; 7 differ, 18 only in the code's, 16 only in the definition's",
+    "summary": "19 of 26 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\"] / [\"r0.body.0\",\"r0.body.1\"]",
-     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
+     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}},{\"maxWidth\":699,\"pat...; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true"
+     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true",
+     "only in the code's: r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
     ],
     "issues": []
    },
@@ -2232,14 +2263,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 26 nodes the same; 7 differ, 18 only in the code's, 16 only in the definition's",
+    "summary": "19 of 26 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\"] / [\"r0.body.0\",\"r0.body.1\"]",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"; r0.body.0.props.spacing: (none) / 24",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true"
+     "r0.body.0.0.1.actions: [{\"actions\":[{\"to\":\"production\",\"type\":\"navigate\"}],\"trigger\":{\"type\":\"click\"}}] / (none); r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true",
+     "only in the code's: r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
     ],
     "issues": []
    },
@@ -2248,9 +2279,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "21 of 37 nodes the same; 6 differ, 10 only in the code's, 11 only in the definition's",
+    "summary": "21 of 37 nodes the same; 6 differ, 10 only in the code's, 12 only in the definition's",
     "samples": [
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.decoration: {\"strokeSides\":\"bottom\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / [12,8,12,8]",
      "r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.1.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]",
@@ -2264,9 +2295,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "21 of 37 nodes the same; 6 differ, 10 only in the code's, 11 only in the definition's",
+    "summary": "21 of 37 nodes the same; 6 differ, 10 only in the code's, 12 only in the definition's",
     "samples": [
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.decoration: {\"strokeSides\":\"bottom\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.0.layout.padding: [24,14,24,14] / [12,8,12,8]",
      "r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.1.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]",
@@ -2278,63 +2309,37 @@
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/calendar-app.txt ### Calendars",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "12 of 25 nodes the same; 2 differ, 11 only in the code's, 10 only in the definition's",
-    "samples": [
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
-     "r0.body.1.1.layout.constraints: (none) / {\"maxWidth\":560}; r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"",
-     "only in the code's: r0.body.1.2 column, r0.body.1.2.0 text, r0.body.1.2.1 listView, r0.body.1.2.1.0 column",
-     "only in the definition's: r0.body.1.1.0 text, r0.body.1.1.1 listView, r0.body.1.1.1.0 column, r0.body.1.1.1.0.0 column"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (25 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b08/answers/ereader-shelf.txt ### Reader",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "100 of 118 nodes the same; 5 differ, 13 only in the code's, 12 only in the definition's",
-    "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\",\"r0.body.0.3\"] / [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"]",
-     "r0.body.0.1.layout.height.hug: 0 / (none); r0.body.0.1.layout.height.fill: (none) / 0; r0.body.0.1.layout.flex: (none) / 1",
-     "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\"] / [\"r0.body.0.2.0\"]; r0.body.0.2.layout.flex: 1 / (none); r0.body.0.2.layout.height.fill: 0 / (none)",
-     "r0.body.0.2.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${result.index}\",\"variable\":\"page\"}],\"trigg... / (none); r0.body.0.2.0.bind: {\"props.initialPage\":\"${page}\"} / (none); r0.body.0.2.0.children: [\"r0.body.0.2.0.0\"] / [\"r0.body.0.2.0.0\",\"r0.body.0.2.0.1\"]",
-     "r0.body.0.2.0.0.children: [\"r0.body.0.2.0.0.0\"] / (none); r0.body.0.2.0.0.layout.height.fill: 0 / (none); r0.body.0.2.0.0.layout.height.hug: (none) / 0",
-     "only in the code's: r0.body.0.2.0.0.0 column, r0.body.0.2.0.0.0.0 column, r0.body.0.2.0.0.0.0.0 text, r0.body.0.2.1 row"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (118 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b08/answers/ereader-shelf.txt ### Reader",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "100 of 118 nodes the same; 5 differ, 13 only in the code's, 12 only in the definition's",
-    "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\",\"r0.body.0.3\"] / [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"]",
-     "r0.body.0.1.layout.height.hug: 0 / (none); r0.body.0.1.layout.height.fill: (none) / 0; r0.body.0.1.layout.flex: (none) / 1",
-     "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\"] / [\"r0.body.0.2.0\"]; r0.body.0.2.layout.flex: 1 / (none); r0.body.0.2.layout.height.fill: 0 / (none)",
-     "r0.body.0.2.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${result.index}\",\"variable\":\"page\"}],\"trigg... / (none); r0.body.0.2.0.bind: {\"props.initialPage\":\"${page}\"} / (none); r0.body.0.2.0.children: [\"r0.body.0.2.0.0\"] / [\"r0.body.0.2.0.0\",\"r0.body.0.2.0.1\"]",
-     "r0.body.0.2.0.0.children: [\"r0.body.0.2.0.0.0\"] / (none); r0.body.0.2.0.0.layout.height.fill: 0 / (none); r0.body.0.2.0.0.layout.height.hug: (none) / 0",
-     "only in the code's: r0.body.0.2.0.0.0 column, r0.body.0.2.0.0.0.0 column, r0.body.0.2.0.0.0.0.0 text, r0.body.0.2.1 row"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (118 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/b08/answers/ereader-shelf.txt ### Reader",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "100 of 118 nodes the same; 5 differ, 13 only in the code's, 12 only in the definition's",
-    "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\",\"r0.body.0.3\"] / [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"]",
-     "r0.body.0.1.layout.height.hug: 0 / (none); r0.body.0.1.layout.height.fill: (none) / 0; r0.body.0.1.layout.flex: (none) / 1",
-     "r0.body.0.2.children: [\"r0.body.0.2.0\",\"r0.body.0.2.1\"] / [\"r0.body.0.2.0\"]; r0.body.0.2.layout.flex: 1 / (none); r0.body.0.2.layout.height.fill: 0 / (none)",
-     "r0.body.0.2.0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${result.index}\",\"variable\":\"page\"}],\"trigg... / (none); r0.body.0.2.0.bind: {\"props.initialPage\":\"${page}\"} / (none); r0.body.0.2.0.children: [\"r0.body.0.2.0.0\"] / [\"r0.body.0.2.0.0\",\"r0.body.0.2.0.1\"]",
-     "r0.body.0.2.0.0.children: [\"r0.body.0.2.0.0.0\"] / (none); r0.body.0.2.0.0.layout.height.fill: 0 / (none); r0.body.0.2.0.0.layout.height.hug: (none) / 0",
-     "only in the code's: r0.body.0.2.0.0.0 column, r0.body.0.2.0.0.0.0 column, r0.body.0.2.0.0.0.0.0 text, r0.body.0.2.1 row"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (118 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -2342,14 +2347,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "121 of 195 nodes the same; 19 differ, 55 only in the code's, 56 only in the definition's",
+    "summary": "121 of 195 nodes the same; 12 differ, 62 only in the code's, 66 only in the definition's",
     "samples": [
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\",\"r...",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.layout.padding: [24,14,24,14] / [12,8,12,8]; r0.body.1.0.props.mainAxisAlignment: \"spaceBetween\" / (none)",
      "r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.1.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]",
      "r0.body.1.2.layout.width.hug: 0 / (none); r0.body.1.2.layout.width.fill: (none) / 0; r0.body.1.2.layout.padding: (none) / [24,14,24,14]",
-     "r0.body.1.3.bind: {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"} / (none); r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / (none); r0.body.1.3.layout.width: 340 / {\"hug\":0}"
+     "r0.body.1.3.bind: {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"} / (none); r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / (none); r0.body.1.3.layout.width: 340 / {\"fill\":0}"
     ],
     "issues": []
    },
@@ -2358,14 +2363,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "121 of 195 nodes the same; 19 differ, 55 only in the code's, 56 only in the definition's",
+    "summary": "121 of 195 nodes the same; 12 differ, 62 only in the code's, 66 only in the definition's",
     "samples": [
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\",\"r...",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\",\"r0.body.1.0.3\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.layout.padding: [24,14,24,14] / [12,8,12,8]; r0.body.1.0.props.mainAxisAlignment: \"spaceBetween\" / (none)",
      "r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
      "r0.body.1.1.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]",
      "r0.body.1.2.layout.width.hug: 0 / (none); r0.body.1.2.layout.width.fill: (none) / 0; r0.body.1.2.layout.padding: (none) / [24,14,24,14]",
-     "r0.body.1.3.bind: {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"} / (none); r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / (none); r0.body.1.3.layout.width: 340 / {\"hug\":0}"
+     "r0.body.1.3.bind: {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"} / (none); r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / (none); r0.body.1.3.layout.width: 340 / {\"fill\":0}"
     ],
     "issues": []
    },
@@ -2374,14 +2379,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "101 of 168 nodes the same; 16 differ, 51 only in the code's, 50 only in the definition's",
+    "summary": "123 of 168 nodes the same; 12 differ, 33 only in the code's, 35 only in the definition's",
     "samples": [
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\",\"r0.body.1.5\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\",\"r0.body.1.4\"]",
-     "r0.body.1.1.layout.width.fill: 0 / (none); r0.body.1.1.layout.width.hug: (none) / 0; r0.body.1.1.type: \"divider\" / \"splitter\"",
-     "r0.body.1.2.layout.width: {\"hug\":0} / 340; r0.body.1.2.type: \"splitter\" / \"column\"; r0.body.1.2.bind: (none) / {\"visible\":\"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\"}",
-     "r0.body.1.3.bind.visible: \"${= view==\\\"workspace\\\"&&(pane==\\\"list\\\"||!phone)}\" / \"${= view==\\\"workspace\\\"&&(pane==\\\"note\\\"||!phone)}\"; r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\"]; r0.body.1.3.layout.height.hug: 0 / (none)",
-     "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24; r0.body.1.3.0.media: (none) / [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}]",
-     "r0.body.1.3.0.0.layout.squeezable: true / (none); r0.body.1.3.0.0.props.style: {\"color\":\"#FF111827\",\"fontSize\":13,\"fontWeight\":600} / (none); r0.body.1.3.0.0.props.text: \"${= first(map(filter(notebooks,x=>x.id==nb),x=>x.name))}\" / (none)"
+     "r0.body.1.3.children: [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\"] / [\"r0.body.1.3.0\",\"r0.body.1.3.1\",\"r0.body.1.3.2\",\"r0.body.1.3.3\",\"r0.body.1.3.4\"]",
+     "r0.body.1.3.0.layout.padding: (none) / [24,14,24,14]; r0.body.1.3.0.props.spacing: 16 / 24",
+     "r0.body.1.3.1.bind: {\"visible\":\"${= selecting}\"} / (none); r0.body.1.3.1.children: [\"r0.body.1.3.1.0\",\"r0.body.1.3.1.1\",\"r0.body.1.3.1.2\",\"r0.body.1.3.1.3\",\"r0.body.1.3.1... / (none); r0.body.1.3.1.decoration: {\"fills\":[{\"color\":\"#FFEFE4CC\"}]} / (none)",
+     "r0.body.1.3.2.bind.visible: \"${= count(notes,x=>!x.trashed&&(nb==\\\"all\\\"||x.nb==nb))==0}\" / \"${= selecting}\"; r0.body.1.3.2.children: [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\"] / [\"r0.body.1.3.2.0\",\"r0.body.1.3.2.1\",\"r0.body.1.3.2.2\",\"r0.body.1.3.2.3\",\"r0.body.1.3.2...; r0.body.1.3.2.layout.padding: (none) / 8",
+     "r0.body.1.3.2.0.layout.width.fill: 0 / (none); r0.body.1.3.2.0.layout.width.hug: (none) / 0; r0.body.1.3.2.0.layout.squeezable: (none) / true",
+     "r0.body.1.3.2.1.layout.flex: (none) / 1; r0.body.1.3.2.1.props: {\"style\":{\"color\":\"#FF111827\",\"fontSize\":13},\"text\":\"Start with a blank page.\"} / (none); r0.body.1.3.2.1.type: \"text\" / \"spacer\""
     ],
     "issues": []
    },
@@ -2390,14 +2395,14 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 18 nodes the same; 10 differ, 7 only in the code's, 5 only in the definition's",
+    "summary": "11 of 18 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\",\"r0.body.5\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"]",
-     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
+     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}},{\"maxWidth\":699,\"pat...; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)",
+     "only in the code's: r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
     ],
     "issues": []
    },
@@ -2406,14 +2411,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 18 nodes the same; 10 differ, 7 only in the code's, 5 only in the definition's",
+    "summary": "11 of 18 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\",\"r0.body.5\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"]",
-     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
+     "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[16,14,16,14]}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}},{\"maxWidth\":699,\"pat...; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)",
+     "only in the code's: r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
     ],
     "issues": []
    },
@@ -2422,14 +2427,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "1 of 18 nodes the same; 10 differ, 7 only in the code's, 5 only in the definition's",
+    "summary": "11 of 18 nodes the same; 5 differ, 2 only in the code's, 1 only in the definition's",
     "samples": [
-     "r0.body.children: [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\",\"r0.body.5\"] / [\"r0.body.0\",\"r0.body.1\",\"r0.body.2\",\"r0.body.3\",\"r0.body.4\"]",
      "r0.body.0.children: [\"r0.body.0.0\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]; r0.body.0.props.mainAxisAlignment: (none) / \"spaceBetween\"; r0.body.0.props.spacing: (none) / 24",
      "r0.body.0.0.layout.constraints: {\"maxWidth\":1120} / (none); r0.body.0.0.layout.width.fill: 0 / (none); r0.body.0.0.layout.width.hug: (none) / 0",
      "r0.body.0.0.0.children: [\"r0.body.0.0.0.0\",\"r0.body.0.0.0.1\"] / [\"r0.body.0.0.0.0\"]; r0.body.0.0.0.layout.height: {\"hug\":0} / 28; r0.body.0.0.0.layout.width: {\"hug\":0} / 28",
      "r0.body.0.0.0.0.children: [\"r0.body.0.0.0.0.0\"] / (none); r0.body.0.0.0.0.decoration: {\"fills\":[{\"color\":\"#FF2563EB\"}],\"radius\":8} / (none); r0.body.0.0.0.0.layout.height: 28 / {\"hug\":0}",
-     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.label: \"Pricing\" / (none)"
+     "r0.body.0.0.1.layout.height: 40.0 / {\"hug\":0}; r0.body.0.0.1.layout.squeezable: (none) / true; r0.body.0.0.1.props.label: \"Pricing\" / (none)",
+     "only in the code's: r0.body.0.0.0.0.0 icon, r0.body.0.0.0.1 text"
     ],
     "issues": []
    }
@@ -2664,112 +2669,99 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 3,
-  "equalUpToSpelling": 3,
+  "equal": 6,
+  "equalUpToSpelling": 6,
   "expansions": 9,
   "nodes": 272,
-  "same": 257,
+  "same": 267,
   "results": [
    {
     "from": "docs/reference/notation/navigation.md block 5",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "58 of 62 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.1.props.text: \"PEOPLE & ACCESS\" / \"People & access\"",
-     "r0.body.0.4.props.text: \"WORKSPACE\" / \"Workspace\"",
-     "r1.body.0.1.props.text: \"PEOPLE & ACCESS\" / \"People & access\"",
-     "r1.body.0.4.props.text: \"WORKSPACE\" / \"Workspace\""
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (62 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "docs/reference/notation/navigation.md block 5",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "58 of 62 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.1.props.text: \"PEOPLE & ACCESS\" / \"People & access\"",
-     "r0.body.0.4.props.text: \"WORKSPACE\" / \"Workspace\"",
-     "r1.body.0.1.props.text: \"PEOPLE & ACCESS\" / \"People & access\"",
-     "r1.body.0.4.props.text: \"WORKSPACE\" / \"Workspace\""
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (62 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "docs/reference/notation/navigation.md block 5",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "28 of 30 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.1.props.text: \"PEOPLE & ACCESS\" / \"People & access\"",
-     "r0.body.0.4.props.text: \"WORKSPACE\" / \"Workspace\""
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (30 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a group label in capitals, and one worked out",
     "width": 1440.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (28 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "26 of 28 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.2.props.text: \"${team.name}\" / \"${= upper((team.name))}\"",
+     "r1.body.0.2.props.text: \"${team.name}\" / \"${= upper((team.name))}\""
+    ],
     "issues": []
    },
    {
     "from": "written: a group label in capitals, and one worked out",
     "width": 834.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (28 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "26 of 28 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.2.props.text: \"${team.name}\" / \"${= upper((team.name))}\"",
+     "r1.body.0.2.props.text: \"${team.name}\" / \"${= upper((team.name))}\""
+    ],
     "issues": []
    },
    {
     "from": "written: a group label in capitals, and one worked out",
     "width": 390.0,
-    "equal": true,
-    "equalUpToSpelling": true,
-    "summary": "equal (13 nodes)",
-    "samples": [],
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "12 of 13 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.body.0.2.props.text: \"${team.name}\" / \"${= upper((team.name))}\""
+    ],
     "issues": []
    },
    {
     "from": "written: a group label as most labels are written",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "18 of 20 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.0.props.text: \"LIBRARY\" / \"Library\"",
-     "r1.body.0.0.props.text: \"LIBRARY\" / \"Library\""
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (20 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a group label as most labels are written",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "18 of 20 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.0.props.text: \"LIBRARY\" / \"Library\"",
-     "r1.body.0.0.props.text: \"LIBRARY\" / \"Library\""
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (20 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a group label as most labels are written",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "8 of 9 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.0.props.text: \"LIBRARY\" / \"Library\""
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (9 nodes)",
+    "samples": [],
     "issues": []
    }
   ]
@@ -2955,7 +2947,11 @@
     "samples": [
      "r0.body.0.2.1.decoration.strokeSides: (none) / \"right\"; r0.body.0.2.1.decoration.strokes: (none) / [{\"color\":\"#FFE5E7EB\"}]; r0.body.0.2.1.layout.height.hug: 0 / (none)"
     ],
-    "issues": []
+    "issues": [
+     "line 55:65: PaneDict.txt:7: A pane is resized by a Splitter beside it, which keeps its width in a variable the pane reads: state listW=300, Pane w={listW}, then Splitter @listW min=240 max=480 after it (pane=after when the pane comes after the Splitter).",
+     "line 55:75: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 55:83: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Ticket",
@@ -2966,7 +2962,11 @@
     "samples": [
      "r0.body.0.2.1.decoration.strokeSides: (none) / \"right\"; r0.body.0.2.1.decoration.strokes: (none) / [{\"color\":\"#FFE5E7EB\"}]; r0.body.0.2.1.layout.height.hug: 0 / (none)"
     ],
-    "issues": []
+    "issues": [
+     "line 55:65: PaneDict.txt:7: A pane is resized by a Splitter beside it, which keeps its width in a variable the pane reads: state listW=300, Pane w={listW}, then Splitter @listW min=240 max=480 after it (pane=after when the pane comes after the Splitter).",
+     "line 55:75: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 55:83: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Ticket",
@@ -2977,7 +2977,11 @@
     "samples": [
      "r0.body.0.2.1.decoration.strokeSides: (none) / \"right\"; r0.body.0.2.1.decoration.strokes: (none) / [{\"color\":\"#FFE5E7EB\"}]; r0.body.0.2.1.layout.height.hug: 0 / (none)"
     ],
-    "issues": []
+    "issues": [
+     "line 55:65: PaneDict.txt:7: A pane is resized by a Splitter beside it, which keeps its width in a variable the pane reads: state listW=300, Pane w={listW}, then Splitter @listW min=240 max=480 after it (pane=after when the pane comes after the Splitter).",
+     "line 55:75: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 55:83: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/mail-client.txt ### Mailbox",
@@ -2990,7 +2994,15 @@
      "r0.body.0.2.layout.height.hug: 0 / (none); r0.body.0.2.layout.height.fill: (none) / 0; r0.body.0.2.props.scrollable: (none) / true",
      "r0.body.0.4.props.scrollable: (none) / true; r0.body.0.4.decoration: (none) / {\"strokeSides\":\"left\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]}"
     ],
-    "issues": []
+    "issues": [
+     "line 32:63: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 32:71: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has.",
+     "line 32:79: PaneDict.txt:7: PaneDict: \"collapse\" is not a parameter the notation has.",
+     "line 42:96: PaneDict.txt:7: PaneDict: \"grow-phone\" is not a flag the notation has.",
+     "line 42:60: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 42:68: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has.",
+     "line 89:78: PaneDict.txt:3: PaneDict: \"show-tablet\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/mail-client.txt ### Mailbox",
@@ -3003,7 +3015,15 @@
      "r0.body.0.2.layout.height.hug: 0 / (none); r0.body.0.2.layout.height.fill: (none) / 0; r0.body.0.2.props.scrollable: (none) / true",
      "r0.body.0.4.props.scrollable: (none) / true; r0.body.0.4.decoration: (none) / {\"strokeSides\":\"left\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]}"
     ],
-    "issues": []
+    "issues": [
+     "line 32:63: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 32:71: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has.",
+     "line 32:79: PaneDict.txt:7: PaneDict: \"collapse\" is not a parameter the notation has.",
+     "line 42:96: PaneDict.txt:7: PaneDict: \"grow-phone\" is not a flag the notation has.",
+     "line 42:60: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 42:68: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has.",
+     "line 89:78: PaneDict.txt:3: PaneDict: \"show-tablet\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/mail-client.txt ### Mailbox",
@@ -3016,7 +3036,15 @@
      "r0.body.0.2.layout.height.hug: 0 / (none); r0.body.0.2.layout.height.fill: (none) / 0; r0.body.0.2.props.scrollable: (none) / true",
      "r0.body.0.4.props.scrollable: (none) / true; r0.body.0.4.decoration: (none) / {\"strokeSides\":\"left\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]}"
     ],
-    "issues": []
+    "issues": [
+     "line 32:63: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 32:71: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has.",
+     "line 32:79: PaneDict.txt:7: PaneDict: \"collapse\" is not a parameter the notation has.",
+     "line 42:96: PaneDict.txt:7: PaneDict: \"grow-phone\" is not a flag the notation has.",
+     "line 42:60: PaneDict.txt:7: PaneDict: \"min\" is not a parameter the notation has.",
+     "line 42:68: PaneDict.txt:7: PaneDict: \"max\" is not a parameter the notation has.",
+     "line 89:78: PaneDict.txt:3: PaneDict: \"show-tablet\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/team-chat.txt ### Thread",
@@ -3288,37 +3316,41 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 2,
-  "equalUpToSpelling": 2,
+  "equal": 6,
+  "equalUpToSpelling": 6,
   "expansions": 15,
   "nodes": 720,
-  "same": 670,
+  "same": 681,
   "results": [
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/weighbridge-ticket.txt ### Ticket",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "65 of 68 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "66 of 68 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.2.0.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"style\":{\"fontSize\":26}}}}] / (none); r0.body.2.0.0.0.0.props.style.fontSize: 36 / 24",
-     "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]; r0.body.3.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[20,24,20,24]}}}] / (none)"
+     "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]; r0.body.3.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[20,24,20,24]}}}] / [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"..."
     ],
-    "issues": []
+    "issues": [
+     "line 35:55: SectionDict.txt:3: SectionDict: \"tint\" is not a flag the notation has.",
+     "line 35:60: SectionDict.txt:3: SectionDict: \"compact\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/weighbridge-ticket.txt ### Ticket",
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "65 of 68 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "66 of 68 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.2.0.0.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"style\":{\"fontSize\":26}}}}] / (none); r0.body.2.0.0.0.0.props.style.fontSize: 36 / 24",
-     "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]; r0.body.3.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[20,24,20,24]}}}] / (none)"
+     "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]; r0.body.3.media: [{\"maxWidth\":699,\"patch\":{\"layout\":{\"padding\":[20,24,20,24]}}}] / [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"..."
     ],
-    "issues": []
+    "issues": [
+     "line 35:55: SectionDict.txt:3: SectionDict: \"tint\" is not a flag the notation has.",
+     "line 35:60: SectionDict.txt:3: SectionDict: \"compact\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/weighbridge-ticket.txt ### Ticket",
@@ -3330,63 +3362,69 @@
      "r0.body.2.0.0.0.0.props.style.fontSize: 36 / 24",
      "r0.body.3.layout.padding: [24,32,24,32] / [24,64,24,64]"
     ],
-    "issues": []
+    "issues": [
+     "line 35:55: SectionDict.txt:3: SectionDict: \"tint\" is not a flag the notation has.",
+     "line 35:60: SectionDict.txt:3: SectionDict: \"compact\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/kiosk-museum-touch.txt ### Attract",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "9 of 13 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "10 of 13 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.layout.padding: 0 / [24,64,24,64]",
-     "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}; r0.body.0.0.props.crossAxisAlignment: \"center\" / \"start\"",
-     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.layout.padding: 0 / [24,64,24,64]; r0.body.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"...",
+     "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}",
      "r0.body.0.0.0.1.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.0.0.0.1.0.props.style.fontSize: 60 / 30"
     ],
-    "issues": []
+    "issues": [
+     "line 5:55: SectionDict.txt:3: SectionDict: \"bleed\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/kiosk-museum-touch.txt ### Attract",
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "9 of 13 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "10 of 13 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.layout.padding: 0 / [24,64,24,64]",
-     "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}; r0.body.0.0.props.crossAxisAlignment: \"center\" / \"start\"",
-     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.layout.padding: 0 / [24,64,24,64]; r0.body.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"...",
+     "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}",
      "r0.body.0.0.0.1.0.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.0.0.0.1.0.props.style.fontSize: 60 / 30"
     ],
-    "issues": []
+    "issues": [
+     "line 5:55: SectionDict.txt:3: SectionDict: \"bleed\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus-define/d02/answers/kiosk-museum-touch.txt ### Attract",
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "9 of 13 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "10 of 13 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.layout.padding: 0 / [24,64,24,64]",
-     "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}; r0.body.0.0.props.crossAxisAlignment: \"center\" / \"start\"",
-     "r0.body.0.0.0.layout.width.hug: 0 / (none); r0.body.0.0.0.layout.width.fill: (none) / 0",
+     "r0.body.0.0.layout.constraints: (none) / {\"maxWidth\":1120}",
      "r0.body.0.0.0.1.0.props.style.fontSize: 60 / 30"
     ],
-    "issues": []
+    "issues": [
+     "line 5:55: SectionDict.txt:3: SectionDict: \"bleed\" is not a flag the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b08/answers/neighbour-noticeboard.txt ### Post detail",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "93 of 102 nodes the same; 9 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "94 of 102 nodes the same; 8 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.2.0.0.0.0.1.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.0.0.1.props.style.fontSize: 60 / 30",
      "r0.body.2.0.0.0.0.5.0.layout.height: 44.0 / 40.0",
      "r0.body.2.0.0.0.0.5.1.layout.height: 44.0 / 40.0",
      "r0.body.2.0.0.0.0.5.2.layout.height: 44.0 / 40.0",
-     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18"
+     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18",
+     "r0.body.2.0.0.0.1.3.1.layout.height: 44.0 / 40.0"
     ],
     "issues": []
    },
@@ -3395,14 +3433,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "93 of 102 nodes the same; 9 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "94 of 102 nodes the same; 8 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.2.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.2.0.0.0.0.1.media: [{\"maxWidth\":1023,\"patch\":{\"props\":{\"style\":{\"fontSize\":52}}}},{\"maxWidth\":699,\"patch\":... / (none); r0.body.2.0.0.0.0.1.props.style.fontSize: 60 / 30",
      "r0.body.2.0.0.0.0.5.0.layout.height: 44.0 / 40.0",
      "r0.body.2.0.0.0.0.5.1.layout.height: 44.0 / 40.0",
      "r0.body.2.0.0.0.0.5.2.layout.height: 44.0 / 40.0",
-     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18"
+     "r0.body.2.0.0.0.1.0.props.style.fontSize: 22 / 18",
+     "r0.body.2.0.0.0.1.3.1.layout.height: 44.0 / 40.0"
     ],
     "issues": []
    },
@@ -3425,23 +3463,19 @@
    {
     "from": "docs/reference/notation/lists.md block 4",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (18 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "docs/reference/notation/lists.md block 4",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (18 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -3456,23 +3490,19 @@
    {
     "from": "docs/reference/notation/lists.md block 10",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "40 of 41 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (41 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "docs/reference/notation/lists.md block 10",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "40 of 41 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (41 nodes)",
+    "samples": [],
     "issues": []
    },
    {
@@ -3715,11 +3745,11 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 9,
-  "equalUpToSpelling": 9,
-  "expansions": 18,
-  "nodes": 618,
-  "same": 609,
+  "equal": 18,
+  "equalUpToSpelling": 18,
+  "expansions": 21,
+  "nodes": 627,
+  "same": 624,
   "results": [
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/kanban-board.txt ### Archive",
@@ -3751,107 +3781,83 @@
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/team-chat.txt ### Composer",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs..."
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (37 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/team-chat.txt ### Composer",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs..."
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (37 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/team-chat.txt ### Composer",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "36 of 37 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= append(msgs,{\\\"id\\\":(\\\"m\\\"+(length(msgs..."
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (37 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/flashcards.txt ### Study",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "97 of 98 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig..."
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (98 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/flashcards.txt ### Study",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "97 of 98 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig..."
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (98 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/flashcards.txt ### Study",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "68 of 69 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig... / [{\"actions\":[{\"type\":\"setVariable\",\"value\":\"${= !flipped}\",\"variable\":\"flipped\"}],\"trig..."
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (69 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Shortcuts",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "24 of 25 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
-    ],
-    "issues": [
-     "line 2:5: ShortcutDict.txt:3: No key \"{null}\". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left."
-    ]
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (25 nodes)",
+    "samples": [],
+    "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Shortcuts",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "24 of 25 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
-    ],
-    "issues": [
-     "line 2:5: ShortcutDict.txt:3: No key \"{null}\". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left."
-    ]
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (25 nodes)",
+    "samples": [],
+    "issues": []
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/support-desk.txt ### Shortcuts",
     "width": 390.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "24 of 25 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
-    "samples": [
-     "r0.actions: [{\"actions\":[{\"to\":\"inbox\",\"type\":\"navigate\"}],\"trigger\":{\"key\":\"Escape\",\"type\":\"keyDow... / (none)"
-    ],
-    "issues": [
-     "line 2:5: ShortcutDict.txt:3: No key \"{null}\". A shortcut names one key, after mod, ctrl, cmd, alt or shift joined by +: a letter, a digit or a character (?, /), or Enter, Escape (esc), Space, Tab, Backspace, Delete (del), left, right, up, down, Home, End, PageUp, PageDown, F1 to F12: key mod+k, key alt+left."
-    ]
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (25 nodes)",
+    "samples": [],
+    "issues": []
    },
    {
     "from": "written: a shortcut with its keys as a string",
@@ -3906,6 +3912,45 @@
     "summary": "equal (3 nodes)",
     "samples": [],
     "issues": []
+   },
+   {
+    "from": "written: a chord written as a bare word, and an event under another name (as corpus answers write them)",
+    "width": 1440.0,
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "2 of 3 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.actions: [{\"actions\":[{\"message\":\"play\",\"type\":\"showToast\"}],\"trigger\":{\"key\":\"space\",\"type\":\"ke... / [{\"actions\":[{\"message\":\"play\",\"type\":\"showToast\"}],\"trigger\":{\"key\":\"space\",\"type\":\"ke..."
+    ],
+    "issues": [
+     "line 4:1: ShortcutDict.txt:3: A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +)."
+    ]
+   },
+   {
+    "from": "written: a chord written as a bare word, and an event under another name (as corpus answers write them)",
+    "width": 834.0,
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "2 of 3 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.actions: [{\"actions\":[{\"message\":\"play\",\"type\":\"showToast\"}],\"trigger\":{\"key\":\"space\",\"type\":\"ke... / [{\"actions\":[{\"message\":\"play\",\"type\":\"showToast\"}],\"trigger\":{\"key\":\"space\",\"type\":\"ke..."
+    ],
+    "issues": [
+     "line 4:1: ShortcutDict.txt:3: A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +)."
+    ]
+   },
+   {
+    "from": "written: a chord written as a bare word, and an event under another name (as corpus answers write them)",
+    "width": 390.0,
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "2 of 3 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
+    "samples": [
+     "r0.actions: [{\"actions\":[{\"message\":\"play\",\"type\":\"showToast\"}],\"trigger\":{\"key\":\"space\",\"type\":\"ke... / [{\"actions\":[{\"message\":\"play\",\"type\":\"showToast\"}],\"trigger\":{\"key\":\"space\",\"type\":\"ke..."
+    ],
+    "issues": [
+     "line 4:1: ShortcutDict.txt:3: A shortcut is a line of its own: key mod+k onPress={open search} (mod, alt, shift and a key, joined by +)."
+    ]
    }
   ]
  },
@@ -4095,55 +4140,84 @@
   ],
   "closes": false,
   "closesUpToSpelling": false,
-  "equal": 0,
-  "equalUpToSpelling": 0,
-  "expansions": 3,
-  "nodes": 69,
-  "same": 39,
+  "equal": 3,
+  "equalUpToSpelling": 3,
+  "expansions": 6,
+  "nodes": 146,
+  "same": 127,
   "results": [
    {
     "from": "written: a sidebar's foot",
     "width": 1440.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "16 of 28 nodes the same; 4 differ, 8 only in the code's, 6 only in the definition's",
-    "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]",
-     "r0.body.0.1.layout.flex: 1 / (none); r0.body.0.1.layout.height.fill: 0 / (none); r0.body.0.1.layout.height.hug: (none) / 0",
-     "r1.body.0.children: [\"r1.body.0.0\",\"r1.body.0.1\",\"r1.body.0.2\"] / [\"r1.body.0.0\",\"r1.body.0.1\"]",
-     "r1.body.0.1.layout.flex: 1 / (none); r1.body.0.1.layout.height.fill: 0 / (none); r1.body.0.1.layout.height.hug: (none) / 0",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 row, r0.body.0.2.0.0 icon, r0.body.0.2.0.1 text",
-     "only in the definition's: r0.body.0.1.0 row, r0.body.0.1.0.0 icon, r0.body.0.1.0.1 text, r1.body.0.1.0 row"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (28 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a sidebar's foot",
     "width": 834.0,
-    "equal": false,
-    "equalUpToSpelling": false,
-    "summary": "16 of 28 nodes the same; 4 differ, 8 only in the code's, 6 only in the definition's",
-    "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]",
-     "r0.body.0.1.layout.flex: 1 / (none); r0.body.0.1.layout.height.fill: 0 / (none); r0.body.0.1.layout.height.hug: (none) / 0",
-     "r1.body.0.children: [\"r1.body.0.0\",\"r1.body.0.1\",\"r1.body.0.2\"] / [\"r1.body.0.0\",\"r1.body.0.1\"]",
-     "r1.body.0.1.layout.flex: 1 / (none); r1.body.0.1.layout.height.fill: 0 / (none); r1.body.0.1.layout.height.hug: (none) / 0",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 row, r0.body.0.2.0.0 icon, r0.body.0.2.0.1 text",
-     "only in the definition's: r0.body.0.1.0 row, r0.body.0.1.0.0 icon, r0.body.0.1.0.1 text, r1.body.0.1.0 row"
-    ],
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (28 nodes)",
+    "samples": [],
     "issues": []
    },
    {
     "from": "written: a sidebar's foot",
     "width": 390.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (13 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "written: a brand in a sidebar's foot, and a foot outside a sidebar",
+    "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "7 of 13 nodes the same; 2 differ, 4 only in the code's, 3 only in the definition's",
+    "summary": "24 of 31 nodes the same; 6 differ, 1 only in the code's, 2 only in the definition's",
     "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]",
-     "r0.body.0.1.layout.flex: 1 / (none); r0.body.0.1.layout.height.fill: 0 / (none); r0.body.0.1.layout.height.hug: (none) / 0",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 row, r0.body.0.2.0.0 icon, r0.body.0.2.0.1 text",
-     "only in the definition's: r0.body.0.1.0 row, r0.body.0.1.0.0 icon, r0.body.0.1.0.1 text"
+     "r0.body.0.2.0.layout.padding: [8,6,8,10] / (none)",
+     "r0.body.0.2.0.1.props.style.fontSize: 15 / 17",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]; r0.body.1.props.scrollable: true / (none)",
+     "r0.body.1.2.children: [\"r0.body.1.2.0\"] / (none); r0.body.1.2.layout.height.hug: 0 / (none); r0.body.1.2.layout.height.fill: (none) / 0",
+     "r1.body.0.2.0.layout.padding: [8,6,8,10] / (none)",
+     "r1.body.0.2.0.1.props.style.fontSize: 15 / 17"
+    ],
+    "issues": []
+   },
+   {
+    "from": "written: a brand in a sidebar's foot, and a foot outside a sidebar",
+    "width": 834.0,
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "24 of 31 nodes the same; 6 differ, 1 only in the code's, 2 only in the definition's",
+    "samples": [
+     "r0.body.0.2.0.layout.padding: [8,6,8,10] / (none)",
+     "r0.body.0.2.0.1.props.style.fontSize: 15 / 17",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]; r0.body.1.props.scrollable: true / (none)",
+     "r0.body.1.2.children: [\"r0.body.1.2.0\"] / (none); r0.body.1.2.layout.height.hug: 0 / (none); r0.body.1.2.layout.height.fill: (none) / 0",
+     "r1.body.0.2.0.layout.padding: [8,6,8,10] / (none)",
+     "r1.body.0.2.0.1.props.style.fontSize: 15 / 17"
+    ],
+    "issues": []
+   },
+   {
+    "from": "written: a brand in a sidebar's foot, and a foot outside a sidebar",
+    "width": 390.0,
+    "equal": false,
+    "equalUpToSpelling": false,
+    "summary": "10 of 15 nodes the same; 4 differ, 1 only in the code's, 2 only in the definition's",
+    "samples": [
+     "r0.body.0.2.0.layout.padding: [8,6,8,10] / (none)",
+     "r0.body.0.2.0.1.props.style.fontSize: 15 / 17",
+     "r0.body.1.children: [\"r0.body.1.0\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]; r0.body.1.props.scrollable: true / (none)",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\"] / (none); r0.body.1.0.layout.height.hug: 0 / (none); r0.body.1.0.layout.height.fill: (none) / 0",
+     "only in the code's: r0.body.1.0.0 text",
+     "only in the definition's: r0.body.1.1 column, r0.body.1.1.0 text"
     ],
     "issues": []
    }
@@ -4444,6 +4518,129 @@
   ]
  },
  {
+  "word": "computed",
+  "renamed": [
+   "computed"
+  ],
+  "closes": true,
+  "closesUpToSpelling": true,
+  "equal": 12,
+  "equalUpToSpelling": 12,
+  "expansions": 12,
+  "nodes": 1103,
+  "same": 1103,
+  "results": [
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Shopping list",
+    "width": 1440.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (85 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Shopping list",
+    "width": 834.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (85 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Shopping list",
+    "width": 390.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (63 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Week",
+    "width": 1440.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (139 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Week",
+    "width": 834.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (139 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Week",
+    "width": 390.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (118 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Add a recipe",
+    "width": 1440.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (82 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Add a recipe",
+    "width": 834.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (82 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Add a recipe",
+    "width": 390.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (61 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Recipes",
+    "width": 1440.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (91 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Recipes",
+    "width": 834.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (91 nodes)",
+    "samples": [],
+    "issues": []
+   },
+   {
+    "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Recipes",
+    "width": 390.0,
+    "equal": true,
+    "equalUpToSpelling": true,
+    "summary": "equal (67 nodes)",
+    "samples": [],
+    "issues": []
+   }
+  ]
+ },
+ {
   "word": "App (family)",
   "renamed": [
    "App",
@@ -4467,7 +4664,7 @@
   "equalUpToSpelling": 1,
   "expansions": 15,
   "nodes": 501,
-  "same": 155,
+  "same": 310,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
@@ -4483,7 +4680,11 @@
      "r0.body.0.1.0.children: [\"r0.body.0.1.0.0\",\"r0.body.0.1.0.1\",\"r0.body.0.1.0.2\",\"r0.body.0.1.0.3\",\"r0.body.0.1.0... / [\"r0.body.0.1.0.0\"]; r0.body.0.1.0.layout.padding: 8 / (none); r0.body.0.1.0.layout.constraints: (none) / {\"maxWidth\":1120}",
      "r0.body.0.1.0.0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.0.1.0.0.layout.width.hug: 0 / (none); r0.body.0.1.0.0.layout.width.fill: (none) / 0"
     ],
-    "issues": []
+    "issues": [
+     "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
@@ -4499,7 +4700,11 @@
      "r0.body.0.1.0.children: [\"r0.body.0.1.0.0\",\"r0.body.0.1.0.1\",\"r0.body.0.1.0.2\",\"r0.body.0.1.0.3\",\"r0.body.0.1.0... / [\"r0.body.0.1.0.0\"]; r0.body.0.1.0.layout.padding: 8 / (none); r0.body.0.1.0.layout.constraints: (none) / {\"maxWidth\":1120}",
      "r0.body.0.1.0.0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.0.1.0.0.layout.width.hug: 0 / (none); r0.body.0.1.0.0.layout.width.fill: (none) / 0"
     ],
-    "issues": []
+    "issues": [
+     "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b07/answers/one-handed-reach.txt ### Notes",
@@ -4515,111 +4720,115 @@
      "r0.body.0.1.0.children: [\"r0.body.0.1.0.0\",\"r0.body.0.1.0.1\",\"r0.body.0.1.0.2\",\"r0.body.0.1.0.3\",\"r0.body.0.1.0... / [\"r0.body.0.1.0.0\"]; r0.body.0.1.0.layout.padding: 8 / (none); r0.body.0.1.0.layout.constraints: (none) / {\"maxWidth\":1120}",
      "r0.body.0.1.0.0.actions: [{\"actions\":[{\"maxHeightFactor\":0.9,\"presentation\":\"bottomSheet\",\"sheetRadius\":20,\"shee... / (none); r0.body.0.1.0.0.layout.width.hug: 0 / (none); r0.body.0.1.0.0.layout.width.fill: (none) / 0"
     ],
-    "issues": []
+    "issues": [
+     "line 5:54: AppDict.txt:3: AppDict: \"onEdgeSwipeRight\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:82: AppDict.txt:3: AppDict: \"onEdgeSwipeLeft\" is not an event the notation has here. Events: onTap, onChange (a control), onLongPress, onDoubleTap, onRightClick, onSwipeLeft (Right, Up, Down), onHover, onFocus, onBlur, onSubmit, onDrop.",
+     "line 5:36: AppDict.txt:3: AppDict: \"scale\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "18 of 63 nodes the same; 6 differ, 39 only in the code's, 16 only in the definition's; document keys roots, variables",
+    "summary": "35 of 63 nodes the same; 6 differ, 22 only in the code's, 0 only in the definition's; document keys roots, variables",
     "samples": [
      "r0.body.0.4.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.4.0.props.color: (none) / \"#FF2563EB\"",
      "r0.body.0.4.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.4.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.4.1.props.style.fontWeight: (none) / 600",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r1\",\"type\":\"openModal\"}],\"trig... / (none); r0.body.1.0.0.layout.squeezable: (none) / true; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
-     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]"
+     "r0.body.1.2.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.1.2.0.1.props.style.fontSize: 13 / 18",
+     "r0.body.1.2.1.0.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.1.2.1.0.0.0.1.props.style.fontSize: 13 / 18"
     ],
-    "issues": []
+    "issues": [
+     "line 3:49: BrandDict.txt:3: BrandDict: \"font\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "18 of 63 nodes the same; 6 differ, 39 only in the code's, 16 only in the definition's; document keys roots, variables",
+    "summary": "35 of 63 nodes the same; 6 differ, 22 only in the code's, 0 only in the definition's; document keys roots, variables",
     "samples": [
      "r0.body.0.4.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.4.0.props.color: (none) / \"#FF2563EB\"",
      "r0.body.0.4.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.4.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.4.1.props.style.fontWeight: (none) / 600",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
-     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]; r0.body.1.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / (none)",
+     "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\"] / [\"r0.body.1.0.0\"]",
      "r0.body.1.0.0.actions: [{\"actions\":[{\"cover\":true,\"presentation\":\"dialog\",\"to\":\"r1\",\"type\":\"openModal\"}],\"trig... / (none); r0.body.1.0.0.layout.squeezable: (none) / true; r0.body.1.0.0.media: [{\"minWidth\":700,\"patch\":{\"bind\":{\"visible\":null},\"visible\":false}}] / (none)",
-     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]"
+     "r0.body.1.2.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.1.2.0.1.props.style.fontSize: 13 / 18",
+     "r0.body.1.2.1.0.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.1.2.1.0.0.0.1.props.style.fontSize: 13 / 18"
     ],
-    "issues": []
+    "issues": [
+     "line 3:49: BrandDict.txt:3: BrandDict: \"font\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/2026-11-16-sonnet/answers/meal-planner.txt ### Favourites",
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "19 of 41 nodes the same; 5 differ, 17 only in the code's, 16 only in the definition's",
+    "summary": "36 of 41 nodes the same; 5 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.0.4.0.bind: {\"props.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF6B7280\\\"}\"} / (none); r0.body.0.4.0.props.color: (none) / \"#FF2563EB\"",
      "r0.body.0.4.1.bind: {\"props.style.color\":\"${= (true)?\\\"#FF2563EB\\\":\\\"#FF374151\\\"}\",\"props.style.fontWeight\"... / (none); r0.body.0.4.1.props.style.color: \"#FF111827\" / \"#FF2563EB\"; r0.body.0.4.1.props.style.fontWeight: (none) / 600",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\",\"r0.body.1.1\"]",
      "r0.body.1.0.0.props.style.fontFamily: \"serif\" / (none)",
-     "r0.body.1.1.layout.padding: (none) / 24; r0.body.1.1.type: \"divider\" / \"column\"; r0.body.1.1.children: (none) / [\"r0.body.1.1.0\",\"r0.body.1.1.1\"]",
-     "only in the code's: r0.body.1.2 column, r0.body.1.2.0 column, r0.body.1.2.0.0 column, r0.body.1.2.0.0.0 text"
+     "r0.body.1.2.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.1.2.0.1.props.style.fontSize: 13 / 18",
+     "r0.body.1.2.1.0.0.0.1.props.style.fontFamily: \"serif\" / (none); r0.body.1.2.1.0.0.0.1.props.style.fontSize: 13 / 18"
     ],
-    "issues": []
+    "issues": [
+     "line 3:49: BrandDict.txt:3: BrandDict: \"font\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "4 of 41 nodes the same; 5 differ, 32 only in the code's, 31 only in the definition's",
+    "summary": "38 of 41 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]",
-     "r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]",
-     "r0.body.0.0.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}]",
-     "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
-     "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row"
+     "r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":12,\"spacing\":12,\"wrap\":true}}}]",
+     "r0.body.0.0.0.media: (none) / [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":247.9,\"flex\":1,\"width\":{\"fill\":0}}}}]",
+     "r0.body.0.0.0.1.props.style.fontSize: 13 / 18"
     ],
-    "issues": []
+    "issues": [
+     "line 7:36: AppDict.txt:3: AppDict: \"theme\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement",
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "4 of 41 nodes the same; 5 differ, 32 only in the code's, 31 only in the definition's",
+    "summary": "38 of 41 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]",
-     "r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":12,\"wrap\":true}}}]",
-     "r0.body.0.0.0.media: (none) / [{\"maxWidth\":1023,\"patch\":{\"props\":{\"runSpacing\":8,\"wrap\":true}}}]",
-     "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
-     "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row"
+     "r0.body.0.0.media: [{\"maxWidth\":699,\"patch\":{\"props\":{\"spacing\":12}}}] / [{\"maxWidth\":699,\"patch\":{\"props\":{\"runSpacing\":12,\"spacing\":12,\"wrap\":true}}}]",
+     "r0.body.0.0.0.media: (none) / [{\"maxWidth\":699,\"patch\":{\"layout\":{\"basis\":247.9,\"flex\":1,\"width\":{\"fill\":0}}}}]",
+     "r0.body.0.0.0.1.props.style.fontSize: 13 / 18"
     ],
-    "issues": []
+    "issues": [
+     "line 7:36: AppDict.txt:3: AppDict: \"theme\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "tool/vocabulary/corpus/b09/answers/tractor-guidance.txt ### Implement",
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "6 of 41 nodes the same; 3 differ, 32 only in the code's, 31 only in the definition's",
+    "summary": "40 of 41 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.0.children: [\"r0.body.0.0\",\"r0.body.0.1\",\"r0.body.0.2\"] / [\"r0.body.0.0\",\"r0.body.0.1\"]",
-     "r0.body.0.0.0.1.props.style.fontSize: 13 / 18",
-     "r0.body.0.1.layout.padding: (none) / 16; r0.body.0.1.type: \"divider\" / \"column\"; r0.body.0.1.children: (none) / [\"r0.body.0.1.0\",\"r0.body.0.1.1\",\"r0.body.0.1.2\",\"r0.body.0.1.3\"]",
-     "only in the code's: r0.body.0.2 column, r0.body.0.2.0 column, r0.body.0.2.0.0 text, r0.body.0.2.0.1 row",
-     "only in the definition's: r0.body.0.1.0 column, r0.body.0.1.0.0 text, r0.body.0.1.0.1 row, r0.body.0.1.0.1.0 text"
+     "r0.body.0.0.0.1.props.style.fontSize: 13 / 18"
     ],
-    "issues": []
+    "issues": [
+     "line 7:36: AppDict.txt:3: AppDict: \"theme\" is not a parameter the notation has."
+    ]
    },
    {
     "from": "docs/reference/notation/NOTATION.md block 4",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "12 of 26 nodes the same; 4 differ, 10 only in the code's, 0 only in the definition's; document keys roots",
+    "summary": "13 of 26 nodes the same; 3 differ, 10 only in the code's, 0 only in the definition's; document keys roots",
     "samples": [
-     "r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\"] / (none); r0.body.1.0.layout.padding: [12,8,12,8] / (none); r0.body.1.0.layout.width.fill: 0 / (none)",
      "r0.body.2.decoration.strokeSides: \"left\" / \"right\"",
@@ -4633,9 +4842,8 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "12 of 26 nodes the same; 4 differ, 10 only in the code's, 0 only in the definition's; document keys roots",
+    "summary": "13 of 26 nodes the same; 3 differ, 10 only in the code's, 0 only in the definition's; document keys roots",
     "samples": [
-     "r0.body.0.media: [{\"maxWidth\":699,\"patch\":{\"visible\":false}}] / (none)",
      "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"] / [\"r0.body.1.0\"]",
      "r0.body.1.0.children: [\"r0.body.1.0.0\"] / (none); r0.body.1.0.layout.padding: [12,8,12,8] / (none); r0.body.1.0.layout.width.fill: 0 / (none)",
      "r0.body.2.decoration.strokeSides: \"left\" / \"right\"",
@@ -4720,21 +4928,21 @@
   "equalUpToSpelling": 0,
   "expansions": 9,
   "nodes": 608,
-  "same": 299,
+  "same": 303,
   "results": [
    {
     "from": "tool/vocabulary/corpus/b08/answers/typesetter-pages.txt ### Spread",
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "48 of 153 nodes the same; 12 differ, 93 only in the code's, 62 only in the definition's; document keys roots, variables",
+    "summary": "48 of 153 nodes the same; 6 differ, 99 only in the code's, 69 only in the definition's; document keys roots, variables",
     "samples": [
-     "r0.body.0.decoration.strokeSides: \"r0.body.1.0.2.0.0.1\" / \"r0.body.1.1.0.0.1\"",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"]; r0.body.1.props.crossAxisAlignment: \"stretch\" / \"start\"; r0.body.1.props.scrollable: (none) / true",
+     "r0.body.0.decoration.strokeSides: \"r0.body.1.0.2.0.0.1\" / \"r0.body.1.2.0.0.1\"",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]; r0.body.1.props.crossAxisAlignment: \"stretch\" / \"start\"; r0.body.1.props.scrollable: (none) / true",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\"]; r0.body.1.0.layout.flex: 1 / (none); r0.body.1.0.layout.height.fill: 0 / (none)",
      "r0.body.1.0.0.children: [\"r0.body.1.0.0.0\",\"r0.body.1.0.0.1\",\"r0.body.1.0.0.2\"] / (none); r0.body.1.0.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.0.layout.width.fill: 0 / (none)",
      "r0.body.1.0.1.layout.width.fill: 0 / (none); r0.body.1.0.1.layout.width.hug: (none) / 0; r0.body.1.0.1.type: \"divider\" / \"row\"",
-     "r0.body.1.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.1.layout.padding: [24,12,24,12] / 24; r0.body.1.1.props.spacing: 12 / 16"
+     "r0.body.1.1.children: [\"r0.body.1.1.0\"] / (none); r0.body.1.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.1.layout.padding: [24,12,24,12] / (none)"
     ],
     "issues": []
    },
@@ -4743,14 +4951,14 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "48 of 153 nodes the same; 12 differ, 93 only in the code's, 62 only in the definition's; document keys roots, variables",
+    "summary": "48 of 153 nodes the same; 6 differ, 99 only in the code's, 69 only in the definition's; document keys roots, variables",
     "samples": [
-     "r0.body.0.decoration.strokeSides: \"r0.body.1.0.2.0.0.1\" / \"r0.body.1.1.0.0.1\"",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"]; r0.body.1.props.crossAxisAlignment: \"stretch\" / \"start\"; r0.body.1.props.scrollable: (none) / true",
+     "r0.body.0.decoration.strokeSides: \"r0.body.1.0.2.0.0.1\" / \"r0.body.1.2.0.0.1\"",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]; r0.body.1.props.crossAxisAlignment: \"stretch\" / \"start\"; r0.body.1.props.scrollable: (none) / true",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\"]; r0.body.1.0.layout.flex: 1 / (none); r0.body.1.0.layout.height.fill: 0 / (none)",
      "r0.body.1.0.0.children: [\"r0.body.1.0.0.0\",\"r0.body.1.0.0.1\",\"r0.body.1.0.0.2\"] / (none); r0.body.1.0.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.0.layout.width.fill: 0 / (none)",
      "r0.body.1.0.1.layout.width.fill: 0 / (none); r0.body.1.0.1.layout.width.hug: (none) / 0; r0.body.1.0.1.type: \"divider\" / \"row\"",
-     "r0.body.1.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.1.layout.padding: [24,12,24,12] / 24; r0.body.1.1.props.spacing: 12 / 16"
+     "r0.body.1.1.children: [\"r0.body.1.1.0\"] / (none); r0.body.1.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.1.layout.padding: [24,12,24,12] / (none)"
     ],
     "issues": []
    },
@@ -4759,14 +4967,14 @@
     "width": 390.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "48 of 125 nodes the same; 12 differ, 65 only in the code's, 62 only in the definition's; document keys variables",
+    "summary": "48 of 125 nodes the same; 6 differ, 71 only in the code's, 69 only in the definition's; document keys variables",
     "samples": [
-     "r0.body.0.decoration.strokeSides: \"r0.body.1.0.2.0.0.1\" / \"r0.body.1.1.0.0.1\"",
-     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\"]; r0.body.1.props.crossAxisAlignment: \"stretch\" / \"start\"; r0.body.1.props.scrollable: (none) / true",
+     "r0.body.0.decoration.strokeSides: \"r0.body.1.0.2.0.0.1\" / \"r0.body.1.2.0.0.1\"",
+     "r0.body.1.children: [\"r0.body.1.0\",\"r0.body.1.1\"] / [\"r0.body.1.0\",\"r0.body.1.1\",\"r0.body.1.2\",\"r0.body.1.3\"]; r0.body.1.props.crossAxisAlignment: \"stretch\" / \"start\"; r0.body.1.props.scrollable: (none) / true",
      "r0.body.1.0.children: [\"r0.body.1.0.0\",\"r0.body.1.0.1\",\"r0.body.1.0.2\"] / [\"r0.body.1.0.0\",\"r0.body.1.0.1\"]; r0.body.1.0.layout.flex: 1 / (none); r0.body.1.0.layout.height.fill: 0 / (none)",
      "r0.body.1.0.0.children: [\"r0.body.1.0.0.0\",\"r0.body.1.0.0.1\"] / (none); r0.body.1.0.0.layout.padding: [24,14,24,14] / (none); r0.body.1.0.0.layout.width.fill: 0 / (none)",
      "r0.body.1.0.1.layout.width.fill: 0 / (none); r0.body.1.0.1.layout.width.hug: (none) / 0; r0.body.1.0.1.type: \"divider\" / \"row\"",
-     "r0.body.1.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.1.layout.padding: [24,12,24,12] / 24; r0.body.1.1.props.spacing: 12 / 16"
+     "r0.body.1.1.children: [\"r0.body.1.1.0\"] / (none); r0.body.1.1.decoration: {\"fills\":[{\"color\":\"#FFFFFFFF\"}],\"strokeSides\":\"top\",\"strokes\":[{\"color\":\"#FFE5E7EB\"}]} / (none); r0.body.1.1.layout.padding: [24,12,24,12] / (none)"
     ],
     "issues": []
    },
@@ -4775,10 +4983,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0"
     ],
     "issues": []
    },
@@ -4787,10 +4994,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "16 of 18 nodes the same; 2 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "17 of 18 nodes the same; 1 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
-     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)"
+     "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0"
     ],
     "issues": []
    },
@@ -4810,10 +5016,9 @@
     "width": 1440.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "37 of 41 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "38 of 41 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.0.0.0.0.layout.height: 40.0 / {\"hug\":0}",
      "r0.body.0.0.0.1.layout.height: 40.0 / {\"hug\":0}"
     ],
@@ -4824,10 +5029,9 @@
     "width": 834.0,
     "equal": false,
     "equalUpToSpelling": false,
-    "summary": "37 of 41 nodes the same; 4 differ, 0 only in the code's, 0 only in the definition's",
+    "summary": "38 of 41 nodes the same; 3 differ, 0 only in the code's, 0 only in the definition's",
     "samples": [
      "r0.body.layout.height.fill: 0 / (none); r0.body.layout.height.hug: (none) / 0",
-     "r0.body.0.media: [{\"maxWidth\":1023,\"patch\":{\"layout\":{\"padding\":[24,48,24,48]}}},{\"maxWidth\":699,\"patch\"... / (none)",
      "r0.body.0.0.0.0.layout.height: 40.0 / {\"hug\":0}",
      "r0.body.0.0.0.1.layout.height: 40.0 / {\"hug\":0}"
     ],
