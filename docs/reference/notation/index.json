@@ -2,7 +2,7 @@
   "version": "38.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4340
+    "words": 4341
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4340
+      "words": 4341
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 599
+      "words": 600
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -638,7 +638,7 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 7503
+      "words": 8363
     },
     {
       "topic": "charts-writing-a-chart",
@@ -652,7 +652,7 @@
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6160
+      "words": 7020
     },
     {
       "topic": "charts-records",
@@ -1078,7 +1078,7 @@
       "anchor": "page-levels",
       "title": "Levels and trust",
       "summary": "The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md).",
-      "words": 541
+      "words": 542
     },
     {
       "topic": "level-core",
@@ -1113,7 +1113,7 @@
       "file": "levels.md",
       "anchor": "level-full",
       "title": "4. Full vocabulary (full)",
-      "words": 96
+      "words": 97
     },
     {
       "topic": "level-features",
@@ -1197,6 +1197,7 @@
       "barChart": "charts.md#node-barChart",
       "lineChart": "charts.md#node-lineChart",
       "plotChart": "charts.md#node-plotChart",
+      "graph": "charts.md#node-graph",
       "barcode": "charts.md#node-barcode",
       "video": "media.md#node-video",
       "embeddedVideo": "media.md#node-embeddedVideo",

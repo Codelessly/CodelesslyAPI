@@ -509,6 +509,34 @@ Plot chart (line/area over an x domain; with series, origin axes and a zero-anch
 | `props.animate` | `true`/`false` | `true` | 4 | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | whole number (≥ 0) | `700` | 4 | Milliseconds. Zero applies data changes immediately. |
 
+<a id="node-graph"></a>
+### `Graph` (`graph`)
+
+Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. Fires `changed` with `${result.view}`, `${result.cursor}` and `${result.selection}` (`index`, `key`, `label`, `row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves (`${result.nearStart}`: older rows are wanted).
+
+- Written `Graph`. Level 4 (Full vocabulary).
+- Takes no quoted string.
+- Takes no lines under it.
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+
+| Key | Type | Default | Level | Description |
+|---|---|---|---|---|
+| `data` | list of JSON | `[]` | 4 | The rows: one per place on the x scale (a month, a day, a slice). |
+| `rowKey` | text | `"t"` | 4 | The row field that names a row across updates (its time, its label): how an update is told from a new row and from older rows put before. |
+| `x` | JSON | `{}` | 4 | The x scale: `label` (the row field written under a row), `format` (a date pattern, when the label is a time), `fit` (`none`: the view is the user's to pan and zoom; `bars`: every row has its place across the plot; `points`: the first and last rows at its edges), `ticks` (`step` or `calendar`), `tickEvery`, `labels`, `grid`, `axisHeight`, `barSpacing`, `rightOffset`, `minBarSpacing`, `maxBarSpacing`, `overscroll`, `follow`, `moreHistory`, `historyThreshold`, `slots`, `morph` (ms a line takes to move to new rows), `bands`. With `scale` `linear` each row stands where its `field`'s number is between `min` and `max` (the view is that stretch and does not move). `tickValues` are the ticks themselves (`12` or `{value, label}`); `format` empty writes the labels as they are. |
+| `marks` | list of JSON | `[]` | 4 | The marks of a graph with one pane, drawn in order. Each has a `type`: `bar` (`y`; `stack`: bars with the same stack stand on one another, others side by side; `radius`), `line` and `area` (`y`, `width`, `curved`, `fillOpacity`, `fade`, `endDot`, `pulse`), `candle` (`open`, `high`, `low`, `close`, `upColor`, `downColor`), `arc` in a polar pane (`y`; `inner`: the hole's share of the radius, 0 a pie; `gap` and `startAngle` in degrees). All take `name`, `color`, `colorField` (a row field holding the row's own color) and `colors` (row by row); a bar takes `labels` (its value written over it), an area `fillTo` (its color at the bottom). |
+| `y` | JSON | `{}` | 4 | The y scale of a graph with one pane: `domain` (`visible`: fitted to the rows in view; `data`: to all rows; `fixed` with `min` and `max`), `include` (values always in the domain), `margins` (`[top, bottom]`, shares of the span), `mode` (`linear` or `percent`), `side` (`right` or `left`), `width` (the axis's; 0 for none), `labels`, `decimals`, `prefix`, `suffix`, `ticks` (about how many), `tickValues` (the ticks themselves: `12` or `{value, label}`). |
+| `coord` | text | `"rect"` | 4 | `rect` (marks over the x scale) or `polar` (the rows round a center: `arc` marks, no axes) for a graph with one pane. |
+| `guides` | list of JSON | `[]` | 4 | What is drawn at places of the scales, over the marks of a graph with one pane: `{x}` a line up the pane, `{y}` a line across it, `{x, y}` a dot, `{from, to}` a tinted stretch; each with `color`, `line` (`solid`, `dashed`, `dotted`), `width`, `label`, `labelColor`, `radius`, `fill`, `below`. A place is a number on a linear x scale, a row's key on rows. |
+| `panes` | list of JSON | `[]` | 4 | Several panes over the one x scale, each `{grow, y, coord, marks, guides, priceLines, markers}`. With panes, `marks`, `y`, `coord` and `guides` are not read. |
+| `transforms` | list of JSON | `[]` | 4 | Fields worked out from the rows: `{type: sma \| ema \| rsi \| bollinger, field, as, period, k}`. |
+| `selection` | JSON | `{}` | 4 | The selection: `on` (`none`, `hover`, `tap`, or `both`: hover, and a tap pins), `by` (`row`, or `mark`: the one bar or slice), `dim` (the opacity of the rest), `band` (a fill behind the selected row), `grow` (a selected slice's), `dot` (on each line at the row), `tooltip`, `title` (a row field), `total`, `tooltipFill`, `tooltipText`. |
+| `crosshair` | JSON | `{}` | 4 | The crosshair: `enabled`, `on` (`hover`, `longPress`, `both`, `touch`), `magnet` (the row field its price snaps to), `vertical`, `horizontal`, `line`, `dot`, `timeLabel`, `timeFormat`, `priceTag`. |
+| `interactions` | JSON | `{}` | 4 | What each gesture does: `dragPan`, `wheelZoom`, `pinchZoom`, `axisScale`, `doubleTapReset`, `fling` (each true unless said). |
+| `style` | JSON | `{}` | 4 | Its colors and text: `background`, `grid`, `text`, `crosshair`, `tag`, `tagText`, `separator`, `fontSize`, `fontFamily`, `topInset`. |
+| `view` | JSON |  | 4 | The view, set from state: `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`. Usually bound. |
+| `selected` | JSON |  | 4 | The pinned selection, set from state: `{index}` or `{index, mark}`; null for none. Usually bound. |
+
 <a id="node-barcode"></a>
 ### `barcode` (`barcode`)
 

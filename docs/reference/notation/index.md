@@ -9,7 +9,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 
 | Page | What is in it | Words |
 |---|---|---|
-| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4340 |
+| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4341 |
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5028 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1347 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 2635 |
@@ -20,7 +20,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 5759 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3569 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 3560 |
-| [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 7503 |
+| [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 8363 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 2327 |
 | [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 3822 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 2747 |
@@ -33,7 +33,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | 300 |
 | [media.md](media.md) | The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads and preloading images. | 1820 |
 | [engage.md](engage.md) | The engagement layer: app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `{usage}` counters they read. | 247 |
-| [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | 541 |
+| [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | 542 |
 | [_tails.md](_tails.md) | What the notation still prints as JSON: the parity work list. | 286 |
 
 <a id="index-a-z"></a>
@@ -51,7 +51,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 
 **F** · [`feetInches`](state.md#fn-feetInches) function · [`fill`](state.md#fn-fill) function · [`filter`](state.md#fn-filter) function · [`FilterChip`](forms.md#node-filterChip) word · [`find`](state.md#fn-find) function · [`findIndex`](state.md#fn-findIndex) function · [`first`](state.md#fn-first) function · [`fixed`](state.md#fn-fixed) function · [`flatMap`](state.md#fn-flatMap) function · [`flatten`](state.md#fn-flatten) function · [`Flex`](layout.md#node-flex) word · [`Flight`](values.md#type-Flight) record · [`flip`](animation.md#behavior-flip) key · [`FlipAxis`](values.md#enum-FlipAxis) enum · [`FlipCard`](animation.md#type-FlipCard) record · [`floating`](layout.md#behavior-floating) key · [`FloatingActionButton`](forms.md#node-floatingActionButton) word · [`FloatingActionButtonLocation`](values.md#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](values.md#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](values.md#enum-FloatingLabelBehavior) enum · [`floor`](state.md#fn-floor) function · [`focus`](events.md#action-focus) action · [`focusable`](interaction.md#behavior-focusable) key · [`FocusGroup`](interaction.md#type-FocusGroup) record · [`focusGroup`](interaction.md#behavior-focusGroup) key · [`FocusGroupAxis`](values.md#enum-FocusGroupAxis) enum · [`FontFeature`](values.md#type-FontFeature) value · [`FontStyle`](values.md#enum-FontStyle) enum · [`FontWeight`](values.md#type-FontWeight) value · [`forEach`](events.md#action-forEach) action · [`form`](forms.md#behavior-form) key · [`formatAmount`](state.md#fn-formatAmount) function · [`formatCurrency`](state.md#fn-formatCurrency) function · [`formatDate`](state.md#fn-formatDate) function · [`formatDuration`](state.md#fn-formatDuration) function · [`formatNumber`](state.md#fn-formatNumber) function · [`formatPercent`](state.md#fn-formatPercent) function · [`formatRelative`](state.md#fn-formatRelative) function · [`FormBehavior`](forms.md#type-FormBehavior) record · [`FormService`](values.md#enum-FormService) enum · [`fromCharCode`](state.md#fn-fromCharCode) function · [`fuzzy`](state.md#fn-fuzzy) function · [`fuzzyScore`](state.md#fn-fuzzyScore) function
 
-**G** · [`GaugeLimitStyle`](values.md#enum-GaugeLimitStyle) enum · [`GaugeMeter`](charts.md#node-gaugeMeter) word · [`GaugeShape`](values.md#enum-GaugeShape) enum · [`GaugeZone`](charts.md#type-GaugeZone) record · [`GestureBounds`](values.md#enum-GestureBounds) enum · [`GesturePhysics`](values.md#type-GesturePhysics) record · [`GestureSnap`](values.md#type-GestureSnap) record · [`get`](state.md#fn-get) function · [`gridView`](lists.md#node-gridView) word · [`groupBy`](state.md#fn-groupBy) function
+**G** · [`GaugeLimitStyle`](values.md#enum-GaugeLimitStyle) enum · [`GaugeMeter`](charts.md#node-gaugeMeter) word · [`GaugeShape`](values.md#enum-GaugeShape) enum · [`GaugeZone`](charts.md#type-GaugeZone) record · [`GestureBounds`](values.md#enum-GestureBounds) enum · [`GesturePhysics`](values.md#type-GesturePhysics) record · [`GestureSnap`](values.md#type-GestureSnap) record · [`get`](state.md#fn-get) function · [`Graph`](charts.md#node-graph) word · [`gridView`](lists.md#node-gridView) word · [`groupBy`](state.md#fn-groupBy) function
 
 **H** · [`haptic`](events.md#action-haptic) action · [`HapticKind`](values.md#enum-HapticKind) enum · [`hero`](animation.md#behavior-hero) key · [`HeroFlies`](values.md#enum-HeroFlies) enum · [`HeroFlightShuttle`](values.md#enum-HeroFlightShuttle) enum · [`HeroPlaceholder`](values.md#enum-HeroPlaceholder) enum · [`HeroTag`](animation.md#type-HeroTag) record · [`hour`](state.md#fn-hour) function · [`hypot`](state.md#fn-hypot) function
 
