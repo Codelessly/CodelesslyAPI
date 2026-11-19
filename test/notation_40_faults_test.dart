@@ -25,6 +25,7 @@ Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).
 
 void main() {
   namesTests();
+  saidTests();
   wordsTests();
   itemsTests();
   valueTextTests();
@@ -552,6 +553,64 @@ Column
   Card#c "x"
 ''');
       expect(r.issues.map((i) => i.message), [contains('already has Card'), contains('already has Rail')]);
+    });
+  });
+}
+
+void saidTests() {
+  group('what was dropped or read wrongly with nothing said', () {
+    test('a state written twice, and a state and a computed of one name', () {
+      final r = _parse('''
+state pick="b"
+state pick="c"
+state total=3
+computed total=length(pick)
+Column
+  Text "{pick} {total}"
+''');
+      expect(r.issues.map((i) => (i.line, i.message.contains('written twice'))), [(2, true), (4, true)]);
+      expect(r.issues.first.message, contains('line 1'));
+    });
+
+    test('one state a name is said nothing of', () {
+      final r = _parse('''
+state pick="b"
+state total=3
+Column
+  Text "{pick} {total}"
+''');
+      expect(r.issues, isEmpty);
+    });
+
+    test('Select selected={…} is read as its value, and value= is said', () {
+      final r = _parse('''
+state pick="b"
+Select#s items=["a","b"] selected={pick}
+''');
+      expect(r.issues.single.message, contains('value='));
+      expect((_node(r, 's')['bind'] as Map), {'props.value': r'${= pick}'});
+    });
+
+    test('LineChart series=[numbers] is one line; a series with no values and labels with none are said', () {
+      final one = _parse('LineChart#c labels=["Mon","Tue"] series=[1,2]\n');
+      expect(one.issues, isEmpty);
+      expect(_props(one, 'c')['data'], [
+        {'label': 'Mon', 's0': 1},
+        {'label': 'Tue', 's0': 2},
+      ]);
+      final none = _parse('LineChart#c series=["visits"]\n');
+      expect(none.issues.single.message, contains('series=[{"name"'));
+      final labels = _parse('state rows=[{"d":"Mon","n":1}]\nLineChart#c data={rows} labels=["Mon"]\n');
+      expect(labels.issues.single.message, contains('xField'));
+    });
+
+    test('a positional value written bare where a variable was meant says the braces', () {
+      final r = _parse('''
+state c={"icon":"home","label":"Home"}
+Column
+  Icon c.icon
+''');
+      expect(r.issues.single.message, contains('"{c.icon}"'));
     });
   });
 }

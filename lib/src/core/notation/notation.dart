@@ -7840,8 +7840,15 @@ class _Parser {
         if (written0 is List)
           for (final s in written0.map(readMap).nonNulls)
             if (s['values'] ?? s['data'] case final List v) (name: '${s['name'] ?? s['label'] ?? ''}', values: v, color: s['color']),
+        // `series=[3,5,4]`: one line's values, as `values=` is.
+        if (written0 is List && written0.isNotEmpty && written0.every((v) => v is num)) (name: '', values: written0, color: props.remove('lineColor')),
         if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
       ];
+      // A series that gives no values draws no line: said, not dropped.
+      if (all.isEmpty && written0 is List && !_quiet && !_mediaLine) {
+        _issue(column,
+            'A $written\x27s series give its lines\x27 values: series=[{"name":"Visits","values":[3,5,4]}] (one for each line), or values=[3,5,4] for one line, with labels=[â€¦] under them. This series= gives none, so the chart draws no line.');
+      }
       if (all.isNotEmpty) {
         final palette = notationChartShades(_accentValue);
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
@@ -7925,6 +7932,15 @@ class _Parser {
         props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
         props['xField'] = 'x';
         props['yField'] = 'y';
+      }
+      // `labels=[â€¦]` with no values to put them under (the chart's rows
+      // come from data=): left out, and the key that does it said.
+      if (type == 'lineChart' && props['labels'] is List && !asWritten) {
+        props.remove('labels');
+        if (!_quiet && !_mediaLine) {
+          _issue(column,
+              'A $written\x27s labels go under values written with them (labels=["Mon","Tue"] values=[3,5]). With data={rows} the label of each point is a field of its row: xField="day" (and yField="count"). labels= is left out.');
+        }
       }
     }
     // Universal words read once the line is (docs/design/21): a chip's
@@ -8839,6 +8855,24 @@ class _Parser {
           id: <String, Object?>{'opacity': 0.5, 'ignorePointer': true},
         },
       };
+    }
+    // `Select items=[â€¦] selected={pick}`: the choice a Select shows is its
+    // value; selected is a node's selected state, which shows nothing in a
+    // Select (it drew blank). Read as the value, and the key that does it said.
+    if (type == 'dropdown' && !component) {
+      final bound = readMap(out['bind']);
+      final held = readMap(out['props']);
+      if (bound != null && bound['selected'] is String && !bound.containsKey('props.value') && held?['value'] == null) {
+        final choice = bound['selected'];
+        out['bind'] = {
+          for (final e in bound.entries)
+            if (e.key != 'selected') e.key: e.value,
+          'props.value': choice,
+        };
+        if (!_quiet && !_mediaLine) {
+          _issue(column, 'A Select\x27s choice is written value={â€¦} (or @name, which keeps it too): selected= is a node\x27s selected state, which a Select does not show. It is read as value= here.');
+        }
+      }
     }
     if (type == 'dropdown' && !component) _valueLabelItems(out);
     _readStates(stateWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), id, parent?.id, parent?.type, type, out, node);
@@ -10565,6 +10599,24 @@ class _Parser {
   /// (of the validator's runtimeScopes, those no node gives).
   static const _screenScopes = {'data', 'route', 'storage', 'screen', 'theme', 'auth', 'drag', 'perf', 'script', 'speech'};
 
+  /// The line each state of the text was written on.
+  final _stateLines = <String, int>{};
+
+  /// Says a second `state` (or a word that stands for one: `computed`) of
+  /// the name [name]: one name is one value, and what reads it gets one of
+  /// the two with nothing said (a list and a computed of one name: the
+  /// list was read, the page drew empty).
+  void _statedTwice(String name, int column) {
+    final lines = _top._stateLines;
+    name = '$_scope $name';
+    if (lines[name] case final int before when before != _line) {
+      name = name.substring(name.indexOf(' ') + 1);
+      _issue(column, 'The state $name is written twice (line $before has it too): one name is one value, and what reads $name gets only one of the two. Give one of them another name, or leave one out.');
+    } else {
+      lines[name] = _line;
+    }
+  }
+
   void _state(String rest, int column) {
     // `state draft="" saved`: its value is kept on the device and is there
     // again after a reload (Variable.persist).
@@ -10593,6 +10645,7 @@ class _Parser {
         _issue(column, 'state $name(${typed[2]}): $name is one of the formula functions ($name(…) calls that one, never this): name it otherwise, as state $other(${typed[2]}):$type={…}, and call $other(…).');
       }
       // Declared: what binds it (`@name`) needs no other line.
+      _statedTwice(name, column);
       _top._stated.add(name);
       _top._typedStates.add(name);
       _top._unstated.remove(name);
@@ -10613,6 +10666,7 @@ class _Parser {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     // Declared, even where it is refused below: what binds it is said once.
+    _statedTwice(m[1]!, column);
     _top._stated.add(m[1]!);
     _top._unstated.remove(m[1]);
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
