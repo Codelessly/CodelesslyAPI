@@ -643,6 +643,8 @@ final class DefinedWords {
     this.within = const [],
     Map<String, List<NotationDefinition>>? page,
     this.variable,
+    this.textVariable,
+    this.eachItem,
     this.internal,
     this.bindsVariable,
     this.builtIn,
@@ -702,6 +704,39 @@ final class DefinedWords {
   /// Whether [name] is a variable of the page (its state, or the item of an
   /// `each` around the line): a use's `bpm=bpm` gives the value, not a word.
   final bool Function(String name)? variable;
+
+  /// Whether [name] is a text variable of the page's state (not an `each`'s
+  /// item): where a parameter is a name (an icon's, a page's), a bare word
+  /// that is also one could mean either, and the use says so.
+  final bool Function(String name)? textVariable;
+
+  /// Whether [name] is the item of an `each` around the line.
+  final bool Function(String name)? eachItem;
+
+  static final _nameLine = RegExp(r'^(?:Icon|IconButton)(?:[.#][^\s]*)?\s+"\{([A-Za-z_][A-Za-z0-9_]*)\}"');
+  static final _nameKey = RegExp(r'(?:^|\s)(?:[A-Za-z.]*[iI]con)=(?:"\{([A-Za-z_][A-Za-z0-9_]*)\}"|\{([A-Za-z_][A-Za-z0-9_]*)\})(?=\s|$)');
+  static final _nameGo = RegExp(r'\bgo\s+\{([A-Za-z_][A-Za-z0-9_]*)\}');
+  static final _passed = RegExp(r'(?:^|\s)([A-Za-z_][A-Za-z0-9_]*)=(?:"\{([A-Za-z_][A-Za-z0-9_]*)\}"|\{([A-Za-z_][A-Za-z0-9_]*)\})(?=\s|$)');
+
+  /// Whether the parameter [name] of [d] is a name where its body reads it:
+  /// an icon's (`Icon "{icon}"`, `icon={icon}`), a page's (`go {to}`), or
+  /// such a parameter of a defined word its body calls. A bare word given
+  /// to it is that name, as it is on a line of the notation's own.
+  bool namesAThing(NotationDefinition d, String name, [int depth = 0]) {
+    for (final l in d.body) {
+      if (_nameLine.firstMatch(l.text)?[1] == name) return true;
+      if (_nameKey.allMatches(l.text).any((m) => (m[1] ?? m[2]) == name)) return true;
+      if (_nameGo.allMatches(l.text).any((m) => m[1] == name)) return true;
+      if (depth >= 3) continue;
+      final word = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(l.text);
+      if (word == null || word == d.word || !has(word)) continue;
+      for (final m in _passed.allMatches(l.text)) {
+        if ((m[2] ?? m[3]) != name) continue;
+        if (meanings(word).any((inner) => inner.parameters.containsKey(m[1]) && namesAThing(inner, m[1]!, depth + 1))) return true;
+      }
+    }
+    return false;
+  }
 
   /// Whether [word] is a defined word here (a definition, or a `define` read
   /// in the text so far). A word of the notation's own is not, except a
@@ -1041,8 +1076,17 @@ final class DefinedWords {
           } else if (d.parameters.containsKey(k) || d.strings.contains(k)) {
             // `end=draft.end`, `bpm=bpm`: a path, or a variable of the page,
             // given to a plain parameter is the value it reads.
-            final path = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(v) ||
-                (_identifier.hasMatch(v) && v != 'true' && v != 'false' && v != 'null' && (variable?.call(v) ?? false));
+            // A parameter that is a name where the body reads it (an icon's:
+            // `icon=mail`) takes a bare word as that name, whatever state
+            // of the same name the page has (a list called mail); a text
+            // variable could be meant, so that is said. An `each`'s item is
+            // read (`each icon in icons` / `icon=icon`).
+            final word = _identifier.hasMatch(v) && v != 'true' && v != 'false' && v != 'null' && (variable?.call(v) ?? false);
+            final named = word && !(eachItem?.call(v) ?? false) && namesAThing(d, k);
+            if (named && (textVariable?.call(v) ?? false)) {
+              issue?.call(col(x), '$k=$v is the name "$v" here. $v is also a text variable of the page: its value is $k={$v}.');
+            }
+            final path = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(v) || (word && !named);
             values[k] = path ? '{$v}' : v;
           } else if (definedPassThrough(k, v) && (!const {'duration', 'delay', 'stagger'}.contains(k) || p.pair('animate') != null) && universal(x)) {
             // On its root.
@@ -1205,7 +1249,7 @@ final class DefinedWords {
       ..addAll(decided);
     // Its words expanded in turn, with the same definitions.
     final inner =
-        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, internal: internal, bindsVariable: bindsVariable, theme: theme);
+        DefinedWords(_all, open: open, issue: issue, ours: ours, component: component, counts: counts, context: d.at(d.line), within: [...within, d.label], variable: variable, textVariable: textVariable, eachItem: eachItem, internal: internal, bindsVariable: bindsVariable, theme: theme);
     final expanded = <DefinedLine>[];
     for (final l in lines) {
       expanded.addAll(inner.rewrite(l.indent, l.text, from: d.at(l.line)));

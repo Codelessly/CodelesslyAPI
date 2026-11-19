@@ -815,6 +815,8 @@ final class NotationOptions {
         quietInks: quietInks,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
+        // An overlay's `go library` names the page as the page's own does.
+        screens: screens,
         ownComponents: ownComponents,
         themeColors: themeColors,
         roles: roles,
@@ -2300,6 +2302,8 @@ class _Parser {
     // The page's own words hold in its overlays too.
     page: identical(_top, this) ? null : _top._defined.page,
     variable: (name) => variables.containsKey(name) || _stack.any((o) => o.each == name),
+    textVariable: (name) => variables[name]?['type'] == 'text',
+    eachItem: (name) => _stack.any((o) => o.each == name),
     internal: (name) => _top._internal.add(name),
     builtIn: (word) => switch (_builtIn(word)) { final what? => notationBuiltInDefinition(word, what), _ => null },
     bindsVariable: (name, column, start) => _bindsVariable(name, column, () {
@@ -2670,6 +2674,9 @@ class _Parser {
   /// A line read alone to work out its media rules' patches
   /// ([_mediaRules]): its own rules are not read again.
   bool _mediaLine = false;
+
+  /// The words after `go` said to be a page and a text variable both.
+  final _goSaid = <String>{};
 
   /// Whether a state named item read inside an each was said.
   bool _itemSaid = false;
@@ -9294,6 +9301,8 @@ class _Parser {
 
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
+  static final _goes = RegExp(r'(?:^|[{;?:(]|\bthen)\s*go$');
+
   String _rename(String line, String name, [String to = 'item']) {
     // A short loop name may also be a layout key (`each h ... Text ... h=120`).
     // A key followed by ':' is notation, not a reference to the item.
@@ -9308,6 +9317,9 @@ class _Parser {
           final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
               (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
               !before.endsWith('?');
+          // `go album` under `each album in â€¦` with a page called album: a
+          // bare word after go is the page's id (the item is `go {album}`).
+          if (_goes.hasMatch(before) && notationScreen(name, options.screens) != null) return m[0]!;
           return key ? m[0]! : to;
         });
     void flush(int end, bool isCode) {
@@ -11077,6 +11089,12 @@ class _Parser {
           // a list called recipes).
           final screen = braced || arg.startsWith('"') ? null : notationScreen(s, options.screens);
           if (screen != null) {
+            // A text variable of the page's name could be meant too (the
+            // page it holds): the page is gone to, and the other way said.
+            if (variables[s] case {'type': 'text'} when !_top._goSaid.contains(s)) {
+              _top._goSaid.add(s);
+              _issue(column, 'go $s goes to the page "$screen". $s is also a text variable: the page it holds is go {$s}; to keep them apart give the variable another name.');
+            }
             out.add({'type': 'navigate', 'to': screen});
             continue;
           }

@@ -24,6 +24,8 @@ List<Map> _variables(NotationResult r) => [
 Map _action(NotationResult r, String id) => (((_node(r, id)['actions'] as List).first as Map)['actions'] as List).first as Map;
 
 void main() {
+  namesTests();
+  overlayGoTests();
   group('a defined word whose body is an overlay', () {
     const drawer = '''
 define SideMenu current="today"
@@ -94,5 +96,108 @@ Dialog#sure "Delete event?"
       // One close button: the dialog's own.
       expect(_nodes(r).where((n) => n['type'] == 'iconButton'), hasLength(1));
     });
+  });
+}
+
+// ---- names ----
+void namesTests() {
+  group('a bare word where a name is read', () {
+    test('icon=mail on a defined word is the icon mail, whatever state is called mail', () {
+      final r = _parse('''
+state mail=[{"id":"a"}]
+Column
+  Brand#brand "Postbox" icon=mail
+''');
+      expect(r.issues, isEmpty);
+      final icon = _nodes(r).singleWhere((n) => n['type'] == 'icon');
+      expect((icon['props'] as Map)['icon'], 'mail');
+      expect(icon['bind'], isNull);
+    });
+
+    test('a text variable of the name could be meant: the name, and the braces said', () {
+      final r = _parse('''
+state mail="inbox"
+Column
+  Brand "Postbox" icon=mail
+''');
+      expect(r.issues.single.message, contains('icon={mail}'));
+      expect((_nodes(r).singleWhere((n) => n['type'] == 'icon')['props'] as Map)['icon'], 'mail');
+    });
+
+    test('in braces it is the variable; an each\'s item of the name is the item', () {
+      final r = _parse('''
+state mail="inbox"
+state icons=["home","star"]
+Column
+  Brand#a "Postbox" icon={mail}
+  each icon in icons
+    Brand "Row" icon=icon
+''');
+      expect(r.issues, isEmpty);
+      final binds = [for (final n in _nodes(r)) if (n['type'] == 'icon') (n['bind'] as Map?)?['props.icon']];
+      expect(binds, [r'${mail}', r'${item}']);
+    });
+
+    test('a parameter that is no name still reads a variable of the word given (bpm=bpm)', () {
+      final r = _parse('''
+state bpm=120
+define Tempo bpm=90
+  Text "{bpm} bpm"
+Column
+  Tempo#t bpm=bpm
+''');
+      expect(r.issues, isEmpty);
+      expect('${_node(r, 't')}', contains(r'${bpm}'));
+    });
+
+    test('go album under each album in …, with a page called album, goes to the page', () {
+      final r = _parse('''
+state albums=[{"id":"x","title":"One"}]
+state openAlbum=""
+Column
+  each album in albums
+    Button#b "{album.title}" onTap={openAlbum=album.id; go album}
+''', options: const NotationOptions().withScreens(const ['album', 'library']));
+      expect(r.issues, isEmpty);
+      final actions = ((_node(r, 'b')['actions'] as List).first as Map)['actions'] as List;
+      expect(actions.last, {'type': 'navigate', 'to': 'album'});
+      expect((actions.first as Map)['value'], contains('item.id'));
+    });
+
+    test('with no page of the name the item is what go reads, as before', () {
+      final r = _parse('''
+state tabs=["home","library"]
+Column
+  each tab in tabs
+    Button#b "{tab}" onTap={go tab}
+''', options: const NotationOptions().withScreens(const ['home', 'library']));
+      expect(r.issues, isEmpty);
+      expect(_action(r, 'b')['to'], r'${= item}');
+    });
+
+    test('a page and a text variable of one name after go: the page, and the braces said', () {
+      final r = _parse('''
+state settings="profile"
+Column
+  Button#b "Open" onTap={go settings}
+''', options: const NotationOptions().withScreens(const ['settings', 'profile']));
+      expect(r.issues.single.message, contains('go {settings}'));
+      expect(_action(r, 'b')['to'], 'settings');
+    });
+  });
+}
+
+void overlayGoTests() {
+  test('go in an overlay names a page as it does in the page, whatever state has the name', () {
+    final r = _parse('''
+state playlists=[]
+Column
+  Button "Add" onTap={open add}
+Dialog#add "Add to playlist"
+  Button#b "Go to playlists" onTap={close; go playlists}
+''', options: const NotationOptions().withScreens(const ['library', 'playlists']));
+    expect(r.issues, isEmpty);
+    final actions = ((_node(r, 'b')['actions'] as List).first as Map)['actions'] as List;
+    expect(actions.last, {'type': 'navigate', 'to': 'playlists'});
   });
 }
