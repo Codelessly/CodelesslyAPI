@@ -258,6 +258,9 @@ Node seamCall(Node root, Node call) {
     width: own('width') ? root.layout.width : null,
     height: own('height') ? root.layout.height : null,
     constraints: own('constraints') ? root.layout.constraints : null,
+    // The root's shape (`Stack w=fill aspectRatio=1`, a sleeve's artwork)
+    // when the call gives none: a call that hugs its height was 0 tall.
+    aspectRatio: call.layout.aspectRatio == null && root.layout.aspectRatio != null ? () => root.layout.aspectRatio : null,
   );
   final reactions = [...root.actions, ...call.actions.where((r) => r.trigger.type.name != 'event')];
   var out = root.copyWith(

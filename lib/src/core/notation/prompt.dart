@@ -247,7 +247,10 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
 ''';
   final short = {
     for (final e in notationTypes.entries)
-      if (!const {'Card', 'Image', 'CodeInput', 'Handle', 'DataTable', 'NumberInput'}.contains(e.key)) e.value.type: e.key,
+      // (Words that are a Column or a Row underneath name them by their own
+      // name: the list said Badge and Wanted for Row and Column.)
+      if (!const {'Card', 'Image', 'CodeInput', 'Handle', 'DataTable', 'NumberInput', 'Avatar', 'List', 'Badge', 'Grid', 'GridView', 'Box', 'Wanted'}.contains(e.key))
+        e.value.type: e.key,
   };
   String written(String type) => short[type] ?? '${type[0].toUpperCase()}${type.substring(1)}';
   // The types worth naming in a small prompt: the rest of levels 0 and 1
@@ -293,12 +296,12 @@ TYPES
   Badge variants: ${badgeVariants.keys.map((k) => 'Badge.$k').join(', ')}
   Card is a padded, bordered Column; Box is a Column you style (fill, radius, pad). Every control already has the design system's look: write no colors or sizes on controls. A Text takes color=#FF…, size=32 and weight=700 (a big number is Text "{n}" size=64); a Box or Card takes fill=#FF… (on a dark fill, give its texts a light color). Column scroll lets a tall screen scroll.
   Grid cols=3 gap=8 lays its children out in columns. Progress 0.6 (or Progress {done}) shows a share from 0 to 1. Select and SegmentedButton take items=["A","B"] (a SegmentedButton: two to four short options, never a page's tabs). Input takes type=number (or email, phone) for its keyboard. Icon "name" uses Material icon names (check, close, star, chevron_right).
-  Pages @page h=160 shows the lines under it one at a time, swiped across (under it, each item in items gives one page per element); page is the page shown, from 0, and setting it turns the page. peek=0.86 shows the edge of the next page (a carousel, a gallery). Dots @page count=4 draws its pagination dots (a tap goes to that page); "{page+1} of {length(items)}" is its count. Content wider than the card (a wide table, a strip of tiles) goes in Row scroll, which scrolls sideways.
+  Pages @page h=160 shows the lines under it one at a time, swiped across (under it, each item in items gives one page per element); page is the page shown, from 0, and setting it turns the page. peek=0.86 shows the edge of the next page (a carousel, a gallery). Dots @page count=4 draws its pagination dots (a tap goes to that page); "{page+1} of {length(items)}" is its count. What is wider than the card (a wide table, a strip of tiles) goes in Row scroll, which scrolls sideways.
   BarChart values=[3,5,4] labels=["Mon","Tue","Wed"] and LineChart values=[10,12,11,14] draw charts: never link to a chart image.
   LineChart labels=["W1","W2"] series=[{"name":"Signups","values":[40,52]},{"name":"Churn","values":[8,6]}] draws several lines (AreaChart fills under them); Donut values=[60,25,15] labels=["Rent","Food","Other"] shares of a whole.${options.width >= notationPageWidth ? ' On a page a Donut draws its labels as a legend beside it (under it where there is no room), each with its share: write no legend of your own (legend=false leaves it out).' : ''}
   Gauge 72 min=0 max=180 limit=100 unit="km/h" is a round meter with its figure inside (Gauge {speed} follows a variable); Ring 0.72 a round share (in a Stack center middle with a Text over it for the number inside); Sparkline values=[3,4,3,6] a small trend line.
   Motion is a word on any line: animate=fade (slide-up, slide-left, scale, pop, shake, pulse, spin, shimmer) with duration=400 delay=200; under an each, stagger=80. onSwipeLeft={…} runs on that swipe. Avatar "Maya Reyes" size=40 is a round mark with initials (Avatar src="…" a picture). Input "Password" password hides it; Input "Note" multiline is a text area.${options.width >= notationPageWidth ? ' In a Row beside buttons, Input "Message #general" @draft multiline grow onSubmit={…} is a composer: its string the placeholder, one line growing as it fills, Enter sends and Shift+Enter breaks the line.' : ''} Text "…" center aligns it, strike crosses it out. maxw=720 keeps a page's content from stretching.
-  Only Row, Column, Stack, Box, Card, Grid, List, Pages, Accordion and ListTile take children.
+  Only Row, Column, Stack, Box, Card, Grid, Pages, Accordion and ListTile take children.
 
 FORMULAS (in {…} and in an action's name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].

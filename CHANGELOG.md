@@ -1,3 +1,61 @@
+## Unreleased
+
+### Behaviour changes
+
+- **A row that wraps has its gap between its lines too** (`Row gap=12 wrap`, `phone.wrap=true`), as CSS's `gap`
+  does, unless it says `runSpacing`; its lines touched. A document made before prints `runSpacing=0`.
+- **A `ListView` with lines of its own** (a line beside its `each`, or no `each`) is said at its line and read as
+  the scrolling Column it is: `Column scroll` with the lines and the `each`. It repeated its first line without
+  end, or drew nothing when that line was hidden by its `if`. A list with words a Column does not take
+  (`stickToEnd`, `reverse`, `separator`…) keeps them and has one item, a column of its lines.
+- **An `each` across a row of a height of its own** (`Row h=102` over the days of a week) makes copies as tall as
+  the row, at each width the row gives a height, so a copy written `h=fill` fills it. They hugged their content,
+  centred in the row. Across a row with no height of its own the copies hug as before.
+- **The copies of an `each` under a `Grid` take the cell their line says**: `columnStart`, `rowStart`,
+  `columnSpan` and `rowSpan` written on the one line under the `each` place the copy (every copy took the next
+  free cell), and a grid whose copies say their column keeps its columns at every width. Two or more `each`es
+  under one Grid whose copies all say their cell are one grid (a timetable's times and sessions); they were grids
+  one under another.
+- **A row whose growing texts end in an ellipsis keeps its line below a desktop's width** (a name and its role,
+  `maxLines=1 overflow=ellipsis`, beside an avatar): the texts give way. It wrapped where it had no room, the
+  avatar above the name in a narrow sidebar, most often in a component's definition, which is laid out as a
+  page's rows are.
+- **An app's bar shows the page's name beside its menu button** where the sidebar is a drawer and nothing in the
+  bar names the page at that width (a `Breadcrumb … hide=phone`): the name its `canvas` line gives, taking the
+  bar's room. The bar had the menu button alone.
+- **A flip card (`flip.axis=…`) of more than two lines is said at its line**: its first line is the front and its
+  second the back, so a second of three lines was hidden as the back (the word on a study card). Where its lines
+  are shown by an `if` and its `else`, they are read as the two faces, a column of each.
+- **A `Nav` out of a page's frame** (in a component, or a column of its own) **is a bar**: its `NavItem`s and
+  `NavLink`s sit side by side at their own widths, its `Link`s are quiet buttons, and on a phone it goes onto a
+  further line where it has no room (unless it says how it wraps). Each item took an equal share of the row, one
+  letter a line on a phone.
+- **`pad=` on a component call is an issue and left out**: the room inside a component is its definition's (the
+  renderer draws the root's padding), so it was taken and drew nothing. A strict expand of such a text now fails;
+  the drawing is the same.
+
+### Changed
+
+- **The prompt (`notationPrompt`, open and full) no longer teaches `Wanted`, `List` or `Content`**: its list of
+  types names `Row` and `Column` (it gave `Badge` and `Wanted` as their names), "Only Row, Column, … take
+  children" no longer names `List`, and the word `Content` is gone from its text. The words still expand as before;
+  `notationPrompt(wanted: true)` still asks for a missing component with a `Wanted` line.
+
+### Added
+
+- `ChartSeries.withKind`.
+
+### Fixed
+
+- A `SegmentedButton … expanded=true` with no width of its own takes its place's width; it hugged its labels and
+  cut them. A document made before prints its hugging width (`w=hug`).
+- A component whose root has a shape (`Stack w=fill aspectRatio=1`) keeps it where it is called with none
+  (`seamCall`); a call that hugs its height drew it 0 tall.
+- Cards side by side in a row that says where its children sit (`Row top`) sit there; on a page they were
+  stretched to the tallest whatever the row said. A row that says nothing keeps its cards equally tall.
+- A line of a length of its own that grows at another width (`w=280 phone.grow`) takes the room it is given there;
+  it kept its length and the row ran past the window.
+
 ## 37.0.0
 
 Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop

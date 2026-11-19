@@ -40,6 +40,8 @@ import '../triggers.dart' show TriggerType;
 import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
 import '../custom_paint.dart' show DrawOp;
 import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
+// A ListView with lines of its own is read as a scrolling Column (_listOfLines).
+import '../widgets/flex.dart' show FlexProps;
 
 part 'notation_events.dart';
 part 'paint_words.dart';
@@ -3477,7 +3479,7 @@ class _Parser {
         for (final e in _gridRows.entries)
           if (_keepColumns.contains(e.value.id)) e.key,
         for (final e in _gridLists.entries)
-          if (_keepColumns.contains(e.value)) e.key,
+          if (_keepColumns.contains(e.value) || _placesCells(e.key)) e.key,
       },
       cards: _cards,
       tableRows: _tableRows,
@@ -5046,11 +5048,15 @@ class _Parser {
         nodes[parent.id] = mergePatch(nodes[parent.id]!, patch);
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
       }
+      // Across a row of a height of its own (`Row h=102` over the days of a
+      // week) the list is as tall as the row, so a copy that fills its
+      // height (`Column h=fill`) reaches it; across a hugging row it hugs.
+      final fillsRow = across && !wraps && readMap(nodes[parent.id]?['layout'])?['height'] is num;
       nodes[listId] = {
         'type': g != null ? 'gridView' : 'listView',
         'layout': {
           'width': across && !wraps ? {'hug': 0} : {'fill': 0},
-          'height': eachGrows ? {'fill': 0} : follows ? eachHeight : {'hug': 0},
+          'height': eachGrows || fillsRow ? {'fill': 0} : follows ? eachHeight : {'hug': 0},
           if (eachGrows) 'flex': 1,
         },
         // Its handles are one stop of the page: arrows go from row to row
@@ -6134,6 +6140,7 @@ class _Parser {
             props['mainAxisAlignment'] = m;
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column' || type == 'flex') {
             props['crossAxisAlignment'] = c;
+            _crossWritten.add(id);
           } else if (num.tryParse(word) != null && (_valueProps[type]?.type == 'decimal' || _shownValue[type] == 'value')) {
             // A bare number on a slider or a progress bar is its value.
             props['value'] = num.parse(word);
@@ -7495,6 +7502,16 @@ class _Parser {
       const looks = {'fill', 'fills', 'border', 'border-top', 'border-bottom', 'border-left', 'border-right', 'strokes', 'strokeWidth', 'gradient'};
       final look = namedOnLine.where((k) => looks.contains(k) && spec.prop(k) == null).toList();
       if (look.isNotEmpty && !_quiet && !_mediaLine) _issue(column, _callLook(written, look));
+      // Nor a padding: the room inside it is its definition's (the renderer
+      // draws the root's). `pad=` was taken and drew nothing.
+      final pads = namedOnLine.where((k) => (k == 'pad' || k == 'padding') && spec.prop(k) == null).toList();
+      if (pads.isNotEmpty) {
+        layout.remove('padding');
+        if (!_quiet && !_mediaLine) {
+          _issue(column,
+              '${pads.map((k) => '$k=').join(', ')} on a call of $written is left out: the room inside a component is its definition\'s (pad= on its root line). Give $written a parameter for it, or write a margin (margin=) for room around the call.');
+        }
+      }
       decoration.clear();
       bind.removeWhere((k, _) => k.startsWith('decoration.'));
       callSizes = {
@@ -7972,13 +7989,24 @@ class _Parser {
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];
       final cross = (row?['props'] as Map?)?['crossAxisAlignment'];
-      if (row != null && (cross == null || cross == 'center' || cross == 'start')) {
+      // A row that says where its children sit (`top`) keeps it: the cards
+      // stretched to the tallest beside them whatever the row said.
+      if (row != null && !_crossWritten.contains(parent.id) && (cross == null || cross == 'center' || cross == 'start')) {
         const Json patch = {
           'props': {'crossAxisAlignment': 'stretch'},
         };
         nodes[parent.id] = mergePatch(row, patch);
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
       }
+    }
+    // `SegmentedButton … expanded=true`: its segments share the width it is
+    // given, so it takes its place's width (it hugged its labels, "Mont…").
+    if (type == 'segmentedButton' &&
+        props['expanded'] == true &&
+        !layout.containsKey('flex') &&
+        !namedOnLine.any((k) => k == 'w' || k == 'width' || k == 'layout.width') &&
+        (layout['width'] == null || layout['width'] is Map && (layout['width'] as Map).containsKey('hug'))) {
+      layout['width'] = {'fill': 0};
     }
     // A button alone on its line in a column is the card's one thing to
     // do: as wide as the column, at the design system's height for it.
@@ -8278,15 +8306,33 @@ class _Parser {
           },
           'bind': {'props.crossAxisCount': '\${= max(1, length($inner))}'},
         };
-        const Json itemPatch = {
-          'layout': {'width': {'hug': null, 'fill': 0}, 'height': {'fill': null, 'hug': 0}},
-          'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
-        };
         // The row's own rules at other widths: a row that is a column there
         // (`phone.direction=vertical`) has one copy a line there (it stayed
         // side by side: test 9, admin 11).
         final rowId = _parentOf[listId!];
         final rowMedia = rowId == null ? null : (nodes[rowId]?['media'] as List?);
+        // A row of a height of its own (`Row h=102` over the days of a week):
+        // its copies are as tall as it, at each width it gives a height
+        // (the grid's rows hugged their cells, centred in the row).
+        num? innerHeight(Object? layout) {
+          final l = readMap(layout);
+          final h = l?['height'];
+          if (h is! num) return null;
+          final pad = l?['padding'];
+          final padV = pad is num ? 2 * pad : (pad is List && pad.length == 4 && pad[1] is num && pad[3] is num ? (pad[1] as num) + (pad[3] as num) : 0);
+          return math.max<num>(0, h - padV);
+        }
+
+        final rowHeight = rowId == null ? null : innerHeight(nodes[rowId]?['layout']);
+        final Json itemPatch = {
+          'layout': {'width': {'hug': null, 'fill': 0}, 'height': rowHeight != null ? {'hug': null, 'fill': 0} : {'fill': null, 'hug': 0}},
+          'props': {'mainAxisAlignment': null, 'crossAxisAlignment': 'stretch'},
+        };
+        if (rowHeight != null) {
+          (listPatch['props']! as Json)
+            ..['shrinkWrapRows'] = null
+            ..['mainAxisExtent'] = rowHeight;
+        }
         final gridMedia = <Json>[
           for (final rule in rowMedia ?? const [])
             if (rule is Map && (rule['patch'] as Map?)?['props'] is Map && ((rule['patch'] as Map)['props'] as Map)['direction'] == 'vertical')
@@ -8298,6 +8344,17 @@ class _Parser {
                   'bind': {'props.crossAxisCount': null},
                 },
               },
+          if (rowHeight != null)
+            for (final rule in rowMedia ?? const [])
+              if (rule is Map && readMap(readMap(rule['patch'])?['layout'])?['height'] is num)
+                if (innerHeight({...?readMap(nodes[rowId]?['layout']), ...?readMap(readMap(rule['patch'])?['layout'])}) case final num h)
+                {
+                  for (final e in rule.entries)
+                    if (e.key != 'patch') '${e.key}': e.value,
+                  'patch': {
+                    'props': {'mainAxisExtent': h},
+                  },
+                },
         ];
         if (gridMedia.isNotEmpty) listPatch['media'] = gridMedia;
         // A copy's own width or growth at another width (`tablet.w=272
@@ -8521,7 +8578,30 @@ class _Parser {
     // Its media rules, unless its {…} tail gave them (t.at: where the words end).
     if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
       final rules = _mediaRules(mediaWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
+      // `w=280 phone.grow`: where it grows its own length is the room it
+      // takes there (it kept 280 and the row ran past a phone).
+      final along = switch (parent?.type) { 'row' => 'width', 'column' => 'height', _ => null };
+      if (along != null && readMap(out['layout'])?[along] is num) {
+        for (final r in rules) {
+          final l = readMap(readMap(r['patch'])?['layout']);
+          if (l != null && l['flex'] is num && (l['flex'] as num) > 0 && !l.containsKey(along)) l[along] = {'fill': 0};
+        }
+      }
       if (rules.isNotEmpty) out['media'] = rules;
+    }
+    // A row that wraps has its gap between its lines too (CSS's gap), unless
+    // it says runSpacing: its lines touched (`Row gap=12 phone.wrap=true`).
+    if (type == 'row' || (type == 'flex' && props['direction'] != 'vertical')) {
+      final own = readMap(out['props']);
+      if (own != null && own['wrap'] == true && !own.containsKey('runSpacing') && own['spacing'] is num && (own['spacing'] as num) > 0) {
+        own['runSpacing'] = own['spacing'];
+      }
+      for (final r in readList(out['media']) ?? const []) {
+        final p = readMap(readMap(r)?['patch'])?['props'];
+        if (p is! Map || p['wrap'] != true || p.containsKey('runSpacing')) continue;
+        final gap = p['spacing'] ?? own?['spacing'];
+        if (gap is num && gap > 0) p['runSpacing'] = gap;
+      }
     }
     if (callSizes != null) _componentRules(type, callSizes, out);
     _componentScreen(type);
@@ -8745,6 +8825,8 @@ class _Parser {
           leaf: spec.children == ChildModel.none && parent != null,
           slots: component && spec.children == ChildModel.none ? spec.slots : const [],
           written: written));
+      if (type == 'listView' && !component) _listLines[id] = (line: _line, column: column);
+      if (out['flip'] != null && !component) _flipLines[id] = (line: _line, column: column);
     }
     // Its strings as text nodes: an accordion's header is its first child, a
     // list tile's are its title and subtitle.
@@ -9446,6 +9528,75 @@ class _Parser {
   /// with the line's place to record them by: read by the `each` under it.
   final _listUniversal = <String, _ListWords>{};
 
+  /// The rows, columns and flexes whose line says where their children sit
+  /// across (`top`, `middle`, `stretch`…).
+  final _crossWritten = <String>{};
+
+  /// The `ListView` lines by node id, with where each was written: read when
+  /// the line closes ([_listOfLines]).
+  final _listLines = <String, ({int line, int column})>{};
+
+  /// A `ListView` whose lines are its own (a line beside an `each`, or no
+  /// `each` at all) is no list over data: its first line would be repeated
+  /// without end, and one hidden by its `if` drew nothing. Said where it is
+  /// written, with the way to write it; read as that scrolling Column (a Row
+  /// for a horizontal list). A list with words a Column does not take
+  /// (`stickToEnd`, `reverse`, `separator`…) keeps them and has one item,
+  /// a column of its lines.
+  void _listOfLines(String id) {
+    final at = _listLines.remove(id);
+    final node = nodes[id];
+    if (at == null || node == null || node['type'] != 'listView') return;
+    final props = readMap(node['props']) ?? const <String, Object?>{};
+    final kids = readStrings(node['children']);
+    if (kids.isEmpty || readMap(node['bind'])?['data'] != null || props['itemCount'] != null || props['pagination'] != null) return;
+    final across = props['scrollDirection'] == 'horizontal';
+    final word = across ? 'Row' : 'Column';
+    final flexKeys = {for (final p in FlexProps.all) p.key};
+    final bound = [
+      for (final k in (readMap(node['bind']) ?? const <String, Object?>{}).keys)
+        if (k.startsWith('props.')) k.substring(6),
+    ];
+    final listOnly = [...props.keys, ...bound].where((k) => !flexKeys.contains(k)).toList();
+    if (!_top._quiet) {
+      final read = listOnly.isEmpty ? 'read so here' : 'read here as a list of one item, its lines, for ${listOnly.join(', ')}';
+      issues.add(NotationIssue(at.line, at.column,
+          '${_from == null ? '' : '$_from: '}A ListView repeats the one line under its each; lines of its own beside an each (or with none) are a scrolling $word: $word scroll with the lines and the each under it ($read).'));
+    }
+    if (listOnly.isEmpty) {
+      final patch = <String, Object?>{
+        'type': across ? 'row' : 'column',
+        'props': {'scrollable': props['scrollable'] ?? true, if (!across) 'crossAxisAlignment': 'start'},
+      };
+      nodes[id] = mergePatch(node, patch);
+      // Its type changes: the node is set again (a patch keeps the type).
+      _patches.add({'op': 'set', 'id': id, 'node': nodes[id]});
+      return;
+    }
+    final itemId = _id(across ? 'row' : 'column');
+    nodes[itemId] = {
+      'type': across ? 'row' : 'column',
+      'layout': {
+        'width': across ? {'hug': 0} : {'fill': 0},
+        'height': across ? {'fill': 0} : {'hug': 0},
+      },
+      'props': {if (props['spacing'] case final num gap) 'spacing': gap, if (!across) 'crossAxisAlignment': 'start'},
+      'children': kids,
+    };
+    for (final k in kids) {
+      _parentOf[k] = itemId;
+    }
+    _parentOf[itemId] = id;
+    final patch = <String, Object?>{
+      'props': {'itemCount': 1},
+      'children': [itemId],
+    };
+    nodes[id] = mergePatch(node, patch);
+    _patches
+      ..add({'op': 'set', 'id': id, 'node': nodes[id]})
+      ..add({'op': 'set', 'id': itemId, 'node': nodes[itemId]});
+  }
+
   /// The ink of the nearest container around [id] (itself included) that
   /// gave one with `color=`, as written.
   String? _inkAbove(String? id) {
@@ -9535,6 +9686,175 @@ class _Parser {
     }
   }
 
+  /// An app's bar where the sidebar is a drawer (its menu button shows)
+  /// with nothing there that names the page (a breadcrumb or a title
+  /// hidden at that width, `Breadcrumb … hide=phone`): the page's name
+  /// (`canvas "Progress"`) beside the menu button, at the widths the button
+  /// shows. The bar had the button alone.
+  void _barTitle(String navId) {
+    final nav = nodes[navId];
+    final kids = readStrings(nav?['children']);
+    final menu = kids.where((k) => _roles[k] == 'appmenu').firstOrNull;
+    final name = readString(_canvasPatch?['name'])?.trim();
+    if (nav == null || menu == null || name == null || name.isEmpty || _overlay != null) return;
+    // Hidden at the widths the menu button shows: a rule that hides it below
+    // a desktop's width, or a line that is not drawn at all.
+    bool hiddenThere(Json n) {
+      if (n['visible'] == false) return true;
+      for (final r in readList(n['media']) ?? const []) {
+        final rule = readMap(r);
+        if (rule != null && rule['maxWidth'] is num && readMap(rule['patch'])?['visible'] == false) return true;
+      }
+      return false;
+    }
+
+    bool names(String id) {
+      final n = nodes[id];
+      if (n == null || id == menu || hiddenThere(n)) return false;
+      final type = n['type'];
+      if (type == 'text' || type == 'Breadcrumb' || type == 'breadcrumbs') return true;
+      return (type == 'row' || type == 'column') && readStrings(n['children']).any(names);
+    }
+
+    if (kids.any(names)) return;
+    final id = _id('text');
+    final style = options.textStyles['barTitle'] ?? options.textStyles['strong'];
+    nodes[id] = {
+      'type': 'text',
+      // It takes the bar's room: in a bar that spreads its lines it sat at the far end.
+      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'flex': 1},
+      'props': {'text': name, 'maxLines': 1, 'overflow': 'ellipsis', if (style != null) 'style': _copyValue(style)},
+      if (readList(nodes[menu]?['media']) case final List m) 'media': _copyValue(m),
+    };
+    _parentOf[id] = navId;
+    (nav['children'] as List).insert(kids.indexOf(menu) + 1, id);
+    _patches.add({'op': 'set', 'id': id, 'parent': navId, 'index': kids.indexOf(menu) + 1, 'node': nodes[id]});
+  }
+
+  /// The lines that turn a node into a flip card, by node id, with where
+  /// each was written ([_flipFaces]).
+  final _flipLines = <String, ({int line, int column})>{};
+
+  /// A flip card's first line is its front and its second its back; any
+  /// further line is drawn on neither turned face (the second of three
+  /// lines was hidden as the back, the word on a study card). Said at the
+  /// line. Where its lines are shown by one condition and its opposite
+  /// (`if !opened` and its `else`, on the card's own variable), they are
+  /// the two faces: a column of each, in that order.
+  void _flipFaces(String id) {
+    final at = _flipLines.remove(id);
+    final card = nodes[id];
+    final kids = readStrings(card?['children']);
+    if (at == null || card == null || kids.length <= 2) return;
+    String? shownWhen(String k) => readString(readMap(nodes[k]?['bind'])?['visible']);
+    final conditions = <String>[];
+    for (final k in kids) {
+      final c = shownWhen(k);
+      if (c == null) {
+        conditions.clear();
+        break;
+      }
+      if (!conditions.contains(c)) conditions.add(c);
+    }
+    final faces = conditions.length == 2;
+    if (!_top._quiet) {
+      issues.add(NotationIssue(at.line, at.column,
+          '${_from == null ? '' : '$_from: '}A flip card has two faces: its first line is the front and its second the back. Write a Column of the front\'s lines and a Column of the back\'s under it${faces ? ' (read so here: the lines its if shows, then those its else shows)' : ''}.'));
+    }
+    if (!faces) return;
+    final props = readMap(card['props']) ?? const <String, Object?>{};
+    final ids = <String>[];
+    for (final c in conditions) {
+      final faceId = _id('column');
+      final lines = [for (final k in kids) if (shownWhen(k) == c) k];
+      for (final k in lines) {
+        final bind = readMap(nodes[k]!['bind'])!..remove('visible');
+        if (bind.isEmpty) nodes[k]!.remove('bind');
+        _parentOf[k] = faceId;
+      }
+      nodes[faceId] = {
+        'type': 'column',
+        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
+        'props': {
+          if (props['spacing'] case final Object gap) 'spacing': gap,
+          'crossAxisAlignment': props['crossAxisAlignment'] ?? 'start',
+        },
+        'bind': {'visible': c},
+        'children': lines,
+      };
+      _parentOf[faceId] = id;
+      ids.add(faceId);
+    }
+    card['children'] = ids;
+    _patches.add({'op': 'set', 'id': id, 'node': {...card}});
+    for (final f in ids) {
+      _patches.add({'op': 'set', 'id': f, 'node': {...nodes[f]!}});
+    }
+  }
+
+  /// Where a cell of a grid goes (CSS grid's placement).
+  static const _cellPlace = ['columnStart', 'rowStart', 'columnSpan', 'rowSpan'];
+
+  /// The copies of an `each` under a Grid are its cells: a place written on
+  /// the one line under the each (`columnStart=1 rowStart={index + 1}`) is
+  /// the copy's, the grid's item (it was on the line inside the copy, which
+  /// the grid does not read, and every copy took the next free cell).
+  void _gridPlace(String itemId) {
+    final listId = _parentOf[itemId];
+    final item = nodes[itemId];
+    if (listId == null || item == null || nodes[listId]?['type'] != 'gridView' || !_gridLists.containsKey(listId)) return;
+    final kids = readStrings(item['children']);
+    if (kids.length != 1) return;
+    final line = nodes[kids.single]!;
+    final layout = readMap(line['layout']), bind = readMap(line['bind']);
+    final itemLayout = <String, Object?>{}, itemBind = <String, Object?>{};
+    for (final k in _cellPlace) {
+      if (layout?.remove(k) case final Object v) itemLayout[k] = v;
+      if (bind?.remove('layout.$k') case final Object v) itemBind['layout.$k'] = v;
+    }
+    if (itemLayout.isEmpty && itemBind.isEmpty) return;
+    if (bind != null && bind.isEmpty) line.remove('bind');
+    final patch = <String, Object?>{
+      if (itemLayout.isNotEmpty) 'layout': itemLayout,
+      if (itemBind.isNotEmpty) 'bind': itemBind,
+    };
+    nodes[itemId] = mergePatch(item, patch);
+    _patches
+      ..add({'op': 'set', 'id': kids.single, 'node': {...line}..remove('children')})
+      ..add({'op': 'patch', 'id': itemId, 'patch': patch});
+  }
+
+  /// Whether the copies of grid list [listId] say their column: the grid
+  /// keeps its columns at every width (fewer would move them out of their
+  /// tracks).
+  bool _placesCells(String listId) {
+    final item = nodes['${listId}Item'];
+    return readMap(item?['layout'])?['columnStart'] != null || readMap(item?['bind'])?['layout.columnStart'] != null;
+  }
+
+  /// A Grid of more than one `each` whose copies each say their cell (a
+  /// timetable: the times down its first column, the sessions in their
+  /// tracks' columns and their slots' rows) is one grid: the lists the eaches
+  /// make lie over each other in a stack, each placing its copies in the
+  /// same columns and rows. (They were grids one under another, each placing
+  /// its copies in rows of its own.)
+  void _gridOverlay(_Grid g) {
+    final grid = nodes[g.id];
+    if (grid == null || grid['type'] != 'column') return;
+    final kids = readStrings(grid['children']);
+    if (kids.length < 2) return;
+    for (final k in kids) {
+      if (_gridLists[k] != g.id || nodes[k]?['type'] != 'gridView') return;
+      final item = nodes['${k}Item'];
+      final placed = readMap(item?['layout']) ?? const {}, bound = readMap(item?['bind']) ?? const {};
+      bool says(String key) => placed[key] != null || bound['layout.$key'] != null;
+      if (!says('columnStart') || !says('rowStart')) return;
+    }
+    // (A column's props, its gap among them, are not a stack's.)
+    nodes[g.id] = ({...grid}..remove('props'))..['type'] = 'stack';
+    _patches.add({'op': 'set', 'id': g.id, 'node': {...nodes[g.id]!}});
+  }
+
   /// A grid ends: its last row is filled out with empty cells, so its cells
   /// are as wide as the rows above.
   static final _idMark = RegExp(r'^([A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*');
@@ -9612,6 +9932,11 @@ class _Parser {
     _slotAction(open);
     _removable(open);
     if (open.each != null) _selectThrough(open.id);
+    if (open.each == null && open.condition == null) _listOfLines(open.id);
+    if (open.each != null) _gridPlace(open.id);
+    if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
+    if (_roles[open.id] == 'nav') _barTitle(open.id);
+    if (open.each == null && open.condition == null) _flipFaces(open.id);
     // A list's universal words no each under the line read: left out, and
     // recorded as unknown (docs/design/21 section 4.1).
     if ((open.each == null && open.condition == null ? _listUniversal.remove(open.id) : null) case final _ListWords lw when !lw.applied) {
