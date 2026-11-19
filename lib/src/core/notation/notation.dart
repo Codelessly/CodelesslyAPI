@@ -8589,6 +8589,20 @@ class _Parser {
       }
       if (rules.isNotEmpty) out['media'] = rules;
     }
+    // A row that wraps has its gap between its lines too (CSS's gap), unless
+    // it says runSpacing: its lines touched (`Row gap=12 phone.wrap=true`).
+    if (type == 'row' || (type == 'flex' && props['direction'] != 'vertical')) {
+      final own = readMap(out['props']);
+      if (own != null && own['wrap'] == true && !own.containsKey('runSpacing') && own['spacing'] is num && (own['spacing'] as num) > 0) {
+        own['runSpacing'] = own['spacing'];
+      }
+      for (final r in readList(out['media']) ?? const []) {
+        final p = readMap(readMap(r)?['patch'])?['props'];
+        if (p is! Map || p['wrap'] != true || p.containsKey('runSpacing')) continue;
+        final gap = p['spacing'] ?? own?['spacing'];
+        if (gap is num && gap > 0) p['runSpacing'] = gap;
+      }
+    }
     if (callSizes != null) _componentRules(type, callSizes, out);
     _componentScreen(type);
     nodes[id] = out;

@@ -304,7 +304,7 @@ Column w=fill
     final link = _node(r, 'explore');
     // Its own width, not a share of the row's.
     expect((link['layout'] as Map)['width'], isNot(containsPair('fill', 0)));
-    expect(bar['media'], contains(equals({'maxWidth': 699, 'patch': {'props': {'wrap': true}}})));
+    expect(bar['media'], contains(equals({'maxWidth': 699, 'patch': {'props': {'wrap': true, 'runSpacing': 16}}})));
   });
 
   test('a SegmentedButton written expanded=true takes the width of its place', () {
@@ -331,5 +331,32 @@ Column w=400
     expect(r.issues.single.message, startsWith('pad= on a call of Tile is left out'));
     expect((_node(r, 't')['layout'] as Map), isNot(contains('padding')));
     expect((_node(r, 't')['layout'] as Map)['margin'], 4);
+  });
+
+  test('a row that wraps has its gap between its lines too, unless it says runSpacing', () {
+    final r = _parse('''
+Column w=fill
+  Row#a gap=12 wrap
+    Text "x"
+  Row#b gap=12 phone.wrap=true
+    Text "x"
+  Row#c gap=12 wrap runSpacing=4
+    Text "x"
+''', options: const NotationOptions(width: 1440));
+    expect(_props(r, 'a'), containsPair('runSpacing', 12));
+    expect(((_node(r, 'b')['media'] as List).single as Map)['patch'], {
+      'props': {'wrap': true, 'runSpacing': 12},
+    });
+    expect(_props(r, 'c'), containsPair('runSpacing', 4));
+    // A document made before, with none between its lines, prints it.
+    final doc = {
+      'schema': 3,
+      'roots': ['row'],
+      'nodes': {
+        'row': {'type': 'row', 'layout': {'width': 300, 'height': {'hug': 0}}, 'props': {'spacing': 12, 'wrap': true}, 'children': ['t']},
+        't': {'type': 'text', 'layout': {'width': {'hug': 0}, 'height': {'hug': 0}}, 'props': {'text': 'x'}},
+      },
+    };
+    expect(printNotation(doc, catalog: standardCatalog), contains('runSpacing=0'));
   });
 }

@@ -1084,7 +1084,7 @@ final class PageWords {
         // one letter a line on a phone. Where they have no room (a phone)
         // they go onto a further line.
         open(frame: 'Nav');
-        final wraps = RegExp(r'(^|\s)([a-z]+\.)?wrap\b').hasMatch(rest) ? '' : ' phone.wrap=true runSpacing=8';
+        final wraps = RegExp(r'(^|\s)([a-z]+\.)?wrap\b').hasMatch(rest) ? '' : ' phone.wrap=true';
         return out..add((indent: at, text: 'Row$mark w=fill between middle${parts.has('gap') ? '' : ' gap=16'}$wraps${parts.all}'));
       }
       final gap = parts.take('gap') ?? '24';

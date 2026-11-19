@@ -940,6 +940,11 @@ final class _NodeLine {
 
   void _typeWords() {
     if (type == 'row' || type == 'column') _box();
+    // A wrapping row reads its gap as its lines' spacing too: one made
+    // before with none between its lines says so.
+    if ((type == 'row' || type == 'flex') && props['wrap'] == true && props['spacing'] is num && (props['spacing'] as num) > 0 && !props.containsKey('runSpacing')) {
+      words.add('runSpacing=0');
+    }
     if (type == 'stack' && props['clipBehavior'] == 'antiAlias' && _probeProps['clipBehavior'] != 'antiAlias') {
       words.add('clip');
       doneProps.add('clipBehavior');

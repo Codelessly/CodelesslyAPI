@@ -2,6 +2,8 @@
 
 ### Behaviour changes
 
+- **A row that wraps has its gap between its lines too** (`Row gap=12 wrap`, `phone.wrap=true`), as CSS's `gap`
+  does, unless it says `runSpacing`; its lines touched. A document made before prints `runSpacing=0`.
 - **A `ListView` with lines of its own** (a line beside its `each`, or no `each`) is said at its line and read as
   the scrolling Column it is: `Column scroll` with the lines and the `each`. It repeated its first line without
   end, or drew nothing when that line was hidden by its `if`. A list with words a Column does not take
