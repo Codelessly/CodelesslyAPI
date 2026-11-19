@@ -1151,6 +1151,9 @@ final class _NodeLine {
     } else {
       width = probeW;
     }
+    // `expanded=true` on a SegmentedButton takes its place's width (a
+    // document made before keeps its hugging width by saying it: w=hug).
+    if (type == 'segmentedButton' && props['expanded'] == true && !inGrid && !flex) width = const {'fill': 0};
     // A spacer that grows in a column takes the height left, whatever is written.
     final spacer = type == 'spacer' && flex && ptype == 'column';
     final height = spacer ? const {'fill': 0} : probeH ?? const {'hug': 0};

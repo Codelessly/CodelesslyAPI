@@ -8001,7 +8001,11 @@ class _Parser {
     }
     // `SegmentedButton … expanded=true`: its segments share the width it is
     // given, so it takes its place's width (it hugged its labels, "Mont…").
-    if (type == 'segmentedButton' && props['expanded'] == true && !layout.containsKey('flex') && (layout['width'] == null || layout['width'] is Map && (layout['width'] as Map).containsKey('hug'))) {
+    if (type == 'segmentedButton' &&
+        props['expanded'] == true &&
+        !layout.containsKey('flex') &&
+        !namedOnLine.any((k) => k == 'w' || k == 'width' || k == 'layout.width') &&
+        (layout['width'] == null || layout['width'] is Map && (layout['width'] as Map).containsKey('hug'))) {
       layout['width'] = {'fill': 0};
     }
     // A button alone on its line in a column is the card's one thing to

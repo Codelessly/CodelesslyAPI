@@ -313,9 +313,11 @@ state f=["Monthly"]
 Column w=400
   SegmentedButton#s @f segments=["Monthly","One time"] expanded=true
   SegmentedButton#h @f segments=["Monthly","One time"]
+  SegmentedButton#k @f segments=["Monthly","One time"] expanded=true w=hug
 ''');
     expect((_node(r, 's')['layout'] as Map)['width'], {'fill': 0});
     expect((_node(r, 'h')['layout'] as Map)['width'], {'hug': 0});
+    expect((_node(r, 'k')['layout'] as Map)['width'], {'hug': 0}, reason: 'a width written is kept');
   });
 
   test('pad= on a component call is said and left out (the room inside is the definition)', () {

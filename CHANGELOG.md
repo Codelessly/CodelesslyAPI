@@ -39,7 +39,7 @@
 ### Fixed
 
 - A `SegmentedButton … expanded=true` with no width of its own takes its place's width; it hugged its labels and
-  cut them.
+  cut them. A document made before prints its hugging width (`w=hug`).
 - A component whose root has a shape (`Stack w=fill aspectRatio=1`) keeps it where it is called with none
   (`seamCall`); a call that hugs its height drew it 0 tall.
 - Cards side by side in a row that says where its children sit (`Row top`) sit there; on a page they were
