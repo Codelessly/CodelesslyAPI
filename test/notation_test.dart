@@ -2464,7 +2464,7 @@ Drawer#cart right w=340 "Your cart"
 
       // A drawer: a panel as tall as the window at its side, over the page;
       // a tap beside it closes it, and so does a line tapped in it (not a
-      // chip that turns a value over).
+      // chip that only sets a value).
       expect(open(r, 'bag'), {'type': 'openModal', 'to': 'cart', 'presentation': 'dialog', 'cover': true});
       final drawer = node(r, 'cart');
       expect((drawer['layout']! as Map)['height'], {'fill': 800});

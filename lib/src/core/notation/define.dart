@@ -1522,19 +1522,13 @@ final class _Substitution {
   }
 
   /// A theme's value in an expression, as the page words write it there: a
-  /// colour by its value in quotes, a role by `theme.<role>`, a colour the
-  /// theme names by `theme.colors.<name>` (read at run time), a number as
-  /// its digits, a text style's name in quotes.
-  /// The theme's name for a colour [expression] is alone
-  /// (`theme.primary`, `theme.colors.ink`), or null.
-  static String? _themeName(String expression) => RegExp(r'^theme\.(?:colors\.)?([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expression)?[1];
-
+  /// colour by its value in quotes, a role or a colour the theme names by its
+  /// name in quotes (`"primary"`, `"mutedText"`: a colour's value names the
+  /// theme's colour, read as the page is shown), a number as its digits.
   static String _themeExpression(Object? v) => switch (v) {
         null => 'null',
         final num n => foldNumber(n),
-        final String s when s.startsWith('#') => '"$s"',
-        final String s when const {'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'}.contains(s) => 'theme.$s',
-        final String s => 'theme.colors.$s',
+        final String s => '"$s"',
         _ => 'null',
       };
   final NotationDefinition d;
@@ -1836,11 +1830,6 @@ final class _Substitution {
             // (a value, or the theme's name for it); none leaves the key out.
             final v = _themeAt(whole, 0)!.value;
             if (v != null) parts.add('$k=${v is num ? foldNumber(v) : v}');
-          } else if (whole != null && expression(whole) != whole && _themeName(expression(whole)) != null) {
-            // A theme's colour by its name, once what is nothing here is
-            // gone (`coalesce(theme.accentText, theme.accent)` with no ink
-            // for a link: the theme's primary), as the page words write it.
-            parts.add('$k=${_themeName(expression(whole))}');
           } else if (whole != null) {
             final e = expression(whole);
             // Reading nothing at run time, it is worked out here: a value

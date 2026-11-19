@@ -201,9 +201,9 @@ Row stretch h=fill
 
 An overlay is written after the page, at the margin, with an id; its content is indented under it. `open id`
 shows it, `close` closes it (so does a tap outside it). `Dialog` (centered, a title and a close button), `Sheet`
-(from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`; a line tapped
-in it closes it, unless the tap only turns a value over), `Menu` (by the button that opened it), `Popover` (a small
-panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a gallery over the page). A menu's lines
+(from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`; a line tapped in it closes it, and a
+control in it when it goes somewhere: `go`, `scroll`, `open`), `Menu` (by the button that opened it), `Popover` (a
+small panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a gallery over the page). A menu's lines
 are rows with `onTap={…}` (an `Icon` and a `Text` under each) and, to name one in a render step, an id
 (`Row#dup gap=10 pad=8 onTap={…}`). Each closes its menu after its actions (one that opens a dialog closes the menu
 first); write no `close` in it.

@@ -67,11 +67,12 @@ String notationPrompt({
 }
 
 /// The lines of the words [vocabulary]'s dictionaries define that [prompt]
-/// does not already write and no definition of a page, a site or a design
-/// system replaces: one line each as a line uses it, with what it is for.
+/// does not already list (a design system's component or word of that name
+/// is the one read) and no definition of a page, a site or a design system
+/// replaces: one line each as a line uses it, with what it is for.
 List<String> notationDictionaryLines(NotationVocabulary vocabulary, {required String prompt}) => [
       for (final w in vocabulary.dictionary.keys.toList()..sort())
-        if (!vocabulary.definitions.containsKey(w))
+        if (!vocabulary.definitions.containsKey(w) && !RegExp('^  ${RegExp.escape(w)}[ .(]', multiLine: true).hasMatch(prompt))
           for (final d in vocabulary.dictionary[w]!) notationGlossaryDefinitionLine(d),
     ];
 

@@ -749,8 +749,10 @@ final class PageWords {
 
   /// [text], a line written under an overlay that closes as its lines are
   /// used ([Overlay.closes]), with `close` after its actions. In a drawer
-  /// (`nav`) a line tapped closes it, unless all the tap does is turn a
-  /// value over (`gift=!gift`: a choice made in the drawer, which stays).
+  /// (`nav`) a line tapped closes it (a row of a list, a text, a component),
+  /// but a control (a button, a chip, a toggle…) only when it goes somewhere
+  /// (`go`, `scroll`, `link`, `open` …): a filter cleared or a choice made in
+  /// the drawer keeps it open.
   static String closing(String text, String closes) {
     if (closes == 'none') return text;
     final t = text.trimLeft();
@@ -759,8 +761,11 @@ final class PageWords {
     if (own == null) return text;
     final actions = text.substring(own.start, own.end);
     if (RegExp(r'(^|;)\s*close\s*(;|$)').hasMatch(actions)) return text;
-    final turned = closes == 'nav' ? RegExp(r'^\s*(\w+)\s*=\s*!\s*(\w+)\s*$').firstMatch(actions) : null;
-    if (turned != null && turned[1] == turned[2]) return text;
+    if (closes == 'nav' &&
+        _controls.contains(RegExp(r'^[A-Za-z][A-Za-z0-9]*').stringMatch(t)) &&
+        !RegExp(r'(^|[;{]|then|:)\s*(go|scroll|link|open|back|confirm)\b').hasMatch(actions)) {
+      return text;
+    }
     // What opens another overlay closes this one first: closed after, the
     // close would shut the overlay just opened (a drawer's "Shortcuts").
     if (RegExp(r'(^|[;{]|then|:)\s*(open|confirm)\s').hasMatch(actions)) {
@@ -768,6 +773,13 @@ final class PageWords {
     }
     return '${text.substring(0, own.end).trimRight()}; close${text.substring(own.end)}';
   }
+
+  /// The notation's controls: a tap on one in a drawer closes it only when
+  /// it goes somewhere ([closing]).
+  static const _controls = {
+    'Button', 'IconButton', 'Chip', 'Toggle', 'Switch', 'Checkbox', 'Radio', 'Slider', 'Input', 'TextArea', 'Select', //
+    'Dropdown', 'SegmentedButton', 'Stepper', 'NumberInput', 'DatePicker', 'TimePicker', 'Rating', 'Tabs',
+  };
 
   /// What closes a frame: a bar's menu for a phone, then its rule.
   List<PageLine> _closing(_Line closed) {

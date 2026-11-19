@@ -38,8 +38,9 @@ existing document draws: read the first section before upgrading.
   behaviour. Write the rail's lines for that width (`at tablet`), or icon buttons.
 - **A `Nav`'s phone menu repeats its quiet buttons** (`Button.ghost "Pricing" onTap={…}`), each closing the menu
   and doing what the button does: it repeated the bar's `Link`s. `menu=false` is gone with `Link`.
-- **A drawer closes on any line tapped in it**, unless all the tap does is turn a value over (`gift=!gift`); it
-  closed on a `NavItem` or a `Link` only.
+- **A drawer closes on a line tapped in it** (a row, a text, a component), and on a control (a button, a chip, a
+  toggle…) when it goes somewhere (`go`, `scroll`, `link`, `open`): a filter cleared or a choice made in the
+  drawer keeps it open. It closed on a `NavItem` or a `Link` only.
 - **A website's section is a hero when its headline is a `Text.heading1` or `Text.pageTitle`**: it was when it had
   a level-1 `Heading` or an `H1`.
 - **The alias table's line rewrites are gone** (`TypeAlias.line`): an alias is another name for a type of the

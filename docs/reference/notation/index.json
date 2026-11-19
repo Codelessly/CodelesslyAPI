@@ -717,7 +717,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 3818
+      "words": 3822
     },
     {
       "topic": "navigation-page-frames",
@@ -731,7 +731,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 535
+      "words": 539
     },
     {
       "topic": "navigation-screens",
