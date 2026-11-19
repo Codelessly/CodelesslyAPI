@@ -362,6 +362,11 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     problems.add('$file:$line: a signature starts with the word it defines, capitalised (StickyNote "text" fill=#FFFDE68A).');
     return null;
   }
+  // A statement of the notation's own grammar is never a word's.
+  if (_statements.difference(const {'computed'}).union(const {'define', 'primitive', 'component'}).contains(parts.word)) {
+    problems.add('$file:$line: ${parts.word} is a statement of the notation: a definition gives a word of its own.');
+    return null;
+  }
   if (body.isEmpty && !primitive) {
     problems.add('$file:$line: ${parts.word} stands for no lines: write them indented under its signature.');
     return null;

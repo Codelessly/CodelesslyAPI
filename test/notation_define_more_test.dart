@@ -205,6 +205,10 @@ define Hotkey "keys" key hint onPress
 
     test('a node is still the first line of any other body, and a lowercase word is still refused there', () {
       expect(readDefinitions({'x.txt': 'lower\n  Text "x"\n'}).problems.single, contains('capitalised'));
+      // A statement of the grammar is never a word's: `if` lines stay `if` lines.
+      expect(readDefinitions({'x.txt': 'if\n  state ...\n'}).problems.single, contains('is a statement of the notation'));
+      final r = _read('state on=true\nColumn\n  if on\n    Text "a"\ndefine if\n  state ...\n');
+      expect(_nodes(r, 'text'), hasLength(1));
     });
   });
 }
