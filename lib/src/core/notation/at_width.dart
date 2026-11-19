@@ -69,8 +69,10 @@ final class _AtBlock {
 
 /// What the parser keeps of the `at` blocks of a text.
 final class _AtWidths {
-  /// The lines read (not those of a block, read again).
+  /// The lines read (not those of a block, read again), and the last of
+  /// them at the margin.
   final lines = <_AtLine>[];
+  String margin = '';
 
   /// The block whose lines are being read, and one whose lines are passed
   /// over (it was said why).
@@ -138,8 +140,7 @@ extension _AtRead on _Parser {
     }
     // A definition's lines are the definition's: an `at` there is said
     // where the word is used (stage 2 of the design reads it there).
-    final margin = at.lines.lastWhere((l) => l.indent == 0, orElse: () => _AtLine(0, '', 0, 0));
-    final inDefinition = indent > 0 && isDeclaration(margin.text);
+    final inDefinition = indent > 0 && isDeclaration(at.margin);
     if (_isAt(text) && !inDefinition) {
       _atOpen(indent, text);
       return true;
@@ -155,6 +156,7 @@ extension _AtRead on _Parser {
       }
     }
     at.lines.add(_AtLine(indent, text, _line, nodes.length));
+    if (indent == 0) at.margin = text;
     return false;
   }
 
