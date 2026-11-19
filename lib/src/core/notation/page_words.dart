@@ -26,6 +26,7 @@ import 'dart:convert' show jsonDecode;
 import 'dart:math' as math;
 
 part 'table_words.dart';
+part 'page_words_at.dart';
 
 /// A line to read in place of the one written: its indent and its text.
 typedef PageLine = ({int indent, String text});
