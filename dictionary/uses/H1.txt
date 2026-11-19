@@ -1,2 +1,0 @@
-// Uses of H1: screens of the first corpus and blocks of the notation reference that write it,
-// taken by tool/dictionary_closure.dart --harvest (the most shapes of it first). Do not edit: run it again.

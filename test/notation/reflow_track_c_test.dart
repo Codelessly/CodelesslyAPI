@@ -8,8 +8,10 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import '../notation_words.dart';
+
 NotationResult _read(String text, {NotationOptions options = const NotationOptions(width: 1440)}) {
-  final r = parseNotation(text, catalog: standardCatalog, options: options);
+  final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(options));
   expect(r.issues, isEmpty, reason: text);
   return r;
 }

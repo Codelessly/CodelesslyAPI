@@ -1,13 +1,16 @@
 // A sidebar as the web draws one: quiet labels over its groups, items of one
-// ink with the chosen one in the accent, a foot that stays at its end.
+// ink with the chosen one on the accent's tint, a foot that stays at its end
+// (its words, NavItem and the others, as a dictionary defines them).
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
+
+import '../notation_words.dart';
 
 typedef Json = Map<String, Object?>;
 
 void main() {
   NotationResult parse(String text) =>
-      parseNotation(text, catalog: standardCatalog, options: const NotationOptions(width: 1440, height: 900));
+      parseNotation(text, catalog: standardCatalog, options: withTestWords(const NotationOptions(width: 1440, height: 900)));
   Json node(NotationResult r, String id) => ((r.document['nodes']! as Map)[id]! as Map).cast<String, Object?>();
   Json layout(NotationResult r, String id) => (node(r, id)['layout']! as Map).cast<String, Object?>();
   Json style(NotationResult r, String id) => (((node(r, id)['props']! as Map)['style']) as Map).cast<String, Object?>();
@@ -18,7 +21,7 @@ App
   Sidebar#side
     Brand#brand "Tenant" "Admin console" icon="hub"
     NavSection#people "People & access"
-    NavItem#members "Members" icon="group" selected={tab == "members"} onTap={tab="members"} shortcut="Alt 1"
+    NavItem#members "Members" icon="group" selected={tab == "members"} onTap={tab="members"}
     NavItem#teams "Teams" icon="groups" badge="4"
     Footer#foot
       NavItem#keys "Keyboard shortcuts" icon="keyboard"
@@ -36,7 +39,7 @@ App
     expect(style(r, 'people')['color'], '#FF6B7280');
   });
 
-  test('items at rest share one ink and tint under the pointer; the chosen one is a state in the accent', () {
+  test('items at rest share one ink and tint under the pointer; the chosen one is a state on the accent\'s tint', () {
     final r = parse(page);
     final rest = node(r, 'teams');
     final teamsText = [for (final c in rest['children']! as List) node(r, '$c')].firstWhere((n) => n['type'] == 'text');
@@ -44,15 +47,12 @@ App
     expect(((teamsText['props']! as Map)['style']! as Map)['fontSize'], 13);
     expect(((rest['states']! as Map)['hovered']! as Map)['teams'], isNotNull);
     final chosen = node(r, 'members');
-    expect((chosen['bind']! as Map)['selected'], contains('tab=="members"'));
+    expect((chosen['bind']! as Map)['selected'], contains('tab == "members"'));
     expect((((chosen['states']! as Map)['selected']! as Map)['members']! as Map)['decoration'], {
       'fills': [
         {'color': '#FF2563EB', 'opacity': 0.12},
       ],
     });
-    // Its shortcut is a faint text at its end.
-    final texts = [for (final c in chosen['children']! as List) node(r, '$c')].where((n) => n['type'] == 'text').toList();
-    expect((texts.last['props']! as Map)['text'], 'Alt 1');
   });
 
   test('the foot is pinned at the sidebar\'s end by a spacer, with a rule over it', () {
@@ -97,7 +97,7 @@ App
     final options = NotationOptions.fromTheme({
       'colors': {'accent': '#FF0D9488'},
     }, width: 1440, named: true);
-    final r = parseNotation(page, catalog: standardCatalog, options: options);
+    final r = parseNotation(page, catalog: standardCatalog, options: withTestWords(options));
     expect(r.issues, isEmpty);
     final chosen = ((r.document['nodes']! as Map)['members']! as Map).cast<String, Object?>();
     expect((((chosen['states']! as Map)['selected']! as Map)['members']! as Map)['decoration'], {

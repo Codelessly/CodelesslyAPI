@@ -8,6 +8,8 @@ import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/prompt.dart' show notationDefinePreface, notationOpenPreface, notationPrompt;
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 const _page = NotationOptions(width: 1280);
 final _openPage = _page.open();
 
@@ -34,7 +36,95 @@ void _same(String alias, String ours, {required String word, String? to}) {
   }
 }
 
+/// [word] used and its lines written out read alike with a dictionary
+/// that defines it ([notationTestWords]), closed and open, with nothing
+/// said; the use is recorded as the dictionary's (`words`), the lines
+/// written out record nothing.
+void _defined(String used, String ours, {required String word}) {
+  for (final base in [_page, _openPage, const NotationOptions(), const NotationOptions().open()]) {
+    final options = withTestWords(base);
+    final a = parseNotation(used, catalog: standardCatalog, options: options), b = parseNotation(ours, catalog: standardCatalog, options: options);
+    final where = 'width ${options.width}, ${options.openVocabulary ? 'open' : 'closed'}';
+    expect(a.issues.map((i) => '$i'), isEmpty, reason: '$used ($where)');
+    expect(b.issues.map((i) => '$i'), isEmpty, reason: '$ours ($where)');
+    expect(jsonEncode(a.document), jsonEncode(b.document), reason: '$used is not $ours ($where)');
+    final uses = a.vocabulary.where((u) => u.word == word).toList();
+    expect([for (final u in uses) (u.kind, u.of)], contains(('definition', 'words')), reason: '$used ($where)');
+    expect(b.vocabulary, isEmpty, reason: '$ours records ${b.vocabulary} ($where)');
+  }
+}
+
 void main() {
+  group('a dictionary: words a caller gives as definitions, read after the page\'s own', () {
+    test('Shortcut, as a dictionary defines it, is the key line', () {
+      _defined('state n=0\nShortcut "ctrl+k" onPress={n=1}\nColumn\n  Text "x"\n', 'state n=0\nkey ctrl+k onPress={n=1}\nColumn\n  Text "x"\n', word: 'Shortcut');
+      _defined('state n=0\nShortcut key="?" onPress={n=1}\nColumn\n  Text "x"\n', 'state n=0\nkey ? onPress={n=1}\nColumn\n  Text "x"\n', word: 'Shortcut');
+      _defined('state n=0\nShortcut keys="Space" description="Play" hint="Space" onPress={n=1}\nColumn\n  Text "x"\n', 'state n=0\nkey Space onPress={n=1}\nColumn\n  Text "x"\n', word: 'Shortcut');
+    });
+
+    test('computed is a state written as its formula', () {
+      _defined('state a=1\nstate b=2\ncomputed total={a+b}\nColumn\n  Text "{total}"\n', 'state a=1\nstate b=2\nstate total=a+b\nColumn\n  Text "{total}"\n', word: 'computed');
+    });
+
+    test('ConfirmDialog is a Dialog with its two buttons, at the margin', () {
+      const ours = '''
+state n=0
+Page
+  Section
+    Button "Reset" onTap={open ask}
+Dialog#ask "Reset the count?" "This cannot be undone."
+  Row gap=8 end
+    Button.ghost "Cancel" onTap={close}
+    Button "Confirm" onTap={n=0; close}
+''';
+      _defined('''
+state n=0
+Page
+  Section
+    Button "Reset" onTap={open ask}
+ConfirmDialog#ask "Reset the count?" "This cannot be undone." onConfirm={n=0}
+''', ours, word: 'ConfirmDialog');
+      // Its own labels, and a yes that deletes.
+      _defined('''
+state n=0
+Page
+  Section
+    Button "Reset" onTap={open ask}
+ConfirmDialog#ask "Reset?" "Really." confirm="Reset" cancel="Keep" danger=true onConfirm={n=0} onCancel={n=1}
+''', '''
+state n=0
+Page
+  Section
+    Button "Reset" onTap={open ask}
+Dialog#ask "Reset?" "Really."
+  Row gap=8 end
+    Button.ghost "Keep" onTap={n=1; close}
+    Button.destructive "Reset" onTap={n=0; close}
+''', word: 'ConfirmDialog');
+    });
+
+    test('a page\'s own definition comes before the dictionary\'s; without the dictionary the word is unknown', () {
+      final own = parseNotation('Column\n  H1 "Hi"\ndefine H1 "text"\n  Text.caption "{text}"\n', catalog: standardCatalog, options: withTestWords(_page));
+      expect(own.issues, isEmpty);
+      expect(jsonEncode(_node(own, 'h11')['props']), jsonEncode(_node(parseNotation('Column\n  Text.caption "Hi"\n', catalog: standardCatalog, options: _page), 'text1')['props']));
+      expect([for (final u in own.vocabulary) (u.kind, u.word)], [('definition', 'H1')]);
+      expect(own.vocabulary.single.of, isNot('words'));
+      final none = parseNotation('Column\n  H1 "Hi"\n', catalog: standardCatalog, options: _page);
+      expect(none.issues.single.message, contains('H1'));
+      expect(notationWordOrigin('H1', vocabulary: withTestWords().vocabulary), 'words');
+      expect(notationWordOrigin('H1'), isNull);
+    });
+
+    test('the prompt lists a dictionary\'s words, one line each as a line uses it', () {
+      final plain = notationPrompt(catalog: standardCatalog, options: _page);
+      final words = notationPrompt(catalog: standardCatalog, options: withTestWords(_page));
+      expect(plain, isNot(contains('NavItem')));
+      expect(words, contains('words'));
+      expect(words, contains('  NavItem "label"'));
+      expect(words.startsWith(plain.trimRight()), isTrue);
+    });
+  });
+
   group('an unknown word is recorded, each kind with where it is and what it was given', () {
     const text = '''
 state q=""
@@ -222,24 +312,6 @@ CommandPalette#palette "Commands" placeholder="Type a command"
   });
 
   group('aliases: a name for a word we have is read as that word, open or closed', () {
-    test('Shortcut is the key line (ctrl is mod already); a condition is its when', () {
-      _same('Shortcut "ctrl+k" onPress={open find}\nPage\n  Section\n    Text "x"\nDialog#find "Find"\n  Text "y"\n',
-          'key ctrl+k onPress={open find}\nPage\n  Section\n    Text "x"\nDialog#find "Find"\n  Text "y"\n',
-          word: 'Shortcut', to: 'key ctrl+k onPress={open find}');
-      final r = _closed('Shortcut "ctrl+k" onPress={n=1}\nColumn\n  Text "x"\n');
-      expect((_node(r, 'screen')['actions'] as List).single, {
-        'trigger': {'type': 'keyDown', 'key': 'ctrl+k'},
-        'actions': [
-          {'type': 'setVariable', 'variable': 'n', 'value': r'${= 1}'},
-        ],
-      });
-      _same('state n=0\nShortcut key="?" onPress={n=1}\nColumn\n  Text "x"\n', 'state n=0\nkey ? onPress={n=1}\nColumn\n  Text "x"\n', word: 'Shortcut');
-      _same('state n=0\nShortcut keys="Space" description="Play" hint="Space" onPress={n=1}\nColumn\n  Text "x"\n', 'state n=0\nkey Space onPress={n=1}\nColumn\n  Text "x"\n', word: 'Shortcut');
-      _same('state n=0\nshortcut key=ArrowRight onPress={n=n+1}\nColumn\n  Text "x"\n', 'state n=0\nkey ArrowRight onPress={n=n+1}\nColumn\n  Text "x"\n', word: 'shortcut');
-      _same('state n=0\nshortcut space onPress={n=n+1}\nColumn\n  Text "x"\n', 'state n=0\nkey space onPress={n=n+1}\nColumn\n  Text "x"\n', word: 'shortcut');
-      _same('state n=0\nShortcut "r" when n>0 onPress={n=0}\nColumn\n  Text "x"\n', 'state n=0\nkey r when n>0 onPress={n=0}\nColumn\n  Text "x"\n', word: 'Shortcut');
-      _same('state n=0\nShortcut keys="r" when={n>0} onPress={n=0}\nColumn\n  Text "x"\n', 'state n=0\nkey r when n>0 onPress={n=0}\nColumn\n  Text "x"\n', word: 'Shortcut');
-    });
 
     test('key … when …: a shortcut that runs only while a condition holds', () {
       final r = _closed('state n=0\nkey escape when n>0 onPress={n=0}\nColumn\n  Text "x"\n');
@@ -247,60 +319,6 @@ CommandPalette#palette "Commands" placeholder="Type a command"
       expect(((_node(r, 'screen')['actions'] as List).single as Map)['trigger'], {'type': 'keyDown', 'key': 'escape', 'when': r'${= n>0}'});
     });
 
-    test('computed is a state written as its formula: a word of the built-in dictionary (docs/design/23)', () {
-      const alias = 'state a=1\nstate b=2\ncomputed total={a+b}\nColumn\n  Text "{total}"\n', ours = 'state a=1\nstate b=2\nstate total=a+b\nColumn\n  Text "{total}"\n';
-      for (final options in [_page, _openPage, const NotationOptions(), const NotationOptions().open()]) {
-        final a = parseNotation(alias, catalog: standardCatalog, options: options), b = parseNotation(ours, catalog: standardCatalog, options: options);
-        expect(a.issues, isEmpty);
-        expect(jsonEncode(a.document), jsonEncode(b.document));
-        final used = a.vocabulary.where((u) => u.word == 'computed').single;
-        expect((used.kind, used.of, used.to, used.node), ('definition', 'dictionary', 'computed', null));
-      }
-    });
-
-    test('ConfirmDialog is a Dialog with its two buttons, at the margin or written inside the page', () {
-      const ours = '''
-state n=0
-Page
-  Section
-    Button "Reset" onTap={open ask}
-Dialog#ask "Reset the count?" "This cannot be undone."
-  Row gap=8 end
-    Button.ghost "Cancel" onTap={close}
-    Button "Confirm" onTap={n=0; close}
-''';
-      _same('''
-state n=0
-Page
-  Section
-    Button "Reset" onTap={open ask}
-ConfirmDialog#ask "Reset the count?" "This cannot be undone." onConfirm={n=0}
-''', ours, word: 'ConfirmDialog');
-      _same('''
-state n=0
-Page
-  Section
-    Button "Reset" onTap={open ask}
-  ConfirmDialog#ask "Reset the count?" "This cannot be undone." onConfirm={n=0}
-''', ours, word: 'ConfirmDialog');
-      // Its own labels, and a yes that deletes.
-      _same('''
-state n=0
-Page
-  Section
-    Button "Reset" onTap={open ask}
-ConfirmDialog#ask title="Reset?" message="Really." confirm="Reset" cancel="Keep" destructive onConfirm={n=0} onCancel={n=1}
-''', '''
-state n=0
-Page
-  Section
-    Button "Reset" onTap={open ask}
-Dialog#ask "Reset?" "Really."
-  Row gap=8 end
-    Button.ghost "Keep" onTap={n=1; close}
-    Button.destructive "Reset" onTap={n=0; close}
-''', word: 'ConfirmDialog');
-    });
 
     test('RangeSlider is a Slider when it names a variable for each end; bound to one list it is not ours', () {
       const ours = 'state low=0\nstate high=100\nColumn\n  Slider @low @high min=0 max=100\n';
@@ -360,7 +378,7 @@ Dialog#ask "Reset?" "Really."
 
     test('every alias of the built-in table is one of the above', () {
       const tested = {
-        'Shortcut', 'shortcut', 'ConfirmDialog', 'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
+        'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
         'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock', 'QRCode', 'QrCode',
       };
       expect(NotationVocabulary.core.types.keys.toSet(), tested);
@@ -439,7 +457,6 @@ Dialog#ask "Reset?" "Really."
       final again = NotationVocabulary.fromJson((jsonDecode(jsonEncode(table.toJson())) as Map).cast<String, Object?>());
       expect(jsonEncode(again.toJson()), jsonEncode(table.toJson()));
       expect(again.types['RangeSlider']!.requires, ['low', 'high']);
-      expect(again.types['Shortcut']!.line, 'shortcut');
       // With no table at all nothing is an alias.
       final none = _closed('Column\n  Button "Go" disabled\n', options: _page.open(openVocabulary: false, vocabulary: NotationVocabulary.none));
       expect(none.vocabulary, isEmpty);

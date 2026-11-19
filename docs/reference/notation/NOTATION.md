@@ -30,7 +30,7 @@ Type[.variant][#id] ["text"] [key=value ...] [on<Event>={actions} ...]
   expressions: `${name}` there is `{name}` here, and `${= formula}` is `{formula}`.
 - **`on<Event>={actions}`** runs actions on an event, `;` between them.
 - **A bare word** after the text is a flag: `grow`, `hidden`, `scroll`, `center`. An icon's name is a word too:
-  `Icon download`, and `icon=download` on a Button, NavItem or MenuItem, whatever a variable is called; an icon
+  `Icon download`, and `icon=download` on a Button, Chip or IconButton, whatever a variable is called; an icon
   chosen by data is braced (`Icon {glyph}`, `icon={done ? "check" : "add"}`).
 - **Your key wins over a word's own**: `Sidebar w=240 h=fill` and `Table … radius=0 border=rule` keep what you
   wrote over what the word would give; a key written twice on one line is still said.
@@ -94,8 +94,8 @@ Column gap=8
   `{date, label}`: a short text under it); `Barcode "text" symbology=qrCode` draws a QR code of the text
   (`code128`, `ean13`: bars).
 - An app window is `App` with a `Sidebar` (the rail), a `Main` (the content) and any `Pane` (an inspector). In
-  the sidebar write `Brand`, `NavSection "Group"`, `NavItem "Label" icon=… selected={…}` and a `Footer` (pinned at
-  its end) instead of styling rows by hand ([navigation.md](navigation.md#navigation-a-sidebar)). A
+  the sidebar write a row per item (`selected={…}` with a `selected.fill=` for the chosen one) and a `Footer`
+  (pinned at its end) ([navigation.md](navigation.md#navigation-a-sidebar)). A
   website is a `Page` of `Nav`, `Section` and `Footer` bands. Over the page: `Dialog#id`, `Sheet#id`, `Drawer#id`,
   `Menu#id`, written after the page at the margin with their lines under them; `open id` shows one, `close` closes
   it:
@@ -105,7 +105,7 @@ state tab="home"
 state name=""
 App
   Sidebar w=72
-    NavItem "Home" icon="home" selected={tab == "home"} onTap={tab="home"}
+    IconButton "home" selected={tab == "home"} onTap={tab="home"}
   Main
     Button "New" onTap={open create}
   Pane w=280 hide=tablet
@@ -121,9 +121,7 @@ state tab="home"
 state name=""
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=72 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="home")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=home}
-      Icon "home" color={(tab=="home")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Home" grow weight={(tab=="home")?600:500} color={(tab=="home")?"#FF2563EB":"#FF374151"}
+    IconButton "home" selected={tab == "home"} onTap={tab=home}
   Column scroll h=fill grow
     Button "New" onTap={open create}
   Column scroll w=280 h=fill border-left=#FFE5E7EB hide=tablet
@@ -132,7 +130,7 @@ Dialog#create "New project"
   Input "Name" @name
 ```
 
-- Page frames and overlays (`App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`) are on [navigation.md](navigation.md).
+- Page frames and overlays (`App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Content`, `Dialog`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Hero`, `Lightbox`, `Main`, `Menu`, `Modal`, `Nav`, `NavBar`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `Sidenav`, `SwipeAction`, `TopBar`, `Topbar`, `Wanted`, `Window`) are on [navigation.md](navigation.md).
 
 <a id="notation-words-every-line-takes"></a>
 ## Words every line takes
@@ -430,12 +428,12 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3560 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 7503 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 2327 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 3884 |
-| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 2123 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 3818 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 2278 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 607 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts and its design system. | you write or change `site.json`; every page and component of the site reads what it declares by name. | 468 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 907 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 13924 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 13881 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1657 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | a UI sells something. | 300 |

@@ -7,6 +7,8 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import '../notation_words.dart';
+
 Object? _sorted(Object? v) => switch (v) {
       final Map m => {for (final k in m.keys.map((k) => '$k').toList()..sort()) k: _sorted(m[k])},
       final List l => [for (final e in l) _sorted(e)],
@@ -21,7 +23,7 @@ String _prints(Map<String, Object?> doc, {List<String> same = const []}) {
   expect(whole, isNull, reason: printed);
   expect(printed, isNot(contains(' {"')), reason: printed);
   expect(printed, isNot(contains('document {')), reason: printed);
-  final back = parseNotation(printed, catalog: standardCatalog, options: notationOptionsFor(doc));
+  final back = parseNotation(printed, catalog: standardCatalog, options: withTestWords(notationOptionsFor(doc)));
   expect(back.issues.map((i) => i.message), isEmpty, reason: printed);
   expect(jsonEncode(_sorted(back.document)), jsonEncode(_sorted(doc)), reason: printed);
   final lines = printed.split('\n');
@@ -33,7 +35,7 @@ String _prints(Map<String, Object?> doc, {List<String> same = const []}) {
 
 /// [text] expanded with no issue at [width], printed in words and read back.
 Map<String, Object?> _roundTrip(String text, {double width = 390, List<String> same = const []}) {
-  final r = parseNotation(text, catalog: standardCatalog, options: NotationOptions(width: width));
+  final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions(width: width)));
   expect(r.issues.map((i) => i.message), isEmpty, reason: text);
   _prints(r.document, same: same);
   return r.document;
@@ -56,9 +58,9 @@ void main() {
     test('over cells written one by one inside an each, or not a number, it is said', () {
       // Cells written one by one are a grid's of their own (fixes-36-1, R11:
       // test/notation_fixes_36_1_test.dart); inside an each they stay in rows.
-      final rows = parseNotation('state xs=[1]\nColumn\n  each x in xs\n    Grid cols=3 tablet.cols=2\n      Text "a"\n      Text "b"');
+      final rows = parseNotation('state xs=[1]\nColumn\n  each x in xs\n    Grid cols=3 tablet.cols=2\n      Text "a"\n      Text "b"', options: withTestWords());
       expect(rows.issues.map((i) => i.message), [contains('cells an each repeats')]);
-      final word = parseNotation('state items=[1]\nGrid cols=3 tablet.cols=two\n  each item in items\n    Text "{item}"');
+      final word = parseNotation('state items=[1]\nGrid cols=3 tablet.cols=two\n  each item in items\n    Text "{item}"', options: withTestWords());
       expect(word.issues.map((i) => i.message), [contains('a number from 1 to 24: tablet.cols=2')]);
     });
   });
@@ -68,8 +70,8 @@ void main() {
       'Row#r pad=8 focused.border=#FF2563EB hovered.border=accent',
     ]);
     // The stroke's JSON still reads as the same state.
-    final json = parseNotation('Row#r pad=8 focused.strokes=[{"color":"#FF2563EB"}]\n  Text "a"').document;
-    final word = parseNotation('Row#r pad=8 focused.border=#FF2563EB\n  Text "a"').document;
+    final json = parseNotation('Row#r pad=8 focused.strokes=[{"color":"#FF2563EB"}]\n  Text "a"', options: withTestWords()).document;
+    final word = parseNotation('Row#r pad=8 focused.border=#FF2563EB\n  Text "a"', options: withTestWords()).document;
     expect(jsonEncode(_sorted(json)), jsonEncode(_sorted(word)));
   });
 
@@ -85,7 +87,7 @@ void main() {
     });
 
     test('another canvas prints its width as a whole number', () {
-      final doc = parseNotation('Column\n  Text "Home"\nCanvas#about "About" w=480\n  Text "About us"').document;
+      final doc = parseNotation('Column\n  Text "Home"\nCanvas#about "About" w=480\n  Text "About us"', options: withTestWords()).document;
       final printed = printNotation(doc, catalog: standardCatalog);
       expect(printed, contains('Canvas#about "About" w=480'));
       expect(printed, isNot(contains('480.0')));
@@ -95,7 +97,7 @@ void main() {
   test("in an App with a drawer, a NavItem's onTap is the verb", () {
     final printed = printNotation(
         parseNotation('state tab="home"\nApp\n  Sidebar\n    NavItem "Home" icon="home" onTap={tab="home"}\n  Main\n    Text "x"',
-                options: const NotationOptions(width: 1280))
+                options: withTestWords(NotationOptions(width: 1280)))
             .document,
         catalog: standardCatalog);
     expect(printed, contains('onTap={tab=home}'));
@@ -105,7 +107,7 @@ void main() {
   group('a width written by its full path', () {
     const row = 'Column\n  Row gap=12\n    Text "Northwind" w=200\n    Text "Active" w=200\n    Text "Pro" w=200';
     test('w= in a row of columns wider than the page is a share of it', () {
-      final layout = (_nodes(parseNotation(row).document)['text1']! as Map)['layout'];
+      final layout = (_nodes(parseNotation(row, options: withTestWords()).document)['text1']! as Map)['layout'];
       expect(layout, containsPair('flex', 200));
     });
 
@@ -138,12 +140,12 @@ void main() {
     };
     final doc = _roundTrip('document conditions=${jsonEncode(conditions)}\nstate annual=false\nColumn\n  Text#price "\$12 / month"');
     expect(doc['conditions'], conditions);
-    final bad = parseNotation('document conditions=yes\nText "x"');
+    final bad = parseNotation('document conditions=yes\nText "x"', options: withTestWords());
     expect(bad.issues.map((i) => i.message), [contains('conditions={…}')]);
   });
 
   test('a page view with no props prints as Pages with props=null', () {
-    final doc = parseNotation('state page=0\nstate images=["a","b"]\nColumn\n  Pages h=280 @page\n    each item in images\n      Image "{item}"').document;
+    final doc = parseNotation('state page=0\nstate images=["a","b"]\nColumn\n  Pages h=280 @page\n    each item in images\n      Image "{item}"', options: withTestWords()).document;
     final nodes = _nodes(doc);
     (nodes['pageView1']! as Map).remove('props');
     final printed = _prints(doc);

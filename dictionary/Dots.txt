@@ -1,5 +1,0 @@
-// A row of dots that says which page of a few is shown, and turns to one when tapped: the one shown a wider dot in the accent. It does not say: a use with no @ or no count= (a placeholder in the code, dots here).
-Dots @page=0 count=3
-  Row gap=6 center middle h=16 ...
-    each dot in range(count)
-      Box w={index==page?16:6} h=6 radius=3 fill={index==page?theme.accent:theme.track} onTap={page=index}

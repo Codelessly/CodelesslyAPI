@@ -8,7 +8,9 @@ import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/catalog_json.dart' show catalogFromJson;
 import 'package:test/test.dart';
 
-NotationResult _parse(String text, [NotationOptions options = const NotationOptions()]) => parseNotation(text, catalog: standardCatalog, options: options);
+import 'notation_words.dart';
+
+NotationResult _parse(String text, [NotationOptions options = const NotationOptions()]) => parseNotation(text, catalog: standardCatalog, options: withTestWords(options));
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
@@ -211,7 +213,7 @@ Column
 Column
   Band#b
     Text#t "Body"
-''', catalog: catalog));
+''', catalog: catalog, options: withTestWords()));
       expect(r.issues, isEmpty);
       expect(_node(r, 'b')['children'], ['t']);
       expect(_node(r, 'b')['slots'], isNull);
@@ -409,7 +411,7 @@ Column
 Canvas#compose "compose" w=640
   Dialog "New message" onClose={close}
     Text "body"
-''', catalog: catalog));
+''', catalog: catalog, options: withTestWords()));
       expect(r.issues, isEmpty);
       final printed = Catalog.run(catalog, () => printNotation(r.document, catalog: catalog));
       expect(printed, contains('onClose={close}'));
@@ -449,7 +451,7 @@ Column
         ],
       });
       final catalog = standardCatalog + mast;
-      final r = Catalog.run(catalog, () => parseNotation('Column scroll\n  Masthead#m sticky\n  Column#toc sticky\n', catalog: catalog));
+      final r = Catalog.run(catalog, () => parseNotation('Column scroll\n  Masthead#m sticky\n  Column#toc sticky\n', catalog: catalog, options: withTestWords()));
       expect(r.issues, isEmpty);
       expect(_node(r, 'm')['sticky'], {'offset': 0});
       expect(_node(r, 'toc')['sticky'], {'offset': 16});
@@ -463,8 +465,8 @@ Page
   Nav
     Brand "Harbour"
     Row gap=18 hide=phone
-      Link "Buy" onTap={go results}
-      Link "Agents" onTap={go agents}
+      Button.ghost "Buy" onTap={go results}
+      Button.ghost "Agents" onTap={go agents}
 $phoneRow
   Section
     Text "Hello"
@@ -481,31 +483,4 @@ $phoneRow
     });
   });
 
-  group('a Sidebar the writer makes a rail at a width', () {
-    String rail(String sidebar) {
-      final r = _parse('''
-App
-  $sidebar
-    Brand "Stack" "Board" icon="home"
-    NavSection "Work"
-    NavItem "Board" icon="home" shortcut="V"
-    NavItem "Plain"
-  Main
-    Text "Hello"
-''');
-      expect(r.issues, isEmpty);
-      return jsonEncode(r.document);
-    }
-
-    test('its items show their icons alone there: label, shortcut, section and brand text are hidden', () {
-      final plain = rail('Sidebar'), railed = rail('Sidebar w=232 tablet.w=72');
-      int hidden(String s) => RegExp('"visible":false').allMatches(s).length;
-      // The label and shortcut of the item with an icon, the section, the brand's text; not the item with no icon.
-      expect(hidden(railed) - hidden(plain), 4);
-    });
-
-    test('a width with room for labels is no rail', () {
-      expect(rail('Sidebar w=232 tablet.w=200'), isNot(contains('"visible":false')));
-    });
-  });
 }

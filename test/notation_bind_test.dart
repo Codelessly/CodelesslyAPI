@@ -12,8 +12,10 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 NotationResult _parse(String text, {NotationOptions options = const NotationOptions(), Catalog? catalog}) =>
-    catalog == null ? parseNotation(text, options: options) : Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: options));
+    catalog == null ? parseNotation(text, options: withTestWords(options)) : Catalog.run(catalog, () => parseNotation(text, catalog: catalog, options: withTestWords(options)));
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast<String, Object?>();
 
@@ -477,7 +479,7 @@ define Label "text"
         'Column selectable bind=picked gap=8': ('Column selectable selected=@picked gap=8', {'picked': <Object?>[]}),
         'Checkbox "{row.name}" bind=row.done': ('Checkbox "{row.name}" @row.done', {}),
         'Pages bind=page h=120': ('Pages @page h=120', {'page': 0}),
-        'Dots bind=page count=4': ('Dots @page count=4', {'page': 0}),
+        'Dots bind=page count=4': ('Dots @page count=4', {'page': ''}),
         'Thing bindStart=from': ('Thing start=@from', {'from': ''}),
         'define Stepper "label" bind=value min max': ('define Stepper "label" @value min max', {}),
         'Text "bind=x is old" size=12': ('Text "bind=x is old" size=12', {}),

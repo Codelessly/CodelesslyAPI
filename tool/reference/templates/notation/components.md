@@ -24,9 +24,19 @@ whose first line is `define Name …` (or `primitive`) is the site's definitions
 reads them, as a page reads a `define` after its last line; a file that is neither fails the expand, `--open` too,
 saying what to write. A word the notation already has is the notation's, whoever defines it: a page's or a site's
 `define`, `primitive` or component named like a core word, a page word or a name the notation reads as one of its
-own (`Card`, `Rail`, `Shortcut`) is not used, and the expand says so at the definition. Every
+own (`Card`, `Rail`, `MiniCalendar`) is not used, and the expand says so at the definition. Every
 expand saves the site's vocabulary record (`vocabulary.json` and `VOCABULARY.md` in the site's folder) and says
 each word that stood in as a placeholder.
+
+A dictionary is a folder of definitions kept apart from any one site: a `<Word>.txt` per word, each a `define` (or
+a `primitive`). The expand, print, prompt and render commands read one named by `--dictionary <folder>` (written
+again for each further folder), by the `CODELESSLY_DICTIONARY` environment variable when no `--dictionary` is
+written (folders separated as in `PATH`), and by a site's `site.json` (`"dictionary": ["../words"]`, relative to
+its folder). A word is read from the first that defines it: the page's own `define`, then the site's or the design
+system's definitions, then the dictionaries in the order given, then the notation's own words. The vocabulary
+record names the dictionary's folder as where its words came from, and the prompt lists its words, one line each
+as a line uses it. The notation's shorthand words of earlier versions (`Heading`, `NavItem`, `Link`, `Brand` …) are
+such definitions now: a dictionary that has them reads pages written with them.
 
 ## Writing one
 

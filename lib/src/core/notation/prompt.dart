@@ -38,7 +38,44 @@ const double notationPageWidth = 700;
 /// it keeps a value (`key=@` for a further variable), its other parameters
 /// and what it is for. [only]
 /// narrows the list to those types (a chat that needs a dozen, not all).
+///
+/// The words of the dictionaries [options] has (folders of definitions a
+/// caller gave: [NotationOptions.dictionary]) are listed after it, one line
+/// each as a line uses it, as a design system's words are.
 String notationPrompt({
+  Catalog? catalog,
+  NotationOptions options = const NotationOptions(),
+  DesignSystem? designSystem,
+  Set<String>? only,
+  bool natural = false,
+  bool wanted = false,
+  bool open = false,
+  bool define = true,
+  bool glossary = true,
+  bool signatures = true,
+}) {
+  final text = _prompt(
+      catalog: catalog, options: options, designSystem: designSystem, only: only, natural: natural, wanted: wanted, open: open, define: define, glossary: glossary, signatures: signatures);
+  final words = notationDictionaryLines(options.vocabulary, prompt: text);
+  if (words.isEmpty) return text;
+  final names = {
+    for (final defs in options.vocabulary.dictionary.values)
+      for (final d in defs) ?d.dictionary,
+  }.toList()
+    ..sort();
+  return '${text.trimRight()}\n${notationSignaturesLead(names.join(', '), define: open && define)}\n${words.map((l) => '  $l').join('\n')}\n';
+}
+
+/// The lines of the words [vocabulary]'s dictionaries define that [prompt]
+/// does not already write and no definition of a page, a site or a design
+/// system replaces: one line each as a line uses it, with what it is for.
+List<String> notationDictionaryLines(NotationVocabulary vocabulary, {required String prompt}) => [
+      for (final w in vocabulary.dictionary.keys.toList()..sort())
+        if (!vocabulary.definitions.containsKey(w))
+          for (final d in vocabulary.dictionary[w]!) notationGlossaryDefinitionLine(d),
+    ];
+
+String _prompt({
   Catalog? catalog,
   NotationOptions options = const NotationOptions(),
   DesignSystem? designSystem,
@@ -64,7 +101,7 @@ String notationPrompt({
   // paragraph, as the glossary experiment's answers were written.
   // [glossary] false leaves it out.
   if (open) {
-    final text = _openPrompt(notationPrompt(catalog: catalog, options: options, natural: natural), define: define);
+    final text = _openPrompt(_prompt(catalog: catalog, options: options, natural: natural), define: define);
     if (glossary && signatures && designSystem != null) {
       final lines = notationGlossaryLines(designSystem, options.vocabulary, prompt: text);
       if (lines.isEmpty) return text;
@@ -151,11 +188,11 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Footer
   An app window is as tall as the window, and each pane scrolls by itself:
     App
-      Sidebar                a fixed pane at the side (w=240): the name, NavItem lines, Spacer grow, then what sits at its foot
+      Sidebar                a fixed pane at the side (w=240): the name, a Row per item, Spacer grow, then what sits at its foot
       Main                   the pane that takes the rest: a Nav (its top bar: the title, then a Row of actions) and under it a Column pad=24 gap=16 of content
       Pane w=320             a further pane (a list beside its details, a details panel): Pane w=320 pad=16 gap=12
     Footer directly under Main, as its last line, is a bar at its foot that stays in view while Main scrolls (a player, a composer, a basket).
-  NavItem "Orders" icon="inbox" badge="12" selected={tab=="orders"} onTap={tab="orders"} is a line of a sidebar (or of a Nav). Link "Docs" is a link (href="https://…", or onTap={an action}). Brand "Harbor" icon="anchor" is the product's mark and name (first in a Sidebar or a Nav). Heading "…" heads a section (level=1 a landing page's headline or an app's page title, level=3 the title of a card or a panel; the title of an article or a docs page is a plain Heading). Link is in the accent; a quiet link (a table of contents, a footer) is Text.muted "…" onTap={an action}. IconTile "sync" is an icon on a small tinted tile (the mark of a feature, a stat, a row). An icon-only button is named by its tooltip: IconButton "filter_alt_off" tooltip="Clear filters" (shown on hover, focus or a touch hold).
+  A sidebar's item: Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}, an Icon and a Text grow under it. A link: Text "Docs" color=#FF2563EB onTap={an action}; in a bar, Button.ghost "Docs" onTap={…}; a quiet one, Text.muted. A heading: Text.heading1 (a landing page's headline, at a display size in a Page's Section), Text.heading2, Text.heading3 (a card's or a panel's title). An icon-only button is named by its tooltip: IconButton "filter_alt_off" tooltip="Clear filters" (shown on hover, focus or a touch hold).
   Side by side: Row gap=32 with grow on each child that shares the width (Column grow gap=12), or Grid cols=3 gap=24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Section bleed runs what is in it from edge to edge (a wide picture, a map). Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w=320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom=#… (border-top, border-left, border-right).
   A block's events are on its line, each by its name: SiteNav … onNavigate={go {replace(lower(result)," ","_")}} onCta={go signup} onSecondary={go login}. SiteNav … sticky keeps it at the top.
   key mod+k onPress={open search} on its own line (top level) is a shortcut of the page (mod: Ctrl, ⌘ on a Mac; also alt, shift), key j when={!editing} onPress={…} acts only while its condition holds (a plain key never acts while a field is typed in; under a Dialog#id, only while that dialog is open); Text "Search" shortcut="mod+k" shows it as Ctrl K or ⌘K; Button "B" shortcut="mod+b" presses it.
@@ -174,10 +211,10 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     each line in lines follow h=180: a log or a chat; it scrolls in that height, opens at its end and follows what is added (follow grow: it takes the room its column leaves, over a composer).
     SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}, under an each: an action behind the swiped row (side=start: the other side; removes takes the row out). Give the row a menu button for the same.${options.reflow ? '''
 
-  Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns (one of 7, or written Grid cols=4 keep, keeps them), a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a list beside its detail shows one at a time on a phone, with a back button (each row: onTap={sel=m.id}), a Nav hides its links and opens them from a menu button it adds itself (each Link with its onTap or href, as written), sections and headlines get smaller. So that it can:
+  Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns (one of 7, or written Grid cols=4 keep, keeps them), a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a list beside its detail shows one at a time on a phone, with a back button (each row: onTap={sel=m.id}), a Nav hides its quiet buttons (Button.ghost) and opens them from a menu button it adds itself, sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w=320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
     Equal cells are a Grid, not a Row of fixed-width boxes. A table's row is a Row whose cells have widths (Text "Status" w=90) and one cell that grows, its header written the same way.
-    hide=phone leaves a node out on a phone, hide=tablet on a tablet and a phone; show=phone shows it on a phone only, show=tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one, for the links it hides (Link "Search" menu=false onTap={open search} is a link that stays in the bar and out of the menu; a Nav with a show=phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
+    hide=phone leaves a node out on a phone, hide=tablet on a tablet and a phone; show=phone shows it on a phone only, show=tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one, for the quiet buttons it hides (a Nav with a show=phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
     A part's lines on a phone go in a block after its own: at phone, with ...#brand under it placing the part's Text#brand line again.
     A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.''' : ''}
 
@@ -185,10 +222,10 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     Dialog#signup "Join the waitlist" "A line under the title"    a centered dialog with its title and a close button (w=480)
     Sheet#filters "Filters"          rises from the bottom of the window: filters, options, a share sheet (stops=[0.5,0.9]: heights it rests at)
     Dialog#edit "Edit" guard={name!=""}    while guard holds (on a Sheet too) a tap outside and Escape do not close it: give it a Discard button, or guardText="Discard changes?" onDiscard={name=""} asks then and closes on a yes
-    Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w=300); a NavItem in it closes it
-    Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are MenuItem "Rename" icon="edit" onTap={an action}, and each closes the menu after it
+    Drawer#cart "Your cart" right    a panel as tall as the window at its side (the left unless right; w=300); a line tapped in it closes it
+    Menu#more                        a menu by the button that opened it (Menu#more end lines up their right edges; above opens upwards); its lines are Row gap=10 pad=8 onTap={an action} (an Icon, a Text), and each closes the menu after it
     Popover#tip                      a small panel by what opened it (a hint, a picker); Popover#bio arrow points at it
-    Link "About Mara" preview=bio    that Popover as a hover card: it opens when the pointer rests on the line or the focus comes, at once on a tap
+    Text "About Mara" preview=bio    that Popover as a hover card: it opens when the pointer rests on the line or the focus comes, at once on a tap
     Lightbox#zoom "{photo}" "Caption"    a picture large over the page, which a pinch, the wheel or a double tap zooms: Image "{p.url}" onTap={photo=p.url; open zoom}
     Lightbox#shots photos={photos} @at    a gallery of them (each a URL, or a record with url and caption): swiped or stepped with its arrows, with a count and thumbnails, opened at the one tapped (under each p in photos: Image "{p.url}" onTap={at=index; open shots})
   A row's menu: IconButton "more_vert" onTap={sel=row.id; open rowMenu}, its lines read sel. menu=rowMenu on a line opens it at the pointer on a right click or a long press (under each row, its lines read row). Write no modal as a Stack or an if over the page, and no drawer for an App's Sidebar.${pagesBrief == null || pagesBrief.isEmpty ? '' : '\n${pagesBrief.split('\n').map((l) => '  $l').join('\n')}'}
@@ -196,15 +233,15 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   state email=""
   Page
     Nav
-      Brand "Tidewater" icon="waves"
+      Text.strong "Tidewater"
       Row gap=4
-        Link "Features"
-        Link "Pricing"
+        Button.ghost "Features"
+        Button.ghost "Pricing"
       Button "Start free" onTap={open signup}
     Section
       Row gap=48
         Column grow gap=20
-          Heading "Fill every room" level=1
+          Text.heading1 "Fill every room"
           Text$lead "Calendar, channels and pricing in one place."
           Row gap=12
             Button "Start free" size=large onTap={emit start}
@@ -213,11 +250,11 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
           BarChart values=[14,18,16,21] labels=["Thu","Fri","Sat","Sun"] h=200
     Section tint
       Column gap=12
-        ${eyebrow}Heading "Everything a small hotel needs"
+        ${eyebrow}Text.heading2 "Everything a small hotel needs"
       Grid cols=3 gap=24
         Card gap=12
-          IconTile "sync"
-          Heading "Channel sync" level=3
+          Icon "sync" color=#FF2563EB
+          Text.heading3 "Channel sync"
           Text.muted "Availability stays in step."
     Footer
       Row between
@@ -231,14 +268,15 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   state q=""
   App
     Sidebar
-      Brand "Harbor" icon="anchor"
-      NavItem "Overview" icon="dashboard" selected={tab=="overview"} onTap={tab="overview"}
-      NavItem "Orders" icon="receipt_long" badge="12" selected={tab=="orders"} onTap={tab="orders"}
+      Text.strong "Harbor"
+      Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}
+        Icon "receipt_long"
+        Text "Orders" grow
       Spacer grow
       Text.muted "Sam Patel"
     Main
       Nav
-        Heading "Orders"
+        Text.heading3 "Orders"
         Row gap=8
           Input "Search" @q w=220
           Button "New order" onTap={emit newOrder}
@@ -398,7 +436,6 @@ List<String> notationGlossary(DesignSystem designSystem, NotationVocabulary voca
   bool taught(String n) =>
       notationTypes.containsKey(n) ||
       PageWords.words.contains(n) ||
-      RegExp(r'^H[1-4]$').hasMatch(n) ||
       RegExp('(?<![A-Za-z0-9_])${RegExp.escape(n)}(?![A-Za-z0-9_])').hasMatch(prompt);
   return [for (final n in names) if (n.isNotEmpty && n[0] == n[0].toUpperCase() && !taught(n)) n]..sort();
 }
@@ -565,8 +602,7 @@ String _openPrompt(String taught, {bool define = true}) {
       continue;
     }
     // What the notation has for what round 11's writers invented words for
-    // (a KeyboardShortcut, a LiveStatus, a Clock, a search written as a
-    // Link): said in a line each, where the lines it belongs with are.
+    // (a KeyboardShortcut, a LiveStatus, a Clock, a search field): said in a line each, where the lines it belongs with are.
     if (l.startsWith('- every 1000 onTick=')) {
       out
         ..add(line)
@@ -577,7 +613,7 @@ String _openPrompt(String taught, {bool define = true}) {
         l.startsWith('  key mod+k onPress=') ||
         l.startsWith('  device.hover is true') ||
         l.startsWith('    Dialog#edit "Edit" guard=') ||
-        l.startsWith('    Link "About Mara" preview=')) {
+        l.startsWith('    Text "About Mara" preview=')) {
       continue;
     }
     // What the standalone runs lost rounds to (the vocabulary loop, Review
@@ -592,8 +628,7 @@ String _openPrompt(String taught, {bool define = true}) {
     out.add(line
         .replaceFirst('; confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text',
             '; announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search')
-        .replaceFirst('(Link "Search" menu=false onTap={open search} is a link that stays in the bar and out of the menu;',
-            '(Link "Sign in" menu=false onTap={go account} is a link that stays in the bar and out of the menu; Input#search "Search" icon="search" @q is a search field, in a bar too;')
+        .replaceFirst('for the quiet buttons it hides (', 'for the quiet buttons it hides (Input#search "Search" icon="search" @q is a search field, in a bar too; ')
         .replaceFirst(' (stops=[0.5,0.9]: heights it rests at)', '')
         .replaceFirst(' today(), formatDate(', ' today(), now() (the time), formatDate(')
         // A one-time code is one field (six one-digit Inputs were written).

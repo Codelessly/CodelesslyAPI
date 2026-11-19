@@ -9,8 +9,10 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 NotationResult _read(String text, {bool open = false, double width = 1440}) =>
-    parseNotation(text, catalog: standardCatalog, options: open ? NotationOptions(width: width).open() : NotationOptions(width: width));
+    parseNotation(text, catalog: standardCatalog, options: withTestWords(open ? NotationOptions(width: width).open() : NotationOptions(width: width)));
 
 Map<String, Object?> _node(NotationResult r, String id) => ((r.document['nodes'] as Map)[id] as Map).cast();
 
@@ -224,7 +226,7 @@ define Hotkey "keys" key hint onPress
   });
 
   group('the theme read in a body (theme.<name>)', () {
-    Json theme(String name) => (jsonDecode(File('dictionary/themes/$name.json').readAsStringSync()) as Map).cast<String, Object?>();
+    Json theme(String name) => (jsonDecode(File('test/fixtures/themes/$name.json').readAsStringSync()) as Map).cast<String, Object?>();
     NotationResult under(String text, String? name) => parseNotation(text,
         catalog: standardCatalog, options: name == null ? const NotationOptions(width: 1440) : NotationOptions.fromTheme(ThemeTokens.fromJson(theme(name)).toJson(), width: 1440));
 

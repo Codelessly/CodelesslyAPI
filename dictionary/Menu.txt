@@ -1,4 +1,0 @@
-// A menu opened from what is tapped (`open <id>`, `menu=<id>`): a small outlined panel of items, each closing it as it goes. It does not say: that it is a block of its own (another canvas, shown as a popover at what opened it: below, above, at its end; with an arrow); its items closing it after their actions (the code adds `close` to each).
-Menu "title" pad=6 gap=2
-  Column w=fill pad={pad} gap={gap}
-    ...

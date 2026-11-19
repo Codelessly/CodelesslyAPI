@@ -14,10 +14,10 @@ taking the room its column leaves. The frame words: {{pageWords}}.
 ```notation width=1280 expands
 Page
   Nav
-    Brand "Tidewater" icon="waves"
-    Link "Pricing"
-  Section
-    Heading "Fill every room" level=1
+    Text.strong "Tidewater"
+    Button.ghost "Pricing" onTap={scroll pricing}
+  Section#pricing
+    Text.heading1 "Fill every room"
   Footer
     Text.muted "© 2026"
 ```
@@ -26,34 +26,41 @@ Page
 state tab="orders"
 App
   Sidebar
-    NavItem "Orders" icon="receipt_long" selected={tab=="orders"} onTap={tab="orders"}
+    Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}
+      Icon "receipt_long" size=18
+      Text "Orders" grow
   Main
     Text "Orders"
 ```
 
 ### A sidebar
 
-Write a sidebar with its own words and it is finished without styling: `Brand "Name" "line under it" icon="…"` at
-its head; `NavSection "People & access"` over a group of items (small spaced capitals in a quiet ink, with room over
-it); `NavItem "Members" icon="group"` for each item, with `selected={…}` for the chosen one (the accent and a tint
-of it; the others share one ink and tint under the pointer), `badge="4"` for a count and `shortcut="Alt 1"` for a
-key shown at its end; and `Footer` for what stays at the sidebar's end whatever is above it (the signed-in person,
-help, shortcuts): the lines under it are pinned there, with a rule over them. In a column written by hand, a
-`Spacer` (or an empty `box grow`) between two lines pushes the second to the end, as `margin-top: auto` does on the
-web; the column needs a height (`h=fill`).
+A sidebar is the lines written under it: the product's name at its head; a small label in spaced capitals over a
+group of items; a `Row` for each item (an `Icon`, a `Text grow`, a count), whose `selected={…}` with a
+`selected.fill=` draws the chosen one, and a `hovered.fill=` the tint under the pointer; and `Footer` for what stays
+at the sidebar's end whatever is above it (the signed-in person, help, shortcuts): the lines under it are pinned
+there, with a rule over them. In a column written by hand, a `Spacer` (or an empty `box grow`) between two lines
+pushes the second to the end, as `margin-top: auto` does on the web; the column needs a height (`h=fill`). Words of
+one's own for these lines (`NavItem "Members" icon="group"`) are definitions: a page's, a design system's, or a
+dictionary's ([components.md](components.md)).
 
 ```notation width=1280 expands
 state tab="members"
 App
   Sidebar
-    Brand "Tenant" "Admin console" icon="hub"
-    NavSection "People & access"
-    NavItem "Members" icon="group" selected={tab=="members"} onTap={tab="members"} shortcut="Alt 1"
-    NavItem "Teams" icon="groups" badge="4" selected={tab=="teams"} onTap={tab="teams"}
-    NavSection "Workspace"
-    NavItem "Billing" icon="credit_card" selected={tab=="billing"} onTap={tab="billing"}
+    Text "Tenant" size=15 weight=700 pad=[8,6,8,10]
+    Text "PEOPLE & ACCESS" size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 pad=[10,16,10,6]
+    Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="members"} selected.fill=#142563EB hovered.fill=#0F111827 onTap={tab="members"}
+      Icon "group" size=18
+      Text "Members" grow
+    Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="teams"} selected.fill=#142563EB hovered.fill=#0F111827 onTap={tab="teams"}
+      Icon "groups" size=18
+      Text "Teams" grow
+      Text.muted "4"
     Footer
-      NavItem "Keyboard shortcuts" icon="keyboard" shortcut="?"
+      Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 hovered.fill=#0F111827
+        Icon "keyboard" size=18
+        Text "Keyboard shortcuts" grow
   Main
     Text "Members"
 ```
@@ -70,8 +77,8 @@ here the inspector leaves at a tablet's width and the rail at a phone's.
 state tab="inbox"
 App
   Sidebar w=72 hide=phone
-    NavItem "Inbox" icon="inbox" selected={tab=="inbox"} onTap={tab="inbox"}
-    NavItem "Sent" icon="send" selected={tab=="sent"} onTap={tab="sent"}
+    IconButton "inbox" selected={tab=="inbox"} onTap={tab="inbox"}
+    IconButton "send" selected={tab=="sent"} onTap={tab="sent"}
   Main
     Text.title "Inbox"
   Pane w=320 hide=tablet
@@ -102,11 +109,12 @@ App
 
 An overlay is written after the page, at the margin, with an id; its content is indented under it. `open id`
 shows it, `close` closes it (so does a tap outside it). `Dialog` (centered, a title and a close button), `Sheet`
-(from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`), `Menu` (by the button that opened it;
-`MenuItem` lines), `Popover` (a small panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a
-gallery over the page). A `MenuItem` is its label, `icon=`, `onTap={…}` and, to name it in a render step, an id
-(`MenuItem#dup "Duplicate" icon=content_copy onTap={…}`). A MenuItem closes its menu after its actions (one that
-opens a dialog closes the menu first); write no `close` in it.
+(from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`; a line tapped
+in it closes it, unless the tap only turns a value over), `Menu` (by the button that opened it), `Popover` (a small
+panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a gallery over the page). A menu's lines
+are rows with `onTap={…}` (an `Icon` and a `Text` under each) and, to name one in a render step, an id
+(`Row#dup gap=10 pad=8 onTap={…}`). Each closes its menu after its actions (one that opens a dialog closes the menu
+first); write no `close` in it.
 
 ```notation width=1280 expands
 Column gap=12

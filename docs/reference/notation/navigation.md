@@ -12,15 +12,15 @@ over the page.
 A page is written once inside a frame that owns the widths, margins and scrolling. A website's bands stack in a
 `Page`; an app window is an `App` of panes. Written under another line (`Page grow` under a site's own header, `App
 grow` under a page's), each is that region of the page: its scrolling column of bands, or its panes side by side,
-taking the room its column leaves. The frame words: `App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Brand`, `Content`, `Dialog`, `Dots`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Heading`, `Hero`, `IconTile`, `Lightbox`, `Link`, `Logo`, `Main`, `Menu`, `MenuItem`, `Modal`, `Nav`, `NavBar`, `NavItem`, `NavLink`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `SidebarItem`, `Sidenav`, `SwipeAction`, `Title`, `TopBar`, `Topbar`, `Wanted`, `Window`.
+taking the room its column leaves. The frame words: `App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Content`, `Dialog`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Hero`, `Lightbox`, `Main`, `Menu`, `Modal`, `Nav`, `NavBar`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `Sidenav`, `SwipeAction`, `TopBar`, `Topbar`, `Wanted`, `Window`.
 
 ```notation width=1280 expands
 Page
   Nav
-    Brand "Tidewater" icon="waves"
-    Link "Pricing"
-  Section
-    Heading "Fill every room" level=1
+    Text.strong "Tidewater"
+    Button.ghost "Pricing" onTap={scroll pricing}
+  Section#pricing
+    Text.heading1 "Fill every room"
   Footer
     Text.muted "© 2026"
 ```
@@ -32,13 +32,10 @@ canvas layout.height.hug=0 layout.height.fill=null
 Column stretch scroll h=fill
   Column center pad=[24,14,24,14]
     Row gap=24 between maxWidth=1120
-      Row gap=10
-        Column middle center w=28 h=28 fill=#FF2563EB radius=8
-          Icon "waves" size=16 color=#FFFFFFFF
-        Text.heading2 "Tidewater" size=17
-      Button.ghost "Pricing" h=40.0
+      Text.strong "Tidewater"
+      Button.ghost "Pricing" h=40.0 onTap={scroll pricing}
   Divider
-  Column center pad=[24,64,24,64]
+  Column#pricing center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
       Text.heading2 "Fill every room" size=60
   Spacer grow
@@ -52,7 +49,9 @@ Column stretch scroll h=fill
 state tab="orders"
 App
   Sidebar
-    NavItem "Orders" icon="receipt_long" selected={tab=="orders"} onTap={tab="orders"}
+    Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}
+      Icon "receipt_long" size=18
+      Text "Orders" grow
   Main
     Text "Orders"
 ```
@@ -63,9 +62,9 @@ It reads as:
 state tab="orders"
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=248 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="orders")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=orders}
-      Icon "receipt_long" color={(tab=="orders")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Orders" grow weight={(tab=="orders")?600:500} color={(tab=="orders")?"#FF2563EB":"#FF374151"}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab=orders}
+      Icon "receipt_long" size=18
+      Text "Orders" grow
   Column scroll h=fill grow
     Text "Orders"
 ```
@@ -73,27 +72,32 @@ Row stretch h=fill
 <a id="navigation-a-sidebar"></a>
 ### A sidebar
 
-Write a sidebar with its own words and it is finished without styling: `Brand "Name" "line under it" icon="…"` at
-its head; `NavSection "People & access"` over a group of items (small spaced capitals in a quiet ink, with room over
-it); `NavItem "Members" icon="group"` for each item, with `selected={…}` for the chosen one (the accent and a tint
-of it; the others share one ink and tint under the pointer), `badge="4"` for a count and `shortcut="Alt 1"` for a
-key shown at its end; and `Footer` for what stays at the sidebar's end whatever is above it (the signed-in person,
-help, shortcuts): the lines under it are pinned there, with a rule over them. In a column written by hand, a
-`Spacer` (or an empty `box grow`) between two lines pushes the second to the end, as `margin-top: auto` does on the
-web; the column needs a height (`h=fill`).
+A sidebar is the lines written under it: the product's name at its head; a small label in spaced capitals over a
+group of items; a `Row` for each item (an `Icon`, a `Text grow`, a count), whose `selected={…}` with a
+`selected.fill=` draws the chosen one, and a `hovered.fill=` the tint under the pointer; and `Footer` for what stays
+at the sidebar's end whatever is above it (the signed-in person, help, shortcuts): the lines under it are pinned
+there, with a rule over them. In a column written by hand, a `Spacer` (or an empty `box grow`) between two lines
+pushes the second to the end, as `margin-top: auto` does on the web; the column needs a height (`h=fill`). Words of
+one's own for these lines (`NavItem "Members" icon="group"`) are definitions: a page's, a design system's, or a
+dictionary's ([components.md](components.md)).
 
 ```notation width=1280 expands
 state tab="members"
 App
   Sidebar
-    Brand "Tenant" "Admin console" icon="hub"
-    NavSection "People & access"
-    NavItem "Members" icon="group" selected={tab=="members"} onTap={tab="members"} shortcut="Alt 1"
-    NavItem "Teams" icon="groups" badge="4" selected={tab=="teams"} onTap={tab="teams"}
-    NavSection "Workspace"
-    NavItem "Billing" icon="credit_card" selected={tab=="billing"} onTap={tab="billing"}
+    Text "Tenant" size=15 weight=700 pad=[8,6,8,10]
+    Text "PEOPLE & ACCESS" size=11 weight=600 letterSpacing=0.6 color=#FF6B7280 pad=[10,16,10,6]
+    Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="members"} selected.fill=#142563EB hovered.fill=#0F111827 onTap={tab="members"}
+      Icon "group" size=18
+      Text "Members" grow
+    Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="teams"} selected.fill=#142563EB hovered.fill=#0F111827 onTap={tab="teams"}
+      Icon "groups" size=18
+      Text "Teams" grow
+      Text.muted "4"
     Footer
-      NavItem "Keyboard shortcuts" icon="keyboard" shortcut="?"
+      Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 hovered.fill=#0F111827
+        Icon "keyboard" size=18
+        Text "Keyboard shortcuts" grow
   Main
     Text "Members"
 ```
@@ -104,31 +108,20 @@ It reads as:
 state tab="members"
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=248 h=fill border-right=#FFE5E7EB
-    Row gap=10 pad=[8,6,8,10]
-      Column middle center w=28 h=28 fill=#FF2563EB radius=8
-        Icon "hub" size=16 color=#FFFFFFFF
-      Column gap=0
-        Text.heading2 "Tenant" size=15 w={"hug":0}
-        Text.caption "Admin console" color=#FF6B7280 w={"hug":0}
+    Text.heading2 "Tenant" size=15 pad=[8,6,8,10]
     Text.success "PEOPLE & ACCESS" size=11 color=#FF6B7280 letterSpacing=0.6 pad=[10,16,10,6]
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="members")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=members}
-      Icon "group" color={(tab=="members")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Members" grow weight={(tab=="members")?600:500} color={(tab=="members")?"#FF2563EB":"#FF374151"}
-      Text.caption "Alt 1"
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="teams")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=teams}
-      Icon "groups" color={(tab=="teams")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Teams" grow weight={(tab=="teams")?600:500} color={(tab=="teams")?"#FF2563EB":"#FF374151"}
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={tab=="members"} selected.fill=#142563EB hovered.fill=#0F111827 onTap={tab=members}
+      Icon "group" size=18
+      Text "Members" grow
+    Row gap=10 pad=[10,7,10,7] radius=6 selected={tab=="teams"} selected.fill=#142563EB hovered.fill=#0F111827 onTap={tab=teams}
+      Icon "groups" size=18
+      Text "Teams" grow
       Text.muted "4"
-    Text.success "WORKSPACE" size=11 color=#FF6B7280 letterSpacing=0.6 pad=[10,16,10,6]
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="billing")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=billing}
-      Icon "credit_card" color={(tab=="billing")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Billing" grow weight={(tab=="billing")?600:500} color={(tab=="billing")?"#FF2563EB":"#FF374151"}
     Spacer grow
     Column gap=2 pad=[0,8,0,0] border-top=#FFE5E7EB
       Row gap=10 pad=[10,7,10,7] radius=6 hovered.fill=#0F111827
-        Icon "keyboard" size=18 color=#FF6B7280
-        Text "Keyboard shortcuts" weight=500 color=#FF374151 grow
-        Text.caption "?"
+        Icon "keyboard" size=18
+        Text "Keyboard shortcuts" grow
   Column scroll h=fill grow
     Text "Members"
 ```
@@ -145,8 +138,8 @@ here the inspector leaves at a tablet's width and the rail at a phone's.
 state tab="inbox"
 App
   Sidebar w=72 hide=phone
-    NavItem "Inbox" icon="inbox" selected={tab=="inbox"} onTap={tab="inbox"}
-    NavItem "Sent" icon="send" selected={tab=="sent"} onTap={tab="sent"}
+    IconButton "inbox" selected={tab=="inbox"} onTap={tab="inbox"}
+    IconButton "send" selected={tab=="sent"} onTap={tab="sent"}
   Main
     Text.title "Inbox"
   Pane w=320 hide=tablet
@@ -159,12 +152,8 @@ It reads as:
 state tab="inbox"
 Row stretch h=fill
   Column gap=2 pad=[12,16,12,12] w=72 h=fill border-right=#FFE5E7EB hide=phone
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="inbox")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=inbox}
-      Icon "inbox" color={(tab=="inbox")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Inbox" grow weight={(tab=="inbox")?600:500} color={(tab=="inbox")?"#FF2563EB":"#FF374151"}
-    Row gap=10 pad=[10,7,10,7] radius=6 selected={(tab=="sent")} selected.fills=[{"color":"#FF2563EB","opacity":0.12}] hovered.fill=#0F111827 onTap={tab=sent}
-      Icon "send" color={(tab=="sent")?"#FF2563EB":"#FF6B7280"} size=18
-      Text "Sent" grow weight={(tab=="sent")?600:500} color={(tab=="sent")?"#FF2563EB":"#FF374151"}
+    IconButton "inbox" selected={tab=="inbox"} onTap={tab=inbox}
+    IconButton "send" selected={tab=="sent"} onTap={tab=sent}
   Column scroll h=fill grow
     Text.title "Inbox"
   Column scroll w=320 h=fill border-left=#FFE5E7EB hide=tablet
@@ -212,11 +201,12 @@ Row stretch h=fill
 
 An overlay is written after the page, at the margin, with an id; its content is indented under it. `open id`
 shows it, `close` closes it (so does a tap outside it). `Dialog` (centered, a title and a close button), `Sheet`
-(from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`), `Menu` (by the button that opened it;
-`MenuItem` lines), `Popover` (a small panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a
-gallery over the page). A `MenuItem` is its label, `icon=`, `onTap={…}` and, to name it in a render step, an id
-(`MenuItem#dup "Duplicate" icon=content_copy onTap={…}`). A MenuItem closes its menu after its actions (one that
-opens a dialog closes the menu first); write no `close` in it.
+(from the bottom; `stops=[0.5,0.9]`), `Drawer` (a side panel; `right`; a line tapped
+in it closes it, unless the tap only turns a value over), `Menu` (by the button that opened it), `Popover` (a small
+panel; `preview=id` on a line opens it on hover), `Lightbox` (a picture or a gallery over the page). A menu's lines
+are rows with `onTap={…}` (an `Icon` and a `Text` under each) and, to name one in a render step, an id
+(`Row#dup gap=10 pad=8 onTap={…}`). Each closes its menu after its actions (one that opens a dialog closes the menu
+first); write no `close` in it.
 
 ```notation width=1280 expands
 Column gap=12

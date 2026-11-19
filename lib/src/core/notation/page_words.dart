@@ -46,11 +46,8 @@ final class PageWords {
     this.paneFill,
     this.sideFill,
     this.accentName,
-    this.accentText,
-    this.iconTile,
     this.accent = '#FF2563EB',
     this.siteHeadline,
-    this.quietInks,
     this.selectedFill = '#FFE5E7EB',
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
@@ -85,7 +82,7 @@ final class PageWords {
 
   /// A tinted section's fill, what a website page is drawn on, and the fill
   /// of an app's sidebar and top bar; null: none is written.
-  final String? band, siteFill, paneFill, iconTile;
+  final String? band, siteFill, paneFill;
 
   /// What an app's sidebar is drawn on (a theme's `colors.sidebar`); null: [paneFill].
   final String? sideFill;
@@ -93,22 +90,15 @@ final class PageWords {
   /// The accent as the theme names it (a selected item's ink); null: [accent].
   final String? accentName;
 
-  /// The accent as text on a light page (a link in running text); null: [accent].
-  final String? accentText;
-
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
 
-  /// The size of a website's headline (`Heading level=1`, `Text.pageTitle`,
-  /// `Text.heading1` in a Page's Section), its second and third levels in
+  /// The size of a website's headline (`Text.pageTitle`, `Text.heading1` in
+  /// a Page's Section), its second and third levels in
   /// proportion; null where the theme gives its headline a display size of
   /// its own. A 30 px headline over a 1440 page read as a section's title
   /// (round 11: the web's were 48 to 150 px).
   final num? siteHeadline;
-
-  /// A dark theme's inks for items at rest, their icons and what is fainter
-  /// ([NotationOptions.quietInks]); null: a light theme's greys.
-  final (String, String, String)? quietInks;
 
   /// The indent of the plain Section just written under a Page (no ground,
   /// no bleed), while nothing else has been written beside it.
@@ -175,9 +165,6 @@ final class PageWords {
   /// written by the theme's role for it (`hoverFill`, `band`:
   /// ThemeTokens.notationRoles), light or dark as the site is shown.
   final bool themeRoles;
-
-  /// The tint of a sidebar's item under the pointer.
-  String get _hoverFill => themeRoles ? 'hoverFill' : '#0F111827';
 
   /// What a table's header band is with no band of the theme's.
   String get _headBand => themeRoles ? 'band' : '#FFF8FAFC';
@@ -761,15 +748,19 @@ final class PageWords {
       };
 
   /// [text], a line written under an overlay that closes as its lines are
-  /// used ([Overlay.closes]), with `close` after its actions.
+  /// used ([Overlay.closes]), with `close` after its actions. In a drawer
+  /// (`nav`) a line tapped closes it, unless all the tap does is turn a
+  /// value over (`gift=!gift`: a choice made in the drawer, which stays).
   static String closing(String text, String closes) {
     if (closes == 'none') return text;
     final t = text.trimLeft();
-    if (closes == 'nav' && !RegExp(r'^(NavItem|NavLink|SidebarItem|MenuItem|Link)\b').hasMatch(t)) return text;
+    if (closes == 'nav' && !RegExp(r'(^|\s)onTap=\{').hasMatch(t)) return text;
     final own = _ownEvent(text);
     if (own == null) return text;
     final actions = text.substring(own.start, own.end);
     if (RegExp(r'(^|;)\s*close\s*(;|$)').hasMatch(actions)) return text;
+    final turned = closes == 'nav' ? RegExp(r'^\s*(\w+)\s*=\s*!\s*(\w+)\s*$').firstMatch(actions) : null;
+    if (turned != null && turned[1] == turned[2]) return text;
     // What opens another overlay closes this one first: closed after, the
     // close would shut the overlay just opened (a drawer's "Shortcuts").
     if (RegExp(r'(^|[;{]|then|:)\s*(open|confirm)\s').hasMatch(actions)) {
@@ -815,45 +806,22 @@ final class PageWords {
   /// The lines open above the one being read.
   final _open = <_Line>[];
 
-  /// ` tablet.visible=false` for each width at which the sidebar a line is in
-  /// is a rail; nothing outside one.
-  String _railHide() {
-    for (final l in _open.reversed) {
-      if (l.rail.isNotEmpty) return [for (final w in l.rail) ' $w.visible=false'].join();
-    }
-    return '';
-  }
-
   /// Whether the page's root is an app window (as tall as the window).
   bool app = false;
 
   /// Every word this layer reads (a frame, a bar, a pane, an overlay, a
   /// line of a bar): none of them is an unknown word, or an alias.
   static const words = {
-    'Page', 'App', 'AppShell', 'Window', 'Section', 'Footer', 'Hero', 'Main', 'Content', 'Pane', 'Panel', 'Brand', 'Logo', 'IconTile', 'Link', 'Heading', 'Title', //
-    'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Menu', 'Dropdown', 'Popover', 'Popup', 'Lightbox', 'Dots', 'SwipeAction', 'Wanted',
-    ..._bars, ..._sides, ..._items,
+    'Page', 'App', 'AppShell', 'Window', 'Section', 'Footer', 'Hero', 'Main', 'Content', 'Pane', 'Panel', //
+    'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Menu', 'Dropdown', 'Popover', 'Popup', 'Lightbox', 'SwipeAction', 'Wanted',
+    ..._bars, ..._sides,
   };
   static const _bars = {'Nav', 'Navbar', 'NavBar', 'TopBar', 'Topbar', 'Header', 'AppBar'};
   static const _sides = {'Sidebar', 'Aside', 'SideNav', 'Sidenav', 'Rail'};
-  static const _items = {'NavItem', 'NavLink', 'SidebarItem', 'MenuItem'};
 
-  /// In a sidebar: the label over a group of items, and the foot pinned at its end.
-  static const _sections = {'NavSection', 'NavGroup', 'NavLabel', 'SidebarSection', 'SidebarLabel', 'SidebarGroup'};
-  static const _feet = {'Footer', 'SidebarFooter', 'NavFooter'};
+  /// In a sidebar: the foot pinned at its end.
+  static const _feet = {'Footer'};
 
-  /// The fill of the chosen item of a sidebar or a bar: the design system's
-  /// selected fill, or with none a tint of the accent (the web's habit: the
-  /// chosen item is the accent's, not a grey).
-  ///
-  /// The word that says it (`fill=…`, or `fills=[…]` for the tint): the
-  /// tint is the accent as the theme names it at an eighth of its strength,
-  /// so it follows the site's own accent and its dark mode.
-  String _navFill(String ink) =>
-      selectedFill == '#FFE5E7EB' || selectedFill == 'subtleFill' ? 'fills=[{"color":"$ink","opacity":0.12}]' : 'fill=$selectedFill';
-
-  /// A quoted label in capitals (`"People & access"` is `"PEOPLE & ACCESS"`); one with a value in it as written.
-  static String _upper(String quoted) => quoted.contains('{') ? quoted : quoted.toUpperCase();
   static final _head = RegExp(r'^([A-Z][A-Za-z0-9]*)((?:\.[A-Za-z][A-Za-z0-9]*)?(?:#[A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)?)(?=\s|$)');
 
   /// The lines [text] at [indent] stands for: itself, moved under the frame
@@ -1126,7 +1094,7 @@ final class PageWords {
           !tokens.any((t) => _byWidth.hasMatch(t));
       // (On a phone it is the drawer, as a writer's rail is: `hide=phone`.)
       final rail = railed ? ' tablet.w=${_n(sidebarRail!)} hide=phone' : '';
-      open(frame: framed ? 'Sidebar' : null).rail = railed ? const ['tablet'] : parts.railWidths;
+      open(frame: framed ? 'Sidebar' : null);
       final side = sideFill ?? paneFill;
       final fill = !framed || parts.has('fill') || side == null ? '' : ' fill=$side';
       if (window) {
@@ -1170,59 +1138,6 @@ final class PageWords {
       open(frame: framed ? 'Pane' : null);
       return out..add((indent: at, text: 'Column${framed ? _role('pane') : ''}$mark ${width == null ? 'grow' : 'w=$width'}${framed ? ' h=fill scroll' : ''}${parts.hasBorder || !framed ? '' : _mainSeen ? ' border-left=$line' : ' border-right=$line'}${parts.all}'));
     }
-    if (_items.contains(word) && !isComponent(word)) {
-      final icon = parts.take('icon');
-      final badge = parts.take('badge') ?? parts.take('count');
-      final selected = parts.take('selected') ?? parts.take('active');
-      final on = parts.word('selected') | parts.word('active');
-      final shortcut = parts.take('shortcut') ?? parts.take('hint');
-      final label = parts.string();
-      final ink = accentName ?? accent;
-      // Every item at rest has one ink and its icon a quieter one: only the
-      // chosen item stands out (the accent, a heavier weight, the selected fill).
-      final (quiet, quietIcon, faint) = quietInks ?? ('#FF374151', '#FF6B7280', '#FF9CA3AF');
-      // The chosen item's fill is a state of its row, so that the tint under
-      // the pointer (a state too) never replaces it: selected is the later one.
-      final fill = selected != null
-          ? ' selected={${_expr(selected)}} selected.${_navFill(ink)}'
-          : on
-              ? ' ${_navFill(ink)}'
-              : '';
-      // In a bar the items sit side by side; in a sidebar each takes the width.
-      final across = parent?.frame == 'Nav';
-      // In a rail (a sidebar the writer made narrow at a width) an item with an
-      // icon shows the icon alone: its label, count and shortcut had no room.
-      final railed = across || icon == null ? '' : _railHide();
-      // Under the pointer an item that is not the chosen one is tinted.
-      final hover = parts.has('hovered.fill') || on ? '' : ' hovered.fill=$_hoverFill';
-      final weight = on
-          ? 'weight=600 color=$ink'
-          : selected != null
-              ? 'weight={${_expr(selected)}?600:500} color={${_expr(selected)}?"$ink":"$quiet"}'
-              : 'weight=500 color=$quiet';
-      open();
-      return out
-        ..add((indent: at, text: 'Row$mark ${across ? '' : 'w=fill '}gap=10 middle pad=[10,7,10,7] radius=6$fill$hover${parts.all}'))
-        ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Icon $icon size=18${on ? ' color=$ink' : selected != null ? ' color={${_expr(selected)}?"$ink":"$quietIcon"}' : ' color=$quietIcon'}'),
-          (indent: at + 2, text: 'Text ${label ?? '""'} size=13 $weight${across ? '' : ' grow'}$railed'),
-          if (badge != null) (indent: at + 2, text: 'Text.${_variant(const ['muted', 'caption', 'small']) ?? 'muted'} $badge$railed'),
-          if (shortcut != null) (indent: at + 2, text: 'Text $shortcut size=11 color=$faint$railed'),
-        ]);
-    }
-    // A sidebar's parts: the label over a group of its items (in a sidebar,
-    // or a column of navigation a component draws as one), and its foot.
-    if (_sections.contains(word) && !isComponent(word) && !declares(word)) {
-      final label = parts.string();
-      open();
-      // Small, spaced capitals in a quiet ink, with room over it that parts
-      // the groups.
-      return out
-        ..add((
-          indent: at,
-          text: 'Text$mark ${label == null ? '""' : _upper(label)} size=11 weight=600 letterSpacing=0.6 color=${quietInks?.$2 ?? '#FF6B7280'} w=fill pad=[10,16,10,6]${_railHide()}${parts.all}'
-        ));
-    }
     if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) {
       // The foot stays at the sidebar's end whatever is above it: a spacer
       // takes the room between, and a rule parts it from the items.
@@ -1250,25 +1165,6 @@ final class PageWords {
       return out
         ..add((indent: at, text: 'Row w=$width$grow'))
         ..add((indent: at + 2, text: 'Badge$mark${parts.all}'));
-    }
-    // The product's mark and name, at the head of a sidebar or the start of a bar.
-    if ((word == 'Brand' || word == 'Logo') && !isComponent(word)) {
-      final icon = parts.take('icon');
-      final name = parts.string();
-      final under = parts.string();
-      final side = parent?.frame == 'Sidebar';
-      final railed = side && icon != null ? _railHide() : '';
-      open();
-      return out
-        ..add((indent: at, text: 'Row$mark gap=10 middle${side ? ' pad=[8,6,8,10]' : ''}${parts.all}'))
-        ..addAll([
-          if (icon != null) (indent: at + 2, text: 'Box w=28 h=28 radius=8 fill=${accentName ?? accent} center middle'),
-          if (icon != null) (indent: at + 4, text: 'Icon $icon size=16 color=#FFFFFFFF'),
-          if (under == null) (indent: at + 2, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700$railed'),
-          if (under != null) (indent: at + 2, text: 'Column gap=0$railed'),
-          if (under != null) (indent: at + 4, text: 'Text ${name ?? '""'} size=${side ? 15 : 17} weight=700'),
-          if (under != null) (indent: at + 4, text: 'Text $under size=11 color=${quietInks?.$2 ?? '#FF6B7280'}'),
-        ]);
     }
     // A field in a bar has no room for a label above it: its label is its
     // hint. A search field shows the magnifier before its text, as every
@@ -1299,67 +1195,16 @@ final class PageWords {
         return out..add((indent: at, text: 'Input$mark${label == null ? '' : ' $label'}$icon${parts.all}'));
       }
     }
-    if (word == 'IconTile' && !isComponent('IconTile')) {
-      final name = parts.string();
-      final size = double.tryParse(parts.take('size') ?? '') ?? 40;
-      final ink = parts.take('color') ?? accentName ?? accent;
-      final fill = parts.take('fill') ?? iconTile ?? selectedFill;
-      open();
-      return out
-        ..add((indent: at, text: 'Box$mark w=${_n(size)} h=${_n(size)} radius=${_n((size / 4).roundToDouble())} fill=$fill center middle${parts.all}'))
-        ..add((indent: at + 2, text: 'Icon ${name ?? '"star"'} size=${_n((size / 2).roundToDouble())} color=$ink'));
-    }
-    if (word == 'Link' && !isComponent('Link')) {
-      final href = parts.take('href') ?? parts.take('to') ?? parts.take('url');
+    // A quiet button in a website's bar (Button.ghost … onTap={…}): the bar
+    // hides it on a phone, and its menu there repeats it.
+    if (bar != null && word == 'Button' && mark.startsWith('.ghost') && !isComponent('Button')) {
       final label = parts.string();
-      // menu=false keeps a link out of the bar's phone menu (one that stays in view: Search).
-      final inMenu = parts.take('menu') != 'false';
-      // href="https://…" opens it; href="#pricing" scrolls to that part of the page.
-      final does = parts.takeEvent() ??
-          (href != null && RegExp(r'^"?https?://').hasMatch(href)
-              ? 'link ${href.replaceAll('"', '')}'
-              : href != null && RegExp(r'^"?#[A-Za-z_]').hasMatch(href)
-                  ? 'scroll ${href.replaceAll('"', '').substring(1)}'
-                  : null);
-      final action = '${does == null ? '' : ' onTap={$does}'}${parts.tail}';
-      if (bar != null && inMenu && label != null && does != null) {
+      final does = parts.takeEvent();
+      if (label != null && does != null) {
         bar.links.add((label: label, action: does.trim(), group: parent, direct: parent?.frame == 'Nav'));
       }
-      open();
-      // In a bar a link is a quiet button; in running content, text in the accent.
-      if (parent?.frame == 'Nav' || _open.any((l) => l.frame == 'Nav')) {
-        return out..add((indent: at, text: 'Button.ghost$mark ${label ?? '""'}${parts.props}$action'));
-      }
-      // The theme's accent by its name where the document names its colors
-      // (a site): a fixed blue showed on every site (round 11).
-      final ink = accentText ?? accentName ?? accent;
-      if (_looks(parts)) {
-        final color = parts.has('color') ? '' : ' color=$ink';
-        return out..addAll(_textBox(at, mark, parts, text: '${label ?? '""'}$color', action: action));
-      }
-      return out..add((indent: at, text: 'Text$mark ${label ?? '""'}${parts.has('color') ? '' : ' color=$ink'}${parts.props}$action'));
-    }
-    if ((word == 'Heading' || word == 'Title' || RegExp(r'^H[1-4]$').hasMatch(word)) && !isComponent(word)) {
-      final level = word.startsWith('H') && word.length == 2 ? int.parse(word.substring(1)) : int.tryParse(parts.take('level') ?? '') ?? 2;
-      // A website's headline and section titles; an app's page title and
-      // the titles of its panels.
-      final variant = inApp
-          ? switch (level) {
-              // In a top bar the page's title is a bar's size.
-              1 when _open.any((l) => l.frame == 'Nav') => _variant(const ['heading3', 'heading', 'title']),
-              1 => _variant(const ['title', 'pageTitle', 'heading2']),
-              2 => _variant(const ['heading', 'sectionTitle', 'heading3']),
-              _ => _variant(const ['strong', 'heading']),
-            }
-          : switch (level) {
-              1 => _variant(const ['heading1', 'pageTitle', 'title']),
-              2 => _variant(const ['heading2', 'title', 'sectionTitle']),
-              _ => _variant(const ['heading3', 'heading', 'cardTitle', 'strong']),
-            };
-      final display = !inApp && _inSiteSection && !parts.has('size') ? _headlineSize(level.clamp(1, 3)) : null;
-      if (level == 1 && !inApp && _inSiteSection) _open.lastWhere((l) => l.frame == 'Section').hero = true;
-      open();
-      return out..add((indent: at, text: 'Text${variant == null ? '' : '.$variant'}${mark.startsWith('#') ? mark : ''}${display == null ? '' : ' size=${_n(display.toDouble())}'}${parts.all}'));
+      open(frame: null);
+      return out..add((indent: at, text: text));
     }
     // On a website a hero's buttons are large (44), and an icon button has
     // a hit area that shows (a 40 px square in a hairline): they were a
@@ -1383,6 +1228,9 @@ final class PageWords {
         ..add((indent: at + 2, text: '$text w=40 h=40'));
     }
     // A website's headline written as its text style: the same size.
+    if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection) {
+      _open.lastWhere((l) => l.frame == 'Section').hero = true;
+    }
     if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection && !parts.has('size')) {
       if (_headlineSize(1) case final num display) {
         open(frame: null);
@@ -1565,11 +1413,6 @@ final class PageWords {
 
   static String _n(double v) => v == v.roundToDouble() ? '${v.round()}' : '$v';
 
-  static String _expr(String raw) {
-    var e = raw;
-    if (e.startsWith('{') && e.endsWith('}')) e = e.substring(1, e.length - 1);
-    return '(${e.replaceAll(' ', '')})';
-  }
 }
 
 /// A block written after the page that is shown over it: a dialog, a
@@ -1663,10 +1506,6 @@ class _Line {
 
   /// The table this line is (`Table … in …`), whose cells are the lines under it.
   _Table? table;
-
-  /// A sidebar's widths at which the writer made it a rail (`tablet.w=72`): its
-  /// items show their icons alone there.
-  List<String> rail = const [];
 
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.

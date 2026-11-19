@@ -1,3 +1,0 @@
-// The label over a group of a sidebar's items: small spaced capitals in a quiet ink, a written label put in capitals as it is read. It does not say: a label worked out from the state is shown as written in the code, in capitals here (upper at run time); hidden where its sidebar is a rail (it reads the line it is under).
-NavSection "label"
-  Text "{upper(label)}" size=11 weight=600 letterSpacing=0.6 color={coalesce(theme.mutedInk, "#FF6B7280")} w=fill pad=[10,16,10,6] ...

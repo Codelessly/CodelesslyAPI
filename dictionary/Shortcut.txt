@@ -1,3 +1,0 @@
-// A keyboard shortcut of the screen: the notation's key line, its chord from the first string, key=, keys= or combo=, a condition written after it (when …, when={…}) kept; what only describes it (hint, description, label) shows nothing. It does not say: a chord written as a bare word (shortcut space onPress=…), an event under another name (onKey=), an event whose actions are not braced (the code reads these).
-Shortcut "chord" key keys combo hint description label onPress
-  key {replace(coalesce(chord, key, keys, combo), " ", "")} ... onPress={onPress}

@@ -37,7 +37,6 @@ import 'package:codelessly_api/src/core/notation/notation.dart'
         notationVerbAliases,
         notationVerbs,
         parseNotation;
-import 'package:codelessly_api/src/core/notation/dictionary.dart' show notationDictionaryWords;
 import 'package:codelessly_api/src/core/notation/vocabulary.dart' show NotationVocabulary;
 import 'package:codelessly_api/src/core/notation/page_words.dart' show PageWords;
 import 'package:codelessly_api/src/core/notation/print.dart' show notationOptionsFor, printNotation;
@@ -1319,19 +1318,11 @@ final class _NotationReference {
         [
           '`${e.key}`',
           'word',
-          e.value.line != null
-              ? _aliasLines[e.value.line] ?? (throw StateError('notation reference: say what the alias line ${e.value.line} is in _aliasLines'))
-              : '`${e.value.to}${e.value.variant == null ? '' : '.${e.value.variant}'}${e.value.add == null ? '' : ' ${e.value.add}'}`'
+          '`${e.value.to}${e.value.variant == null ? '' : '.${e.value.variant}'}${e.value.add == null ? '' : ' ${e.value.add}'}`'
                   '${e.value.parameters.isEmpty ? '' : ', ${e.value.parameters.entries.map((p) => '`${p.key}=` as `${p.value}=`').join(', ')}'}'
                   '${e.value.requires.isEmpty ? '' : ' (with ${e.value.requires.map((r) => '`$r=`').join(', ')})'}',
           '',
         ],
-        // The built-in dictionary's words that stand for a line of the
-        // notation (docs/design/23), read as that line as the aliases are;
-        // listed after the shortcut, where the alias table had them.
-        if (e.key == 'shortcut')
-          for (final w in notationDictionaryWords.toList()..sort())
-            ['`$w`', 'word', _aliasLines[w] ?? (throw StateError('notation reference: say what the dictionary word $w is in _aliasLines')), ''],
       ],
       for (final t in v.parameters.entries)
         for (final e in t.value.entries)
@@ -1360,13 +1351,6 @@ final class _NotationReference {
     final ons = join(join(rows, 0).values, 3);
     return Renderer.table(['Also read', 'As a', 'Is', 'On'], [...ons.values]);
   }
-
-  /// What the core vocabulary's line aliases are, in the notation's own form.
-  static const _aliasLines = {
-    'shortcut': 'a `key` line of the screen (`key mod+k onPress={…}`)',
-    'computed': 'a formula variable (`state total:decimal={price*qty}`)',
-    'confirmDialog': 'a `Dialog` block with its two buttons',
-  };
 
   String _verbs() => Renderer.table(['Write', 'Action'], [
         for (final (s, types) in _verbTypes) ['`$s`', types.map((t) => _link(ItemKind.action, t)).join(' then ')],

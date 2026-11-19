@@ -7,8 +7,10 @@ import 'package:codelessly_api/notation.dart';
 import 'package:codelessly_api/src/core/notation/prompt.dart' show notationPrompt;
 import 'package:test/test.dart';
 
+import 'notation_words.dart';
+
 NotationResult _parse(String text, [NotationOptions options = const NotationOptions(openVocabulary: true)]) =>
-    parseNotation(text, catalog: standardCatalog, options: options);
+    parseNotation(text, catalog: standardCatalog, options: withTestWords(options));
 
 Map<String, Object?> _nodes(NotationResult r) => (r.document['nodes'] as Map).cast<String, Object?>();
 
@@ -252,16 +254,16 @@ define Rows
   group('C1: a website\'s headline at a display size', () {
     num? sizeOf(NotationResult r, String text) =>
         (((_nodes(r).values.cast<Map>().firstWhere((n) => n['type'] == 'text' && (n['props'] as Map)['text'] == text))['props'] as Map)['style'] as Map)['fontSize'] as num?;
-    const page = 'Page\n  Section\n    Heading "Head" level=1\n    Heading "Two" level=2\n    Heading "Three" level=3\n    Text.pageTitle "Title"\n    Heading "Own" level=1 size=40\n';
+    const page = 'Page\n  Section\n    Text.heading1 "Head"\n    Text.heading2 "Two"\n    Text.heading3 "Three"\n    Text.pageTitle "Title"\n    Text.heading1 "Own" size=40\n';
 
-    test('in a Page\'s Section: 60, 36 and 22 (it was 30, 24 and 18); Text.pageTitle 60', () {
+    test('in a Page\'s Section: heading1 and pageTitle 60 (heading1 was 30); heading2 and heading3 the theme\'s', () {
       final r = _parse(page, const NotationOptions(width: 1440));
-      expect([for (final t in ['Head', 'Two', 'Three', 'Title', 'Own']) sizeOf(r, t)], [60, 36, 22, 60, 40]);
+      expect([for (final t in ['Head', 'Two', 'Three', 'Title', 'Own']) sizeOf(r, t)], [60, 24, 18, 60, 40]);
     });
 
-    test('an App\'s page title is as it was', () {
-      final r = _parse('App\n  Main\n    Heading "Head" level=1\n', const NotationOptions(width: 1440));
-      expect(sizeOf(r, 'Head'), 20);
+    test('an App\'s heading1 is the theme\'s', () {
+      final r = _parse('App\n  Main\n    Text.heading1 "Head"\n', const NotationOptions(width: 1440));
+      expect(sizeOf(r, 'Head'), 30);
     });
 
     test('a theme that gives its headline a display size keeps it', () {
