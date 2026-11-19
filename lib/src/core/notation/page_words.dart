@@ -101,6 +101,16 @@ final class PageWords {
   /// no bleed), while nothing else has been written beside it.
   int? _plainSectionAt;
 
+  /// The indent of the Main a slim bar was made for (its sidebar's button,
+  /// where Main's first line is no bar), and whether that bar is not to be
+  /// drawn after all: Main's own bar came later and took the button, or the
+  /// writer made a button of their own ([ownMenuButton]: no drawer either).
+  int? _slimBarIn;
+  bool slimBarSuperseded = false, ownMenuButton = false;
+
+  /// Whether the page's bar (its first `Nav`) was written.
+  bool _pageBar = false;
+
   /// Whether the text is a website's (its top is a `Page`): its controls are
   /// a page's size ([NotationOptions.controlHeight] else 40).
   bool site = false;
@@ -800,11 +810,17 @@ final class PageWords {
     // link beside the bar's buttons stays where it is.
     final inGroup = <_Line?, int>{};
     for (final link in closed.links) {
-      inGroup[link.group] = (inGroup[link.group] ?? 0) + 1;
+      if (link.mark == null) inGroup[link.group] = (inGroup[link.group] ?? 0) + 1;
     }
     final links = [
       for (final link in closed.links)
-        if (link.direct || (inGroup[link.group] ?? 0) >= 2) link,
+        if (link.mark == null && (link.direct || (inGroup[link.group] ?? 0) >= 2)) link,
+    ];
+    // The bar's other labelled buttons, which the menu holds once there is one.
+    final buttons = [
+      if (links.isNotEmpty)
+        for (final link in closed.links)
+          if (link.mark != null) link,
     ];
     // From six links on, a tablet has no room for them either.
     final size = links.length >= 6 ? 'tablet' : 'phone';
@@ -818,6 +834,10 @@ final class PageWords {
         for (final link in links) ...[
           (indent: at + 6, text: 'Row w=fill pad=[12,10,12,10] radius=8 middle onTap={navMenu=false; ${link.action}}'),
           (indent: at + 8, text: 'Text.strong ${link.label}'),
+        ],
+        for (final b in buttons) ...[
+          (indent: at + 6, text: 'Row w=fill pad=[12,6,12,6]'),
+          (indent: at + 8, text: 'Button${b.mark} ${b.label} grow onTap={navMenu=false; ${b.action}}'),
         ],
       ],
       if (closed.after != null) (indent: at, text: closed.after!),
@@ -949,16 +969,24 @@ final class PageWords {
       final bar = word != null && _bars.contains(word) && !isComponentCall(word, _Parts(rest));
       if (indent > from && !bar && sidebarMenu != null && sidebarRest != null && !sidebarButton) {
         sidebarButton = true;
+        _slimBarIn = from;
         out
-          ..add((indent: at, text: 'Row w=fill middle pad=[12,8,12,8] show=$_menuSize${paneFill == null ? '' : ' fill=$paneFill'}'))
+          ..add((indent: at, text: 'Row${_role('autobar')} w=fill middle pad=[12,8,12,8] show=$_menuSize${paneFill == null ? '' : ' fill=$paneFill'}'))
           ..add((indent: at + 2, text: 'IconButton "menu" onTap={open $sidebarMenu}'))
-          ..add((indent: at, text: 'Divider show=$_menuSize'));
+          ..add((indent: at, text: 'Divider${_role('autobar')} show=$_menuSize'));
       }
+    }
+    // The writer's own button for a narrow window (`IconButton "menu"
+    // show=phone onTap={open houseNav}`): the page has its navigation there,
+    // so the button made for the sidebar, its bar and its drawer are not.
+    if (root == 'App' && sidebarRest != null && !ownMenuButton && (word == 'IconButton' || word == 'Button') && RegExp(r'\sshow=(phone|mobile|tablet)(\s|$)').hasMatch(rest) && RegExp(r'[{;]\s*open\s').hasMatch(rest)) {
+      ownMenuButton = true;
+      slimBarSuperseded = true;
     }
     // An `if` or an `each` is not a place of its own: what is under it is
     // where the line itself is.
     if (RegExp(r'^(if|each|for|else)\b').hasMatch(text)) {
-      open(frame: parent?.frame);
+      open(frame: parent?.frame).conditional = true;
       return out..add((indent: at, text: text));
     }
     if (word == null || text.startsWith('node ') || text.startsWith('document ')) {
@@ -1087,8 +1115,13 @@ final class PageWords {
         out.add((indent: at, text: 'Row${_role('nav')}$mark w=fill between middle pad=$pad gap=$gap$fill${parts.all}'));
         // The sidebar a phone has no room for opens from a button here
         // (a tablet too, where it drops the first of two panes).
-        if (sidebarMenu != null && sidebarRest != null && !sidebarButton && parent?.frame == 'Main') {
+        // (A bar written after a line that draws nothing, an overlay's or a
+        // shortcut's word: it is still Main's bar, and takes the button from
+        // the slim bar made before it was read, which is then not drawn.)
+        final afterSlim = _slimBarIn != null && parent?.frame == 'Main' && parent?.indent == _slimBarIn && !slimBarSuperseded;
+        if (sidebarMenu != null && sidebarRest != null && (!sidebarButton || afterSlim) && parent?.frame == 'Main') {
           sidebarButton = true;
+          if (afterSlim) slimBarSuperseded = true;
           out.add((indent: at + 2, text: 'IconButton${_role('appmenu')} "menu" show=$_menuSize onTap={open $sidebarMenu}'));
         }
         return out;
@@ -1096,6 +1129,17 @@ final class PageWords {
       final width = parts.take('maxw') ?? _n(contentWidth);
       final pad = parts.take('pad') ?? '[${_n(gutter)},14,${_n(gutter)},14]';
       final sticky = parts.word('sticky') ? ' sticky=0${parts.has('fill') || siteFill == null ? '' : ' fill=$siteFill'}' : '';
+      // A page has one bar that folds into a menu: its first. A Nav further
+      // down the page is a strip of the page's own (the tabs of an article,
+      // a filter): it keeps what is written in it at every width and, where
+      // that has no room, scrolls sideways.
+      if (_pageBar) {
+        open(frame: 'Nav', shift: 2, after: 'Divider');
+        return out
+          ..add((indent: at, text: 'Column$mark w=fill center pad=$pad$sticky${parts.all}'))
+          ..add((indent: at + 2, text: 'Row w=fill maxw=$width between middle gap=$gap phone.scroll=true'));
+      }
+      _pageBar = true;
       open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
         ..add((indent: at, text: 'Column$mark w=fill center pad=$pad$sticky${parts.all}'))
@@ -1220,11 +1264,17 @@ final class PageWords {
     }
     // A quiet button in a website's bar (Button.ghost … onTap={…}): the bar
     // hides it on a phone, and its menu there repeats it.
-    if (bar != null && word == 'Button' && mark.startsWith('.ghost') && !isComponent('Button')) {
+    // Its other labelled buttons go into that menu with them (a phone's bar
+    // is one line: the brand, the icon buttons and the menu button), unless
+    // the line says where it shows or stands under a condition.
+    if (bar != null && word == 'Button' && !isComponent('Button')) {
+      final link = mark.startsWith('.ghost');
+      final placed = _open.skipWhile((l) => !identical(l, bar)).any((l) => l.conditional) ||
+          parts._tokens.any((t) => _byWidth.hasMatch(t) || t.startsWith('visible=') || t == 'hidden' || t.startsWith('hidden='));
       final label = parts.string();
       final does = parts.takeEvent();
-      if (label != null && does != null) {
-        bar.links.add((label: label, action: does.trim(), group: parent, direct: parent?.frame == 'Nav'));
+      if (label != null && does != null && (link || !placed)) {
+        bar.links.add((label: label, action: does.trim(), group: parent, direct: parent?.frame == 'Nav', mark: link ? null : mark.split('#').first));
       }
       open(frame: null);
       return out..add((indent: at, text: text));
@@ -1547,7 +1597,13 @@ class _Line {
 
   /// A website's Section that holds its headline (a hero): its buttons are large.
   bool hero = false;
-  final links = <({String label, String action, _Line? group, bool direct})>[];
+  ///
+  /// Each is a link (a quiet button) or, with its [mark] (`.outline`, empty
+  /// for a plain one), another labelled button of the bar.
+  final links = <({String label, String action, _Line? group, bool direct, String? mark})>[];
+
+  /// An `if` or an `each`: what is under it shows by a condition or is repeated.
+  bool conditional = false;
 }
 
 /// The words of a line after its type, taken apart: `key=value` pairs

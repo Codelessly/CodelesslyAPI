@@ -3531,6 +3531,26 @@ class _Parser {
 
   void _reflow() {
     _rejoinWraps();
+    // The slim bar made for a sidebar's button before the page's own bar or
+    // button was read (PageWords.slimBarSuperseded) is not drawn; with a
+    // button of the writer's own, neither is the one made in Main's bar.
+    if (_pages.slimBarSuperseded) {
+      for (final e in _roles.entries.toList()) {
+        if (e.value != 'autobar' && !(e.value == 'appmenu' && _pages.ownMenuButton)) continue;
+        final n = nodes[e.key];
+        if (n == null) continue;
+        // (Hidden by a rule that holds at every width: it takes no room.)
+        const gone = [
+          {
+            'minWidth': 0,
+            'patch': {'visible': false},
+          },
+        ];
+        n['media'] = gone;
+        _roles.remove(e.key);
+        if (_canvas) ops.add({'op': 'patch', 'id': e.key, 'patch': {'media': gone}});
+      }
+    }
     // A page laid out for a phone is as written; a narrow overlay of a page
     // (its _host) wraps its rows of copies only (PageReflow.runNarrow).
     if (!options.reflow || (options.width < 700 && _host == null)) return;
@@ -10143,7 +10163,7 @@ class _Parser {
       }
       // An app's sidebar, where the window has no room for it: a drawer the
       // top bar's menu button opens, each of its lines closing it as it is used.
-      if (_pages.sidebarButton && _pages.sidebar.isNotEmpty && !_continues) {
+      if (_pages.sidebarButton && !_pages.ownMenuButton && _pages.sidebar.isNotEmpty && !_continues) {
         if (_pages.overlay('Drawer#${_pages.sidebarMenu}${_pages.sidebarRest}') case final Overlay o) {
           _openBlock(o);
           _quiet = true;
@@ -10182,6 +10202,9 @@ class _Parser {
     _from = null;
     final before = nodes.length;
     for (final l in _pages.finish()) {
+      // (A bar that is the last thing written, a component's whole body: its
+      // menu's state is declared as where a line follows the bar.)
+      if (l.text.contains('navMenu')) variables.putIfAbsent('navMenu', () => {'name': 'navMenu', 'type': 'boolean', 'value': false});
       _lineAt(l.indent, l.text, l.indent + 1);
     }
     while (_stack.isNotEmpty) {

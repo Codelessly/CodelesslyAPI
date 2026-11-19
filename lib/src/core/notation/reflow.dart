@@ -821,9 +821,65 @@ final class PageReflow {
         _add(band, reflowPhoneMax, {'layout': {'padding': [16, pad[1], 16, pad[3]]}});
       }
     }
+    // A page's bar (in its band, not an app's pane) is one line on a phone:
+    // it never wraps, and its first part (the brand) gives way, its texts
+    // ending in an ellipsis, before anything is pushed off the line.
+    final band = _parents[id];
+    final pageBar = band != null && roles[band] == null && _type(nodes[band]!) == 'column' && _kids(nodes[band]!).firstOrNull == id;
+    final kids = _kids(n);
+    if (pageBar && kids.length >= 2 && !_own.contains(id) && !_underKept(id)) {
+      _handled.add(id);
+      final brand = kids.first;
+      if (!_fills(nodes[brand]!) && _fixedWidth(nodes[brand]!) == null && !_own.contains(brand)) _gives(brand, across: true);
+    }
     if (links == 0) return;
+    final width = links >= 6 ? reflowTabletMax : reflowPhoneMax;
     for (final k in hide) {
-      _hide(k, links >= 6 ? reflowTabletMax : reflowPhoneMax);
+      _hide(k, width);
+    }
+    // Where its links are in its menu (the button the bar ends with, which
+    // opens it), its other labelled buttons are too.
+    final menu = kids.isNotEmpty && _type(nodes[kids.last]!) == 'iconButton' && '${nodes[kids.last]!['actions']}'.contains('navMenu');
+    if (!pageBar || !menu) return;
+    void fold(String k) {
+      final kid = nodes[k]!;
+      final type = _type(kid);
+      if (const {'filledButton', 'outlinedButton', 'elevatedButton'}.contains(type)) {
+        final label = _props(kid)['label'];
+        final bound = readMap(kid['bind'])?.containsKey('visible') ?? false;
+        if (label is String && label.isNotEmpty && kid['actions'] is List && kid['media'] == null && !bound) _hide(k, width);
+        return;
+      }
+      if (readMap(kid['bind'])?.containsKey('visible') ?? false) return;
+      _kids(kid).forEach(fold);
+    }
+
+    kids.forEach(fold);
+  }
+
+  /// [id] takes the room its row leaves at a phone's width and no more: a
+  /// text in it keeps one line and ends in an ellipsis, a row or a column in
+  /// it passes the room on to what is in it.
+  void _gives(String id, {required bool across}) {
+    final n = nodes[id]!;
+    final type = _type(n);
+    if (_own.contains(id) || _fixedWidth(n) != null) return;
+    if (type == 'text') {
+      _add(id, reflowPhoneMax, {
+        'layout': {'width': {'fill': 0, 'hug': null}, if (across) 'flex': 1},
+        'props': {'maxLines': 1, 'overflow': 'ellipsis'},
+      });
+    } else if (type == 'row') {
+      _add(id, reflowPhoneMax, {'layout': {'width': {'fill': 0, 'hug': null}, if (across) 'flex': 1}});
+      // What holds its words (the last text, or the column of them) gives way.
+      final kids = _kids(n);
+      final words = kids.lastWhere((k) => const {'text', 'column', 'row'}.contains(_type(nodes[k]!)) && _fixedWidth(nodes[k]!) == null, orElse: () => '');
+      if (words.isNotEmpty) _gives(words, across: true);
+    } else if (type == 'column') {
+      _add(id, reflowPhoneMax, {'layout': {'width': {'fill': 0, 'hug': null}, if (across) 'flex': 1}});
+      for (final k in _kids(n)) {
+        if (_type(nodes[k]!) == 'text') _gives(k, across: false);
+      }
     }
   }
 

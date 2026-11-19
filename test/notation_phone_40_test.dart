@@ -14,10 +14,13 @@ Map<String, Object?> _nodes(NotationResult r) => (r.document['nodes'] as Map).ca
 Map<String, Object?> _node(NotationResult r, String id) => (_nodes(r)[id]! as Map).cast<String, Object?>();
 
 /// The node whose text or label is [text].
-String _idOf(NotationResult r, String text) => _nodes(r).entries.firstWhere((e) {
-      final p = (e.value as Map)['props'];
-      return p is Map && (p['text'] == text || p['label'] == text);
-    }).key;
+String _idOf(NotationResult r, String text, {bool last = false}) {
+  final found = _nodes(r).entries.where((e) {
+    final p = (e.value as Map)['props'];
+    return p is Map && (p['text'] == text || p['label'] == text);
+  });
+  return (last ? found.last : found.first).key;
+}
 
 String _parentOf(NotationResult r, String id) =>
     _nodes(r).entries.firstWhere((e) => ((e.value as Map)['children'] as List?)?.contains(id) ?? false).key;
@@ -198,6 +201,150 @@ Column
         expect(_node(r, row)['type'], 'flex');
         expect((_at(r, row, 390)['props'] as Map)['direction'], 'vertical', reason: word);
       }
+    });
+  });
+
+  group('a bar on a phone is one line', () {
+    test('a page bar keeps its brand and the menu button: its links and labelled buttons are in the menu', () {
+      final r = _parse('''
+Page
+  Nav sticky
+    Text.title "Harbour & Hill"
+    Row gap=5 middle
+      Button.ghost "Buy" onTap={go results}
+      Button.ghost "Agents" onTap={go agents}
+    Button.outline "Get a valuation" onTap={go valuation}
+    IconButton "favorite_border" onTap={go saved}
+  Section
+    Text.heading1 "Find your place"
+''');
+      expect(r.issues, isEmpty);
+      final cta = _nodes(r).entries.where((e) => (e.value as Map)['type'] == 'outlinedButton').map((e) => e.key).toList();
+      expect(cta.length, 2, reason: 'the bar\'s and the menu\'s');
+      expect(_at(r, cta.first, 390)['visible'], false);
+      expect(_at(r, cta.first, 834)['visible'], isNull);
+      final heart = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'iconButton' && ((e.value as Map)['props'] as Map)['icon'] == 'favorite_border').key;
+      expect(_at(r, heart, 390)['visible'], isNull, reason: 'an icon button stays');
+      final bar = _parentOf(r, _idOf(r, 'Harbour & Hill'));
+      expect((_at(r, bar, 390)['props'] as Map?)?['wrap'], isNot(true));
+      final brand = _at(r, _idOf(r, 'Harbour & Hill'), 390);
+      expect((brand['props'] as Map)['overflow'], 'ellipsis');
+      expect((brand['layout'] as Map)['flex'], 1);
+      // The menu's button of the same kind, as wide as the menu.
+      expect((_node(r, _parentOf(r, cta.last))['layout'] as Map)['width'], {'fill': 0});
+    });
+
+    test('a bar with no links folds nothing and has no menu button', () {
+      final r = _parse('''
+Page
+  Nav
+    Text.title "Relay"
+    Button.outline "Sign in" onTap={go signin}
+    Button "Get started" onTap={go start}
+  Section
+    Text "Hello"
+''');
+      expect(_nodes(r).values.any((n) => (n as Map)['type'] == 'iconButton'), false);
+      expect(_at(r, _idOf(r, 'Sign in'), 390)['visible'], isNull);
+    });
+
+    test('a button that says where it shows, or stands under a condition, is left to that', () {
+      final r = _parse('''
+state signedIn=false
+Page
+  Nav
+    Text.title "Relay"
+    Button.ghost "Docs" onTap={go docs}
+    Button.ghost "Pricing" onTap={go pricing}
+    Button.outline "Basket" hide=tablet onTap={go basket}
+    if signedIn
+      Button "Account" onTap={go account}
+  Section
+    Text "Hello"
+''');
+      expect(_nodes(r).values.where((n) => (n as Map)['type'] == 'outlinedButton').length, 1);
+      expect(_nodes(r).values.where((n) => (n as Map)['type'] == 'filledButton').length, 1);
+      expect(_at(r, _idOf(r, 'Account'), 390)['visible'], isNull);
+    });
+
+    test('the menu of a bar that is the last thing written starts closed', () {
+      final r = _parse('''
+Page
+  Nav
+    Text.title "Proscenium"
+    Button.ghost "What's on" onTap={go home}
+    Button.ghost "My tickets" onTap={go tickets}
+''');
+      final scopes = (r.document['variables'] as Map).values.expand((v) => v as List).toList();
+      expect(scopes.firstWhere((v) => (v as Map)['name'] == 'navMenu'), containsPair('value', false));
+    });
+
+    test('a second Nav in a page is a strip: it keeps its items and scrolls sideways on a phone', () {
+      final r = _parse('''
+state tab="see"
+Page
+  Nav
+    Text.title "Slow Atlas"
+    Button.ghost "Routes" onTap={go routes}
+    Button.ghost "Cities" onTap={go cities}
+  Section
+    Text.heading1 "A day in Chur"
+  Nav sticky
+    Row gap=8 middle
+      Button.ghost "See" selected={tab=="see"} onTap={tab="see"}
+      Button.ghost "Eat" selected={tab=="eat"} onTap={tab="eat"}
+  Section
+    Text "Lanes"
+''');
+      expect(r.issues, isEmpty);
+      final see = _idOf(r, 'See');
+      expect(_at(r, see, 390)['visible'], isNull);
+      final strip = _parentOf(r, _parentOf(r, see));
+      expect((_at(r, strip, 390)['props'] as Map)['scrollable'], true);
+      expect(_nodes(r).values.where((n) => (n as Map)['type'] == 'iconButton').length, 1, reason: 'one menu button: the page bar\'s');
+    });
+  });
+
+  group('the button made for an app\'s sidebar', () {
+    bool hiddenEverywhere(Map<String, Object?> n) => (n['media'] as List? ?? const []).any((m) => (m as Map)['minWidth'] == 0 && (m['patch'] as Map)['visible'] == false);
+
+    test('goes in Main\'s bar when a line that draws nothing is written before it: one bar, not two', () {
+      final r = _parse('''
+App
+  Sidebar
+    Text "Inbox"
+  Main
+    Box hidden
+    Nav
+      Text.strong "Inbox"
+    Column pad=24
+      Text "All tickets"
+''');
+      final menus = _nodes(r).entries.where((e) => (e.value as Map)['type'] == 'iconButton' && ((e.value as Map)['props'] as Map)['icon'] == 'menu').toList();
+      expect(menus.length, 2);
+      // The slim bar made before the Nav was read takes no room at any width.
+      final slim = _parentOf(r, menus.first.key);
+      expect(hiddenEverywhere(_node(r, slim)), true);
+      final bar = (_node(r, _parentOf(r, menus.last.key))['children'] as List).cast<String>();
+      expect(bar.any((k) => (_node(r, k)['props'] as Map?)?['text'] == 'Inbox'), true, reason: 'beside the bar's title');
+    });
+
+    test('is not made where the writer wrote one for a narrow window', () {
+      final r = _parse('''
+App
+  Sidebar hide=phone
+    Text "Scenes"
+  Main
+    Row w=fill gap=6 middle
+      IconButton "menu" show=phone onTap={open houseNav}
+      Text "SCENES" grow
+    Text "Set the mood"
+Drawer#houseNav "Cedar House"
+  Text "Scenes"
+''');
+      final menus = _nodes(r).entries.where((e) => (e.value as Map)['type'] == 'iconButton' && ((e.value as Map)['props'] as Map)['icon'] == 'menu').toList();
+      final shown = menus.where((e) => !hiddenEverywhere(_node(r, _parentOf(r, e.key)))).toList();
+      expect(shown.length, 1, reason: 'the writer\'s');
     });
   });
 }
