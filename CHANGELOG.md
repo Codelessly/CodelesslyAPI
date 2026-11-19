@@ -1,11 +1,49 @@
 ## 38.0.0
 
-A part's own design at a width (`at phone`), more of what a `define` can say, the first word of a built-in
-dictionary, and fixes to lines that followed the notation and drew wrongly: lists, grids, rows that wrap, an app's
-bar, a `Nav` on its own. With CodelesslySDK 38.0.0. Some of these change how an existing document draws: read the
-first section before upgrading.
+A part's own design at a width (`at phone`), more of what a `define` can say, dictionaries of definitions in
+place of the notation's shorthand words, and fixes to lines that followed the notation and drew wrongly: lists,
+grids, rows that wrap, an app's bar, a `Nav` on its own. With CodelesslySDK 38.0.0. Some of these change how an
+existing document draws: read the first section before upgrading.
 
 ### Behaviour changes (read before upgrading)
+
+**The shorthand words are no longer the notation's**
+
+- **These words are gone from the package**: `Heading`, `H1`, `H2`, `H3`, `H4`, `Title`, `Brand`, `Logo`, `Link`,
+  `NavItem` (and `NavLink`, `SidebarItem`, `MenuItem`), `NavSection` (and `NavGroup`, `NavLabel`,
+  `SidebarSection`, `SidebarLabel`, `SidebarGroup`), `SidebarFooter` (and `NavFooter`), `IconTile`, `Dots`,
+  `ConfirmDialog`, `Shortcut` (and `shortcut`) and `computed`. A page that writes one without a definition of it
+  has an unknown word there: an issue, or a placeholder with the open vocabulary. A design system's component of
+  one of these names (Desk's `NavItem`, `Brand`, `MenuItem`, `NavSection`) is called as before.
+- **To keep writing them, give the page a dictionary that defines them**: a folder of definitions, one
+  `<Word>.txt` each (`define NavItem "label" icon badge selected=false` and its lines), read with
+  `NotationOptions.dictionary` (or `--dictionary` and a site's `"dictionary"` key, with CodelesslySDK). The
+  definitions, ready to copy, are in the notation reference (`docs/reference/notation/components.md`, "The
+  shorthand words of earlier versions"). Each is a plain definition in base lines with one meaning, so a page
+  written with them draws as those lines do, the same wherever it is written:
+  - `Heading`, `H1`–`H3` are `Text.heading1`–`Text.heading3`, `H4` is `Text.strong`, `Title` is `Text.title`. In an
+    app a level-1 heading took the app's title size (20) and a website's level 2 and 3 took display sizes (36,
+    22); they take the theme's `heading1`–`heading3` now (a website's `heading1` in a `Page`'s `Section` is still
+    at a display size).
+  - `Brand` is the product's mark as a sidebar draws it (an icon on an accent tile, the name in bold, a line under
+    it); at the start of a bar it had no padding and a larger name.
+  - `NavItem` is a full-width row with an icon, its label and a count, the chosen one on a tint of the accent. In
+    a bar the items sat side by side; the chosen one's label took the accent; `shortcut=` showed a key at its end.
+  - `NavSection` is a label in small spaced capitals; `SidebarFooter` a spacer and a column under a rule.
+  - `Link` is its label in the accent, opening its web address or scrolling to `#part`; in a bar it was a quiet
+    button the bar's phone menu repeated.
+  - `IconTile` is an icon on a tinted square, `Dots` a row of page dots, `ConfirmDialog` a `Dialog` with a Cancel
+    and a Confirm button (`danger=true` for a red yes), `Shortcut "mod+k"` a `key` line, `computed` a `state` line.
+- **A sidebar made a rail at a width no longer hides its items' labels there**: that was these words' own
+  behaviour. Write the rail's lines for that width (`at tablet`), or icon buttons.
+- **A `Nav`'s phone menu repeats its quiet buttons** (`Button.ghost "Pricing" onTap={…}`), each closing the menu
+  and doing what the button does: it repeated the bar's `Link`s. `menu=false` is gone with `Link`.
+- **A drawer closes on any line tapped in it**, unless all the tap does is turn a value over (`gift=!gift`); it
+  closed on a `NavItem` or a `Link` only.
+- **A website's section is a hero when its headline is a `Text.heading1` or `Text.pageTitle`**: it was when it had
+  a level-1 `Heading` or an `H1`.
+- **The alias table's line rewrites are gone** (`TypeAlias.line`): an alias is another name for a type of the
+  notation; a word of another shape is a definition.
 
 **Rows, lists and grids**
 
@@ -33,10 +71,9 @@ first section before upgrading.
 - **An app's bar shows the page's name beside its menu button** where the sidebar is a drawer and nothing in the
   bar names the page at that width (a `Breadcrumb … hide=phone`): the name its `canvas` line gives, taking the
   bar's room. The bar had the menu button alone.
-- **A `Nav` out of a page's frame** (in a component, or a column of its own) **is a bar**: its `NavItem`s and
-  `NavLink`s sit side by side at their own widths, its `Link`s are quiet buttons, and on a phone it goes onto a
-  further line where it has no room (unless it says how it wraps). Each item took an equal share of the row, one
-  letter a line on a phone.
+- **A `Nav` out of a page's frame** (in a component, or a column of its own) **is a bar**: its lines sit side by
+  side at their own widths, and on a phone it goes onto a further line where it has no room (unless it says how it
+  wraps). Each line took an equal share of the row, one letter a line on a phone.
 
 **Cards and components**
 
@@ -56,8 +93,6 @@ first section before upgrading.
   the state is worked out too (`{on ? "#FF2563EB" : coalesce(null, "#FF6B7280")}`); an expression that reads the
   page's state is read at run time, as before. Nothing draws differently; a document built from a definition has
   fixed values where it had bindings of the same values, and no hidden line where an `if` was false.
-- **`computed` is read from the built-in dictionary** (see Added): `computed total={…}` is the `state` line it
-  was. Its use is recorded as a `definition` with `of: dictionary`, where it was an alias of a line.
 
 **The prompt**
 
@@ -134,14 +169,25 @@ Row#bar w=fill between middle
   (`measure.variable="box"`, the word's own when its body states it). An action's field named like a parameter
   (`downloadFile text={text}`) keeps its name.
 
-**The built-in dictionary**
+**Dictionaries**
 
-- **Words the notation has may be definitions in its own base words**, shipped in the package
-  (`notationDictionary`, `notationDictionaryWords`) and read under a design system's definitions: a design
-  system's definition or component of the same name is the word, and a page's own `define` of it is not used, as
-  for any word the notation has. `computed` is the first.
-- **`notationWordOrigin(word)`** says where the notation's meaning of a word is written: `base`, `dictionary`, or
-  `code` (a word the expander still rewrites, such as the page words).
+- **`NotationOptions.dictionary(texts, name:)`** reads a dictionary: a folder's definition files (`<Word>.txt`,
+  each a `define` or a `primitive`) by file name, and the folder's name. Its words are read after the page's own
+  definitions and the site's or the design system's, and before the notation's own words; of two dictionaries the
+  later given is read first. `NotationVocabulary.withDictionary` and `NotationVocabulary.dictionary` are the same
+  on the vocabulary.
+- **The vocabulary record names the dictionary** a word was read from: a use's `of` is the folder's name, and
+  **`notationWordOrigin(word)`** says where a word's meaning is written: `base` (the renderer and the parser), the
+  dictionary's name, or `code` (a word of the page's frames, written out in Dart: `App`, `Section`, `Nav` …).
+- **The prompt lists a dictionary's words** after its own, one line each as a line uses it with what it is for
+  (the first sentence of the comment over its `define`). With no dictionary it teaches the base lines: a row per
+  sidebar item, `Text.heading1`–`Text.heading3`, a quiet button in a bar.
+- **A definition written at the margin with an id that stands for an overlay** (`ConfirmDialog#ask "Delete?"`
+  over a `Dialog`) is that overlay, opened by `open ask`.
+- **`SiteManifest.dictionary`**: a site's dictionaries (`"dictionary": ["../words"]`, relative to `site.json`).
+- **A body's theme reads in a value's text** (`fills=[{"color":"{theme.accent}","opacity":0.12}]`) are the look
+  as written, and `coalesce` drops what the theme does not give (`coalesce(theme.accentText, theme.accent)` is the
+  accent where the theme has no link ink).
 
 **Charts**
 

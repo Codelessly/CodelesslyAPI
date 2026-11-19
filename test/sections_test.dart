@@ -336,6 +336,12 @@ void main() {
       });
       expect(m.toJson(), json);
       expect(SiteManifest.fromJson('nonsense').pages, isEmpty);
+      // Its dictionaries: a list of folders, or one as a string.
+      final words = SiteManifest.fromJson({'schema': 3, 'dictionary': ['../words', '../more']});
+      expect(words.dictionary, ['../words', '../more']);
+      expect(words.toJson()['dictionary'], ['../words', '../more']);
+      expect(SiteManifest.fromJson({'schema': 3, 'dictionary': '../words'}).dictionary, ['../words']);
+      expect(words.extra, isEmpty);
     });
 
     test('component cycles are found through other components, once each', () {

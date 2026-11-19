@@ -2,7 +2,7 @@
   "version": "38.0.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4338
+    "words": 4340
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4338
+      "words": 4340
     },
     {
       "topic": "notation-a-line",
@@ -95,7 +95,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-the-references",
       "title": "The references",
-      "words": 997
+      "words": 999
     },
     {
       "topic": "layout",
@@ -774,14 +774,21 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2278
+      "words": 2747
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 520
+      "words": 523
+    },
+    {
+      "topic": "components-the-shorthand-words-of-earlier-versions",
+      "file": "components.md",
+      "anchor": "components-the-shorthand-words-of-earlier-versions",
+      "title": "The shorthand words of earlier versions",
+      "words": 457
     },
     {
       "topic": "components-writing-one",
@@ -845,8 +852,8 @@
       "file": "site.md",
       "anchor": "page-site",
       "title": "The site",
-      "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts and its design system.",
-      "words": 468
+      "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries.",
+      "words": 511
     },
     {
       "topic": "site-a-whole-manifest",
@@ -860,7 +867,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 271
+      "words": 312
     },
     {
       "topic": "document",
