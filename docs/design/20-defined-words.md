@@ -617,3 +617,89 @@ is `key enter when trim(draft)!="" onPress=…`; `when={…}` the same, braced).
   lines (note 23 section 5.1).
 - **Whether a value was written** cannot be asked apart from its value: `if name` with a name `"{row.icon}"` is read
   at run time (the text may be empty), where the code tests only that a name was written.
+
+## 14. A meaning chosen by the frame a use is under (G1): the options, not built
+
+Most page words mean one thing in a sidebar and another in a bar, on a website and in an app: `NavItem` takes the
+width in a sidebar and sits beside the others in a bar; `Brand` has padding and a 15 px name in a sidebar, none and
+17 px at the start of a bar; `H1` is `Text.heading1` at 60 px in a website's section and `Text.title` in an app;
+`Link` is a quiet button in a bar and accent text elsewhere. Section 5 chooses a meaning by what a use gives, never by
+where it is. This is the most widely needed extension (note 23 table G1: sixteen words), and it needs a decision
+first, because what a "frame" is changes as the frames themselves move to the dictionary.
+
+**What the code reads.** `PageWords` keeps the lines open above the one being read, each with the frame it opened
+(`Page`, `App`, `Section`, `Nav`, `Sidebar`, `Main`, `Pane`, `Foot`, `Table`; a plain line opens none, an `if` or an
+`each` passes its parent's on). A word asks either its parent's frame (`NavItem`: is the line directly above a
+`Nav`?) or whether a frame is anywhere above it (`Link`: any `Nav`; `Heading`: an `App` at the top, or a `Section` of
+a `Page` and no `Nav` or `Foot` between). The frames are named by the code, not by the words written: `Header`,
+`TopBar` and `AppBar` open `Nav`; `Aside` and `Rail` open `Sidebar`; a website's `Footer` opens `Section` and an
+app's opens `Foot`.
+
+**The form, in every option.** A meaning names the frames it is for before its word, as a CSS selector does, `>`
+for "directly under":
+
+```
+NavItem "label" icon!                      // anywhere else (the sidebar's look)
+Nav > NavItem "label" icon!                // a line written directly in a bar
+  Row gap=10 middle pad=[10,7,10,7] radius=6 ...
+    …
+Section H1 "text"                          // in a website's section
+  Text.heading1 "{text}" size=60 ...
+App H1 "text"                              // in an app
+  Text.title "{text}" ...
+App Nav Heading "text" level=1             // in an app's top bar
+  Text.heading3 "{text}" ...
+```
+
+A use is read with the meanings whose frames it is under; of those, the one that names the most frames (the most
+specific), then as section 5 says. A meaning that names no frame is for anywhere. The question is what the names
+before the word mean.
+
+**Option A: the code's frames.** The names are `PageWords`' frames, asked of `PageWords` as the use's line is read
+(it has read every line above). It is exact for every word in note 23 today (the closure test can take H1, Brand,
+Link, NavItem and Heading to their frames), and it costs a callback from the parser to `DefinedWords`. But the names
+are the code's, not the writer's (`Nav` stands for `Header` too; a website's `Footer` is a `Section`), and they last
+only as long as the frames are code: once `Sidebar` is a definition, nothing opens a `Sidebar` frame.
+
+**Option B: the words written above.** The names are the lines' first words as written (`Sidebar > NavItem`,
+`Header > NavItem`). A writer reads it at once and a definition can name its own frame words (`Pane > ListRow`). But
+each meaning lists every other name of its frame (`Nav, Header, TopBar > NavItem`), which puts the synonyms back in
+the package that the owner wants in the project's vocabulary; and a frame's synonym added to the vocabulary does not
+reach the meanings.
+
+**Option C: the roles.** The names are the roles the frame lines carry (section 13.4): `~nav > NavItem`, `~sidebar
+Brand`, `~section H1`, `~app Heading`. A frame is whatever line says it is one, written by a page word in code today
+and by a definition's root tomorrow (`Sidebar` as `Column~sidebar …`), so it survives the frames' own move and needs
+no synonyms: `Header` is a `~nav` because its expansion says so. The reflow already reads the same marks. What it
+costs: the parser must keep each open line's role (it does, after the line is read: `_roles`), a page word's root
+must carry its role even where it carries none today (a website's `Footer` band is `~section`, its `Nav` row `~nav`;
+`Foot` is `~foot`), and a role that differs from the code's frame changes which meaning is chosen (a website's
+`Footer` is a `Section` frame to the code and is `~section` too, so they agree; a `Nav` outside any frame opens no
+frame and carries no role, so they agree).
+
+**The recommendation is C**, with the code's frames (A) as the way to check it: during the move, a use's chosen
+meaning by role and by the code's frame are compared over the corpora, and a difference is a role missing on a line.
+It is medium-sized in code (the selector in the signature, the role stack, the choice) but it decides the names a
+dictionary's frame words are written with, which is the owner's to settle. It is not built: no word can move by it
+until the frame words carry the roles the dictionary would read, and the words that would close by it also read the
+theme (13.6), so none of them moves yet.
+
+## 15. The built-in dictionary
+
+A word the notation has may be a definition in its base words instead of Dart code (note 23 section 5.2). Such a word
+is a file of the package's `dictionary/` folder, named in `builtInWords` of `tool/dictionary/generate.dart`, which
+writes the files' texts into `lib/src/core/notation/dictionary.g.dart` (`notationDictionaryTexts`): the notation
+runs in apps and on the web and reads no files. `notationDictionary` reads them once; the parser reads them under the
+design system's definitions, so:
+
+- a design system's definition of the word, or its component of that name, is the word, as either is over a page
+  word;
+- a page's own `define` of it is not used and is said (`notationBuiltInWord`), as for every word the notation has;
+- a use is recorded as kind `definition`, `of: dictionary`, `to` the meaning read (the SDK's vocabulary record:
+  `resolved: definition`, `definedBy: dictionary`, `origin: dictionary`);
+- `notationWordOrigin(word)` says where the notation's meaning of a word is written: `base` (a node type, a
+  statement), `dictionary`, or `code` (a page word, a heading, a line the alias table rewrites).
+
+A word is added only when its closure is exact over every use (`CLOSURE.md` marks it built in) and the expansions of
+its uses are the same documents before and after its code is removed. The first is `computed` (section 13.5's
+`computed` over `state ...`).

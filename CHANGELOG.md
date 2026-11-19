@@ -17,6 +17,17 @@
   is, and its word may be lowercase (`computed total={…}` over `state ...`). `key {…}` in such a body takes the
   chord worked out from the use.
 
+### The built-in dictionary
+
+- **Words the notation has may be definitions in its own base words**, shipped in the package
+  (`notationDictionary`, `notationDictionaryWords`) and read under a design system's definitions: a design
+  system's definition or component of the same name is the word, and a page's own `define` of it is not used, as
+  for any word the notation has.
+- **`computed` is the first**: `computed total={…}` is read from its definition (a `state` line), as before. Its
+  use is recorded as a `definition` with `of: dictionary`, where it was an alias of a line.
+- **`notationWordOrigin(word)`** says where the notation's meaning of a word is written: `base`, `dictionary`, or
+  `code` (a word the expander still rewrites, such as the page words).
+
 ## 37.0.0
 
 Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop
