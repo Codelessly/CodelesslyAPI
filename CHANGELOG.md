@@ -1,326 +1,161 @@
-## Unreleased
+## 37.0.0
 
-With the CodelesslySDK of the same release.
+Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop
+app at a tablet's and a phone's width, text fields beside buttons, charts, and dark mode with no design system.
+With CodelesslySDK 37.0.0. Many of these change how an existing document draws: read the first section before
+upgrading.
 
 ### Behaviour changes (read before upgrading)
 
-- **Dark mode with no design system: the notation's parts are drawn in the theme's roles**
-  (`ThemeTokens.notationRoles`): `line` (hairlines, a card's and a table's line), `subtleFill` (a selected or neutral
-  fill, a track, an avatar's disc), `neutralTint`, `card` (cards, tiles, a dialog's and a drawer's panel), `band` (a
-  table's header band), `hoverFill`, `headingText` (`Text.title` and `Text.heading` where the theme has no style for
-  them), `quietText`, `mutedText` and `faintText` (a sidebar's items at rest, their icons, group labels), `surface` and
-  `onSurface`. Each has a light value, the one the notation wrote before, and a dark one made from the theme's ink
-  and ground where the ground is dark (luminance under 0.35): ink at 16 % for `line`, at 10 % for the fills, at 80,
-  60 and 40 % for the quiet inks, the ground 6 % lighter for `card` and `surface`, 3 % for `band`, the ink itself for
-  `headingText` and `onSurface`. `NotationOptions.fromTheme(roles: true)` (a site's theme with no design system,
-  written by name) writes the role names, which `ThemeRefs` resolves in the mode the site is shown in
-  (`ThemeTokens.notationRole`), so a site that declares light and `dark` colors switches every part with
-  `setThemeMode`; a theme that names a color of a role's name keeps its own. Without `roles` the values are written,
-  as before. On a light ground nothing draws differently; on a dark ground a title and a heading with no style of the
-  theme's are in its ink (they were `#FF111827`, dark on dark), and a table's header band, a sidebar item's hover and
-  a neutral badge are dark.
-- **A search field shows the magnifier**: a field the notation reads as a search (`Input "Search…"`, also `Find…`
-  and `Filter…`, a `Search` line, or a field in a top bar whose text or id says search) has `icon="search"` before
-  its text unless the line writes its own icon; `icon=none` leaves it out.
-- **One field beside a text button is an inline entry**: an `Input` in a `Row` beside a `Button` and no other field
-  (add an item, a comment, a tag, a promo code, a newsletter's email: `Input "Write a comment" @c grow` before
-  `Button "Post"`) draws no label above it: its string is its placeholder, or, beside a hint, its spoken name
-  (`semanticLabel`), and its height loses the label's room, as a field among icon buttons already did. The row that
-  ends a form keeps its label: where the row's column has fields before it and none after it and the field writes
-  a label and a hint (`Input "Email" "you@example.com"` before `Button "Sign up"`). Two or more fields in a row, and
-  fields with no button beside them, keep theirs as before. `label="…"` keeps a label above a field anywhere, and
-  `print` writes a document's label that way where the line's string would be its placeholder.
+**Websites (`Page`)**
 
-### Changed
+- **Headlines are at a display size.** In a `Page`'s `Section`, `Heading level=1`, `Text.pageTitle` and
+  `Text.heading1` are 60 px (52 on a tablet, 43 on a phone), `level=2` is 36 and `level=3` is 22; they were 30, 24
+  and 18. A theme whose `heading1` or `pageTitle` has a size of 32 or more keeps it, and a line's own `size=` wins.
+  An `App`'s titles are unchanged.
+- **Controls are a web page's size.** In a `Page`, a button, a field and a select with no height written are 40 px
+  (they were 28) with type to match, a chip is 32 (24), the buttons of the Section that holds the page's headline
+  are `size=large` (44), and an `IconButton` in a Section is a 40 px square in a hairline. A theme's
+  `sizes.control` wins. An `App` is unchanged.
+- **The ground reaches the foot.** A `Page` is as tall as the window it is shown in, its canvas takes its fill, and
+  its `Footer` sits at the window's foot on a short page. Two plain Sections one after the other have 96 px between
+  them (was 128). An app's `Main` with no fill of its own takes its content column's.
+- **`Section bleed` with no fill has no padding**, so what is in it meets the bar above. A bleed band with a fill
+  or a tint keeps its padding.
 
-- **The open prompt names `CodeInput`** (`notationPrompt(open: true)`, what `notation.sh prompt --open` prints), in
-  the line of Input's forms: `Input "Note" multiline is a text area; CodeInput "Code" @code length=6 digits is a
-  one-time code, one field drawn as boxes.` It named no word for a one-time code. The taught prompts are as they were (the page prompt lists `CodeInput` already).
+**A desktop page at a tablet's and a phone's width.** Nothing here changes at a desktop's width.
 
-## Unreleased
+- **A `Table`** leaves out the columns its row has no room for, from the last back. The first column, a checkbox
+  and a narrow unlabelled column stay. A width at which the writer hides a column is left to the writer.
+- **A row of controls in an app's pane wraps on a phone** when it has no room: a field of a fixed width takes a
+  share of the line and a spacer goes.
+- **A list written `Main w=380` beside the `Pane` that shows what it selects** is one at a time on a phone, with a
+  back button, or the list alone when no tap selects.
+- **A design system's rail.** `sizes.rail` in a theme makes an app's `Sidebar` that writes no rule for other widths
+  a rail that wide on a tablet and a drawer on a phone (`NotationOptions.sidebarRail`).
+- **A Row written `wrap` with an `each` and other lines** wraps them all below a desktop's width.
+- **A width rule on a line whose width is bound** (`w={listW} phone.w=fill`) holds where it says.
+- **An `each` in a row that turns down the page at a width turns with it** (`Row phone.direction=vertical`): its
+  copies stack across the row's width there.
+- **A child written to fill, in a row that wraps, takes the whole line** where the row wraps.
+- **A Grid's columns at a narrower width win over a wider one's**, in whatever order they are written:
+  `Grid cols=4 phone.cols=2 tablet.cols=3` gives a phone 2 columns.
 
-- **A Nav whose writer wrote its own phone menu gets no second one**: a line written `show=phone` (or `tablet`) under a `Nav` was not seen (the check read `show:`), so a bar with the writer's own menu button drew two, and its links again under it.
+**Text fields**
 
-### Documented
+- **A multi-line `Input` in a row beside a button is a composer.** It starts at one line and grows to its
+  `maxLines`, its string is its placeholder (beside a hint, its spoken name), and with `onSubmit` Enter sends and
+  Shift+Enter breaks the line. Lines the writer gave (`minLines=3`) are kept.
+- **One field beside a button draws no label above it**: an `Input` in a `Row` with a `Button` or icon buttons and
+  no other field (add an item, a comment, a stepper's value). Its string is its placeholder, or its spoken name
+  beside a hint. The row that ends a form keeps its label, as do two or more fields in a row and fields with no
+  button. `label="…"` keeps a label above a field anywhere.
+- **A search field shows a magnifier**: a field whose text starts with Search, Find or Filter, a `Search` line, or
+  a field in a top bar whose text or id says search, gets `icon="search"` unless the line writes its own icon.
+  `icon=none` leaves it out.
+- **A field in its own framed row is bare.** In a `Row` with a radius and a border or a fill, beside a button, the
+  field draws no border or fill of its own, and the row's border takes the accent while the field has the focus.
+- **A labelled `Input` of a fixed height is that high in its box**, with its label above; the height used to hold
+  the label and the box together.
 
-- **forms.md**: a chip's label color is `labelStyle.color=` (it named `labelColor=`, which a ChoiceChip refuses:
-  round 11b, smart-home); a form is `form=true` (it said "a column with `form`", and bare `form` is refused:
-  meal-planner). **lists.md**: `SwipeAction` lines go under an each that runs down a Column, not a ListView (both
-  story-reader arms wrote it under a ListView and were refused).
-- **The names a variable cannot take** (`data`, `route`, `storage`, `screen`, `theme`, `auth`, `drag`, `perf`,
-  `script`, `speech`, which the runtime gives every formula) are in the notation's state.md; only the JSON
-  reference listed them (round 11b: `state perf` in seat-booking, 9 lines renamed; `state script` in
-  story-reader, 5).
-- **An `if` under an `each`** hides what a copy shows, not the copy: the copy keeps its place and its Grid cell
-  (round 10, R65, 4 runs). lists.md says so, and how to leave elements out: `each d in filter(days, x => x.open)`.
+**Decoration on controls**
 
-### Behaviour changes
+- **`fill`, `border` and `radius` on an `Input`, a `DatePicker` and a `TimePicker` style the field's own box.** On
+  the node they drew nothing, or a second box. `border=none` with no fill is a bare field. State words work the
+  same way (`focused.fill=…`).
+- **A `Select` whose line writes a `fill` or a `border` is framed by that box alone**; it drew two boxes.
 
-- **A child written to fill, in a row that wraps, takes the whole line where the row wraps** (CSS `width: 100%`
-  in a wrapping row): `Row gap=24 top phone.wrap=true` over `Card w=392 phone.w=fill` and `Column grow
-  phone.w=fill` (round 11b, 4 builds: seat-booking's artwork card 32 px wide and its About column 0, the page
-  12,900 px tall; smart-home's rules list squeezed and its editor gone; food-ordering's panels). A run gives no
-  room to fill, so the renderer held it to its design number, 0. It is written as a basis longer than any line
-  (`layout.basis`, cut to the line) at the widths the fill and the wrap both hold. A fill the line did not write (a
-  field's, a component's) is as it was.
-- **The strings of an `ExpansionTile` are its header** (`ExpansionTile "{entry.q}"`): the title (and subtitle) of
-  the list tile in its `tile` slot, as `ListTile "…"` makes them; the lines under it are what it shows open. They
-  were its first children, under a header drawn from the slot alone, blank (round 11b: conference's FAQ, six
-  question rows with only a chevron). The reference says so.
-- **A labelled `Input` of a fixed height is that high in its box, its label above** (round 11b: 8 builds;
-  `Input "Street address" "e.g. 11 Canynge Road" @a h=44` beside a `Select h=44`): the reference gives a field's
-  height as a step of the control scale, the same on the inputs beside it; the height held the label and the box
-  together, and the box drew about 22 high, its text tiny. The node now hugs and its box is the height written
-  (`decoration.constraints`). A field with no label above (a composer, a toolbar's, a hint alone) is as it was,
-  and so is a height that adds the label's room to the control height (`h=48` at 28).
-- **A Select whose line writes a `fill` or a `border` is framed by that box alone** (round 11b, the docs site's
-  version switcher: `Select @version items=[…] w=83 h=36 pad=[8,0,5,0] fill=paper border=rule radius=7`): the
-  Select draws no frame of its own inside it (`underline: false`), its value and chevron are inset by the
-  line's `pad` (or the frame's side padding, 8 or 10), and the box's line takes the accent while it has the
-  focus (unless the line wrote its focused look). It drew two boxes, one inside the other, as an `Input`'s
-  `fill`, `border` and `radius` did before they became its field's.
-- **`fill`, `border` and `radius` on a `DatePicker` and a `TimePicker` are its field's** (its
-  decoration's, as on an `Input`): the fill and border went to the node, under the field's own, and `radius`
-  was left out ("A DatePicker has no radius").
-- **A site's `primary` re-accents a design system's dark accent too** (`ThemeTokens.withSiteTheme`): Desk's dark
-  `accent`, a lighter indigo than its dark `primary`, stayed indigo under a site's green (the SideButton, the brand
-  tile, the chosen view, the cursor bar), with `dark.primary` given or not, though Desk's README says naming
-  `primary` re-accents it (support desk, test 11). Now it is the site's hue at the lightness Desk gives it. Only a
-  re-accented site in dark mode draws differently; a dark accent the site names itself is its own.
-- **A look written on a component call is said** (`Disc "MR" fill=#… border=#…`, `clip`; round 10, R31, 10 runs): a
-  call has no look of its own, its definition has, and the call's size, place, margin, `maxw` and widths at other
-  sizes (`phone.w=fill`) are what it takes. A fill or a border was left out with no word; `radius`, `shadow` and
-  `clip` were refused without saying why. A text that wrote one now has an issue there (a closed expand fails).
-  The document is the same.
-- **A Grid's columns at a narrower width win over a wider one's**, in whatever order they are written: `Grid
-  cols=4 phone.cols=2 tablet.cols=3` gives a phone 2 columns (the rules were kept in the order written and the
-  later, the tablet's, held on a phone too: the phone showed 3). Only a Grid that wrote its phone's columns before
-  its tablet's draws differently, and it now draws what it says.
+**Themes**
+
+- **A theme's `ink` and `paper` are its text ink and its ground** where it has no design system's names for them.
+- **Dark mode with no design system.** What the notation draws by itself (hairlines, cards, a table's band, hover
+  and selected fills, quiet text, a dialog's and a drawer's panel) is written as theme roles
+  (`ThemeTokens.notationRoles`: `line`, `card`, `band`, `subtleFill`, `hoverFill`, `quietText`, `mutedText`,
+  `faintText`, `headingText`, `surface`, `onSurface`). Each role's light value is what was written before; on a
+  dark ground (luminance under 0.35) it is made from the theme's ink and ground. A site that declares light and
+  `dark` colors switches them with `setThemeMode`. A color the theme names itself wins. Light pictures are
+  unchanged.
+- **A site's `primary` re-accents a design system's dark accent too.**
+- **A theme text style changes only the keys it sets**: a style named as a text variant keeps the variant's size,
+  and `style=serif` over a variant keeps the variant's size and ink.
+- **A `Link` is in the theme's accent**; it drew a fixed blue.
+- **`Badge.success`, `.warning`, `.info`, `.primary` and `.error` under a theme with no tints** are a tint of the
+  tone's color; they all drew as the neutral badge.
+
+**Charts**
+
+- **Charts with no look from the theme**: a `BarChart`'s bars are apart and rounded over a light grid with figures
+  on the left; a `Donut`'s slices and a multi-series line's colors are steps of the theme's primary; a
+  `LineChart`'s axis is fitted to its data.
+
+**Words with no definition**
+
+- **A stand-in with nothing to draw draws nothing.** A word with no definition whose name is a behaviour with no
+  picture (`KeyboardShortcut`, `LiveStatus`, `Clock`, `ThemePreference`) and that gives no size and no text takes
+  no room; written at the top of a page beside its `App` or `Page`, it no longer displaces the frame. Other
+  stand-ins keep their labelled box, and the vocabulary record keeps every use.
+
+**Other**
+
+- **The strings of an `ExpansionTile` are its header**; they were its first children under a blank header.
+- **A look written on a component call is an issue** (`fill`, `border`, `radius`, `shadow`, `clip`): a call takes a
+  size, a place and a margin, and its definition has the look. A strict expand of such a text now fails; the
+  document is the same.
+- **A `Grid` with `childAspectRatio` has rows of that shape**; it also hugged its content, and a cell that fills
+  drew almost nothing.
+
+### Added
+
+- **A definition of several lines side by side**, and one that starts with an `if` or an `each`, is its lines where
+  the use is: the copies an `each` makes are the cells of a `Grid` around the use.
+- **A component's parameters**: `param @selected=""` is a variable parameter, `props.selected=…` sets it,
+  `param items:List=[]` is a list of anything and `event onPick:void` passes nothing.
+- **An overlay a component writes after its tree** (`Drawer#basket`, `Sheet#info stops=[…]`) is kept in its
+  document and every page that calls the component has it, so `open basket` from inside the component works
+  (`NotationOptions.componentScreenOverlays`).
+- **A Grid of cells written one by one takes its columns at other widths** (`Grid cols=4 phone.cols=2`).
+- **A `Page` under another line** is the page's scrolling column there, as `App grow` is an app's region.
+- **Flags as keys**: `scroll=false`, `phone.stretch=true`, and `=true` or `=false` on the alignment words.
+- **`every 1m`, `every 1h`**: timers in minutes and hours.
+- **`DateTimeInput @due`** binds its value. **A `SegmentedButton` bound to a list variable** takes the list as its
+  selection.
+- **`Grid cols={n} tablet.cols={…}`**: columns at a width worked out from the state.
+- **The open prompt** (`notationPrompt(open: true)`) names what the notation already has for a screen-wide
+  shortcut (`key mod+k onPress={…}`), announcing to a screen reader, the time (`now()`), a search field, a
+  composer and a one-time code (`CodeInput`).
+- **`tool/vocabulary_inventory.dart`** lists every word the notation accepts by kind, and
+  **`tool/dictionary_closure.dart`** tests which page words can be written as definitions
+  (`docs/design/23-base-and-dictionary.md`, `docs/design/24-a-design-at-a-width.md`).
 
 ### Fixed
 
-- **`Pages` in a centring column fill its width**: pages swiped across have no width of their own to hug, and
-  in a `Column center` they were 0 wide and showed nothing (round 11b, meal-planner: `Pages @step h=362`, the
-  cooking step card missing at every size).
-- **A `Page` under another line** (`Page grow` under a site's own header, `Page w=fill h=fill` in a Stack) is the
-  page's scrolling column there, taking the room its column leaves, its Sections a page's, as `App grow` is an
-  app's region: it was "No node type Page", which read as if the word did not exist (round 11b, 4 builds:
-  docs-site, restaurant, magazine, scrolly-story; the writers' rewrites lost the Sections' bands). navigation.md
-  says so.
-- **`Stack … clipBehavior=hardEdge`** cuts what is in it at its edge (the decoration's `clip`): a stack's own
-  `clipBehavior` is its scroll view's, and `hardEdge`, its default, was not even kept, so the children drew past
-  the stack (round 11b: clip-editor's timeline, both arms; story-reader's deck). `clip` on a stack is read by the
-  renderer (codelessly_sdk).
-- **A `TableView` that grows in a column takes the height left** (`TableView#sheetGrid grow w=fill …` under a
-  toolbar; round 11b, spreadsheet): `grow` gave it a share of the column but its height stayed its content's, and
-  the grid drew 0 high, missing at every size. A list, a grid and a box that grow already did.
-- **A component that fills, called in a row of a width of its own** (a `Table`'s cell of `w:87`), shares that
-  width: it was given 240, as in a row only as wide as its content, and overflowed the cell (round 11b,
-  support-desk: `StatusMark label={t.status}`, 49 render errors over the three sizes).
-- **A `SegmentedButton` bound to a list variable** (`state modes=["Public reply"]`, `SegmentedButton @modes`; round
-  11b, support-desk) takes the list as its selection and a change writes the list: it was wrapped again
-  (`[modes]`, a list in a list) and no segment showed chosen. A text variable is still its single choice.
-- **An `if` and its `else` under a `Table` are one cell** (round 11b, kanban-board: a due date or a dash): each
-  line under a table is its next cell, and the `else` was made a cell of its own, then refused: "An else follows an
-  if at the same depth", said of one that did.
-- **A `Lightbox` with a size on its line** (`Lightbox#gallery "Property gallery" w=960 h=665`, as a Dialog is
-  written; round 11b, property-listings): no "h= is written twice on this line", said of a line that wrote it once.
-  A lightbox is the whole window, its picture contained in it: the size has nothing to size and is not read.
-- **Copies that grow, in a row that turns down the page at a width, may say `phone.grow=0` or `phone.w=fill`
-  there** (round 11b: restaurant, nonprofit): where the row is a column the grid of the copies has one column and
-  each copy is its whole width, which is what those words say. They were refused ("a width of their own at another
-  size is not read"), and the writers rewrote the lines; the reference says a key after a condition is any key the
-  line reads. A width of their own at a size where the row stays a row is still said.
-- **`Grid cols={n} tablet.cols={max(2, n - 2)}`**: a Grid's columns at a width worked out from the state, as
-  `cols={…}` is (round 11b: photo-library). It was refused with "A Grid's columns at a width are a number from
-  1 to 24: tablet.cols=2", which read as if 2 were out of range.
-- **`drop=audioSource dropTarget.slot=none`** and `drag=clips(1) draggable.feedbackRotation=0`: the dotted key
-  sets a field of the record `drop=`/`drag=` made. The expand stopped with an exception ("type 'String' is not
-  a subtype of type 'List<String>'"; round 11b: clip-editor, both arms).
-- **A `Grid` (or `gridView`) with `childAspectRatio`** has rows of that shape: it was also given
-  `shrinkWrapRows`, rows as tall as their content, and a cell that fills (`box w=fill h=fill`, a picture) drew
-  0 to 20 px high (round 11b: photo-library's photos on five screens, both arms; music-player, 126 render
-  errors, "Stack requires bounded constraints"). One with `mainAxisExtent` is as it was.
-- **A dotted key with a quoted value** (`style.fontFamily="monospace"` on a paint `paragraph`; round 11b:
-  saas-landing 10 lines, seat-booking 5) is one key: it was read as a word and a second text, "A paragraph has
-  no style.fontFamily=" and "A paragraph takes one text". The reference (paint.md) teaches dotted paths.
-- **A field's own word at a dotted key** (`transformGesture.wheel=zoom` on a page with `state zoom`; round 11b:
-  photo-library, team-chat) is that word, as a prop's own word is; it was "A value read from the state is
-  written in braces: transformGesture.wheel={zoom}", the wrong fix.
-- **`DateTimeInput @due`** keeps its value in `due` (its `value`, written back on a pick), as `DatePicker @day`
-  does; it was "A DateTimeInput binds nothing" (round 11b: kanban-board, money-tracker, rewritten by hand).
-- **An `each` in a row that turns down the page at a width turns with it** (`Row gap=12 phone.direction=vertical`
-  over `each`, copies `Card w=365 phone.w=fill`; round 11b: travel-guide, conference, restaurant): its copies are
-  one under another across the row's width there; the list made for them stayed a line across, wider than a phone
-  (24 of travel-guide's 28 errors at 390). Copies that grow were already a grid that turns.
-- **A flag written as a key** (round 11b, 6 builds): `Main scroll=false` (a main that does not scroll: food-ordering,
-  mail-client, photo-library), `Row tablet.scroll phone.scroll=false` (kanban-board), `Row phone.stretch=true`
-  (admin-console, money-tracker), and `=true` on `scroll` and the alignment words (`top`, `middle`, `center`,
-  `stretch`, `between`…) are the flag; `scroll=false` is `scrollable=false`. They were "A Column has no
-  "scroll" (did you mean scrollable?)" and "A Flex has no "stretch"", though the reference gives flags values
-  (`hidden={…}`) and says the key after a size's condition is any key the line reads.
-- **A `customPaint` (or `animation`) line under a node in a `Nav`, a `Section`, a `Footer` or another page word is
-  that node's** (round 11b: 6 builds): it was read at the depth written, two shallower than the page word moves the
-  node lines to, so it went to the node above: a logo's mark under `box w=32 h=32` was painted across the row of
-  the wordmark (seat-booking, nonprofit), a hero's console across the hero behind its headline (saas-landing),
-  a route's stops over their names (travel-guide), a floor plan left out of its panel (conference). An
-  `animation#id` as the first line under a `Section` closed the Section's column, so the lines after it went to
-  its band, centred and with no gap (studio-portfolio: the one render error, "BoxConstraints forces an infinite
-  width", at 390).
-- **A Table's sort arrow** is in the theme's accent by its name (a design system's, a site's `primary`), as a
-  NavItem's chosen ink is; it was the default blue under any theme (support desk, test 11; round 10, R17).
-- **`every 1m`** (and `every 1h`, `every 2min`) is a timer of that many minutes or hours; it was refused (round 10,
-  R22).
-- **An overlay a component writes** after its tree (`Drawer#basket "Your bag" right w=440`, `Sheet#info
-  stops=[0.5,0.9]`; round 10, R28, 11 runs, and R23's stops lost from a component) is kept in its document
-  (`screenOverlays`), and every page that calls it has it (once, its nodes with ids of their own, `basket-text1`):
-  `open basket` from inside the component shows the drawer at its side and width, the sheet at its stops. It was
-  left out with no word, and the open found nothing (or a page's dialog of that id). A page's own overlay of that
-  id is the one it shows. `NotationOptions.componentScreenOverlays` carries them, as `componentScreenActions`
-  carries a component's key lines.
-- **A Grid of cells written one by one takes its columns at other widths** (`Grid cols=4 phone.cols=2` over four
-  `Stat` lines; round 10, R11, 22 runs, and the support desk): it is the grid an `each` makes, over `range(n)`, each
-  copy showing its own cell (`visible={item == k}`), which a writer could have said with an `each` and an `if`. It
-  was refused ("cells written one by one stay in their rows"). It prints back as written. Inside an `each` it is
-  still said.
-- **`resizable` on a pane** (`Pane w=300 resizable`, `Sidebar … resizable=@w`; round 10, R50, 6 runs) is said with
-  the way the base resizes a pane: a `Splitter @listW` beside it, the pane `w={listW}`. It was "Unknown word", or
-  with the open vocabulary recorded and ignored. Nothing new is drawn.
-- **A component's parameters** (round 10, R20, 15 runs): `param @selected=""` is a variable parameter of its
-  default's type; `props.selected=m.id` in its tree sets it (it was "Unknown action"; one on a parameter the call only
-  gives is said, with how to keep it); `param items:List=[]` is a list of anything and `event onPick:void` passes
-  nothing (both were "No type"). Each was already said by `setVariable variable=props.selected`,
-  `List<dynamic>` and an event with no type.
-- **A string on a component call** fills a text parameter the line does not name: `GuideSection "01"
-  label="Installation"` is the label and `01` the next text parameter (it took the label, then said `label` was
-  written twice; round 10, R41, 9 runs).
-- **A component's own `size`** is its parameter: `Avatar "Maya Chen" size=32` on an Avatar whose size is a number
-  (Desk's) keeps 32; it was read as the step `small` and the disc was not drawn (support desk, test 11). An Avatar
-  that sizes by name still takes the nearest name.
-- **The open prompt's glossary** keeps a description that is a whole clause whole: Desk's `Breadcrumb`, `Empty` and
-  `SaveBar` read `where a page`, `what a list`, `what a page` (a clause starting with a question word was cut at its
-  comma or its `with` and lost its verb); they read `where a page is`, `what a list with nothing in it`, `what a page
-  with unsaved changes shows` (seven words at most, as before). A word left hanging at the end (`over`, `when`) is
-  dropped.
-A desktop page written in one pass works on a tablet and a phone by itself (track C: the one-pass builds of tests
-10 and 11 and Desk's reference screens with their narrow rules taken out, at 834x1112 and 390x844). Nothing
-changes at a desktop's width.
+- A `Nav` that writes its own phone menu (`show=phone`) gets no second menu button.
+- A `customPaint` or `animation` line under a node inside a `Nav`, a `Section` or another page word is that node's.
+- `Pages` in a centring column fill its width; a `TableView` that grows in a column takes the height left.
+- A box with a `maxw` in a centered column is as wide as its place up to that, centered.
+- `Stack … clipBehavior=hardEdge` clips what is in it.
+- A component that fills, called in a row of a fixed width, shares that width.
+- An `if` and its `else` under a `Table` are one cell.
+- A `Lightbox` with a size on its line is accepted (the size is not read).
+- Copies that grow, in a row that turns down the page at a width, may say `phone.grow=0` or `phone.w=fill`.
+- `drop=… dropTarget.slot=none` and `drag=… draggable.feedbackRotation=0` set a field of the record.
+- A dotted key with a quoted value (`style.fontFamily="monospace"`) is one key; a field's own word at a dotted key
+  (`transformGesture.wheel=zoom`) is that word.
+- A string on a component call fills a text parameter the line does not name; a component's own `size` parameter
+  keeps its number.
+- A Table's sort arrow is in the theme's accent.
+- A gauge's figure is sized to its shorter side.
+- Texts with widths in a row inside a scrolling row keep their widths.
+- `Dots` in a page's Section: the line after it is beside it.
+- The open prompt's glossary keeps a description that is a whole clause.
+- `resizable` on a pane is an issue that names the way to do it (`Splitter @w` beside `Pane w={w}`).
 
-- **A `Table`** leaves out, at a tablet's and a phone's width, the columns its row has no room for, from the last
-  back; the first column, the checkbox and a narrow unlabelled column (a row's menu) stay. A width the writer
-  leaves a column out at (`"hide":"phone"`) is theirs. At 390 the first column had no width left and its names
-  were cut to nothing.
-- **A row of an app's pane that has no room on a phone wraps there** (a filter bar of a search, selects and a
-  count; a top bar's title beside a search and a button): a field of a fixed width takes a line's share, a
-  spacer goes. Such rows kept their line in an app and overflowed a phone by up to 370 px. A row whose parts the
-  writer sized by width in part (`tablet.w=200` on its search) still wraps on a phone when it has no room there.
-- **A list written as `Main w=380` beside the `Pane` that shows what it selects** is a list beside its detail:
-  one at a time on a phone with a back button, or the list alone when no tap selects (Main kept 380 and the
-  reading pane was 10 wide).
-- **A design system's rail**: `sizes.rail` in its theme (Desk's 64) makes an app's `Sidebar` written with no rule
-  for other widths a rail that wide on a tablet and the drawer on a phone (`NotationOptions.sidebarRail`). It was
-  as wide as on a desktop with Desk's words folded to their icons.
-- **A Row written `wrap` with an `each` and other lines** wraps them all narrower than a desktop, each list a
-  group of its copies: the first list took the row's wrapping, and on a tablet its chips stood in a column 96
-  wide while the second list's ran over them.
-- **A top bar of an app's title alone** sets the title beside the menu button on a phone (it went to the bar's
-  far end).
-- **A width rule on a line whose width is bound** (`w={listW} tablet.w=275 phone.w=fill`) holds where it says;
-  the phone's `fill` was lost beside the binding and the pane kept the tablet's 275.
-Text input as writers write it: the text input pass of round 11, where the same 30 briefs were written in the
-notation and as a web app and the notation's composers, steppers and toolbar fields drew worse than the web's
-(codelessly_sdk `docs/research/text-input-round-11.md`). With the CodelesslySDK of the same pass.
+### Documentation
 
-### Behaviour changes (read before upgrading)
-
-- **A multi-line `Input` in a row beside a button is a composer**: it starts at one line and grows to its
-  `maxLines` (`multiline` alone drew three empty lines), and it draws no label above it: its string is its
-  placeholder, or, beside a hint, its spoken name (`semanticLabel`). Lines the writer gave (`minLines=3`) are kept.
-  Round 11: the team chat's composer drew a label over a tall empty box (2 of the 3 notation builds).
-- **A field among icon buttons** (a stepper's `IconButton "remove"`, `Input "Reps"`, `IconButton "add"`; a
-  toolbar's) draws no label above it: its label is its hint, or its spoken name beside a hint, and its height
-  loses the label's room. A field in a row of other fields, or beside text buttons only, is as it was.
-  Round 11: 10 builds; the money tracker's amount drew "Amount" twice.
-- **A field in its own framed row is bare**: in a `Row` with a radius and a border or a fill (or a box holding that
-  row alone), beside a button and with nothing else beside it but icons and texts, the field draws no border and no
-  fill: the frame is its box (a bordered field drawn inside a bordered box), and the frame's line takes the accent
-  while the field has the focus (`focused.border`, unless the line writes its own focused look). No round 11 build
-  wrote that shape. A framed row of an icon and a field with no button (a document's search pill) is as it was.
-- **`fill`, `border` and `radius` on an `Input` are its box's** (its decoration's `fillColor`, `border` and
-  corners): on the node they drew nothing, and `radius` was left out. `border=none` with no fill is a bare field.
-  A state's word reads the same (`focused.fill=#FFEFF6FF`: the field's fill while it has the focus), and `print`
-  writes them back as these words.
-- **A multi-line field with `onSubmit` sends on Enter** and breaks the line on Shift+Enter (`textInputAction`
-  `send` unless one is written): Enter only broke the line, and `onSubmit` never ran from the keyboard.
-
-### Changed
-
-- The grammar prompt teaches the composer in one sentence, after the text area.
-- The reference's `Input` section says what `fill`, `border` and `radius` do on it, and the composer.
-### Behaviour changes (read before upgrading)
-
-- **A stand-in with nothing to draw draws nothing** (round 11: 14 of 30 briefs lost a screen to one): a use of a
-  primitive declared with no lines, or a word that stands in, written at the top of a page beside its `App` or
-  `Page` with nothing under it, is not drawn and the frame stays the root (it was a bar above the app, which lost
-  its window); one whose name is a behaviour with no picture (`KeyboardShortcut`, `LiveStatus`, `Clock`,
-  `ThemePreference`, `MenuScroll`; the parts are listed in docs/design/20 section 12) and that gives no size and
-  no text draws nothing and takes no room anywhere, and with lines under its use it is those lines with no
-  labelled box. Everything else keeps its labelled box. The record keeps every use.
-- **`Section bleed` with no ground of its own has no padding**: what is in it (a hero picture) meets the bar above
-  it; it sat 64 px below on the page's white. A bleed band with a `fill` or a tint keeps its padding.
-- **A website's headline is at a display size**: `Heading level=1`, `Text.pageTitle` and `Text.heading1` in a `Page`'s
-  Section are 60 px (52 on a tablet, 43 on a phone, by the reflow), `level=2` 36 and `level=3` 22; they were 30, 24
-  and 18, a section's title over a 1440 page (round 11: the web's were 48 to 150 px). A theme whose `heading1` or
-  `pageTitle` has a size of 32 and up keeps it, a line's own `size=` wins, and an `App`'s titles are as they were.
-- **A website's controls are a web page's size**: in a `Page`, a button, a field and a select that write no height
-  are 40 px (28 before), their type to match (the renderer's step for 40), a chip 32 (24), the buttons of the
-  Section that holds the page's headline (its hero) `size=large` (44), and an `IconButton` in a Section a 40 px square
-  in a hairline (a bare glyph before). A theme's `sizes.control` wins; an `App` (Desk's 28 px density) is as it was.
-- **A website's ground reaches the foot**: a `Page` is as tall as the window it is shown in (as tall as its content
-  in a host that scrolls it: its canvas still hugs), its canvas is its ground (`Page fill=…`), and its `Footer` sits at
-  the window's foot on a short page (a `Spacer` before it takes what is left); white showed under short pages. Two
-  plain Sections one after the other have one section's space between them (96 px, was 128). An app's `Main` with no
-  ground of its own takes its content column's (`Column pad=24 fill=canvas scroll`), so the ground reaches the
-  pane's foot.
-- **Charts with no look of the theme's are drawn as a designer would**: a `BarChart`'s bars are apart (at most 40
-  wide, 8 between) and rounded (4) over a light grid with its figures on the left (written values: a nice top, `0`,
-  `10`, `20`…); a `Donut`'s slices and a multi-series line's colors are steps of the theme's primary (they were a
-  fixed palette no theme had); a `LineChart`'s axis is fitted to its data (it started at 0 and flattened it).
-- **A theme's `ink` and `paper` (the names the prompt teaches) are its text's ink and its ground** where it has no
-  design system's names for them (`primaryText`, `surface`…, which win): texts were `#FF111827` and the canvas white
-  whatever the site said. **A dark ground** (its luminance under 0.35) derives its tones from its ink and ground: cards
-  6 % lighter than the ground, hairlines and dividers its ink at 16 %, a selected or neutral fill its ink at 10 %, a
-  sidebar's or a bar's items at rest its ink at 80 % (their icons 60 %); they kept a light theme's white cards,
-  grey lines and grey items. (A control's accent colours are left as they were.)
-- **The open prompt says what the notation has for what round 11's writers invented words for**, in a line or a
-  phrase each: `key mod+k onPress={…}` (a shortcut of the whole screen), `announce "…"` and `Text … live` (a screen
-  reader), `now()` (the time), `Input#search "Search" icon="search" @q` (a search field; its example of a link that
-  stays in the bar is no longer a search). Nothing new is taught: each was there, left out of the open prompt.
-
-### Fixed
-
-- **A definition of several lines side by side is read** (it was refused and its uses drew placeholders: round 11's
-  admin console lost its sidebar), and **one that starts with an `if` or an `each` is its lines where the use is**,
-  as design note 20 has a use stand for its body's lines: the copies an `each` makes are the cells of a `Grid`
-  around the use (they were all in one cell) and take the gap of a `Column` around it. A use that gives the root
-  words of its own (`#id`, `hide=phone`, `grow`) has a `Column` holding the lines, as before.
-- **A Link is in the theme's accent** where the site names its colors: it drew a fixed blue (`#FF2563EB`) on every
-  site whatever its primary (round 11: 11 briefs).
-- **`Badge.success`, `.warning`, `.info`, `.primary`, `.error` under a theme with no tints of its own** (a site's
-  theme) are a tint of the tone's color (the theme's, else SSUI's): they all drew as the neutral grey badge.
-- **A theme text style changes only the keys it sets.** A style named as a text variant (`heading1: {fontFamily,
-  fontWeight}` in site.json) keeps the variant's size, and a line's `style=serif` over a variant
-  (`Text.heading2 "…" style=serif`) keeps the variant's size and ink where the style sets none: it replaced the
-  variant (round 11: 12 to 13 px headings and page titles).
-- **A box with the widest it gets in a centered column** (`Column maxw=720` under `Column center`) is as wide as its
-  place up to that, centered: it hugged its content (a 270 px flashcard in a 1200 px pane).
-- **A gauge's figure is sized to its shorter side**: a wide gauge `h=100` drew a 44 px figure over its arc.
-- **Texts with widths in a row inside a row that scrolls keep their widths** (`Text "00:15" w=126` cells of a
-  timeline's ruler): they were made shares of a row with all the width it asks for, and ran together. This is the
-  condition behind round 11's "`w=126` on a Text in a Row becomes a flex weight" (a row of 2 or more such texts
-  wider than half the window, under a scrolling row); a row not in a scroll is a table's, its columns shares as before.
-- **`Dots` in a page's Section**: the line after it is beside it, not one of its dots' row (a carousel's next button
-  sat in the 16 px row of dots). Found while checking round 11's builds.
+- The reference says what `fill`, `border` and `radius` do on an `Input`, a `Select` and the pickers; that a chip's
+  label color is `labelStyle.color=`; that a form is `form=true`; where `SwipeAction` goes; the names a variable
+  cannot take; that an `if` under an `each` hides what a copy shows, not the copy; and that an `ExpansionTile`'s
+  strings are its header.
 
 ## 36.0.0
 
