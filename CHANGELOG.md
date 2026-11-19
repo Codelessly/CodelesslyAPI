@@ -19,6 +19,9 @@
 
 ### Fixed
 
+- A line of a length of its own that grows at another width (`w=280 phone.grow`) takes the room it is given there;
+  it kept its length and the row ran past the window.
+
 ## 37.0.0
 
 Better defaults for what the notation draws when a line says little: a website's type and control sizes, a desktop

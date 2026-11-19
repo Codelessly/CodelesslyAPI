@@ -8556,6 +8556,15 @@ class _Parser {
     // Its media rules, unless its {…} tail gave them (t.at: where the words end).
     if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
       final rules = _mediaRules(mediaWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), parent?.type, type, readMap(out['bind'])?.keys ?? const []);
+      // `w=280 phone.grow`: where it grows its own length is the room it
+      // takes there (it kept 280 and the row ran past a phone).
+      final along = switch (parent?.type) { 'row' => 'width', 'column' => 'height', _ => null };
+      if (along != null && readMap(out['layout'])?[along] is num) {
+        for (final r in rules) {
+          final l = readMap(readMap(r['patch'])?['layout']);
+          if (l != null && l['flex'] is num && (l['flex'] as num) > 0 && !l.containsKey(along)) l[along] = {'fill': 0};
+        }
+      }
       if (rules.isNotEmpty) out['media'] = rules;
     }
     if (callSizes != null) _componentRules(type, callSizes, out);

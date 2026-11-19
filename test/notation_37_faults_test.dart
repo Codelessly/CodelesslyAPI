@@ -161,4 +161,24 @@ Column w=fill
       expect(_node(r, 'g')['type'], 'column');
     });
   });
+
+  test('a line of a width of its own that grows at a width takes the room there (w=280 phone.grow)', () {
+    final r = _parse('''
+state q=""
+Column w=fill
+  Row gap=8
+    Input#f @q hint="Search" w=280 phone.grow
+    Button "Filters"
+''');
+    expect(r.issues, isEmpty);
+    expect((_node(r, 'f')['layout'] as Map)['width'], 280);
+    expect(_node(r, 'f')['media'], [
+      {
+        'maxWidth': 699,
+        'patch': {
+          'layout': {'flex': 1, 'width': {'fill': 0}},
+        },
+      },
+    ]);
+  });
 }
