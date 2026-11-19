@@ -9793,13 +9793,31 @@ class _Parser {
 
     bool names(String id) {
       final n = nodes[id];
-      if (n == null || id == menu || hiddenThere(n)) return false;
+      // (An `at` block's lines are the bar where the block holds only: what
+      // names the page elsewhere is the bar's own lines.)
+      if (n == null || id == menu || _at.tops.contains(id) || hiddenThere(n)) return false;
       final type = n['type'];
       if (type == 'text' || type == 'Breadcrumb' || type == 'breadcrumbs') return true;
       return (type == 'row' || type == 'column') && readStrings(n['children']).any(names);
     }
 
     if (kids.any(names)) return;
+    // Where an `at` block of the bar holds (at_width.dart), the block is the
+    // writer's whole bar: no title is added there. A block that holds
+    // wherever the menu button shows leaves the bar no title at all.
+    final blocks = [
+      for (final list in _at.blocks.values)
+        for (final b in list)
+          if (b.holder == navId) b,
+    ];
+    if (blocks.isNotEmpty) {
+      num? below;
+      for (final r in readList(nodes[menu]?['media']) ?? const []) {
+        final rule = readMap(r);
+        if (rule != null && rule['minWidth'] is num && readMap(rule['patch'])?['visible'] == false) below = rule['minWidth'] as num;
+      }
+      if (below != null && blocks.any((b) => atCovers(b.condition, {'maxWidth': below! - 1}))) return;
+    }
     final id = _id('text');
     final style = options.textStyles['barTitle'] ?? options.textStyles['strong'];
     nodes[id] = {
@@ -9809,6 +9827,9 @@ class _Parser {
       'props': {'text': name, 'maxLines': 1, 'overflow': 'ellipsis', if (style != null) 'style': _copyValue(style)},
       if (readList(nodes[menu]?['media']) case final List m) 'media': _copyValue(m),
     };
+    for (final b in blocks) {
+      _atRule(id, atHidden(b.condition));
+    }
     _parentOf[id] = navId;
     (nav['children'] as List).insert(kids.indexOf(menu) + 1, id);
     _patches.add({'op': 'set', 'id': id, 'parent': navId, 'index': kids.indexOf(menu) + 1, 'node': nodes[id]});

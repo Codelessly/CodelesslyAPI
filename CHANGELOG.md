@@ -103,7 +103,8 @@ Row#bar w=fill between middle
 - **Page words:** under a website's `Nav` (or `Header`, `TopBar`) a block that holds on a phone is the bar there,
   and the Nav writes no menu of its own; under a `Table` the block's lines go in its frame in place of its header
   and rows, `...` its cells (a list of cards on a phone); an app's `Sidebar` with a block is still its drawer on a
-  phone, with its own lines.
+  phone, with its own lines; an app's `Nav` with a block is the writer's whole bar where the block holds, and no
+  page name is added there.
 - **Said, and not read:** `at` at the margin, under an `each` or an `if`, inside another block, in a definition's
   lines, under `App`, under a `Grid`, under a line that takes no lines, with a breakpoint's name (`at minTablet`),
   a block a later one shadows, a `...#id` no line has, anything written on a `...` line, and a part's line written

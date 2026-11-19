@@ -466,4 +466,58 @@ Row#window w=fill h=fill
           jsonEncode(_sorted(LayoutDocument.fromJson(whole, catalog: standardCatalog).toJson())));
     }
   });
+
+  group('an app\'s bar with a block', () {
+    String page(String block, {String bar = '      Text#crumb "Lexi / Progress" hide=phone\n      Button#add "New"'}) => '''
+canvas "Progress" w=1440 h=900
+App
+  Sidebar
+    NavItem "Decks" icon=style
+    NavItem "Insights" icon=insights selected
+  Main
+    Nav
+$bar
+$block
+    Column pad=24
+      Text "Your progress"
+''';
+
+    Map<String, Object?>? title(NotationResult r) => _nodes(r).values
+        .cast<Map>()
+        .where((n) => n['type'] == 'text' && (n['props'] as Map?)?['text'] == 'Progress')
+        .firstOrNull
+        ?.cast<String, Object?>();
+
+    test('with no block the bar names the page beside its menu button, as before', () {
+      expect(title(_parse(page(''), width: 1440)), isNotNull);
+    });
+
+    test('a block that holds on a phone is the whole bar there: no title is added', () {
+      // With a text of its own or with none.
+      for (final block in ['      at phone\n        IconButton#more "more_horiz"', '      at phone\n        Text "Today"\n        IconButton#more "more_horiz"']) {
+        final r = _parse(page(block), width: 1440);
+        expect(r.issues, isEmpty);
+        expect(title(r), isNull, reason: block);
+        expect(_shown(r, 'more', 390), isTrue);
+        expect(_shown(r, 'more', 1440), isFalse);
+      }
+    });
+
+    test('a block that holds on part of the widths the menu button shows at: the title is hidden where it holds', () {
+      final r = _parse(page('      at max499\n        IconButton#more "more_horiz"'), width: 1440);
+      expect(r.issues, isEmpty);
+      final t = title(r);
+      expect(t, isNotNull);
+      final id = _nodes(r).entries.firstWhere((e) => identical(e.value, t) || jsonEncode(e.value) == jsonEncode(t)).key;
+      expect(_shown(r, id, 390), isFalse);
+      expect(_shown(r, id, 600), isTrue);
+      expect(_shown(r, id, 1440), isFalse);
+    });
+
+    test('a block\'s text does not name the page where the block does not hold', () {
+      // Nothing of the bar's own names the page from 500 to 699: the title is there.
+      final r = _parse(page('      at max499\n        Text "Progress today"'), width: 1440);
+      expect(title(r), isNotNull);
+    });
+  });
 }
