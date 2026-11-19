@@ -447,7 +447,7 @@ Row#window w=fill h=fill
   });
 
   test('read as it arrives, the operations build the same document', () {
-    for (final text in [_nav, 'state q=""\nColumn#top\n  Row#bar\n    Input#search "Search" @q\n    at phone\n      Column\n        ...#search\n  Button "Find" onTap={focus search}']) {
+    for (final text in ['Row#bar w=fill\n  Text#a "A"\n  at tablet\n    Text "T"\n  at phone\n    Column\n      ...', _nav, 'state q=""\nColumn#top\n  Row#bar\n    Input#search "Search" @q\n    at phone\n      Column\n        ...#search\n  Button "Find" onTap={focus search}']) {
       final stream = Catalog.run(standardCatalog, () => NotationStream(catalog: standardCatalog, options: const NotationOptions(width: 1440)));
       var doc = LayoutDocument(catalog: standardCatalog);
       void apply(List<Json> ops) {
