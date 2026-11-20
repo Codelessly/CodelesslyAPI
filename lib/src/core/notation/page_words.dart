@@ -496,6 +496,8 @@ final class PageWords {
         // `arrow`: it points at what opened it. `hover`: it opens as a hover
         // card however it is opened (what preview=id on a line asks for).
         final arrow = parts.word('arrow'), hover = parts.word('hover');
+        // (`enterScale=0.6`, growing out of what opened it, is a field of its
+        // openModal: taken with the others in [overlay].)
         final action = <String, Object?>{
           'presentation': 'popover',
           'anchor': 'trigger',

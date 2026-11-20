@@ -257,11 +257,14 @@ enum ModalPresentation {
   popover,
 
   /// A banner along the top edge of the screen (the bottom edge when
-  /// [OpenModalAction.alignment]'s y is above 0), with no barrier: the app
-  /// behind stays usable. It slides in, a swipe dismisses it when
-  /// [OpenModalAction.barrierDismissible], and its screen closes it with a
-  /// [CloseModalAction] (after a `delay`, for one that goes by itself). A
-  /// runtime that doesn't know it shows a dialog.
+  /// [OpenModalAction.alignment]'s y is above 0), over everything (a dialog
+  /// and its barrier included), with no barrier: the app behind stays usable.
+  /// It slides in (or as its [OpenModalAction.routeTransition]'s enter side
+  /// says), a swipe toward its edge dismisses it when
+  /// [OpenModalAction.barrierDismissible], [OpenModalAction.closeAfterMs]
+  /// closes it by itself, and its screen closes it with a [CloseModalAction].
+  /// Banners show one at a time, in the order they were opened: a toast is a
+  /// banner. A runtime that doesn't know it shows a dialog.
   banner,
 }
 
@@ -324,6 +327,7 @@ final class OpenModalAction extends CoreAction {
     this.stopVariable = '',
     this.cover = false,
     this.enterScale = 1,
+    this.closeAfterMs = 0,
     this.routeTransition,
     super.enabled,
     super.nonBlocking,
@@ -414,7 +418,15 @@ final class OpenModalAction extends CoreAction {
   /// follow the device, as a screen navigated to does. Not a page route:
   /// the screen behind stays visible through a transparent design.
   final bool cover;
+  /// How large it starts (0–1): a dialog grows from it about its middle, an
+  /// anchored popover about the middle of the node that opened it (a menu
+  /// that grows out of its button). 1: as the presentation comes.
   final double enterScale;
+
+  /// Closes itself, with no result, this many ms after it has come in; the
+  /// clock holds while it is pressed or dragged and runs on when let go (a
+  /// banner shown as a toast). 0: it stays until something closes it.
+  final int closeAfterMs;
 
   /// A custom transition for the modal: its entrance, what the screen
   /// behind does, its barrier color (over [barrierColor]) and a drag that
@@ -449,6 +461,7 @@ final class OpenModalAction extends CoreAction {
     stopVariable: _s(m, 'stopVariable'),
     cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
+    closeAfterMs: _i(m, 'closeAfterMs', 0),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -484,6 +497,7 @@ final class OpenModalAction extends CoreAction {
     if (stopVariable.isNotEmpty) 'stopVariable': stopVariable,
     if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
+    if (closeAfterMs != 0) 'closeAfterMs': closeAfterMs,
     'routeTransition': ?routeTransition?.toJson(),
   };
 }

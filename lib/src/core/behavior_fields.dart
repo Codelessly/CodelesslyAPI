@@ -247,9 +247,14 @@ abstract final class NodeAnimationFields {
 
   /// Waits to start until this share of the node is in view.
   static const visibleFraction = PropDef<double?>('visibleFraction', Codecs.optionalDouble, null);
+
+  /// A node (its id) whose motion it waits for: it starts once that node's
+  /// entrances and lifted flight have ended.
+  static const after = PropDef<String?>('after', Codecs.optionalString, null,
+      doc: 'The id of a node it waits for: it starts (then its delay) once that node has settled: its entrances, the animations inside it and a lifted hero in it no longer moving. This starts when that ends.');
   static const List<PropDef<Object?>> all = [
     id, preset, params, enabled, duration, reverseDuration, delay, curve, repeat, autoplay, playKey, paused, phase, //
-    spring, progress, alignment, tracks, previewAt, ramp, visibleFraction,
+    spring, progress, alignment, tracks, previewAt, ramp, visibleFraction, after,
   ];
 }
 

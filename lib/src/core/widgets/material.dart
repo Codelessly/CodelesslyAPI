@@ -119,7 +119,8 @@ abstract final class IconButtonProps {
       states: ButtonProps.drawnStates,
       hugs: true,
       doc: 'Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. '
-          'Give it a "tooltip" (the behavior) to name it.');
+          'Give it a "tooltip" (the behavior) to name it. Its target and its glyph are sized apart: `w` and `h` the '
+          'target, `size` the glyph (`style.iconSize`): `IconButton "close" w=36 h=32 size=12`.');
 }
 
 /// `FloatingActionButton` (and its small, large and extended forms).

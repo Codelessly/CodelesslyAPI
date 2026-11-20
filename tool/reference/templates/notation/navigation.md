@@ -190,6 +190,44 @@ Sheet#story "The tide tables" stops=[0.5,1] stop=@sheetStop
   Text "The whole article" visible={sheetStop == 1}
 ```
 
+### By the node that opened it
+
+A `Menu` or `Popover` sits by the node whose tap opened it: below it at its start unless its line says `above`,
+`end` or `center` (or `placement=aboveEnd`, `rightCenter`…: [PopoverPlacement](values.md#enum-PopoverPlacement)).
+Where that side has no room it flips to the other, and it is moved along to stay on the screen; `arrow` points at
+what opened it. `enterScale=0.6` makes it grow out of the node that opened it, from that size, as it comes in. A
+time-zone picker on a button at the screen's bottom end (it opens above, its arrow pointing down at the button):
+
+```notation width=390 expands
+Stack w=fill h=844
+  Button "Time zone" x={"end":12} y={"end":40} onTap={open zones}
+Popover#zones w=240 arrow enterScale=0.6
+  Text "Eastern" pad=8
+  Text "Pacific" pad=8
+```
+
+### Over everything: a banner
+
+`presentation=banner` shows a screen over everything, a dialog and its barrier included, with no barrier of its own:
+the page behind stays usable. It comes in along the top edge (`alignment=[0,1]`: the bottom), inside the safe area;
+a swipe toward its edge dismisses it, following the finger; `closeAfterMs=3000` closes it 3 s after it has come in,
+the clock held while it is pressed or dragged. Banners show one at a time, in the order they were opened. Its
+`routeTransition` says how it comes and goes (its `enter` side, and its `popExit` when it leaves another way) and
+which way a swipe dismisses it (its `dismiss.direction`). The chain that opened it goes on when it has gone, with
+`${result}` what its own `close result=…` gave, empty when it went by itself or was swiped away. A toast is this: any
+screen, shown so. `closeAfterMs` closes a dialog or a sheet by itself too.
+
+```notation width=390 expands
+Column gap=12
+  Button "Save" onTap={openModal to=saved presentation=banner closeAfterMs=3000}
+Canvas#saved "saved" w=390 fill=#00000000
+  Row w=fill center pad=12
+    Row gap=8 pad=[16,8,16,8] radius=32 fill=#FFFFFFFF middle
+      Icon "check_circle_outline" size=22 color=#FF00A3AD
+      Text "Saved to your journal"
+      Text "Undo" weight=700 onTap={closeModal result=undo}
+```
+
 In a site an overlay is a screen of the whole site. Two pages may each write one id (`Drawer#nav` on the board page
 and on the list page): written alike on both, it is one overlay; drawn differently, `expand` gives each page its own,
 `nav--board` and `nav--list` (`<id>--<page>`: no id a writer writes has `--`; a page file of that name is said, and

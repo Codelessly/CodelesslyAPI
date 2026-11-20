@@ -5838,6 +5838,7 @@ class _Parser {
     Json? animation;
     Map<String, int>? timing;
     String? animationCurve;
+    String? animateAfter;
     // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
     String? markText, markQuery;
     var selectedState = false;
@@ -7305,6 +7306,12 @@ class _Parser {
           } else {
             _issue(col, 'No curve=$raw. Written curve=${AnimationCurve.values.map((c) => c.name).take(8).join(', ')}….');
           }
+          continue;
+        }
+        // `after=bubble` beside animate=: it starts once node bubble has
+        // settled (its entrance, a lifted flight): this starts when that ends.
+        if (key == 'after' && !component && RegExp(r'^"?[A-Za-z_][A-Za-z0-9_-]*"?$').hasMatch(raw)) {
+          animateAfter = raw.replaceAll('"', '');
           continue;
         }
         if (key == 'limit' && type == 'radialGauge') key = 'target';
@@ -8861,10 +8868,14 @@ class _Parser {
       layout['constraints'] = {...?readMap(layout['constraints']), 'minHeight': layout['height']};
       layout['height'] = {'hug': 0};
     }
+    if (animateAfter != null && animation == null) {
+      _issue(column, 'after= goes with animate= on the same line (animate=scale after=bubble): the entrance starts once that node has settled.');
+    }
     if (animation != null) {
       if (timing?['duration'] case final int d) animation['duration'] = d;
       if (timing?['delay'] case final int d) animation['delay'] = d;
       if (animationCurve case final String c) animation['curve'] = c;
+      if (animateAfter != null) animation['after'] = animateAfter;
       node['animations'] = [animation];
       // Under an `each`, each copy starts that much after the one before.
       if (timing?['stagger'] case final int step) {

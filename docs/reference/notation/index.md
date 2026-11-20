@@ -9,25 +9,25 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 
 | Page | What is in it | Words |
 |---|---|---|
-| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4599 |
+| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4611 |
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5157 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1843 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 3489 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 2114 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 13723 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 13745 |
 | [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 8262 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3752 |
-| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 6311 |
+| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 6423 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3663 |
-| [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 3972 |
+| [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 4663 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 9162 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 2989 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 4534 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 4936 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 2912 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 1001 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | 635 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 988 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 17228 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 17294 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | 1660 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | 300 |

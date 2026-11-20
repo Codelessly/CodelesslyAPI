@@ -67,7 +67,7 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | <a id="trigger-hold"></a>`onHold` | `hold` | 4 | A press held for `Trigger.holdMs`; letting go early cancels it (before `Trigger.commitMs`, when set). |
 | <a id="trigger-secondaryClick"></a>`onRightClick` | `secondaryClick` | 4 | A right click, or a two-finger tap on a trackpad (`${result.x}`, `${result.y}`: where, on screen). |
 | <a id="trigger-pointerDown"></a>`onPointerDown` | `pointerDown` | 4 | A pointer went down on the node. |
-| <a id="trigger-pointerUp"></a>`onPointerUp` | `pointerUp` | 4 | A pointer went up (or was canceled) on the node. |
+| <a id="trigger-pointerUp"></a>`onPointerUp` | `pointerUp` | 4 | A pointer went up on the node, or was cancelled (taken away by the system or a scroll): `${result.cancelled}` says which (`onPointerUp={result.cancelled ? close : pick}`), `${result.x}`, `${result.y}` where, in the node. |
 | <a id="trigger-hover"></a>`onHoverMove` | `hover` | 4 | The mouse cursor moved over the node (fires when it enters, too). |
 | <a id="trigger-cursorEnter"></a>`onHover` | `cursorEnter` | 4 | The mouse cursor entered the node (once). |
 | <a id="trigger-cursorExit"></a>`onCursorExit` | `cursorExit` | 4 | The mouse cursor left the node (once). |
@@ -75,7 +75,7 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | <a id="trigger-swipeRight"></a>`onSwipeRight` | `swipeRight` | 4 |  |
 | <a id="trigger-swipeUp"></a>`onSwipeUp` | `swipeUp` | 4 |  |
 | <a id="trigger-swipeDown"></a>`onSwipeDown` | `swipeDown` | 4 |  |
-| <a id="trigger-drag"></a>`onDrag` | `drag` | 4 | The node is dragged (every move); `dragEnd` when it's let go. |
+| <a id="trigger-drag"></a>`onDrag` | `drag` | 4 | The node is dragged (every move); `dragEnd` when it's let go (`${result.vx}`, `${result.vy}`: its speed; `${result.cancelled}`: the drag was taken away, not let go). |
 | <a id="trigger-dragEnd"></a>`onDragEnd` | `dragEnd` | 4 |  |
 | <a id="trigger-wheel"></a>`onWheel` | `wheel` | 4 | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
 | <a id="trigger-pinch"></a>`onPinch` | `pinch` | 4 | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
@@ -248,7 +248,8 @@ Written `openModal to=… params=…`; the verb: `open signup`. Level 1.
 | `snapHeights` | list of number | `[]` | Bottom sheet height stops as increasing fractions of available height, e.g. [0.5, 0.9]. |
 | `stopVariable` | text | `""` | The name of a variable: the stop of snapHeights the open sheet rests at (0.5, 1), read and written. The sheet writes it as it opens and when it is moved to another stop; setting it moves the open sheet to the nearest stop; a sheet opened while it holds one of the stops opens there. 0 while the sheet is closed. |
 | `cover` | `true`/`false` | `false` | A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device). |
-| `enterScale` | number | `1` |  |
+| `enterScale` | number | `1` | How large it starts (0–1), growing to its size as it comes in: a dialog about its middle, an anchored popover about the middle of the node that opened it (a menu that grows out of its button). 1: as the presentation comes. |
+| `closeAfterMs` | whole number | `0` | Closes itself (no result) this many ms after it has come in; the clock holds while it is pressed or dragged. 0: stays until closed. |
 | `routeTransition` | [RouteTransition](navigation.md#type-RouteTransition) |  | A custom transition: entrance, the screen behind, barrier, drag to dismiss. |
 
 <a id="action-closeModal"></a>

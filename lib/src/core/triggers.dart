@@ -36,7 +36,9 @@ enum TriggerType {
   /// A pointer went down on the node.
   pointerDown,
 
-  /// A pointer went up (or was canceled) on the node.
+  /// A pointer went up on the node, or was cancelled (taken away by the
+  /// system or a scroll): `${result.cancelled}` says which (`onPointerUp={result.cancelled ? close : pick}`),
+  /// `${result.x}`, `${result.y}` where, in the node.
   pointerUp,
 
   /// The mouse cursor moved over the node (fires when it enters, too).
@@ -54,7 +56,9 @@ enum TriggerType {
   swipeUp,
   swipeDown,
 
-  /// The node is dragged (every move); [dragEnd] when it's let go.
+  /// The node is dragged (every move); [dragEnd] when it's let go
+  /// (`${result.vx}`, `${result.vy}`: its speed; `${result.cancelled}`: the
+  /// drag was taken away, not let go).
   drag,
   dragEnd,
 
