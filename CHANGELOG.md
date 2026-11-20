@@ -127,6 +127,13 @@ the first section before upgrading.
 
 ### Added
 
+- **The `graph` node type**: rows drawn as marks (bars stacked or side by side, lines, areas, candles, slices),
+  on rows one place each or a linear x scale, with ticks, guides and a selection (hover, tap) it publishes
+  through `changed`. Its parts (`xAxis`, `yAxis`, `marks`, `guides`, `panes`, `transforms`, `selection`,
+  `crosshair`, `interactions`, `style`) are typed records, so the notation reads their fields as dotted keys
+  and checks them. The chart types (`chart`, `barChart`, `lineChart`, `plotChart`) keep their declarations;
+  the SDK draws them as graphs.
+
 - **`SiteManifest.now`** (`"now": "2026-11-16T09:00:00"` in `site.json`): the time a site's seed data is written
   for. The render and states commands read it as their `--now` when none is passed, so a calendar, a countdown or
   a "due today" is drawn on the day its data means. A running app does not read it.
