@@ -22,6 +22,8 @@
 import 'dart:convert' show jsonDecode;
 import 'dart:math' as math;
 
+import '../action_fields.dart' show OpenModalFields;
+
 part 'table_words.dart';
 part 'page_words_at.dart';
 
@@ -323,6 +325,37 @@ final class PageWords {
   /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
   /// own, shown over the page by `open <id>`.
   Overlay? overlay(String text) {
+    // A key of the `openModal` that shows it, written on its line
+    // (`Sheet#s sheetRadius=10 showDragHandle=false`, `Dialog#d
+    // barrierDismissible=false`): what every `open` of it says.
+    final head = _overlayHead.firstMatch(text);
+    if (head == null || head[1] == 'Lightbox') return _overlayAsWritten(text);
+    final parts = _Parts(text.substring(head.end));
+    final more = <String, Object?>{};
+    for (final f in OpenModalFields.all) {
+      if (const {'to', 'params', 'presentation', 'stopVariable', 'snapHeights', 'sheetWidth'}.contains(f.key) || parts.bound(f.key)) continue;
+      if (parts.take(f.key) case final String v) more[f.key] = _modalValue(v);
+    }
+    if (more.isEmpty) return _overlayAsWritten(text);
+    return _overlayAsWritten('${text.substring(0, head.end)}${parts.props}${parts.tail}')?.withAction(more);
+  }
+
+  /// A value written for a key of an `openModal` on an overlay's line.
+  static Object? _modalValue(String v) {
+    if (v == 'true' || v == 'false') return v == 'true';
+    if (num.tryParse(v) case final num n) return n;
+    if (v.startsWith('[')) {
+      try {
+        return jsonDecode(v);
+      } on FormatException {
+        return v;
+      }
+    }
+    if (v.length >= 2 && v.startsWith('"') && v.endsWith('"')) return v.substring(1, v.length - 1);
+    return v;
+  }
+
+  Overlay? _overlayAsWritten(String text) {
     // `Canvas#about "About" path="about"`: another canvas of the document
     // (a page, or what an open shows as written), its lines its tree.
     final canvas = RegExp(r'^Canvas#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)(?=\s|$)').firstMatch(text);
@@ -1626,6 +1659,22 @@ final class Overlay {
   /// Which of its lines close it after their actions: `all` (a menu's
   /// items), `nav` (a drawer's NavItems and Links) or `none`.
   final String closes;
+
+  /// This overlay with [more] over what its `open` says.
+  Overlay withAction(Map<String, Object?> more) => Overlay(kind, id, width, {...action, ...more}, head,
+      shift: shift,
+      foot: foot,
+      surface: surface,
+      radius: radius,
+      outlined: outlined,
+      closes: closes,
+      empty: empty,
+      variables: variables,
+      guard: guard,
+      guardText: guardText,
+      onDiscard: onDiscard,
+      onBack: onBack,
+      stop: stop);
 }
 
 class _Line {

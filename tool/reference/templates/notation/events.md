@@ -49,7 +49,9 @@ A field that holds actions takes them in braces: `confirm "Remove it?" then {clo
 `cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty; `cond ? a` alone does nothing when it
 does not hold). `if` is a line of the tree, not a verb: `onTap={missing ? {open naming} : {open account}}`, not
 `onTap={if missing {…} else {…}}` (the action by its type is `if condition={missing} then={…} else={…}`). A verb
-says only the fields its row shows; any other is the action by its type: `showToast message="Saved" style=success`. `close` closes the overlay the action
+says only the fields its row shows; any other is the action by its type: `showToast message="Saved" style=success`
+(`toast "Saved" style=success` is said with that line). A number of an action is a number: `delay ms={…}` is the
+delay's `duration={…}`, and a value worked out given to another number field is said. `close` closes the overlay the action
 runs in; a second `close` in the same chain closes the one under it (`close; close` from a dialog over a dialog
 closes both).
 

@@ -171,6 +171,21 @@ extension _Events on _Parser {
         continue;
       }
       out[key] = _fieldValue(raw, column, chain: spec.nested.contains(key));
+      // A number or a flag of the action given a value worked out (`delay
+      // ms={x ? 4000 : 3000}`) is read as no number (the wait was 500, with
+      // no word said): it goes to the field the action's doc names for a
+      // value worked out (`ms`: "A wait worked out is `duration`"), else it
+      // is said.
+      final def = spec.fields.where((f) => f.key == key).firstOrNull;
+      if (def != null && !_predicateFields.contains(key) && out[key] is String && (out[key]! as String).contains(r'${') && const {PropKind.integer, PropKind.number, PropKind.boolean}.contains(def.type.kind)) {
+        final to = RegExp(r'worked out is `([A-Za-z_][A-Za-z0-9_]*)`').firstMatch(def.doc)?[1];
+        final v = out.remove(key);
+        if (to != null && fields.contains(to)) {
+          out[to] = v;
+        } else {
+          _issue(column, 'A ${spec.type} action\'s $key is a fixed ${def.type.kind == PropKind.boolean ? 'true or false' : 'number'}: a value worked out is not read there ($key=$raw left out). Write the number itself.');
+        }
+      }
       // A predicate field (an `if`'s condition, any action's `when`) given
       // a value worked out (`condition={a || b}`) holds when that value is
       // true. It was written as the bare text of the formula, which reads

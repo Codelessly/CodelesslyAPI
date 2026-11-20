@@ -9,7 +9,8 @@ element, lays out a grid, shows a table or pages through items.
 ## A list over data
 
 `each item in list` repeats the lines under it once per element: `{item.field}` reads it, `index` is its place
-(there with nothing written: `each dot in range(count)`, not `each dot, i in …`). An
+(there with nothing written: `each dot in range(count)`, not `each dot, i in …`, which is said and read without
+its second name). An
 each inside an each is best given names of its own (`each group in groups` / `each msg in group.items`): the inner
 lines read `{group.name}` and `{msg.subject}`. An inner each that reuses the outer's name (`each item in item.items`)
 hides it, as in any language: `{item}` under it is the inner element, and `parent.item` the outer. A name inside a

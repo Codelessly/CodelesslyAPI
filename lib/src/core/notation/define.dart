@@ -1218,7 +1218,16 @@ final class DefinedWords {
         internal?.call('${p}_$uid');
       }
     }
-    final sub = _Substitution(d, values, actions, renamed, ids, theme);
+    // An id named like a variable the body binds or the page has
+    // (`Toggle#postVisible @postVisible`, `PageView#therapists
+    // data={therapists}`): the id is the use's own, the variable stays the
+    // page's.
+    final eachItems = {for (final l in d.body) ?RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text)?[1]};
+    final variablesNamedLikeIds = {
+      for (final n in ids)
+        if (renamed[n] == '${n}_$uid' && !stated.contains(n) && !eachItems.contains(n) && !d.parameters.containsKey(n) && n != d.bind && (bodyBinds.contains(n) || (variable?.call(n) ?? false))) n,
+    };
+    final sub = _Substitution(d, values, actions, renamed, ids, theme, variablesNamedLikeIds);
 
     // The body, with the use's values put in.
     final lines = <({int indent, String text, int line})>[
@@ -1558,7 +1567,14 @@ final class _Use {
 
 /// A use's values put into its definition's body.
 final class _Substitution {
-  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids, this.theme);
+  _Substitution(this.d, this.values, this.actions, this.renamed, this.ids, this.theme, [this.pageVariables = const {}]);
+
+  /// The ids of the body that are also the name of a variable it binds or
+  /// the page has: as a variable (`@name`, `{name}`) the name stays.
+  final Set<String> pageVariables;
+
+  /// What the body's name [n] is made where it is read as a variable.
+  String? _variable(String n) => pageVariables.contains(n) ? null : renamed[n];
 
   /// The looks a body reads as `theme.<name>` ([notationThemeReads]).
   final Map<String, Object?> theme;
@@ -1710,9 +1726,12 @@ final class _Substitution {
         continue;
       }
       i = m.end;
+      // An id named like a variable is the id after a verb that names a
+      // node (`open menu`), the variable elsewhere.
+      final namesNode = pageVariables.contains(word) && RegExp(r'\b(focus|scroll|scrollTo|open|close|toggle|node=)\s*$').hasMatch(text.substring(0, m.start));
       if (before == '.' || call) {
         b.write(word);
-      } else if (renamed[word] case final String to) {
+      } else if ((namesNode ? renamed[word] : _variable(word)) case final String to) {
         b.write(to);
       } else if (d.events.contains(word)) {
         // An event in an expression: whether the use gave it.
@@ -1773,6 +1792,18 @@ final class _Substitution {
   /// actions where the body names its events (`onPick`, `onPick(c)`).
   String actionsOf(String inner) {
     final put = <String>[];
+    // A parameter written where an action goes (`onTap={save}`, used as
+    // `Act save={n=n+1}`): the use's actions, whatever the parameter's name.
+    inner = [
+      for (final a in _actionList(inner))
+        if (a.trim() case final t when _identifier.hasMatch(t) && _isParameter(t) && t != 'variant' && renamed[t] == null)
+          switch (_value(t)) {
+            null || '' => '',
+            final v => '\u0000${(put..add(v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : v)).length - 1}\u0000',
+          }
+        else
+          a,
+    ].join(';');
     final b = StringBuffer();
     var i = 0;
     for (final m in RegExp(r'(?<![.A-Za-z0-9_])(on[A-Z][A-Za-z0-9]*)').allMatches(inner)) {
@@ -2010,7 +2041,7 @@ final class _Substitution {
     final name = written.substring(1);
     final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(name);
     if (head == null) return written;
-    if (renamed[head] case final String to) return '@$to${name.substring(head.length)}';
+    if (_variable(head) case final String to) return '@$to${name.substring(head.length)}';
     return written;
   }
 

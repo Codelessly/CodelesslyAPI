@@ -22,7 +22,8 @@ Column gap=4
 
 A part of a text in its own style, or a link, is a run over its characters: `runs=[…]`, each
 [TextRun](#type-TextRun) a range `start` to `end` (the end not included) with its `style` and its `link`. A run
-holds no text of its own; it styles the text that is there.
+holds no text of its own; it styles the text that is there (a run written with `"text"` and no `start` is that
+text where the line first has it; a text the line does not have is said).
 
 ```notation
 Text "Feeling stuck? Find help here." runs=[{"start":15,"end":29,"style":{"color":"#FF545CEA","fontWeight":600},"link":"https://example.com/help"}]
@@ -103,6 +104,7 @@ Written `defaultTextStyle={…}` on any line ([TextStyle](#type-TextStyle)). Lev
 |---|---|---|---|
 | `defaultTextStyle.from` | text |  | The name of one of the project's text styles (the site manifest's `theme.textStyles`) this style starts from, as `Theme.of(context).textTheme.titleLarge.merge(...)`: the fields written here change it. `"style": "title"` is short for `{"from": "title"}`. |
 | `defaultTextStyle.fontFamily` | text |  | The font family (`"Inter"`); `fontWeight` picks its file. Without one: the platform's default (Roboto). |
+| `defaultTextStyle.fontFamilyFallback` | list of text | `[]` | The families tried, in order, for a glyph fontFamily lacks (`["Roboto", "Noto Sans"]`). |
 | `defaultTextStyle.fontWeight` | [FontWeight](values.md#type-FontWeight) |  | Flutter's `FontWeight`: 100–900, in hundreds. |
 | `defaultTextStyle.fontStyle` | `normal` `italic` |  | `normal` or `italic`. |
 | `defaultTextStyle.fontSize` | number (≥ 0) |  | The font size in logical pixels. Without one: 12. |

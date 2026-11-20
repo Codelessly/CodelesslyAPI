@@ -1627,6 +1627,12 @@ const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between
 /// not): the condition, the word, the value.
 final _flagKey = RegExp(r'^((?:[a-z][A-Za-z0-9]*\.)+)?(scroll|stretch|top|bottom|middle|center|left|right|start|end|between|around|evenly)=(true|false)$');
 
+/// The flags a line reads as bare words that no key of a type is named
+/// like (`Input "m" multiline`, `Text italic`, `Row clip`, `Row keep`):
+/// written `=true` each is the flag, `=false` none. (`password=`,
+/// `underline=`, `strike=` and the alignment words are read as keys.)
+const _bareFlags = {'multiline', 'italic', 'clip', 'keep'};
+
 const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'bottom': 'end', 'right': 'end', 'stretch': 'stretch'};
 
 /// What the notation already has under [word], in one line with its
@@ -2949,6 +2955,7 @@ class _Parser {
           }
         }
         if (standIn == null) head = lines.first;
+        head = _overlayCloseEvent(head);
         if (_pages.overlay(head) case final Overlay o) {
           final word = _srcWord;
           _openBlock(o);
@@ -4294,7 +4301,8 @@ class _Parser {
   /// `param`, `event`, `slot` or `preview` indented under it).
   bool _componentLine(String raw) {
     if (_host != null || _root != null) return false;
-    final indent = raw.length - raw.trimLeft().length, text = raw.trim();
+    final indent = raw.length - raw.trimLeft().length;
+    var text = raw.trim();
     // `canvas "Trip" path="/trip" h=844 fill=paper`: the screen's own fields
     // (its name, path, size and fill; any other by its path from the canvas,
     // `props.blockBack=true`), above the tree.
@@ -4302,6 +4310,14 @@ class _Parser {
       // `canvas none`: the document has no canvas; its root is the first line.
       _noCanvas = true;
       return true;
+    }
+    // `canvas#chat-menu "Chat menu" h=844`: the canvas line with an id,
+    // which it does not take (it said "A canvas has no text of its own"):
+    // read without it, and said.
+    if (RegExp(r'^canvas#([A-Za-z0-9_-]+)(\s|$)').firstMatch(text) case final m? when indent == 0) {
+      _issue(7,
+          'A canvas line names no id: its id is the page\'s (a site page is named by its file, a lone file by expand --id ${m[1]}); its string is its name. Write canvas${text.substring(m[0]!.trimRight().length)}.');
+      text = 'canvas${text.substring(m[0]!.trimRight().length)}';
     }
     if (indent == 0 && RegExp(r'^canvas(\s|$)').hasMatch(text)) {
       _canvasPatch = mergePatch(_canvasPatch ?? const {}, _canvasWords(text.substring(6)), keepNulls: true);
@@ -5213,6 +5229,14 @@ class _Parser {
     _ifAt.removeWhere((depth, _) => depth >= indent);
     // `each rows` is `each row in rows`: the element is read as `row` (or
     // `item`).
+    // `each dot,index in items` (a name for the place, as in a language):
+    // the place is `index` with nothing written. Said, and read as `each dot
+    // in items` (it said "No node type each").
+    if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line) case final two?) {
+      _issue(indent + 1,
+          'An each names its element only: its place is index, there with nothing written (from 0; parent.index in an each inside it). Write each ${two[1]} in ${two[3]}${two[2] == 'index' ? '' : ', and read ${two[2]} as index'}.');
+      line = 'each ${two[1]} in ${two[3]}';
+    }
     final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line);
     if (bare != null) line = 'each row in ${bare[1]}';
     // `each a in list stagger=80`: the row under it arrives that much after
@@ -6059,6 +6083,11 @@ class _Parser {
         _issue(col, '@ is followed by the variable\'s name: @name (a field: @draft.title). A value worked out is shown with value={expression}.');
         return;
       }
+      // `Input @query` in a component with `param @query=""`: the
+      // parameter, as the tree reads it (`props.query`), when no variable
+      // or loop of the text has the name.
+      final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(expr);
+      if (head != null && _variableParam(head) && !variables.containsKey(head) && !_stack.any((o) => o.each == head)) expr = 'props.$expr';
       // Which property: the line's value, a range's other end, a list's
       // selection, or a block's variable of that name.
       final String role;
@@ -6346,6 +6375,14 @@ class _Parser {
             word = '${f[1] ?? ''}scrollable=false';
           }
         }
+        // `Input "m" multiline=true`, `password=false`: a flag of the line
+        // that no key of its type is named like, written as a key: `=true` is
+        // the flag, `=false` none.
+        if ((withFields == null ? RegExp(r'^([a-z][A-Za-z0-9]*)=(true|false)$').firstMatch(word) : null) case final f?
+            when _bareFlags.contains(f[1]) && !spec.props.any((p) => p.key == f[1]) && resolveNotationField(f[1]!, type, catalog: catalog)?.key == null) {
+          if (f[2] == 'false') continue;
+          word = f[1]!;
+        }
         // Where the strings go: before any key=value or bare word.
         final textPosition = !afterKey;
         afterKey = true;
@@ -6362,6 +6399,14 @@ class _Parser {
         if (_stateWord(t, word, from, type, col, stateWords) || _nameWord(t, word, from, spec, node, col)) continue;
         final eq = word.indexOf('=');
         if (word.startsWith('@')) {
+          // `@value={props.value}`: no form; @ names the variable.
+          if (word.endsWith('=') && (t.peek == '{' || t.peek == '"')) {
+            final v = t.peek == '{' ? t.balanced() : t.string();
+            final inner = v.startsWith('{') && v.endsWith('}') ? v.substring(1, v.length - 1).trim() : v;
+            _issue(col,
+                '${word}$v is no form: @ is followed by the variable\'s name, no = and no braces. Write @${_identifier.hasMatch(inner) && !inner.contains('"') ? inner : 'name'} (a key other than the value: key=@name); a component\'s variable parameter (param @name=…) is @name or @props.name in its tree, a define\'s (define Word @name=…) @name.');
+            continue;
+          }
           mark(null, word.substring(1), col);
           continue;
         }
@@ -6962,7 +7007,7 @@ class _Parser {
         // its frame).
         // A state's or a media rule's word reads the same (`focused.fill=`
         // on an Input: its box's fill while it has the focus).
-        if (const {'textField', 'datePicker', 'timePicker'}.contains(type) && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key) && !(key == 'border' && raw.startsWith('='))) {
+        if (const {'textField', 'datePicker', 'timePicker'}.contains(type) && !component && const {'fill', 'border', 'radius', 'borderColor', 'border-color'}.contains(key)) {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
           Json border() => (field['border'] as Json?) ?? (field['border'] = <String, Object?>{'type': 'outline'});
           final v = raw.startsWith('=') ? null : _value(raw);
@@ -6983,6 +7028,15 @@ class _Parser {
             } else if (v is num) {
               border()['borderRadius'] = v;
             }
+          } else if (raw.startsWith('=')) {
+            // `border={bad ? "#FFEF5350" : "#FFF3F5F6"}`: the field's own
+            // border, as a border written out is (and as `focused.border=`
+            // sets): it was the node's stroke, a second line round the field.
+            // A width worked out (`border={on ? 2 : 1}`) is its width.
+            final e = raw.substring(1);
+            final isWidth = key == 'border' && RegExp(r'^\s*(-?\d+(\.\d+)?|.*\?\s*-?\d+(\.\d+)?\s*:\s*-?\d+(\.\d+)?)\s*$').hasMatch(e);
+            border().putIfAbsent('borderSide', () => <String, Object?>{});
+            bind['props.decoration.border.borderSide.${isWidth ? 'width' : 'color'}'] = isWidth ? _read(e) : _namedIn(_read(e), 'stroke');
           } else if (v == 'none' || v == false || v == 0) {
             border()['type'] = 'none';
             if (!field.containsKey('fillColor') && !bind.containsKey('props.decoration.fillColor')) field['filled'] = false;
@@ -8021,9 +8075,19 @@ class _Parser {
     if (ours && written == 'CodeInput' && !bind.containsKey('props.otpLength')) props.putIfAbsent('otpLength', () => 6);
     if (written == 'Image') {
       final url = props.remove('text');
+      // What the line wrote of the picture itself (`fills[0].image.alignment=
+      // topCenter`, its tint, its repeat) is kept: it was dropped with no word.
+      final picture = switch (decoration['fills']) {
+        [final Map first, ...] => readMap(first['image']) ?? const <String, Object?>{},
+        _ => const <String, Object?>{},
+      };
       decoration['fills'] = [
         {
-          'image': {'url': url ?? '', 'fit': const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit) ? imageFit : 'cover'},
+          'image': {
+            ...picture,
+            'url': url ?? picture['url'] ?? '',
+            'fit': const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit) ? imageFit : picture['fit'] ?? 'cover',
+          },
         },
       ];
       layout.putIfAbsent('height', () => 160);
@@ -8397,6 +8461,31 @@ class _Parser {
     }
     if (buttonLook != null && buttonLook.isNotEmpty) {
       props['style'] = {...?readMap(props['style']), ...buttonLook};
+    }
+    // `runs=[{"text":"find help","link":…}]`: a run holds no text, it is a
+    // range of the line's (`start`, `end`). A run that names its text is
+    // where that text first is in the line's, after the run before it; a
+    // text the line does not have is said (it was dropped with no word).
+    if (type == 'text' && props['runs'] is List && (props['runs']! as List).any((r) => r is Map && r.containsKey('text'))) {
+      final whole = props['text'] is String ? props['text']! as String : null;
+      var from = 0;
+      props['runs'] = [
+        for (final r in props['runs']! as List)
+          if (r is Map && r['text'] is String && !r.containsKey('start') && !r.containsKey('end') && whole != null && !whole.contains(r'${') && whole.indexOf(r['text'] as String, from) >= 0)
+            () {
+              final at = whole.indexOf(r['text'] as String, from);
+              from = at + (r['text'] as String).length;
+              return {'start': at, 'end': from, for (final e in r.entries) if (e.key != 'text') e.key: e.value};
+            }()
+          else if (r is Map && r.containsKey('text'))
+            () {
+              _issue(1,
+                  'A run holds no text of its own: it is a range of the line\'s text, {"start":0,"end":9,"style":{…},"link":"…"}${r.containsKey('start') ? '' : ' (its "text" is found in the line\'s text when the line has it: "${r['text']}" is not in it)'}. Write the words in the line\'s string and the run\'s start and end.');
+              return {for (final e in r.entries) if (e.key != 'text') e.key: e.value};
+            }()
+          else
+            r,
+      ];
     }
     if (textLine != null && props['style'] is Map) {
       props['style'] = {...(props['style']! as Map).cast<String, Object?>(), 'decoration': textLine};
@@ -9978,6 +10067,9 @@ class _Parser {
           final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
               (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
               !before.endsWith('?');
+          // `{type: "dropShadow", color: props.color}`: a record's key (after
+          // its `{` or a `,`, before a `:`) is a name, not the value.
+          if ((before.endsWith('{') || before.endsWith(',')) && RegExp(r'^\s*:(?!:)').hasMatch(part.substring(m.end))) return m[0]!;
           // `go album` under `each album in â€¦` with a page called album: a
           // bare word after go is the page's id (the item is `go {album}`).
           if (_goes.hasMatch(before) && notationScreen(name, options.screens) != null) return m[0]!;
@@ -10337,6 +10429,10 @@ class _Parser {
         if (k.startsWith('props.')) k.substring(6),
     ];
     final listOnly = [...props.keys, ...bound].where((k) => !flexKeys.contains(k)).toList();
+    // Pull to refresh is a list's only: as a Column its `onRefresh` never
+    // fired (no word said), so a list that refreshes keeps its lines as one
+    // item, and pulls.
+    if ((readList(node['actions']) ?? const []).any((r) => readMap(readMap(r)?['trigger'])?['type'] == 'refresh')) listOnly.add('onRefresh');
     if (!_top._quiet) {
       final read = listOnly.isEmpty ? 'read so here' : 'read here as a list of one item, its lines, for ${listOnly.join(', ')}';
       issues.add(NotationIssue(at.line, at.column,
@@ -11217,6 +11313,10 @@ class _Parser {
       for (final d in _derived.entries) {
         if (!params.contains(d.key) && body.contains(d.key)) body = _rename(' $body', d.key, '(${d.value})').substring(1);
       }
+      // Read as every other formula of the text is (`not x` is `!x`, `and`
+      // and `or`, `list.length`): it was kept as written, and `not x`
+      // failed where an `if not x` line worked.
+      if (formula) body = _natural(body);
       variables[name] = {
         'name': name,
         'type': type,
@@ -11479,6 +11579,34 @@ class _Parser {
   /// the field as a formula giving text (`"rows[" + index + "].done"`: what
   /// a component's `variable` parameter is given). A String instead when
   /// the field cannot be written: what to say.
+  /// [head], an overlay's line (`Sheet#s "Title" onClose={x=false}`),
+  /// without an event for its closing, which no overlay has: said, naming
+  /// the overlay, with the form that runs actions once it has closed (the
+  /// actions after its `open` in the chain that opens it).
+  String _overlayCloseEvent(String head) {
+    final m = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_-]*)').firstMatch(head);
+    if (m == null) return head;
+    for (final e in RegExp(r'\s(on(?:Close|Closed|Dismiss|Dismissed|Hide|Hidden))=\{').allMatches(head).toList().reversed) {
+      // (A design system's own frame for it may have the event.)
+      if (_pages.isFrame(m[1]!) && _pages.frameEvents(m[1]!).contains(e[1])) continue;
+      final open = e.end - 1;
+      final close = _closing(head, open);
+      if (close < 0) continue;
+      final actions = head.substring(open + 1, close).trim();
+      _issue(e.start + 2,
+          'A ${m[1]} has no event ${e[1]}: what runs once it has closed (however it closed) is written after the open, in the chain that opens it: onTap={open ${m[2]}; $actions} (closeModal result=… is that chain\'s result). Left out here.');
+      head = '${head.substring(0, e.start)}${head.substring(close + 1)}';
+    }
+    return head;
+  }
+
+  /// Whether [name] is a variable parameter (`param @name=…`) of the
+  /// component this text writes.
+  bool _variableParam(String name) {
+    final params = _top._widget?['props'];
+    return params is List && params.any((p) => p is Map && p['key'] == name && (p['type'] as Map?)?['kind'] == 'variable');
+  }
+
   Object _fieldWrite(String expr, String value) {
     String withAt(String base, List<String> fields, String v) =>
         fields.isEmpty ? v : 'with($base,"${fields.first}",${withAt('$base.${fields.first}', fields.sublist(1), v)})';
@@ -11486,6 +11614,15 @@ class _Parser {
     // A field of a record variable.
     if (parts.first != 'item' && parts.first != 'parent') {
       final root = parts.first;
+      // `@props.query` in a component with `param @query=""`: its variable
+      // parameter, which the call keeps in its own variable.
+      if (root == 'props' && !variables.containsKey('props') && parts.length > 1 && _variableParam(parts[1])) {
+        final v = 'props.${parts[1]}';
+        return (v, withAt(v, parts.sublist(2), value), jsonEncode(expr));
+      }
+      if (root == 'props' && !variables.containsKey('props') && _top._widget != null) {
+        return '@$expr: this component has no variable parameter "${parts.length > 1 ? parts[1] : ''}" to bind. A control binds one of its own as @props.name (or @name) under param @name=…: param @${parts.length > 1 ? parts[1] : 'name'}="".';
+      }
       if (!variables.containsKey(root) || _derived.containsKey(root)) {
         return '@$expr: "$root" is no variable of this page. Declare the record first (state $root={"${parts[1]}":""}), or bind a variable of its own (@${parts.last}).';
       }
@@ -11935,8 +12072,10 @@ class _Parser {
             out.add({'type': 'navigate', 'to': braced ? _formula(s.substring(1, s.length - 1).trim()) : s});
           }
         case 'toast':
+          _verbRest(verb, arg, 'showToast', 'message', column);
           out.add({'type': 'showToast', 'message': s});
         case 'announce':
+          _verbRest(verb, arg, 'announce', 'message', column);
           // Said to a screen reader; nothing is shown and the focus stays.
           if (s.isEmpty) {
             _issue(column, 'An announce says a text to a screen reader: announce "3 results".');
@@ -12002,6 +12141,28 @@ class _Parser {
   }
 
   static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link', 'focus', 'copy'};
+
+  /// What a verb whose argument is its text ([arg]: `toast "Bad"
+  /// style=error`) has after that text: it takes none of it (the style was
+  /// left out with no word said), so it is said, with the [typed] action
+  /// that takes it written out ([field] its text).
+  void _verbRest(String verb, String arg, String typed, String field, int column) {
+    if (!arg.startsWith('"')) return;
+    final t = _Tokens(arg)..string();
+    final rest = t.rest.trim();
+    if (rest.isEmpty) return;
+    final spec = catalog.action(typed);
+    final fields = spec == null ? const <String>[] : [for (final f in spec.fields) f.key];
+    final given = [
+      for (final p in RegExp(r'([A-Za-z_][A-Za-z0-9_]*)=("[^"]*"|\S+)').allMatches(rest))
+        if (fields.contains(p[1]) && p[1] != field)
+          '${p[1]}=${p[2]}'
+        else if (didYouMean(p[1]!, [for (final f in fields) if (f != field) f]) case final String n)
+          '$n=${p[2]}',
+    ];
+    _issue(column,
+        '$verb takes its text only: "$rest" is left out. Its other fields are the $typed action\'s, written by name: $typed $field=${arg.substring(0, arg.length - t.rest.length).trim()}${given.isEmpty ? '' : ' ${given.join(' ')}'} (its fields: ${fields.join(', ')}).');
+  }
 
   /// `type=` on an Input, as written → the keyboard the document names.
   static const _keyboards = {

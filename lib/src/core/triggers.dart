@@ -78,6 +78,10 @@ enum TriggerType {
   /// A slider was let go, with its final value.
   changeEnd,
 
+  /// A slider was taken (a drag or a press on it began, or a key moves
+  /// it), with its value before the change (Flutter's `onChangeStart`).
+  changeStart,
+
   /// A text field was submitted from the keyboard.
   submitted,
 
@@ -135,7 +139,9 @@ enum TriggerType {
   /// The node (a scrolling row, column, list, grid or canvas) scrolled
   /// (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1,
   /// `${result.index}` the item at the start of the view (the last at the
-  /// end), `${result.count}` the items). Store what a carousel's arrows,
+  /// end), `${result.count}` the items, `${result.overscroll}` how far it is
+  /// pulled past an end: below 0 past the start, above 0 past the end, 0
+  /// within). Store what a carousel's arrows,
   /// dots or progress bar show. How near the end it is, to load more:
   /// `${result.max - result.offset}` (under 600: fetch the next page); a
   /// list's `pagination` loads its next page by itself (`thresholdPixels`).
@@ -222,7 +228,7 @@ enum TriggerType {
   static const Set<TriggerType> screen = {load, valueChanged, timer, frame, keyDown, keyUp, backPressed, actionError};
 
   /// The triggers an input fires.
-  static const Set<TriggerType> input = {changed, changeEnd, submitted, deleted, editingComplete, focusGained, focusLost};
+  static const Set<TriggerType> input = {changed, changeEnd, changeStart, submitted, deleted, editingComplete, focusGained, focusLost};
 }
 
 /// How long a [TriggerType.hold] is held by default, in milliseconds.

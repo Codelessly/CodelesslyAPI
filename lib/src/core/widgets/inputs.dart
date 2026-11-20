@@ -116,6 +116,11 @@ abstract final class TextFieldProps {
   static const textCapitalization =
       PropDef<TextCapitalization>('textCapitalization', EnumCodec(TextCapitalization.values), TextCapitalization.none);
   static const autocorrect = PropDef<bool>('autocorrect', Codecs.bool, true);
+
+  /// The keyboard's word suggestions (Flutter's `enableSuggestions`); off
+  /// for a password field whatever this says.
+  static const enableSuggestions = PropDef<bool>('enableSuggestions', Codecs.bool, true,
+      doc: 'The keyboard\'s word suggestions (Flutter\'s enableSuggestions); off for a password field.');
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
   static const enableInteractiveSelection = PropDef<bool>('enableInteractiveSelection', Codecs.bool, true);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
@@ -185,7 +190,7 @@ abstract final class TextFieldProps {
 
   static const spec = WidgetSpec('textField', hugs: true, props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, min, max, step, steppers, semanticLabel, //
-    textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
+    textInputAction, textCapitalization, autocorrect, enableSuggestions, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength, otpLength, otpDigitsOnly,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
     selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, runs,

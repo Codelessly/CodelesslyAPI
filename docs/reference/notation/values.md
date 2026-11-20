@@ -1464,6 +1464,7 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 | `pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | `changed` | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | `changeEnd` | A slider was let go, with its final value. |
+| `changeStart` | A slider was taken (a drag or a press on it began, or a key moves it), with its value before the change (Flutter's `onChangeStart`). |
 | `submitted` | A text field was submitted from the keyboard. |
 | `deleted` | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
 | `editingComplete` | A text field lost focus after editing. |
@@ -1479,7 +1480,7 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 | `frame` | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | `keyDown` | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | `keyUp` |  |
-| `scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`). |
+| `scroll` | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items, `${result.overscroll}` how far it is pulled past an end: below 0 past the start, above 0 past the end, 0 within). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`). |
 | `scrollEnd` | The node stopped scrolling; `${result}` as for `scroll`. |
 | `enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | `exitViewport` |  |

@@ -464,6 +464,10 @@ final class _Printer {
       final inferred = notationVariableTypeOf(value);
       if (type != null && (type != inferred || !has || _typedState.contains(v['name']))) b.write(':$type');
       if (has) b.write('=${jsonEncode(value)}');
+      // A typed null start (`state selected:map=null`, as state.md teaches
+      // it): `=null` written. Without it the line read back as another
+      // value, and the print added the variables as a `document {…}` line.
+      if (!has && v.containsKey('value') && type != null) b.write('=null');
       if (!has && type == null) b.write(':text');
     }
     if (v['persist'] == true) b.write(' saved');
