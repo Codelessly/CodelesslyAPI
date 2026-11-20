@@ -357,12 +357,21 @@ final class _Printer {
 
   /// An op's paint as `fill=` and `stroke=` (with the stroke's own fields).
   List<String>? _paint(Object? paint, {required bool plain}) {
-    Map<Object?, Object?>? strokeOf(Object? p) =>
-        p is Map && p['style'] == 'stroke' && p.containsKey('color') && p.keys.every((k) => k == 'color' || k == 'style' || notationStrokeWords.contains(k)) ? p : null;
+    Map<Object?, Object?>? strokeOf(Object? p) => p is Map &&
+            p['style'] == 'stroke' &&
+            p.containsKey('color') &&
+            p.keys.every((k) => k == 'color' || k == 'style' || notationStrokeWords.contains(k) || notationPaintWords.contains(k))
+        ? p
+        : null;
+    // The fields every paint of the op shares (`blurRadius`), written once.
+    Map<Object?, Object?> shared(Map<Object?, Object?> p) => {
+          for (final e in p.entries)
+            if (notationPaintWords.contains(e.key)) e.key: e.value,
+        };
     List<String>? stroke(Map<Object?, Object?> s) {
       final out = <String>[];
       for (final e in s.entries) {
-        if (e.key == 'style') continue;
+        if (e.key == 'style' || notationPaintWords.contains(e.key)) continue;
         final w = _value(e.value, plain: plain);
         if (w == null) return null;
         out.add('${e.key == 'color' ? 'stroke' : e.key}=$w');
@@ -370,15 +379,42 @@ final class _Printer {
       return out;
     }
 
-    bool solid(Object? p) => p is! Map && p is! List;
-    if (paint is List && paint.length == 2 && solid(paint.first) && strokeOf(paint.last) != null) {
-      final f = _value(paint.first, plain: plain), s = stroke(strokeOf(paint.last)!);
-      return f == null || s == null ? null : ['fill=$f', ...s];
+    List<String>? words(Map<Object?, Object?> fields) {
+      final out = <String>[];
+      for (final e in fields.entries) {
+        final w = _value(e.value, plain: plain);
+        if (w == null) return null;
+        out.add('${e.key}=$w');
+      }
+      return out;
     }
-    if (strokeOf(paint) case final Map<Object?, Object?> s) return stroke(s);
-    if (solid(paint)) {
-      final f = _value(paint, plain: plain);
-      return f == null ? null : ['fill=$f'];
+
+    bool solid(Object? p) => p is! Map && p is! List;
+    // A fill with only the shared fields beside its color: its color, and
+    // the fields.
+    (Object?, Map<Object?, Object?>)? fillOf(Object? p) {
+      if (solid(p)) return (p, const {});
+      if (p is Map && p.containsKey('color') && p.keys.every((k) => k == 'color' || notationPaintWords.contains(k)) && solid(p['color'])) {
+        return (p['color'], shared(p));
+      }
+      return null;
+    }
+
+    bool sameFields(Map<Object?, Object?> a, Map<Object?, Object?> b) => a.length == b.length && a.entries.every((e) => jsonEquality.equals(b[e.key], e.value));
+    if (paint is List && paint.length == 2 && fillOf(paint.first) != null && strokeOf(paint.last) != null) {
+      final (color, fields) = fillOf(paint.first)!;
+      final s = strokeOf(paint.last)!;
+      if (!sameFields(fields, shared(s))) return null;
+      final f = _value(color, plain: plain), sw = stroke(s), fw = words(fields);
+      return f == null || sw == null || fw == null ? null : ['fill=$f', ...sw, ...fw];
+    }
+    if (strokeOf(paint) case final Map<Object?, Object?> s) {
+      final sw = stroke(s), fw = words(shared(s));
+      return sw == null || fw == null ? null : [...sw, ...fw];
+    }
+    if (fillOf(paint) case (final color, final fields)) {
+      final f = _value(color, plain: plain), fw = words(fields);
+      return f == null || fw == null ? null : ['fill=$f', ...fw];
     }
     return null;
   }

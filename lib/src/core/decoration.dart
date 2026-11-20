@@ -112,6 +112,7 @@ final class Decoration {
     this.clip = Clip.none,
     this.blendMode = BlendMode.srcOver,
     this.shape = DecorationShape.rectangle,
+    this.clipPath,
   });
 
   static const Decoration none = Decoration();
@@ -138,6 +139,14 @@ final class Decoration {
   /// A rectangle (rounded by [radius]) or a circle.
   final DecorationShape shape;
 
+  /// The node cut to a path, as CSS `clip-path: path(…)` and Flutter's
+  /// `ClipPath`: SVG path data in the box's own unit square (0 to 1 across
+  /// and down, whatever its size), so the same curve fits the box at every
+  /// width (a header's wave, a ticket's notches). Everything the node draws
+  /// is cut to it: its fills, border, shadows and children, and a pointer
+  /// outside it passes through to what is under. Null: no path.
+  final String? clipPath;
+
   bool get isNone => this == none;
   Iterable<Paint> get visibleFills => fills.where((p) => p.visible);
   Iterable<Paint> get visibleStrokes => strokeWidth <= 0 ? const [] : strokes.where((p) => p.visible);
@@ -156,6 +165,7 @@ final class Decoration {
     Clip? clip,
     BlendMode? blendMode,
     DecorationShape? shape,
+    String? clipPath,
   }) =>
       Decoration(
         fills: fills ?? this.fills,
@@ -171,6 +181,7 @@ final class Decoration {
         clip: clip ?? this.clip,
         blendMode: blendMode ?? this.blendMode,
         shape: shape ?? this.shape,
+        clipPath: clipPath ?? this.clipPath,
       );
 
   static Decoration fromJson(Object? json) {
@@ -190,6 +201,7 @@ final class Decoration {
       clip: readEnum(Clip.values, m['clip'], Clip.none),
       blendMode: readEnum(BlendMode.values, m['blendMode'], BlendMode.srcOver),
       shape: readEnum(DecorationShape.values, m['shape'], DecorationShape.rectangle),
+      clipPath: switch (readString(m['clipPath'])?.trim()) { final String p when p.isNotEmpty => p, _ => null },
     );
   }
 
@@ -210,6 +222,7 @@ final class Decoration {
     put(j, 'clip', clip.name, Clip.none.name);
     put(j, 'blendMode', blendMode.name, BlendMode.srcOver.name);
     put(j, 'shape', shape.name, DecorationShape.rectangle.name);
+    put(j, 'clipPath', clipPath);
     return j;
   }
 
@@ -228,9 +241,10 @@ final class Decoration {
       listEquals(other.effects, effects) &&
       other.clip == clip &&
       other.blendMode == blendMode &&
-      other.shape == shape;
+      other.shape == shape &&
+      other.clipPath == clipPath;
 
   @override
   int get hashCode => Object.hash(Object.hashAll(fills), Object.hashAll(strokes), strokeWidth, strokeAlign,
-      strokeSides, radius, Object.hashAll(effects), clip, blendMode, shape);
+      strokeSides, radius, Object.hashAll(effects), clip, blendMode, shape, clipPath);
 }

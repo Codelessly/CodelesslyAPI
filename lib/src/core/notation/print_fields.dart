@@ -829,8 +829,12 @@ final class _NodeLine {
     final fill = readMap(fills.single);
     final image = readMap(fill?['image']);
     if (fill == null || fill.length != 1 || image == null || image['url'] is! String) return null;
-    if (image.keys.any((k) => k != 'url' && k != 'fit')) return null;
+    if (image.keys.any((k) => !const {'url', 'fit', 'scale', 'centerSlice'}.contains(k))) return null;
     if (!const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(image['fit'])) return null;
+    if (image['scale'] case final Object s when s is! num || s <= 0) return null;
+    if (image['centerSlice'] case final Object c when c is! List || c.length != 4 || c.any((e) => e is! num || e < 0) || image['fit'] != 'fill') {
+      return null;
+    }
     return image;
   }
 
@@ -907,7 +911,10 @@ final class _NodeLine {
       final q = _quoted('${image['url']}');
       if (q != null) {
         words.add(q);
-        if (image['fit'] != 'cover') words.add('fit=${image['fit']}');
+        final sliced = image['centerSlice'] is List;
+        if (image['fit'] != 'cover' && !sliced) words.add('fit=${image['fit']}');
+        if (image['scale'] case final num s) words.add('scale=${jsonEncode(s)}');
+        if (image['centerSlice'] case final List c) words.add('centerSlice=${jsonEncode(c)}');
       }
       return;
     }

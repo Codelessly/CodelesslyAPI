@@ -169,6 +169,19 @@ abstract final class ImagePaintFields {
 
   /// `[left, top, width, height]`, or null (placed by fit and alignment).
   static const rect = PropDef<List<double>?>('rect', ValueCodec(_rectIn, _same, PropType.value('Rect')), null);
+
+  /// The image's middle, `[left, top, width, height]` in its logical pixels: nine-slice scaling.
+  static const centerSlice = PropDef<List<double>?>(
+    'centerSlice',
+    ValueCodec(_rectIn, _same, PropType.value('Rect')),
+    null,
+    doc: "The image's middle, `[left, top, width, height]` in its logical pixels (its pixels divided by `scale`), as "
+        "Flutter's `centerSlice` and CSS `border-image-slice`: the image is drawn in nine parts, the corners at their own "
+        'size, the edges stretched along their side, the middle both ways, so a chat bubble\'s rounded corners and tail '
+        'keep their size however large the box grows. A sliced image fills the box (`fit` is not read). A 159×121 PNG '
+        'drawn at `scale` 3 is 53×40.3 logical pixels; `[14, 12, 28, 8]` keeps 14 px on the left, 12 on top, '
+        '11 on the right and 20.3 under the middle (the tail).',
+  );
   static const List<PropDef<Object?>> all = [
     url,
     assetId,
@@ -181,6 +194,7 @@ abstract final class ImagePaintFields {
     flipY,
     saturation,
     rect,
+    centerSlice,
   ];
 }
 
@@ -252,6 +266,12 @@ abstract final class PaintFields {
           '[{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, '
           '{"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints).');
 
+  /// A linear gradient's direction in degrees (CSS `linear-gradient(103deg, …)`).
+  static const angle = PropDef<double?>('angle', Codecs.optionalDouble, null,
+      doc: 'Linear: its direction in degrees, as CSS `linear-gradient(103deg, …)`: 0 runs up, 90 to the right, 180 down. '
+          "Its line crosses the box's middle and reaches its farthest corners, so the angle is the same on the screen at "
+          'any aspect (a banner that grows as its text wraps keeps its sheen). In place of `begin`/`end` and `transform`.');
+
   /// A `noise` paint's noise (SVG `feTurbulence`).
   static const noise = PropDef<NoisePaint?>(
     'noise',
@@ -278,6 +298,7 @@ abstract final class PaintFields {
     image,
     radius,
     length,
+    angle,
     noise,
   ];
 }
@@ -437,9 +458,16 @@ abstract final class DecorationFields {
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
   /// A rectangle (rounded by radius) or a circle (BoxShape.circle).
   static const shape = PropDef<DecorationShape>('shape', EnumCodec(DecorationShape.values), DecorationShape.rectangle);
+
+  /// The node cut to a path in its own unit square (CSS `clip-path: path(…)`).
+  static const clipPath = PropDef<String?>('clipPath', Codecs.optionalString, null,
+      doc: "The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`: SVG path data in the box's own unit "
+          'square, 0 to 1 across and down whatever its size, so one curve fits every width. Its fills, border, shadows '
+          'and children are cut to it, and a pointer outside it passes through. A header whose foot is a wave: '
+          '`clipPath="M0 0 H1 V0.8 C0.75 1 0.25 0.6 0 0.85 Z"`.');
   static const List<PropDef<Object?>> all = [
     fills, strokes, strokeWidth, strokeAlign, strokeSides, strokeCap, dashPattern, radius, effects, clip, //
-    blendMode, foregroundFills, shape,
+    blendMode, foregroundFills, shape, clipPath,
   ];
 }
 

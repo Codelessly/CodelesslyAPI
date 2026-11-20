@@ -41,6 +41,37 @@ written, evenly apart, and long ones are first cut to their room with an ellipsi
 color takes the theme's next series color (`chart1`, `chart2`… where the theme names them, else its accent and then
 colors of other hues as light and as strong as it); a smooth line never rises above or dips below its values.
 
+## A history: scrub it, page it, pan it
+
+A chart over a long history that a finger scrubs and that goes back in time is a [`Graph`](#node-graph): its rows
+are the data, its marks what is drawn of them, `selection` what a finger or the pointer picks (its row comes back
+on `onChange` as `result.selection`), and the stretch of history shown is either the rows it is given or its
+`view`.
+
+Paged: the rows shown are worked out from a page in the state (`slice`), every row across the plot (`fit`), and
+buttons move the page. A drag across the plot scrubs: the row under the finger is selected and says its value.
+
+```notation
+state page=0
+state days=[{"t":"Nov 1","v":3},{"t":"Nov 2","v":5},{"t":"Nov 3","v":2},{"t":"Nov 4","v":6},{"t":"Nov 5","v":4},{"t":"Nov 6","v":7},{"t":"Nov 7","v":5},{"t":"Nov 8","v":8},{"t":"Nov 9","v":6},{"t":"Nov 10","v":9},{"t":"Nov 11","v":4},{"t":"Nov 12","v":7},{"t":"Nov 13","v":10},{"t":"Nov 14","v":8}]
+state picked={}
+Column gap=8
+  Row between
+    Button.ghost "Earlier" onTap={page=page + 1}
+    Text "{picked.label == null ? 'This week' : picked.label + ': ' + picked.row.v}"
+    Button.ghost "Later" onTap={page=max(0, page - 1)}
+  Graph h=220 data={slice(days, max(0, length(days) - 7 * (page + 1)), length(days) - 7 * page)} rowKey=t xAxis={"label":"t","format":"","fit":"points","inset":8} marks=[{"type":"line","y":"v","width":2,"dots":3}] selection={"on":"hover","dot":5} interactions={"dragPan":false,"wheelZoom":false,"pinchZoom":false,"axisScale":false,"doubleTapReset":false} onChange={picked=result.selection}
+```
+
+Panned: with no `fit` the view is the reader's: a drag pans it back through the rows, `view={{"last":7}}` starts
+it on the last seven, a long press (`crosshair.on`) scrubs, and `onScroll` with `result.nearStart` asks for older
+rows while `xAxis.moreHistory` says there are some.
+
+```notation
+state days=[{"t":"Nov 1","v":3},{"t":"Nov 2","v":5},{"t":"Nov 3","v":2},{"t":"Nov 4","v":6},{"t":"Nov 5","v":4},{"t":"Nov 6","v":7},{"t":"Nov 7","v":5},{"t":"Nov 8","v":8},{"t":"Nov 9","v":6},{"t":"Nov 10","v":9}]
+Graph h=220 data={days} view={{"last":7}} rowKey=t xAxis={"label":"t","format":"","moreHistory":false} marks=[{"type":"line","y":"v","width":2}] crosshair={"enabled":true,"on":"longPress","horizontal":false}
+```
+
 {{reference}}
 
 {{examples}}

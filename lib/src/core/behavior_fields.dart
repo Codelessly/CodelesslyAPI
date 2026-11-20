@@ -792,27 +792,50 @@ abstract final class TransformHandlesFields {
 List<PropDef<Object?>> transformHandlesFields() => TransformHandlesFields.all;
 
 abstract final class ParticleEmitterFields {
+  /// How many particles a burst has.
   static const count = PropDef<int>('count', IntCodec(min: 0), 40);
 
   /// Over how long the particles leave (0: all at once).
   static const emit = PropDef<int>('emit', _ms, 0);
+
+  /// Their colors, taken in turn.
   static const colors = PropDef<List<Color>>('colors', ListCodec(Codecs.color), ParticleEmitter.defaultColors);
+
+  /// Their shapes, taken in turn (`star`: a five-point star).
   static const shapes = PropDef<List<ParticleShape>>('shapes', ListCodec(EnumCodec(ParticleShape.values)), [
     ParticleShape.square,
     ParticleShape.strip,
     ParticleShape.circle,
   ]);
+
+  /// A particle's size in px, give or take 30%.
   static const size = PropDef<double>('size', Codecs.double, 10);
+
+  /// Where they leave from across the box: an alignment, -1 (left) to 1 (right).
   static const originX = PropDef<double>('originX', Codecs.double, 0);
+
+  /// Where they leave from down the box: -1 (top) to 1 (bottom).
   static const originY = PropDef<double>('originY', Codecs.double, 0);
+
+  /// A share of the box's width they leave along, centred on the origin (0: one point).
   static const originWidth = PropDef<double>('originWidth', Codecs.double, 0);
 
-  /// Degrees.
+  /// Degrees: 0 up, 90 right, 180 down.
   static const direction = PropDef<double>('direction', Codecs.double, 0);
+
+  /// Degrees either side of `direction` they scatter over.
   static const spread = PropDef<double>('spread', Codecs.double, 60);
+
+  /// How fast they leave (px/s, 55 to 115% of it).
   static const speed = PropDef<double>('speed', Codecs.double, 700);
+
+  /// How hard they are pulled down (px/s²; 0: they fly straight, negative: they rise).
   static const gravity = PropDef<double>('gravity', Codecs.double, 900);
+
+  /// How long each particle lives (ms).
   static const lifetime = PropDef<int>('lifetime', _ms, 2600);
+
+  /// Bursts when the line first shows; otherwise an `animate` action with `animation=particles` fires it.
   static const playOnAppear = PropDef<bool>('playOnAppear', Codecs.bool, false);
 
   /// Wait after the cue (ms).

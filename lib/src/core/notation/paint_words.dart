@@ -38,6 +38,11 @@ final _paintFrames = Expando<List<_PaintFrame>>();
 /// The stroke paint's own fields, written beside `stroke=` on an op's line.
 const notationStrokeWords = {'strokeWidth', 'strokeCap', 'strokeJoin', 'strokeMiterLimit', 'dashPattern', 'scaleStroke'};
 
+/// The fields of every paint of an op, written once beside `fill=` and
+/// `stroke=` (`circle c=[60,60] radius=30 fill=#80F59E0B blurRadius=18`: a
+/// glow).
+const notationPaintWords = {'blurRadius'};
+
 /// The first words of the lines [_PaintWords] reads at a node's child depth.
 final _paintHead = RegExp(r'^(customPaint|foregroundPainter|animation|transition)(?=[\s#{]|$)');
 
@@ -271,7 +276,7 @@ extension _PaintWords on _Parser {
     if (parts.id.isNotEmpty) op['id'] = parts.id.substring(1);
     Object? fill, stroke;
     var filled = false, stroked = false;
-    final strokeFields = <String, Object?>{};
+    final strokeFields = <String, Object?>{}, paintFields = <String, Object?>{};
     final main = switch (spec?.op) {
       'paragraph' => 'text',
       'image' => 'url',
@@ -317,6 +322,8 @@ extension _PaintWords on _Parser {
             stroked = true;
           } else if (paints && notationStrokeWords.contains(key)) {
             strokeFields[key] = value;
+          } else if (paints && notationPaintWords.contains(key)) {
+            paintFields[key] = value;
           } else if (keys.containsKey(key) || spec == null) {
             op[key] = value;
           } else if (key.contains('.') && keys.containsKey(key.substring(0, key.indexOf('.')))) {
@@ -343,16 +350,20 @@ extension _PaintWords on _Parser {
     if (strokeFields.isNotEmpty && !stroked) {
       _issue(column, '${strokeFields.keys.join(', ')} go${strokeFields.length == 1 ? 'es' : ''} with stroke= (the stroke\'s color): stroke=#FF111827 strokeWidth=2.');
     }
+    if (paintFields.isNotEmpty && !filled && !stroked) {
+      _issue(column, '${paintFields.keys.join(', ')} go${paintFields.length == 1 ? 'es' : ''} with fill= or stroke= (it softens what they paint): fill=#80F59E0B blurRadius=18.');
+    }
     if (filled || stroked) {
       if (op.containsKey('paint')) _issue(column, 'An op\'s paint is fill= and stroke=, or paint=, not both.');
-      final strokePaint = {'color': stroke, 'style': 'stroke', ...strokeFields};
-      op['paint'] = filled && stroked ? [fill, strokePaint] : stroked ? strokePaint : fill;
+      final strokePaint = {'color': stroke, 'style': 'stroke', ...strokeFields, ...paintFields};
+      final fillPaint = paintFields.isEmpty ? fill : {'color': fill, ...paintFields};
+      op['paint'] = filled && stroked ? [fillPaint, strokePaint] : stroked ? strokePaint : fillPaint;
     }
     return op;
   }
 
   void _paintUnknown(String on, String key, Iterable<String> keys, int column, {String kind = 'parameter', String? value}) {
-    final near = didYouMean(key, [...keys, 'fill', 'stroke', ...notationStrokeWords]);
+    final near = didYouMean(key, [...keys, 'fill', 'stroke', ...notationStrokeWords, ...notationPaintWords]);
     _paintSay(kind, key, column, 'A $on has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${[...keys, 'fill', 'stroke'].join(', ')}.', on: on, value: value);
   }
 

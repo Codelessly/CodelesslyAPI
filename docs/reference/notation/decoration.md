@@ -50,6 +50,73 @@ Row gap=8
 
 Drawing your own shapes is [paint.md](paint.md).
 
+<a id="decoration-pictures-that-stretch-nine-slice"></a>
+## Pictures that stretch: nine-slice
+
+A picture made to stretch (a chat bubble with its tail, a pill, a framed panel) keeps its corners at their own size
+when its middle is named: `centerSlice=[left,top,width,height]`, in the picture's logical pixels (its pixels divided
+by `scale`), as Flutter's `centerSlice` and CSS `border-image-slice`. The corners are drawn as they are, the edges
+stretch along their side, the middle both ways; a sliced picture fills its box. A bubble drawn at 3x (159×121 pixels,
+53×40.3 logical) with its tail under the left corner:
+
+```notation
+Row gap=8 bottom
+  Image "https://example.com/bubble_left.png" scale=3 centerSlice=[14,12,28,8] w=60 h=46
+  Image "https://example.com/bubble_left.png" scale=3 centerSlice=[14,12,28,8] w=220 h=90
+```
+
+Behind text, the picture is the box's fill (`"centerSlice"` in its [ImagePaint](#type-ImagePaint)); the padding
+keeps the text off the corners and the tail:
+
+```notation
+Column pad=[16,12,16,24] w=240 fills=[{"type":"image","image":{"url":"https://example.com/bubble_left.png","fit":"fill","scale":3,"centerSlice":[14,12,28,8]}}]
+  Text "Great work. Let us use the same plan for the next practice step tonight."
+```
+
+<a id="decoration-a-box-cut-to-a-curve"></a>
+## A box cut to a curve
+
+`clipPath="…"` cuts a box to a path, as CSS `clip-path` and Flutter's `ClipPath`: SVG path data in the box's own
+unit square (0 to 1 across and down, whatever its size), so one curve fits every width. Its fills, border, shadows and
+children are cut to it, and a tap outside it goes to what is under. A header whose foot is a wave, over a picture:
+
+```notation
+Stack w=390 h=180 fills=[{"type":"image","image":{"url":"https://example.com/sky.png"}}] clipPath="M0 0 H1 V0.78 C0.72 1 0.3 0.6 0 0.86 Z"
+  Text.heading2 "Good morning" color=#FFFFFFFF x=24 y=24
+```
+
+A ticket's notches are two arcs cut into its sides. An arc's radii are shares of the width and of the height, so
+for round notches on a 300×120 ticket the arc is `0.04` across and `0.1` down (12 px each way):
+
+```notation
+Stack w=300 h=120 fill=#FF4F46E5 radius=12 clipPath="M0 0 H1 V0.4 A0.04 0.1 0 0 0 1 0.6 V1 H0 V0.6 A0.04 0.1 0 0 0 0 0.4 Z"
+  Text "Admit one" color=#FFFFFFFF x=20 y=20
+```
+
+<a id="decoration-gradients-at-an-angle"></a>
+## Gradients at an angle
+
+A linear paint's `angle` is CSS's `linear-gradient(103deg, …)`: 0 runs up, 90 to the right, 180 down. Its line
+crosses the middle and reaches the far corners, so the gradient keeps its direction on the screen when the box
+changes shape (a banner that grows as its text wraps). A border is painted with paints too: `strokes=[…]` takes a
+gradient as `fills` does.
+
+```notation
+Column pad=16 fills=[{"type":"linear","angle":103,"stops":[{"position":0,"color":"#FF4F46E5"},{"position":1,"color":"#FF06B6D4"}]}] strokes=[{"type":"linear","angle":90,"stops":[{"position":0,"color":"#FFFFFFFF"},{"position":1,"color":"#33FFFFFF"}]}] strokeWidth=2 radius=12
+  Text "New: plan your week" color=#FFFFFFFF
+```
+
+<a id="decoration-soft-glows"></a>
+## Soft glows
+
+A blurred shape is a box with a `layerBlur` effect (a glowing orb behind a card, a soft spot of colour); inside a
+drawing, an op's `blurRadius` ([paint.md](paint.md)).
+
+```notation
+Stack w=200 h=160
+  box w=120 h=120 x=40 y=20 fill=#99F59E0B effects=[{"type":"layerBlur","blurRadius":40}] shape=circle
+```
+
 <a id="decoration-keys-every-decorated-line-takes"></a>
 ## Keys every decorated line takes
 
@@ -71,6 +138,7 @@ short words: `fill`, `gradient`, `border`, `radius`.
 | `blendMode` | [BlendMode](values.md#enum-BlendMode) | `srcOver` | 0 |  |
 | `foregroundFills` | list of [Paint](#type-Paint) | `[]` | 0 | Fills painted over the content. |
 | `shape` | `rectangle` `circle` | `rectangle` | 0 | A rectangle (rounded by `radius`) or a circle. |
+| `clipPath` | text |  | 0 | The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`: SVG path data in the box's own unit square, 0 to 1 across and down whatever its size, so one curve fits every width. Its fills, border, shadows and children are cut to it, and a pointer outside it passes through. A header whose foot is a wave: `clipPath="M0 0 H1 V0.8 C0.75 1 0.25 0.6 0 0.85 Z"`. |
 
 <a id="decoration-words"></a>
 ## Words
@@ -145,6 +213,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `image` | [ImagePaint](#type-ImagePaint) |  | Image (type `image`). |
 | `radius` | number (≥ 0) |  | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 | `length` | number (≥ 0) |  | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
+| `angle` | number |  | Linear: its direction in degrees, as CSS `linear-gradient(103deg, …)`: 0 runs up, 90 to the right, 180 down. Its line crosses the box's middle and reaches its farthest corners, so the angle is the same on the screen at any aspect (a banner that grows as its text wraps keeps its sheen). In place of `begin`/`end` and `transform`. |
 | `noise` | [NoisePaint](#type-NoisePaint) |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
 
 <a id="type-ColorStop"></a>
@@ -179,6 +248,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `flipY` | `true`/`false` | `false` | Mirrors the image horizontally / vertically. |
 | `saturation` | number (≥ 0) | `1` | Color saturation: 1 keeps the colors, 0 is grayscale. |
 | `rect` | [Rect](values.md#type-Rect) |  | `[left, top, width, height]`, or null (placed by fit and alignment). |
+| `centerSlice` | [Rect](values.md#type-Rect) |  | The image's middle, `[left, top, width, height]` in its logical pixels (its pixels divided by `scale`), as Flutter's `centerSlice` and CSS `border-image-slice`: the image is drawn in nine parts, the corners at their own size, the edges stretched along their side, the middle both ways, so a chat bubble's rounded corners and tail keep their size however large the box grows. A sliced image fills the box (`fit` is not read). A 159×121 PNG drawn at `scale` 3 is 53×40.3 logical pixels; `[14, 12, 28, 8]` keeps 14 px on the left, 12 on top, 11 on the right and 20.3 under the middle (the tail). |
 
 <a id="type-NoisePaint"></a>
 ### NoisePaint

@@ -95,6 +95,7 @@ final class ImagePaint {
     this.flipY = false,
     this.saturation = 1,
     this.rect,
+    this.centerSlice,
     this.extra = const {},
   });
 
@@ -122,16 +123,27 @@ final class ImagePaint {
   /// by hand). Null: placed by [fit] and [alignment].
   final List<double>? rect;
 
+  /// The image's middle, `[left, top, width, height]` in its logical pixels
+  /// (its pixels divided by [scale]), as Flutter's
+  /// `DecorationImage.centerSlice` and CSS `border-image-slice`: the image
+  /// is drawn in nine parts, the four corners at their own size, the edges
+  /// stretched along their side and the middle both ways, so a bubble's
+  /// rounded corners and tail keep their size however large the box grows.
+  /// A sliced image fills the box (its [fit] is not read). Null: whole.
+  final List<double>? centerSlice;
+
   /// Image settings for editors (crop, source size, names), round-tripped.
   final Json extra;
 
   static const _keys = {
     'url', 'assetId', 'fit', 'alignment', 'repeat', 'scale', 'tint', 'flipX', 'flipY', 'saturation', 'rect', //
+    'centerSlice',
   };
 
   static ImagePaint fromJson(Object? json) {
     final m = readMap(json) ?? const {};
     final rect = readList(m['rect'])?.map(readDouble).toList();
+    final slice = readList(m['centerSlice'])?.map(readDouble).toList();
     return ImagePaint(
       url: readString(m['url']),
       assetId: readString(m['assetId']),
@@ -144,7 +156,8 @@ final class ImagePaint {
       flipY: readBool(m['flipY']) ?? false,
       saturation: (readDouble(m['saturation']) ?? 1).clamp(0, double.infinity).toDouble(),
       rect: rect != null && rect.length == 4 && rect.every((v) => v != null) ? rect.cast<double>() : null,
-      extra: {for (final e in m.entries) if (!_keys.contains(e.key)) e.key: e.value},
+      centerSlice: slice != null && slice.length == 4 && slice.every((v) => v != null && v >= 0) ? slice.cast<double>() : null,
+      extra:{for (final e in m.entries) if (!_keys.contains(e.key)) e.key: e.value},
     );
   }
 
@@ -161,6 +174,7 @@ final class ImagePaint {
     put(j, 'flipY', flipY, false);
     put(j, 'saturation', writeDouble(saturation), 1);
     put(j, 'rect', rect?.map(writeDouble).toList());
+    put(j, 'centerSlice', centerSlice?.map(writeDouble).toList());
     return j;
   }
 
@@ -178,6 +192,7 @@ final class ImagePaint {
       other.flipY == flipY &&
       other.saturation == saturation &&
       _listEq(other.rect, rect) &&
+      _listEq(other.centerSlice, centerSlice) &&
       jsonEquality.equals(other.extra, extra);
 
   @override
@@ -204,6 +219,7 @@ final class Paint {
     this.end,
     this.center,
     this.length,
+    this.angle,
     this.noise,
   });
 
@@ -220,6 +236,7 @@ final class Paint {
         end = null,
         center = null,
         length = null,
+        angle = null,
         noise = null;
 
   final PaintType type;
@@ -266,6 +283,15 @@ final class Paint {
   /// [length] px whatever the box's size. Null: the extent [begin]/[end],
   /// [radius] or [transform] gives (a share of the box).
   final double? length;
+
+  /// A linear gradient's direction in degrees, as CSS
+  /// `linear-gradient(<angle>, …)`: 0 runs up, 90 to the right, 180 down,
+  /// clockwise. Its line passes through the box's middle and is as long as
+  /// a line at that angle needs to reach the box's farthest corners, so the
+  /// angle stays the same in the world at any aspect (a banner that grows
+  /// taller as its text wraps keeps its 103° sheen). In place of [begin],
+  /// [end] and [transform]. Null: those.
+  final double? angle;
 
   /// A `noise` paint's noise (null for other types).
   final NoisePaint? noise;
@@ -320,7 +346,7 @@ final class Paint {
     // An image's settings may also sit beside it (`{"image": {"url"}, "fit": "cover"}`).
     final imageJson = type == PaintType.image
         ? {
-            for (final k in const ['fit', 'alignment', 'repeat', 'scale', 'tint', 'flipX', 'flipY'])
+            for (final k in const ['fit', 'alignment', 'repeat', 'scale', 'tint', 'flipX', 'flipY', 'centerSlice'])
               if (m.containsKey(k)) k: m[k],
             ...?readMap(m['image']),
           }
@@ -343,6 +369,7 @@ final class Paint {
       end: Alignment.fromJson(m['end']),
       center: Alignment.fromJson(m['center']),
       length: switch (readDouble(m['length'])) { final double l when l > 0 && l.isFinite => l, _ => null },
+      angle: switch (readDouble(m['angle'])) { final double a when a.isFinite => a, _ => null },
       noise: type == PaintType.noise ? (NoisePaint.fromJson(m['noise']) ?? const NoisePaint()) : null,
     );
   }
@@ -369,6 +396,7 @@ final class Paint {
     put(j, 'image', image?.toJson());
     put(j, 'radius', radius == null ? null : writeDouble(radius!));
     put(j, 'length', length == null ? null : writeDouble(length!));
+    put(j, 'angle', angle == null ? null : writeDouble(angle!));
     if (noise case final n?) j['noise'] = n.toJson();
     return j;
   }
@@ -391,11 +419,12 @@ final class Paint {
       other.end == end &&
       other.center == center &&
       other.length == length &&
+      other.angle == angle &&
       other.noise == noise;
 
   @override
   int get hashCode =>
-      Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, radius, length, noise);
+      Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, radius, length, angle, noise);
 }
 
 enum EffectType { dropShadow, innerShadow, layerBlur, backgroundBlur }

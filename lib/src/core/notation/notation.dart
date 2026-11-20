@@ -5625,6 +5625,7 @@ class _Parser {
     // `Avatar "{p.name}" initials="MR"`: the letters it shows, as written.
     String? avatarInitials;
     String? imageFit;
+    final imageFields = <String, Object?>{};
     Json? buttonLook;
     String? gaugeUnit;
     ({List<String> labels, bool filled, bool sized})? donutLabels;
@@ -7058,6 +7059,20 @@ class _Parser {
           imageFit = _literal(raw).$2?.toString() ?? raw;
           continue;
         }
+        // The picture's own fields on an Image's line: its pixel scale and
+        // the middle a nine-slice stretches (`centerSlice=[14,12,28,8]`).
+        if ((key == 'centerSlice' || key == 'scale') && written == 'Image') {
+          final v = _literal(raw).$2;
+          final ok = key == 'scale' ? v is num && v > 0 : v is List && v.length == 4 && v.every((e) => e is num && e >= 0);
+          if (ok) {
+            imageFields[key] = v;
+          } else {
+            _issue(col, key == 'scale'
+                ? 'An Image\'s scale is a number above 0 (its pixels per logical pixel: scale=3 for a @3x picture). $key=$raw is left out.'
+                : 'An Image\'s centerSlice is its middle, [left, top, width, height] in its logical pixels: centerSlice=[14,12,28,8]. $key=$raw is left out.');
+          }
+          continue;
+        }
         if (key == 'password' && type == 'textField') key = 'obscureText';
         // `selected={…}` where the type has no selected value (a row of a
         // list, an IconButton, a Button): the node's selected state, which
@@ -7955,7 +7970,17 @@ class _Parser {
       final url = props.remove('text');
       decoration['fills'] = [
         {
-          'image': {'url': url ?? '', 'fit': const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit) ? imageFit : 'cover'},
+          'image': {
+            'url': url ?? '',
+            // A sliced picture fills its box: its fit is `fill` (Flutter's
+            // default with a centerSlice), whatever is written.
+            'fit': imageFields.containsKey('centerSlice')
+                ? 'fill'
+                : const {'cover', 'contain', 'fill', 'fitWidth', 'fitHeight', 'none', 'scaleDown'}.contains(imageFit)
+                    ? imageFit
+                    : 'cover',
+            ...imageFields,
+          },
         },
       ];
       layout.putIfAbsent('height', () => 160);
