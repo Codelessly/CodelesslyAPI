@@ -98,7 +98,10 @@ Column
       Text "{item.name}"
 ```
 
-A `Handle` is as big as its line says and where it is written: the list adds no room around it. Unwritten it is a
+A handle of another look is any line with `reorderHandle=true` (a column of dots drawn with `box`es), and the row
+while it is dragged is the row's `dragged.` state (`dragged.fill=…`) with the list's `reorder.proxyElevation=0` (no
+shadow), `reorder.proxyScale` and `reorder.proxyOpacity`. A `Handle` is as big as its line says and where it is
+written: the list adds no room around it. Unwritten it is a
 44 px target on a phone and a 24 px grip on a page 700 wide or wider (a touch still lands on it in 44 × 44).
 
 `reorder` on an `each` (or on the line it is under) lets its copies be dragged into a new order, and moved with Alt
@@ -259,10 +262,10 @@ Column gap=8
 
 The list the `each … follow` makes is a `ListView` of its own, so its events are written on the each line:
 `onScroll={…}` (its `result`: `offset`, `max`, `viewport`, `fraction`, `index` the item at the start of the view,
-`count`), `onScrollEnd={…}`. Once the reader scrolls up it draws its own jump-to-latest button at its bottom end. A
-pill of your own that counts what arrived meanwhile reads the scroll: `away` while the reader is up from the end,
-the count kept while away and cleared at the end, and the pill (in a `Stack` over the list) going back to the
-last item with `scrollTo node=… item={…}`.
+`count`), `onScrollEnd={…}`. Once the reader scrolls up it draws its own jump-to-latest button at its bottom end;
+`jumpToLatest=false` on the list draws none (write the list as the `ListView` line it reads as, below, with the key
+on it). A pill of your own counts what arrived meanwhile and reads the scroll: `away` while the reader is up from the end, the count kept while away and cleared
+at the end, and the pill (in a `Stack` over the list) going back to the last item with `scrollTo node=… item={…}`.
 
 ```notation expands
 state msgs=[{"id":"m1","text":"Morning"},{"id":"m2","text":"Lunch today?"},{"id":"m3","text":"Yes, 12:30"},{"id":"m4","text":"Same place?"},{"id":"m5","text":"By the river"},{"id":"m6","text":"Perfect"},{"id":"m7","text":"See you there"},{"id":"m8","text":"Five late"},{"id":"m9","text":"No rush"},{"id":"m10","text":"Here now"},{"id":"m11","text":"Table by the window"},{"id":"m12","text":"On my way up"}]
@@ -295,6 +298,28 @@ Column gap=8 h=360
   Button "Receive" onTap={msgs=append(msgs, {"id": "m" + (length(msgs) + 1), "text": "New message"}); unread=away ? unread + 1 : 0}
 ```
 
+<a id="lists-a-list-pulled-to-refresh"></a>
+### A list pulled to refresh
+
+`pullToRefresh=true` on a list (or a `refresh` reaction) refreshes it when it is pulled past its start: a disc drops
+in over the list. `refreshStyle=spinner` draws iOS's control instead: the ticked spinner alone, coming in as the
+pull opens room for it, turning while the list refreshes (a list with `physics=bouncing` opens that room as on
+iOS).
+
+<a id="lists-a-list-keeps-its-place"></a>
+### A list keeps its place
+
+A running list over data keeps what is in view where it is when items are put before it or taken out before it,
+as a browser keeps a page in place (scroll anchoring): a newer message added to a reversed chat (`ListView
+reverse=true`, newest first) the reader has scrolled up in, a page of older messages put at its far end, a message
+taken out above. Nothing is written for it; the items need an `id` (or the list's key path) to be told apart. At
+its very start the list shows what is put there, as a page at its top does: a reversed chat at its newest message
+shows a new one. `stickToStart=false` keeps what is in view there too, once the items fill the list: the new
+message waits below until the reader scrolls to it, and nothing on screen moves (`ListView#chat reverse=true
+stickToStart=false`). A list that follows its end (`follow`, `stickToEnd`) keeps its place at its start either
+way. A list paged a page at a time (`pagination` with `"mode": "pages"`), a grid and a list in sections show
+their items from where they are, as before.
+
 <a id="lists-scrolling-to-one-copy"></a>
 ### Scrolling to one copy
 
@@ -302,7 +327,10 @@ A line under an each is one line repeated, so it has one name: `Row#msg`, not an
 is said and left out). A copy is reached by its item: `scrollTo node=msg item={key}` scrolls to the copy of the item
 whose `id` is `key` (`item={3}`: the fourth item). A pinned message, a quote that goes to the message it quotes, a
 search result: each names the item. A list that follows its end builds only the messages near its view; one not
-built yet is built and scrolled to. An item no copy is of is said when the action runs, and nothing scrolls.
+built yet is built and scrolled to. An item no copy is of is said when the action runs, and nothing scrolls. A key
+that reads as a number (`id: 2`) names the item with that id, built or not, before the copy at that index. A quoted
+message not loaded yet is loaded first, then scrolled to: grow the data (`shown=…`, or the next pages) and
+`scrollTo node=msg item={quoteId}` after it; the pages put at the far end move nothing in view.
 
 ```notation expands
 state msgs=[{"id":"m1","text":"We land on Thursday"},{"id":"m2","text":"Book the train"},{"id":"m3","text":"Done"}]
@@ -413,6 +441,9 @@ Flutter `ListView`; the first child is the item.
 | `swipeActions` | [SwipeActions](#type-SwipeActions) |  | 0 | Actions revealed behind a swiped item. |
 | `pullToRefresh` | `true`/`false` | `false` | 0 | Pulling the list past its start fires its `refresh` reactions (a `reloadCloudData`), with or without `pagination` (which reloads its first page too). A list with a `refresh` reaction refreshes this way too. |
 | `stickToEnd` | `true`/`false` | `false` | 0 | Opens at the end, keeps its place when items are put before, follows new items at the end. |
+| `stickToStart` | `true`/`false` | `true` | 0 | At its start, shows items put at the start (a list away from its start always keeps what is in view); false keeps what is in view at the start too, once the items fill the list. |
+| `jumpToLatest` | `true`/`false` | `true` | 0 | A list that sticks to its end draws its own jump-to-latest button while scrolled up from the end; false draws none (draw your own from `onScroll`). |
+| `refreshStyle` | `disc` `spinner` | `disc` | 0 | What a list pulled to refresh draws: `disc` (a round disc over the list) or `spinner` (iOS's ticked spinner in the room the pull opens, no disc). |
 
 <a id="node-gridView"></a>
 ### `gridView` (`gridView`)

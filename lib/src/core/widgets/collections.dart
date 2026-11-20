@@ -50,6 +50,18 @@ enum ListSeparator {
   divider,
 }
 
+/// What a list pulled to refresh draws above its first item.
+enum RefreshStyle {
+  /// A round disc dropping in over the list, its arc filling as the pull
+  /// goes, then turning (Flutter's `RefreshIndicator`).
+  disc,
+
+  /// Eight ticks drawn in the room the pull opens, one by one as the pull
+  /// goes, then stepping round while it refreshes, with no disc (iOS's
+  /// refresh control, `CupertinoSliverRefreshControl`).
+  spinner,
+}
+
 /// How a list arranges its items.
 enum ListLayout {
   /// One after another along the scroll direction.
@@ -192,6 +204,12 @@ abstract final class ListViewProps {
   /// too.
   static const pullToRefresh = PropDef<bool>('pullToRefresh', Codecs.bool, false);
 
+  /// What a list pulled to refresh draws: a disc, or iOS's ticked spinner
+  /// in the room the pull opens.
+  static const refreshStyle = PropDef<RefreshStyle>('refreshStyle', EnumCodec(RefreshStyle.values), RefreshStyle.disc,
+      doc: 'What a list pulled to refresh draws: `disc` (a round disc over the list) or `spinner` (iOS\'s ticked '
+          'spinner in the room the pull opens, no disc).');
+
   /// Opens at the end (the newest message of a chat, the latest line of a
   /// log), keeps the items on screen in place when items are put before
   /// them (older messages loaded), and follows items added at the end only
@@ -200,13 +218,33 @@ abstract final class ListViewProps {
   static const stickToEnd = PropDef<bool>('stickToEnd', Codecs.bool, false,
       doc: 'Opens at the end, keeps its place when items are put before, follows new items at the end.');
 
+  /// A running list over data keeps what is in view where it is when items
+  /// are put before it or taken out before it (scroll anchoring, as a
+  /// browser's): a newer message added to a reversed chat the reader has
+  /// scrolled up in, a page of older items put at the start. At its very
+  /// start it shows what is put there (true, as a browser does at the top
+  /// of a page); false keeps what is in view there too, so items put at the
+  /// start appear only once scrolled to, unless the list does not fill its
+  /// view (a reversed chat that never moves when a message arrives). A list
+  /// that sticks to its end keeps its place at its start either way.
+  static const stickToStart = PropDef<bool>('stickToStart', Codecs.bool, true,
+      doc: 'At its start, shows items put at the start (a list away from its start always keeps what is in view); '
+          'false keeps what is in view at the start too, once the items fill the list.');
+
+  /// A list that sticks to its end draws a jump-to-latest button while the
+  /// reader is scrolled up from the end; false draws none (a pill of the
+  /// writer's own reads the list's `scroll` reactions instead).
+  static const jumpToLatest = PropDef<bool>('jumpToLatest', Codecs.bool, true,
+      doc: 'A list that sticks to its end draws its own jump-to-latest button while scrolled up from the end; '
+          'false draws none (draw your own from `onScroll`).');
+
   static const spec = WidgetSpec(
     'listView',
     props: [
       ...CollectionScrollProps.all, scrollable, itemExtent, separator, spacing, dividerThickness, dividerColor, //
       dividerIndent, dividerEndIndent, layout, reversePaintOrder, itemPosition, wrap, wrapSpacing, runSpacing,
       wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions, pullToRefresh,
-      stickToEnd,
+      stickToEnd, stickToStart, jumpToLatest, refreshStyle,
     ],
     children: ChildModel.list,
     slots: CollectionSlots.list,
