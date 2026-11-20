@@ -230,4 +230,51 @@ void main() {
     expect((chip['bind']! as Map)['props.selected'], r'${fUnread}');
     expect(jsonEncode(chip['actions']), contains('"variable":"fUnread"'));
   });
+
+  // A chat written in one pass (nocd chat): every message bubble, and every
+  // photo, drew nothing, with no word.
+  group('a component\'s slot, a box with a picture, a place outside a Stack', () {
+    test('a Slot with no name, in a component that declares a slot and takes no children, is that slot', () {
+      final r = _expand('component Side "A row."\n  param own=false\n  slot content\nColumn w=fill\n  if props.own\n    Row w=fill\n      Spacer\n      Slot\n  else\n    Row w=fill\n      Slot\n      Spacer\n');
+      expect(r.issues, isEmpty);
+      expect([for (final s in _of(r, 'slot')) (s['props']! as Map)['name']], ['content', 'content']);
+    });
+
+    test('a Slot with no name stays the call\'s children where the head takes children', () {
+      final r = _expand('component Chip "A chip." children=list\n  slot leading\nRow\n  Slot name=leading\n  Slot\n');
+      expect(r.issues, isEmpty);
+      expect([for (final s in _of(r, 'slot')) (s['props'] as Map?)?['name']], ['leading', null]);
+    });
+
+    test('a Slot naming a slot the head does not declare is said', () {
+      final r = _expand('component Side "A row."\n  slot content\nRow\n  Slot name=body\n');
+      expect(r.issues.single.message, contains('declares no slot "body"'));
+      expect(r.issues.single.message, contains('Its slots: content'));
+    });
+
+    test('a box of a fixed height keeps it with a picture that fills it and a text, in either order', () {
+      for (final text in [
+        'Column\n  Box w=280 h=210\n    Box w=fill h=fill fill=#FF9AD1F5\n    Text "GIPHY"\n',
+        'Column\n  Box w=280 h=210\n    Text "GIPHY"\n    Box w=fill h=fill fill=#FF9AD1F5\n',
+      ]) {
+        final r = _expand(text);
+        expect(r.issues, isEmpty, reason: text);
+        final box = _of(r, 'column').firstWhere((n) => (n['layout']! as Map)['width'] == 280);
+        expect((box['layout']! as Map)['height'], 210, reason: text);
+        expect(((box['layout']! as Map)['constraints'] as Map?)?['minHeight'], isNull, reason: text);
+      }
+      // With no picture that fills it, a text still makes the height a least one.
+      final grows = _expand('Column\n  Box w=280 h=60\n    Text "A long caption"\n');
+      final box = _of(grows, 'column').firstWhere((n) => (n['layout']! as Map)['width'] == 280);
+      expect((box['layout']! as Map)['height'], {'hug': 60});
+    });
+
+    test('x and y under a Column or a Row are said; in a Stack they place', () {
+      final r = _expand('Column\n  Box w=280 h=210\n    Text "GIPHY" x=8 y=8\n');
+      expect(r.issues.single.message, startsWith('x places a line only in a Stack'));
+      expect(r.issues.single.line, 3);
+      expect(r.issues.single.column, 18);
+      expect(_expand('Column\n  Stack w=280 h=210\n    Text "GIPHY" x=8 y=8\n').issues, isEmpty);
+    });
+  });
 }

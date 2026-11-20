@@ -45,10 +45,14 @@ text styles, spacing, radii, dark colors), its fonts, its design system and its 
 ## Its keys
 
 - **`pages`**: the site's pages, in order: `"home.json"` (beside `site.json`), `"home"` (the same) or a record
-  `{"id": "home", "file": "home.json"}`. Each `pages/<name>.txt` expands to its page; `go home` goes to it.
+  `{"id": "home", "file": "home.json"}`. Each `pages/<name>.txt` expands to its page; `go home` goes to it. The
+  site's folder expands 1440 wide unless `--width` says otherwise, so its pages and components get reflow's rules
+  for a tablet and a phone ([responsive.md](responsive.md#responsive-what-reflow-does)): a site made for a phone is
+  expanded with `--width 390`.
 - **`variables`**: what every page and component reads and sets by name, with no `state` line of their own
   (`{cart}`, `onTap={plan="team"}`; `project cart=[]` on a page says it is the site's). Written by name, a value
-  (`"cart": []`) or a record: `value`, `type` (text, integer, decimal, boolean, list, map: else the value's) and
+  (`"cart": []`) or a record: `value`, `type` (text, integer, decimal, boolean, list, map: else the value's; `null`
+  is text, so one that starts empty and later holds a record is `"replyTo": {"type": "map", "value": null}`) and
   `persist: true`, which keeps it on the device across reloads (a page's own `state … saved` is the same). A list of
   records (`[{"name": "cart", "type": "list", "value": []}]`) reads too.
 - **`theme`**: the names a line uses for its looks. `colors` by name (`fill=paper`, `color=ink`); `textStyles` by

@@ -4215,6 +4215,14 @@ class _Parser {
   /// does not make a least height (design 22, 4.8).
   final _exactHeights = <String>{};
 
+  /// The boxes of a fixed height that a text under them made that height at
+  /// least (its height → the height written), to give it back when a child
+  /// that fills it follows.
+  final _leastHeights = <String, num>{};
+
+  /// Whether [node] fills its parent's height (`h=fill`).
+  static bool _fillsHeight(Object? node) => readMap(readMap(readMap(node)?['layout'])?['height'])?.containsKey('fill') ?? false;
+
   /// The nodes whose line wrote their width or their flex by its full path
   /// (`layout.width=170`, `layout.flex=1`): a row of a table's columns does
   /// not make them shares of its width ([_fitRow], design 22, 4.8).
@@ -4758,8 +4766,35 @@ class _Parser {
   }
 
   /// The slot of [block] the lines under it go in.
-  static String _slotOfLines(_Open block) =>
-      const ['trailing', 'actions', 'action', 'end'].firstWhere(block.slots.contains, orElse: () => block.slots.first);
+  static String _slotOfLines(_Open block) => _slotOfLinesIn(block.slots);
+
+  /// Of a component's declared [slots], the one the lines under a call go in.
+  static String _slotOfLinesIn(List<String> slots) =>
+      const ['trailing', 'actions', 'action', 'end'].firstWhere(slots.contains, orElse: () => slots.first);
+
+  /// A `Slot` in a component's tree ([out]): with no name it shows the call's
+  /// children, which are the lines under the call. A component that declares
+  /// slots and takes no children (no children=list) puts those lines in one
+  /// of its slots ([_slotOfLinesIn]): the Slot is that one. (`slot content`
+  /// in the head and a bare `Slot` in the tree drew nothing, with no word:
+  /// nocd chat, every message bubble.) A Slot naming a slot the head does not
+  /// declare is filled by no call: said.
+  void _slotName(Json out, int column) {
+    final widget = _top._widget;
+    if (widget == null) return;
+    final declared = readStrings(widget['slots']);
+    final props = readMap(out['props']);
+    final name = props?['name'];
+    final bound = readMap(out['bind'])?.containsKey('props.name') ?? false;
+    if (bound) return;
+    if (name == null || name == 'children') {
+      if (widget['children'] != null || declared.isEmpty || declared.contains('children')) return;
+      (out['props'] = <String, Object?>{...?props})['name'] = _slotOfLinesIn(declared);
+    } else if (name is String && !declared.contains(name) && !_top._quiet) {
+      _issue(column, 'A Slot named "$name" shows nothing: the component declares no slot "$name". '
+          '${declared.isEmpty ? 'Declare it in the head (slot $name).' : 'Its slots: ${declared.join(', ')}; or declare slot $name in the head.'}');
+    }
+  }
 
   /// The row in [block]'s slot (a ListRow's trailing, a SectionHeader's
   /// actions) that the lines under it go in, side by side: made the first
@@ -8698,10 +8733,20 @@ class _Parser {
     }
     // A text in a box of a fixed height (an event's block, a tile): the
     // height is the least it is, and it grows when the text takes more lines.
+    // Not in one with a child that fills its height (a picture under a
+    // caption): that child needs the height the box has, and in a box that
+    // hugs it was as high as its content, nothing for a drawing (nocd chat,
+    // every photo bubble 280x0). A child that fills, written after the text,
+    // gives the box its height back.
     if (type == 'text' && parent != null && parent.type == 'column') {
       final box = nodes[parent.id];
       final h = (box?['layout'] as Map?)?['height'];
-      if (box != null && h is num && h > 0 && (box['props'] as Map?)?['scrollable'] != true && !_exactHeights.contains(parent.id)) {
+      if (box != null &&
+          h is num &&
+          h > 0 &&
+          (box['props'] as Map?)?['scrollable'] != true &&
+          !_exactHeights.contains(parent.id) &&
+          !readStrings(box['children']).any((c) => _fillsHeight(nodes[c]))) {
         // At least that high: a tinted block of a given height keeps it.
         final Json patch = {
           'layout': {
@@ -8711,6 +8756,7 @@ class _Parser {
         };
         nodes[parent.id] = mergePatch(box, patch);
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': patch});
+        _leastHeights[parent.id] = h;
       }
     }
     // A line chart's values that follow the state are its points worked out.
@@ -8777,8 +8823,9 @@ class _Parser {
         parent?.type == 'column' &&
         !inRow &&
         // (A data table too: `TableView#sheetGrid grow` under a toolbar drew
-        // 0 high, round 11b, spreadsheet.)
-        const {'column', 'row', 'flex', 'stack', 'listView', 'gridView', 'tableView'}.contains(type);
+        // 0 high, round 11b, spreadsheet. And a box: `box fill=… grow` in a
+        // column hugged its height and drew 0 high.)
+        const {'column', 'row', 'flex', 'stack', 'box', 'listView', 'gridView', 'tableView'}.contains(type);
     // An empty box that grows in a column is what pushes the lines after it
     // to the end (`box grow h=1` above a sidebar's foot, as `flex: 1` with a
     // height does on the web): it takes the room left, and never less than
@@ -9224,6 +9271,31 @@ class _Parser {
     }
     if (callSizes != null) _componentRules(type, callSizes, out);
     _componentScreen(type);
+    if (type == 'slot') _slotName(out, column);
+    // x and y place a line in a Stack: under a Column or a Row it sits in
+    // turn and they are not read (a label written over a picture in a Box
+    // drew under it, with no word: nocd chat).
+    if (parent != null && const {'column', 'row'}.contains(parent.type) && parent.grid == null && !_top._quiet) {
+      final at = pre?.parts.where((p) => p.kind == 'pair' && const {'x', 'y', 'layout.x', 'layout.y'}.contains(p.key)).firstOrNull;
+      if (at != null) {
+        _issue(column + (at.at < 0 ? 0 : at.at),
+            '${at.key} places a line only in a Stack: in this ${parent.type == 'row' ? 'Row' : 'Column'} it sits in turn. To lay it over the others, make what holds it a Stack (Stack w=… h=…, its lines at x= and y=).');
+      }
+    }
+    // A child that fills the height of a box a text made that high at least
+    // (written after the text): the box has its height again.
+    if (parent?.id case final String box when _fillsHeight(out) && nodes[box] != null) {
+      if (_leastHeights.remove(box) case final num h) {
+        final Json patch = {
+          'layout': {
+            'height': h,
+            'constraints': {'minHeight': null},
+          },
+        };
+        nodes[box] = mergePatch(nodes[box]!, patch);
+        _patches.add({'op': 'patch', 'id': box, 'patch': patch});
+      }
+    }
     nodes[id] = out;
     // A list tile's leading icon (icon= on a ListTile).
     if (listIcon case final String icon when type == 'listTile') {

@@ -37,6 +37,10 @@ final _ownerId = RegExp('^$notationId\$');
 /// box: half strength), by node: written words replace it.
 final _stateDefaults = Expando<Map<String, Set<String>>>();
 
+/// The state names a document's lines use that a variable of it has too,
+/// said once each (by the page's parser, `_top`).
+final _stateNamesSaid = Expando<Set<String>>();
+
 /// Where a word of [key] (the part before `=`) on a line of [type] is a state
 /// word: its owner (null: the line's own node), its state and the length of
 /// that prefix with its dot. Null for a key of the type itself (a path the
@@ -72,6 +76,15 @@ extension _StateWords on _Parser {
     if (mediaCondition(rest.split('=').first) != null || notationStateKey(rest.split('=').first, type, catalog) != null) {
       _issue(column, "A state holds the line's own keys, not a media rule or another state: $word.");
       return true;
+    }
+    // A variable of the state's name (`state pressed=…`, the site's
+    // `pressed`): on a line `pressed.fill=…` is the node's pressed look,
+    // never the variable (notationStateKey reads no variable), while a
+    // formula's `pressed.mine` is the variable. Said once a document.
+    if (key.owner == null && (variables.containsKey(key.state) || _derived.containsKey(key.state)) && (_stateNamesSaid[_top] ??= <String>{}).add(key.state)) {
+      _issue(column,
+          '$word: ${key.state} is also a variable here, and on a line ${key.state}.… is always the node\'s ${key.state} look, never the variable '
+          '(a formula\'s {${key.state}} or {${key.state}.x} reads the variable). Name the variable otherwise (${key.state}Item) so the two do not read alike.');
     }
     words.add((owner: key.owner, state: key.state, word: rest, column: column));
     return true;

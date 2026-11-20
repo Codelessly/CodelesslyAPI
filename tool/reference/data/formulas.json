@@ -234,7 +234,7 @@
     {
       "name": "matches",
       "signature": "matches(text, pattern)",
-      "example": "matches(code, \"^\\d{4}$\") → true"
+      "example": "matches(code, \"^\\d{4}$\") → true; JavaScript patterns, with (?i) (?s) (?m) at the start: matches(url, \"(?i)^https?://\")"
     },
     {
       "name": "slug",

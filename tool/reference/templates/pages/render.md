@@ -75,7 +75,9 @@ the capture is the window where the steps left the page. `--theme light|dark` st
 
 The render step reports what rendering shows: `render_exception` (naming the node), `action_error`,
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
-`text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
+`text_no_color`, `missing_glyph`, `icon_not_drawn`, `icon_smaller_than_size` (an icon's `size` larger than its box),
+`zero_size` (a node that paints, laid out 0 wide or 0 high, with the cause), `control_heights_differ` (controls in one
+Row drawn at different heights: each named with its height, written or hugged), `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
 `component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have),
 `paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran:

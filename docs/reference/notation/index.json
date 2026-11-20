@@ -2,7 +2,7 @@
   "version": "40.1.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4345
+    "words": 4399
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4345
+      "words": 4399
     },
     {
       "topic": "notation-a-line",
@@ -39,7 +39,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-sizes-and-alignment",
       "title": "Sizes and alignment",
-      "words": 169
+      "words": 223
     },
     {
       "topic": "notation-state",
@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5013
+      "words": 5095
     },
     {
       "topic": "layout-sizes",
@@ -117,7 +117,7 @@
       "file": "layout.md",
       "anchor": "layout-place",
       "title": "Place",
-      "words": 68
+      "words": 150
     },
     {
       "topic": "layout-scrolling",
@@ -310,14 +310,14 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13077
+      "words": 13171
     },
     {
       "topic": "forms-a-control-and-its-value",
       "file": "forms.md",
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
-      "words": 336
+      "words": 430
     },
     {
       "topic": "forms-tabs-segments-and-chips-chosen-from",
@@ -459,14 +459,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3480
+      "words": 3556
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 181
+      "words": 246
     },
     {
       "topic": "state-bindings",
@@ -487,7 +487,7 @@
       "file": "state.md",
       "anchor": "state-functions",
       "title": "Functions",
-      "words": 2787
+      "words": 2798
     },
     {
       "topic": "state-events-and-actions",
@@ -774,7 +774,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2807
+      "words": 2859
     },
     {
       "topic": "components-calling-one",
@@ -795,7 +795,7 @@
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 371
+      "words": 423
     },
     {
       "topic": "components-words",
@@ -853,7 +853,7 @@
       "anchor": "page-site",
       "title": "The site",
       "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries.",
-      "words": 564
+      "words": 619
     },
     {
       "topic": "site-a-whole-manifest",
@@ -867,7 +867,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 365
+      "words": 420
     },
     {
       "topic": "document",

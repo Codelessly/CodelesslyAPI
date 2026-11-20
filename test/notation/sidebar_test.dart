@@ -93,6 +93,16 @@ App
     expect(layout(row, 'gap')['height'], 1);
   });
 
+  test('a box that grows in a column with no height written takes the height left, as a column does', () {
+    final r = parse('Column#c h=400\n  Text "a"\n  box#tint fill=#FFFF0000 grow\n  Text "b"');
+    expect(r.issues, isEmpty);
+    expect(layout(r, 'tint')['height'], {'fill': 0});
+    expect(layout(r, 'tint')['flex'], 1);
+    // In a row, grow is its width: its height is still its own.
+    final row = parse('Row h=40\n  Text "a"\n  box#side fill=#FFFF0000 grow\n  Text "b"');
+    expect(layout(row, 'side')['height'], {'hug': 0});
+  });
+
   test('the chosen item and the mark of the brand are the accent of the site, whatever its theme calls it', () {
     final options = NotationOptions.fromTheme({
       'colors': {'accent': '#FF0D9488'},

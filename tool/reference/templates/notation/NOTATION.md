@@ -114,6 +114,14 @@ big as its content. Write a size only where the design needs one.
 - On a Row, Column or Stack: `center` is across the page and `middle` down it. Along a Row or Column: `start`,
   `end`, `between`, `around`, `evenly`. Across it: `top`, `bottom`, `left`, `right`, `stretch`.
 - `scroll` makes a Column scroll (a Row: sideways).
+- Controls in a Row share a height: leave `h` off them all (an Input, a Select, a Button, an IconButton hug to one
+  step), or give each the same `h`. A height on one alone makes the row uneven, and the render says so.
+
+```notation
+Row gap=8
+  Input hint=Message grow
+  IconButton "send"
+```
 
 ```notation
 Row gap=8
