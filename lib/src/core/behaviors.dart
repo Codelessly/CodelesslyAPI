@@ -221,6 +221,7 @@ final class Motion extends _Value {
   const Motion({
     this.translateX = 0,
     this.translateY = 0,
+    this.translateZ = 0,
     this.shiftX = 0,
     this.shiftY = 0,
     this.scale = 1,
@@ -239,6 +240,12 @@ final class Motion extends _Value {
 
   /// Pixels (`Transform.translate(offset:)`).
   final double translateX, translateY;
+
+  /// Pixels toward the viewer (positive) or away (negative), in 3D: seen
+  /// smaller or larger only with a [perspective] (the node's own, or a page
+  /// view's camera); applied before the scale and rotations, as the other
+  /// translations are.
+  final double translateZ;
 
   /// Multiples of the node's own size (`FractionalTranslation`).
   final double shiftX, shiftY;
@@ -266,7 +273,7 @@ final class Motion extends _Value {
   /// paths under `motion.` (`motion.rotate`, `motion.path.progress`).
   static const List<String> properties = [
     'translateX', 'translateY', 'shiftX', 'shiftY', 'scale', 'scaleX', 'scaleY', 'rotate', 'rotateX', 'rotateY', //
-    'perspective', 'path.progress',
+    'perspective', 'path.progress', 'translateZ',
   ];
 
   bool get hasPath => path?.hasPath ?? false;
@@ -275,7 +282,7 @@ final class Motion extends _Value {
   bool get hasTransform => this != none && (_numbers.any((e) => e) || backfaceHidden || hasPath);
 
   List<bool> get _numbers => [
-        translateX != 0, translateY != 0, shiftX != 0, shiftY != 0, scale != 1, scaleX != 1, scaleY != 1, //
+        translateX != 0, translateY != 0, translateZ != 0, shiftX != 0, shiftY != 0, scale != 1, scaleX != 1, scaleY != 1, //
         rotate != 0, rotateX != 0, rotateY != 0,
       ];
 
@@ -284,6 +291,7 @@ final class Motion extends _Value {
   double valueOf(String property) => switch (property) {
         'translateX' => translateX,
         'translateY' => translateY,
+        'translateZ' => translateZ,
         'shiftX' => shiftX,
         'shiftY' => shiftY,
         'scale' => scale,
@@ -309,6 +317,7 @@ final class Motion extends _Value {
     return Motion(
       translateX: v('translateX', translateX),
       translateY: v('translateY', translateY),
+      translateZ: v('translateZ', translateZ),
       shiftX: v('shiftX', shiftX),
       shiftY: v('shiftY', shiftY),
       scale: v('scale', scale),
@@ -347,6 +356,7 @@ final class Motion extends _Value {
     return Motion(
       translateX: r.d('translateX', 0),
       translateY: r.d('translateY', 0),
+      translateZ: r.d('translateZ', 0),
       shiftX: r.d('shiftX', 0),
       shiftY: r.d('shiftY', 0),
       scale: r.d('scale', 1),
@@ -366,6 +376,7 @@ final class Motion extends _Value {
     final j = <String, Object?>{}
       ..d('translateX', translateX, 0)
       ..d('translateY', translateY, 0)
+      ..d('translateZ', translateZ, 0)
       ..d('shiftX', shiftX, 0)
       ..d('shiftY', shiftY, 0)
       ..d('scale', scale, 1)
@@ -383,7 +394,7 @@ final class Motion extends _Value {
 
   @override
   List<Object?> get props => [
-        translateX, translateY, shiftX, shiftY, scale, scaleX, scaleY, rotate, rotateX, rotateY, perspective, //
+        translateX, translateY, translateZ, shiftX, shiftY, scale, scaleX, scaleY, rotate, rotateX, rotateY, perspective, //
         alignment, backfaceHidden, path,
       ];
 }

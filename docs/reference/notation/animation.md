@@ -142,6 +142,7 @@ Written `motion={…}` on any line ([Motion](#type-Motion)). Level 4.
 |---|---|---|---|
 | `motion.translateX` | number | `0` | Pixels. |
 | `motion.translateY` | number | `0` | Pixels (`Transform.translate(offset:)`). |
+| `motion.translateZ` | number | `0` | Pixels toward the viewer (negative: away), in 3D: nearer or farther only with a perspective (the node's, or a page view's camera). |
 | `motion.shiftX` | number | `0` | Times the node's size (`FractionalTranslation`). |
 | `motion.shiftY` | number | `0` | Multiples of the node's own size (`FractionalTranslation`). |
 | `motion.scale` | number | `1` | The axis factors multiply `scale`. |

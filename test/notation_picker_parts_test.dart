@@ -139,4 +139,24 @@ Column
       expect(GesturePhysics.standard.projectFling(100, 20), 100, reason: 'slower than minFlingVelocity: no coast');
     });
   });
+
+  test('translateZ is a motion key: read, printed back, driven by a formula, and a pose\'s too', () {
+    final r = _parse('''
+Column
+  Box#far w=40 h=40 motion.translateZ=-100 motion.perspective=1
+  Pages#drum h=180 scrollDirection=vertical peek=0.2 perspective=2
+    each i in range(9)
+      Text "{i}" motion.translateZ={90 * (cos(pageOffset * 0.4) - 1)}
+''');
+    expect(r.issues, isEmpty);
+    expect((_node(r, 'far')['motion'] as Map)['translateZ'], -100);
+    expect(Motion.fromJson({'translateZ': -100})!.translateZ, -100);
+    expect(Motion.fromJson({'translateZ': -100})!.hasTransform, isTrue);
+    expect(Motion.properties, contains('translateZ'));
+    expect(Pose.fromJson({'translateZ': 12, 'opacity': 0.5})!.motion.translateZ, 12);
+    final printed = printNotation(r.document, catalog: standardCatalog);
+    expect(printed, contains('motion.translateZ=-100'));
+    expect(printed, contains('motion.translateZ={90 * (cos(pageOffset * 0.4) - 1)}'));
+    expect(_parse(printed).document['nodes'], r.document['nodes']);
+  });
 }

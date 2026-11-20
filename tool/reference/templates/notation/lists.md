@@ -149,22 +149,31 @@ motion it goes to that row with no coast. Without it a fling turns one page. It 
 
 **Rows by their distance.** Each page reads `pageOffset`, its distance from the middle in pages (0 the middle one,
 1.5 halfway between the next two, negative before it; not clamped: `clamp(pageOffset, -3, 3)` bounds it), so any key
-of a row can follow it: its `motion` (`translateX`, `translateY`, `scale`, `rotate`, `rotateX`, `rotateY`, `path`)
-and its `opacity`. A drum of radius R (half the wheel's height) puts a row d rows away at the angle d·h/R: at
-`R·sin(angle)` (`motion.translateY`, less the d·h the pages put it at), turned by the angle (`motion.rotateX`), so the
-rows crowd and flatten toward the top and bottom; a cover flow turns its pages about y, a deck stacks them with
-`translateY` and `scale`. `perspective=` on the `Pages` is one camera at the view's middle for every page's turn
-(the pages' own `motion.perspective=0`); 0 draws them flat, as a drum is seen from far. `pageMotion=` says the same
-for the common case in one record, drawn by distance up to two pages.
+of a row can follow it: its `motion` (`translateX`, `translateY`, `translateZ`, `scale`, `rotate`, `rotateX`,
+`rotateY`, `path`) and its `opacity`. A row of a `ListView` with `itemSnapping` reads the same `pageOffset`: its
+distance from the list's snap point (the start of the view) in rows, so a list's rows can scale or fade by it too.
+
+A drum of radius R (half the wheel's height) puts a row d rows away at the angle d·h/R: at `R·sin(angle)`
+(`motion.translateY`, less the d·h the pages put it at), turned by the angle (`motion.rotateX`) and pushed back by
+`R·(cos(angle) - 1)` (`motion.translateZ`: toward the viewer is positive, away negative), so the rows crowd, flatten
+and shrink toward the top and bottom while the middle row is untouched. `perspective=` on the `Pages` is one camera at
+the view's middle for every page (the pages' own `motion.perspective=0`): with it the drum is seen in depth; 0 draws
+it flat. A cover flow turns its pages about y, a deck stacks them with `translateY`, `translateZ` and `scale`.
+`pageMotion=` says the common case in one record, drawn by distance up to two pages.
 
 ```notation
 state hour:decimal=8
 Stack w=96 h=180
   Column w=fill h=36 y=72 fill=#FFF1F5F9 radius=8
-  Pages h=fill @hour scrollDirection=vertical peek=0.2 padEnds=true edgeFade=0 allowImplicitScrolling=true snapPhysics={"friction":0.865}
+  Pages h=fill @hour scrollDirection=vertical peek=0.2 padEnds=true edgeFade=0 allowImplicitScrolling=true snapPhysics={"friction":0.865} perspective=2
     each item in range(24)
-      Text "{item}" size=20 center h=fill motion.translateY={90 * sin(pageOffset * 0.4) - pageOffset * 36} motion.rotateX={-pageOffset * 0.4 * 180 / pi()} opacity={abs(pageOffset * 0.4) < pi() / 2 ? 1 - 0.7 * abs(pageOffset * 0.4) / (pi() / 2) : 0} motion.perspective=0
+      Text "{item}" size=20 center h=fill motion.translateY={90 * sin(pageOffset * 0.4) - pageOffset * 36} motion.translateZ={90 * (cos(pageOffset * 0.4) - 1)} motion.rotateX={-pageOffset * 0.4 * 180 / pi()} opacity={abs(pageOffset * 0.4) < pi() / 2 ? 1 - 0.7 * abs(pageOffset * 0.4) / (pi() / 2) : 0} motion.perspective=0
 ```
+
+**While it turns.** `@hour` changes as each row passes the middle, not only at rest, so anything bound to it follows
+the spin. The position between rows is the `onScroll` reaction's `result.page` (a decimal: 8.4 is four tenths of the
+way from 8 to 9; `result.index` the row nearest, `result.offset` the pixels), stored in a variable another part reads
+(`onScroll={turn=result.page}`, `state turn:decimal=8`). Where it comes to rest is `onScrollEnd` (`result.index`).
 
 ## A list that follows its newest entry
 

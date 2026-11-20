@@ -388,7 +388,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 8573
+      "words": 8708
     },
     {
       "topic": "lists-a-list-over-data",
@@ -416,7 +416,7 @@
       "file": "lists.md",
       "anchor": "lists-a-wheel-that-snaps-to-its-middle-row",
       "title": "A wheel that snaps to its middle row",
-      "words": 428
+      "words": 563
     },
     {
       "topic": "lists-a-list-that-follows-its-newest-entry",
@@ -595,7 +595,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3594
+      "words": 3624
     },
     {
       "topic": "animation-the-animate-words",
@@ -623,7 +623,7 @@
       "file": "animation.md",
       "anchor": "animation-behaviors",
       "title": "Keys any line takes here",
-      "words": 1812
+      "words": 1842
     },
     {
       "topic": "animation-events-and-actions",
@@ -925,7 +925,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17082
+      "words": 17112
     },
     {
       "topic": "values-writing-a-value",
@@ -960,7 +960,7 @@
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 5256
+      "words": 5286
     },
     {
       "topic": "values-examples",
