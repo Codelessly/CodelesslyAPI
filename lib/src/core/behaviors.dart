@@ -2012,7 +2012,8 @@ final class Reveal extends _Value {
 /// under it, until the end of its parent (the section it heads) pushes it
 /// on. `${sticky.stuck}` says whether it is pinned now (the node's own
 /// bindings and the nodes inside it read it). The design canvas, which
-/// doesn't scroll, draws it in place. JSON `true` or `{"offset": 8}`.
+/// doesn't scroll, draws it in place. JSON `true`, `{"offset": 8}`, or the offset alone
+/// (`8`, as a bound `sticky={on ? 0 : null}` gives it); `false` or null: none.
 @immutable
 final class Sticky extends _Value {
   const Sticky({this.offset = 0});
@@ -2022,6 +2023,7 @@ final class Sticky extends _Value {
 
   static Sticky? fromJson(Object? json) {
     if (json == true) return const Sticky();
+    if (json is num) return Sticky(offset: json.toDouble());
     final m = readMap(json);
     if (m == null) return null;
     return Sticky(offset: _R(m).d('offset', 0));

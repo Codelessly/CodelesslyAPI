@@ -189,7 +189,10 @@ final class _Printer {
     _state = [
       for (final v in readList(vars[scope]) ?? const [])
         // (A name the runtime gives a scope has no state line: notationRefusedState.)
-        if (v is Map && v['name'] is String && !notationRefusedState(v['name'] as String)) 'state ${v['name']}=${jsonEncode(v['value'])}',
+        if (v is Map && v['name'] is String && !notationRefusedState(v['name'] as String))
+          // A decimal that starts whole (`state stop:decimal=0`) says so:
+          // `state stop=0` would read as a whole number.
+          'state ${v['name']}${v['type'] == 'decimal' && v['value'] is int ? ':decimal' : ''}=${jsonEncode(v['value'])}',
     ].join('\n');
     _variables = jsonEncode(_parse('')?['variables']);
   }

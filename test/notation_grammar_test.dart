@@ -391,6 +391,11 @@ void main() {
         '12: The id "closeButton" is used twice: line 10 has it too, in the other branch of the if. A document holds one node per id, so both branches '
             'cannot have it: give this one an id of its own (closeButton2), or write one line whose values are worked out (label={cond ? "a" : "b"}).',
         '13: The id "more" is used twice: line 8 has it too. Give this line an id of its own.',
+        // The id is its fixed part, as before, and that is said with how a
+        // copy is named (`Column#remove_{index}` was read as `remove_`, and
+        // the steps that named `remove_0` found nothing).
+        '15: A copy an each repeats has no id of its own: #row-{row.id} is read as #row. Its copies are row#0, row#1… in order (a step taps row#2); '
+            'an action reaches one copy by its item: scrollTo node=row item={i}.',
       ]);
       // The author's Menu#albumMenu on the album page is the author's; the
       // drawer the frame makes of the sidebar has a name of its own.

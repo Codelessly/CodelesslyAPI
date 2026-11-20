@@ -288,7 +288,7 @@ Sheet#story "The tide tables" stops=[0.5,1] stop=@sheetStop
 It reads as:
 
 ```notation
-state sheetStop=0
+state sheetStop:decimal=0
 Column gap=12
   Button "Read" onTap={openModal to=story presentation=bottomSheet sheetWidth=560.0 sheetRadius=20 showDragHandle=true maxHeightFactor=1.0 snapHeights=[0.5,1.0] stopVariable=sheetStop}
 Canvas#story "story" w=560 fill=surface layout.height.fill=0 decoration.effects=[{"type":"dropShadow","color":"#24000000","offset":[0,12],"blurRadius":32,"spreadRadius":-6}]

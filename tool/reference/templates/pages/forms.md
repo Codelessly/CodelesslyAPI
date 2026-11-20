@@ -68,7 +68,7 @@ As Flutter's `TextFormField` and `Form`:
 An error can also come from anywhere else: bind `props.decoration.errorText` (an empty text shows none); the
 validator's error, when it shows one, wins. Give a field that may show an error a hug height (`{"hug": 56}`): it
 grows by the error line, and the form with it; a fixed height keeps the field that tall. `inputFormatter` applies
-only `{"type": "regex", "pattern": ..., "allow": true}`. A form submitted to a service: `submitForm`
+`{"type": "regex", "pattern": ..., "allow": true}`, `{"type": "email"}` (no spaces) or `{"type": "phone"}` (digits, `+`, spaces, `()`, `-`, `.`); another type is said as the page is expanded. A form submitted to a service: `submitForm`
 ([data](@page-data)).
 
 A contact form validated on blur and on send, with a summary of the errors above it, a radio group and a thank-you

@@ -257,7 +257,9 @@ Node seamCall(Node root, Node call) {
     padding: root.layout.padding,
     width: own('width') ? root.layout.width : null,
     height: own('height') ? root.layout.height : null,
-    constraints: own('constraints') ? root.layout.constraints : null,
+    // So are its limits when the call writes none (`Column w=fill
+    // maxWidth=368` at a definition's root caps every call that fills).
+    constraints: own('constraints') || (call.layout.constraints.isEmpty && !root.layout.constraints.isEmpty) ? root.layout.constraints : null,
     // The root's shape (`Stack w=fill aspectRatio=1`, a sleeve's artwork)
     // when the call gives none: a call that hugs its height was 0 tall.
     aspectRatio: call.layout.aspectRatio == null && root.layout.aspectRatio != null ? () => root.layout.aspectRatio : null,
