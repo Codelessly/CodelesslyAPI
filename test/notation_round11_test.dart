@@ -330,21 +330,29 @@ define Rows
     test('bars apart and rounded over a light axis with its figures', () {
       final r = _parse('Column\n  BarChart values=[12,19,7,15,22,9] labels=["M","T","W","T","F","S"]\n', NotationOptions.fromTheme(theme, width: 1440));
       final p = propsOf(r, 'barChart');
-      expect([p['barRadius'], p['maxBarWidth'], p['max']], [4, 40, 30]);
-      expect(p['gridLabels'], ['0', '10', '20', '']);
+      expect([p['barRadius'], p['maxBarWidth']], [4, 40]);
+      // The chart chooses its round lines and writes each one's figure.
+      expect([p['gridValues'], p['gridLabelsLeft'], p['gridLines']], [true, true, 4]);
+      expect(p.keys, isNot(anyOf(contains('max'), contains('gridLabels'))));
     });
 
-    test('a donut\'s slices in steps of the theme\'s primary', () {
+    test('a donut\'s slices are left to the theme\'s series colors; written colors are kept, the accent\'s filling in', () {
       final r = _parse('Column\n  Donut values=[45,25,20,10] labels=["a","b","c","d"]\n', NotationOptions.fromTheme(theme, width: 1440));
-      final colors = [for (final d in (propsOf(r, 'chart')['data'] as List).cast<Map>()) d['color']];
-      expect(colors, ['#FF7C3AED', '#FFAA7FF3', '#FFCBB0F8', '#FFE2D4FB']);
-      expect(colors.first, '#FF7C3AED');
+      final rows = (propsOf(r, 'chart')['data'] as List).cast<Map>();
+      expect(rows.every((d) => !d.containsKey('color')), isTrue);
+      final some = _parse('Column\n  Donut values=[45,25,20] labels=["a","b","c"] colors=["#FF111111"]\n', NotationOptions.fromTheme(theme, width: 1440));
+      final colors = [for (final d in (propsOf(some, 'chart')['data'] as List).cast<Map>()) d['color']];
+      // The second and third are the second and third of the accent's palette.
+      expect(colors, ['#FF111111', '#FF007D90', '#FFA89A0D']);
     });
 
     test('a line\'s axis fitted to its data', () {
       final r = _parse('Column\n  LineChart values=[812,820,815,830,842,838,851] labels=["M","T","W","T","F","S","S"]\n  LineChart values=[812,820,851]\n', NotationOptions.fromTheme(theme, width: 1440));
       expect(propsOf(r, 'chart')['fitMinY'], isTrue);
-      expect(propsOf(r, 'lineChart')['yMin'], 800);
+      // One line of values: the chart fits its scale to them and rounds it
+      // out (gridValues); the word writes no bound of its own.
+      expect(propsOf(r, 'lineChart')['gridValues'], isTrue);
+      expect(propsOf(r, 'lineChart').containsKey('yMin'), isFalse);
     });
   });
 

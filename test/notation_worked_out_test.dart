@@ -151,7 +151,10 @@ ${state}Column
       expect(r.vocabulary.where((u) => u.kind == 'parameter'), isEmpty);
       final d = _node(r, 'd'), e = _node(r, 'e');
       expect((d['props'] as Map)['chartType'], 'donut');
-      expect((d['bind'] as Map)['props.data'], allOf(contains('"value": get(map(pts,p=>p.t), i)'), contains('"label": text(coalesce(get(map(pts,p=>p.h), i), ""))'), contains('"color": (["#')));
+      expect((d['bind'] as Map)['props.data'], allOf(contains('"value": get(map(pts,p=>p.t), i)'), contains('"label": text(coalesce(get(map(pts,p=>p.h), i), ""))')));
+      // With no colors written its rows have none: each slice takes the
+      // theme's next series color where it is drawn.
+      expect((d['bind'] as Map)['props.data'], isNot(contains('"color"')));
       expect((e['bind'] as Map)['props.data'], allOf(contains('get([2,3], i)'), contains('coalesce(get(["#FF111111","#FF222222"], i)')));
       // Written out, it is as it was: its rows in the document.
       final plain = _parse('Column\n  Donut#d values=[60,40] labels=["Rent","Food"]\n', width: 390);
@@ -186,7 +189,8 @@ Column
       expect(_said(r), isEmpty);
       expect(_node(r, 'a')['type'], 'lineChart');
       expect((_node(r, 'a')['props'] as Map)['areaTopColor'], '#332563EB');
-      expect((_node(r, 'l')['props'] as Map).containsKey('areaTopColor'), isFalse);
+      // A line has no fill under it.
+      expect((_node(r, 'l')['props'] as Map)['areaTopColor'], '#00000000');
       expect((_node(r, 'a')['bind'] as Map)['props.data'], r'${pts}');
     });
   });

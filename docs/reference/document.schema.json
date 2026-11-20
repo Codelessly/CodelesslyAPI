@@ -3654,6 +3654,9 @@
         },
         "endLabel": {
           "type": "boolean"
+        },
+        "fade": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -4191,6 +4194,21 @@
       },
       "additionalProperties": false
     },
+    "model.GraphLegend": {
+      "type": "object",
+      "properties": {
+        "show": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "values": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.GraphMark": {
       "type": "object",
       "properties": {
@@ -4342,6 +4360,16 @@
         },
         "startAngle": {
           "type": "number"
+        },
+        "dots": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "center": {
+          "type": "string"
+        },
+        "centerLabel": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -4547,6 +4575,52 @@
         "topInset": {
           "type": "number",
           "minimum": 0.0
+        },
+        "ink": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "palette": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tooltip": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tooltipText": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tooltipBorder": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -4683,6 +4757,20 @@
         "bands": {
           "type": "array",
           "items": {}
+        },
+        "inset": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "maxBarWidth": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -4752,7 +4840,10 @@
           "type": "integer",
           "minimum": 0
         },
-        "tickValues": {}
+        "tickValues": {},
+        "nice": {
+          "type": "boolean"
+        }
       },
       "additionalProperties": false
     },
@@ -15344,7 +15435,14 @@
                     "type": "number"
                   },
                   "maxBarWidth": {
-                    "type": "number"
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "barGap": {
                     "type": "number"
@@ -15465,6 +15563,29 @@
                   },
                   "tooltip": {
                     "type": "boolean"
+                  },
+                  "legend": {
+                    "type": "boolean"
+                  },
+                  "roundScale": {
+                    "type": "boolean"
+                  },
+                  "dots": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "cursorLine": {
+                    "type": "boolean"
+                  },
+                  "centerLabel": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "tooltipColor": {
                     "anyOf": [
@@ -16393,6 +16514,12 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "gridValues": {
+                    "type": "boolean"
+                  },
+                  "tooltip": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -16752,6 +16879,15 @@
                   "xLabelOffset": {
                     "type": "number"
                   },
+                  "cursorLine": {
+                    "type": "boolean"
+                  },
+                  "gridValues": {
+                    "type": "boolean"
+                  },
+                  "tooltip": {
+                    "type": "boolean"
+                  },
                   "animate": {
                     "type": "boolean"
                   },
@@ -16894,6 +17030,20 @@
                     "anyOf": [
                       {
                         "$ref": "#/$defs/model.GraphStyle"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphLegend"
                       },
                       {
                         "type": [

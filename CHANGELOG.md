@@ -1,3 +1,80 @@
+## 40.2.0
+
+The notation's chart words draw finished charts from one line: `LineChart`, `AreaChart`, `BarChart`, `Donut` and
+`Pie` write their look as keys of the chart they stand for. A `chart`, `barChart`, `lineChart`, `plotChart` or
+`graph` node that leaves a key out is as it was. With CodelesslySDK 40.2.0.
+
+### The chart words draw differently
+
+Each of these is a key the word writes on its node (the line's own key wins, and a node written by its type,
+`chart`, `barChart`, `lineChart`, takes none of them):
+
+- **Several series** (`LineChart`, `AreaChart` or `BarChart` with `series=`, or a `LineChart` with `labels=`):
+  `selectOnHover=true tooltip=true` (what is under the pointer is selected and says its value), `legend=true`,
+  `roundScale=true` (the scale ends on labeled lines), `plotInset=6`, `axisFontSize=11`; lines also `dots=12` (a
+  dot on each of up to 12 points) and `cursorLine=true`, each series `"curved":true`, an `AreaChart`'s
+  `"fade":true`; bars `barRadius=4 maxBarWidth=40`.
+- **One line of values or of rows** (`LineChart values=[…]`, `LineChart data={rows} …`): `smooth=true`, a clear
+  `areaTopColor` (no fill under a line; `AreaChart` has the fill), `scrubEnabled=true cursorLine=true`,
+  `gridValues=true` (round lines with their figures). It was a straight line over the node's soft fill, with no
+  figures. A `Sparkline` is as it was.
+- **One series of bars** (`BarChart values=[…]`) is drawn as a chart of several series is: `gridValues=true` with
+  `gridLines=4 gridLabelWidth=44` (the chart chooses its round lines and writes each one's figure, also for values
+  that follow the state; the word wrote `max` and `gridLabels` worked out from written values, and nothing for
+  bound ones), `labelFontSize=11`, `labelFontFamily=""` (the page's family), `labelAreaHeight=22`, `tooltip=true`.
+  `max=` or `gridLabels=` on the line keep the chart's own scale.
+- **A `Donut` or a `Pie`**: `selectOnHover=true tooltip=true axisFontSize=11`, `legend=true` where it has labels, and for a `Donut`
+  `centerLabel="Total"` (its total in its hole: `total="Visitors"` names it, `total=false` leaves it out; none in
+  a `Stack`, where the page's own text is over it).
+- **One Donut legend.** The chart draws its labels and their shares itself, beside the ring where its box has the
+  room and under it where it has not, on every canvas and for lists written out or following the state. The word no
+  longer writes a row of nodes for it on a page. A Donut with a legend is as wide as what it is in and 200 high
+  when no size is written (the square it was in a `Row`, with `legend=false`, or with no labels); a page that
+  writes the labels itself keeps its own legend, as before.
+- **Colors are left to the theme.** A series or a slice whose color the line does not write has none in the
+  document: it takes the theme's next series color where it is drawn (`colors.chart1`, `chart2`… where the theme
+  names them, else its accent followed by colors of other hues), in light and in dark. The word wrote the accent
+  and lighter and darker steps of it. `colors=[…]` and a series' `"color"` are as written.
+- **`BarChart` takes `series`**: `BarChart labels=["Q1","Q2"] series=[{"name":"2024","values":[30,42]},{"name":
+  "2025","values":[36,45]}]` draws each label's bars side by side, and `BarChart stacked …` one on another. The
+  series follow the state in braces, as a `LineChart`'s do. `series=` on a `BarChart` was left out.
+
+### New keys, off unless written
+
+- **`chart`**: `legend` (under a plot, a key for each of two or more named series; for a donut each labeled slice
+  with its share, beside the ring or under it), `roundScale`, `dots` (a dot on each point of a line while the chart
+  has that many rows or fewer), `cursorLine`, `centerLabel` (a donut's total in its hole, this text under it), a
+  series' `fade`. `plotInset` is read: room over the top line and at each end of a line. `maxBarWidth` is read and
+  is unset by default (it said 36 and was not read): each bar of a group is at most that wide.
+- **`lineChart`**: `gridValues`, `cursorLine`, `tooltip` (true: with `scrubEnabled` the point says its value, as
+  before). **`barChart`**: `gridValues`, `tooltip`; a `labelFontFamily` written empty is the app's own family.
+- **`graph`**: `legend` (`show`: `none`, `auto`, `always`; `position`: `auto`, `bottom`, `top`, `right`;
+  `values`), `style.palette` (the colors of the marks that write none, in turn), `style.ink`, `style.tooltip`,
+  `tooltipText` and `tooltipBorder`, `xAxis.inset`, `xAxis.maxBarWidth` (the graph read it; the record now has it),
+  `yAxis.nice`, a mark's `dots`, `center` and `centerLabel`.
+- **`chartPalette("#FF2563EB")`** (and `chartPaletteOf(0xFF2563EB)`): the eight colors of a chart whose accent is
+  that one. The accent first, then seven colors of other hues, each about as light and as strong as it (a yellow a
+  little lighter, as yellows are); an accent with no hue (a black, a gray) is followed by colors of a moderate
+  strength.
+
+### For every chart
+
+- A tooltip's ground is the surface the chart is on with a hairline round it, its text the surface's ink
+  (`tooltipColor`, `tooltipTextColor`, a line chart's `tooltipBackground` when not written); it was an inverted
+  surface.
+
+### The notation, beside charts
+
+- **A bare `Slot` in a component that declares slots and takes no children is the slot the call's lines fill.**
+  It drew nothing. A `Slot` that names a slot the component does not declare is an issue.
+- **A box with a fixed height keeps it when a child fills it**, whichever order the child and a text are written
+  in.
+- **`grow` on a box in a Column fills the height left.** It was 0 high.
+- **`x` or `y` on a line under a Column or Row is an issue**: only a Stack places its children.
+- **A state word on a line that is also a variable's name** (`pressed`) is an issue, once a document.
+- **The reference** says that controls in a row share a height, what a negative place and a fill do in a Stack that
+  hugs, that `null` in `site.json` is a text variable, a regex's inline flags, and the width a site is expanded at.
+
 ## 40.1.0
 
 The open prompt (`notationPrompt(open: true)`) teaches more of what the notation already has, at the same length;

@@ -267,13 +267,13 @@ GaugeZone.fromDef (`from`), ViewProgressFields.to (`to`), ColorStopFields.color 
 
 GaugeMeterProps.value (`value`), GaugeMeterProps.limit (`limit`), GaugeMeterProps.shape (`shape`), GaugeMeterProps.min (`min`), GaugeMeterProps.max (`max`), GaugeMeterProps.segments (`segments`), GaugeMeterProps.segmentGap (`segmentGap`), GaugeMeterProps.startAngle (`startAngle`), GaugeMeterProps.sweepAngle (`sweepAngle`), GaugeMeterProps.cornerRadius (`cornerRadius`), GaugeMeterProps.backgroundColor (`backgroundColor`), GaugeMeterProps.borderColor (`borderColor`), GaugeMeterProps.inset (`inset`), GaugeMeterProps.edgeWidth (`edgeWidth`), GaugeMeterProps.edgeColor (`edgeColor`), GaugeMeterProps.ticks (`ticks`), GaugeMeterProps.majorTickEvery (`majorTickEvery`), GaugeMeterProps.limitColor (`limitColor`), GaugeMeterProps.limitWidth (`limitWidth`), GaugeMeterProps.limitStyle (`limitStyle`), GaugeMeterProps.limitPointer (`limitPointer`), GaugeMeterProps.animate (`animate`)
 
-## prop chart (40)
+## prop chart (37)
 
-ChartProps.chartType (`chartType`), ChartProps.series (`series`), ChartProps.minY (`minY`), ChartProps.maxY (`maxY`), ChartProps.gridLines (`gridLines`), ChartProps.showYAxis (`showYAxis`), ChartProps.yAxisWidth (`yAxisWidth`), ChartProps.showXAxis (`showXAxis`), ChartProps.xLabelEvery (`xLabelEvery`), ChartProps.axisFontSize (`axisFontSize`), ChartProps.axisFontFamily (`axisFontFamily`), ChartProps.referenceLines (`referenceLines`), ChartProps.barWidthFraction (`barWidthFraction`), ChartProps.maxBarWidth (`maxBarWidth`), ChartProps.barGap (`barGap`), ChartProps.barRadius (`barRadius`), ChartProps.dashEmpty (`dashEmpty`), ChartProps.xSlots (`xSlots`), ChartProps.startField (`startField`), ChartProps.endField (`endField`), ChartProps.segmentColorField (`segmentColorField`), ChartProps.domainMin (`domainMin`), ChartProps.domainMax (`domainMax`), ChartProps.nowValue (`nowValue`), ChartProps.nowColor (`nowColor`), ChartProps.divisions (`divisions`), ChartProps.donutThickness (`donutThickness`), ChartProps.sliceGap (`sliceGap`), ChartProps.startAngle (`startAngle`), ChartProps.selectOnHover (`selectOnHover`), ChartProps.plotInset (`plotInset`), ChartProps.fitMinY (`fitMinY`), ChartProps.yLabelPrefix (`yLabelPrefix`), ChartProps.yLabelSuffix (`yLabelSuffix`), ChartProps.yAxisFontFamily (`yAxisFontFamily`), ChartProps.tooltipLabelStyle (`tooltipLabelStyle`), ChartProps.tooltipValueStyle (`tooltipValueStyle`), ChartProps.totalsColor (`totalsColor`), ChartProps.totalsSelectedColor (`totalsSelectedColor`), ChartProps.highlightColor (`highlightColor`)
+ChartProps.chartType (`chartType`), ChartProps.series (`series`), ChartProps.minY (`minY`), ChartProps.maxY (`maxY`), ChartProps.gridLines (`gridLines`), ChartProps.showYAxis (`showYAxis`), ChartProps.yAxisWidth (`yAxisWidth`), ChartProps.showXAxis (`showXAxis`), ChartProps.xLabelEvery (`xLabelEvery`), ChartProps.axisFontSize (`axisFontSize`), ChartProps.axisFontFamily (`axisFontFamily`), ChartProps.referenceLines (`referenceLines`), ChartProps.barWidthFraction (`barWidthFraction`), ChartProps.barGap (`barGap`), ChartProps.barRadius (`barRadius`), ChartProps.dashEmpty (`dashEmpty`), ChartProps.xSlots (`xSlots`), ChartProps.startField (`startField`), ChartProps.endField (`endField`), ChartProps.segmentColorField (`segmentColorField`), ChartProps.domainMin (`domainMin`), ChartProps.domainMax (`domainMax`), ChartProps.nowValue (`nowValue`), ChartProps.nowColor (`nowColor`), ChartProps.divisions (`divisions`), ChartProps.donutThickness (`donutThickness`), ChartProps.sliceGap (`sliceGap`), ChartProps.startAngle (`startAngle`), ChartProps.fitMinY (`fitMinY`), ChartProps.yLabelPrefix (`yLabelPrefix`), ChartProps.yLabelSuffix (`yLabelSuffix`), ChartProps.yAxisFontFamily (`yAxisFontFamily`), ChartProps.tooltipLabelStyle (`tooltipLabelStyle`), ChartProps.tooltipValueStyle (`tooltipValueStyle`), ChartProps.totalsColor (`totalsColor`), ChartProps.totalsSelectedColor (`totalsSelectedColor`), ChartProps.highlightColor (`highlightColor`)
 
-## field of ChartSeries (11)
+## field of ChartSeries (12)
 
-GraphXAxis.fieldDef (`field`), GraphMark.nameDef (`name`), ChartSeries.kindDef (`kind`), ChartSeries.colorDef (`color`), ChartSeries.stackDef (`stack`), ChartSeries.dashedDef (`dashed`), ChartSeries.strokeWidthDef (`strokeWidth`), ChartSeries.endDotDef (`endDot`), ChartSeries.endDotHaloColorDef (`endDotHaloColor`), ChartSeries.curvedDef (`curved`), ChartSeries.fillOpacityDef (`fillOpacity`)
+GraphXAxis.fieldDef (`field`), GraphMark.nameDef (`name`), ChartSeries.kindDef (`kind`), ChartSeries.colorDef (`color`), ChartSeries.stackDef (`stack`), ChartSeries.dashedDef (`dashed`), ChartSeries.strokeWidthDef (`strokeWidth`), ChartSeries.endDotDef (`endDot`), ChartSeries.endDotHaloColorDef (`endDotHaloColor`), GraphMark.curvedDef (`curved`), ChartSeries.fillOpacityDef (`fillOpacity`), ChartSeries.fadeDef (`fade`)
 
 ## field of ChartReferenceLine (7)
 
@@ -303,21 +303,21 @@ PanFields.y (`y`), PlotChartRange.colorDef (`color`), BorderSideFields.width (`w
 
 PlotChartSeries.pointsDef (`points`), PlotChartSeries.colorDef (`color`), PlotChartSeries.widthDef (`width`), NodeAnimationFields.id (`id`)
 
-## prop barChart (16)
+## prop barChart (15)
 
-BarChartProps.labels (`labels`), BarChartProps.highlight (`highlight`), BarChartProps.dimmedOpacity (`dimmedOpacity`), BarChartProps.barGap (`barGap`), BarChartProps.barRadius (`barRadius`), BarChartProps.emptyHeight (`emptyHeight`), BarChartProps.gridLines (`gridLines`), BarChartProps.gridLabelWidth (`gridLabelWidth`), BarChartProps.labelFontFamily (`labelFontFamily`), BarChartProps.labelFontSize (`labelFontSize`), BarChartProps.labelGap (`labelGap`), BarChartProps.animate (`animate`), BarChartProps.valueSuffix (`valueSuffix`), BarChartProps.valueGap (`valueGap`), BarChartProps.gridLabelFontSize (`gridLabelFontSize`), BarChartProps.gridLabelFontWeight (`gridLabelFontWeight`)
+BarChartProps.labels (`labels`), BarChartProps.highlight (`highlight`), BarChartProps.dimmedOpacity (`dimmedOpacity`), BarChartProps.barGap (`barGap`), BarChartProps.barRadius (`barRadius`), BarChartProps.emptyHeight (`emptyHeight`), BarChartProps.gridLines (`gridLines`), BarChartProps.gridLabelWidth (`gridLabelWidth`), BarChartProps.labelFontSize (`labelFontSize`), BarChartProps.labelGap (`labelGap`), BarChartProps.animate (`animate`), BarChartProps.valueSuffix (`valueSuffix`), BarChartProps.valueGap (`valueGap`), BarChartProps.gridLabelFontSize (`gridLabelFontSize`), BarChartProps.gridLabelFontWeight (`gridLabelFontWeight`)
 
 ## prop lineChart (24)
 
 LineChartProps.data (`data`), LineChartProps.xField (`xField`), LineChartProps.yField (`yField`), LineChartProps.xMin (`xMin`), LineChartProps.xMax (`xMax`), LineChartProps.yMin (`yMin`), LineChartProps.yMax (`yMax`), LineChartProps.smooth (`smooth`), LineChartProps.lineWidth (`lineWidth`), LineChartProps.areaBottomColor (`areaBottomColor`), LineChartProps.tooltipShadowColor (`tooltipShadowColor`), LineChartProps.yAxisTitle (`yAxisTitle`), LineChartProps.axisLabelStyle (`axisLabelStyle`), LineChartProps.axisTitleStyle (`axisTitleStyle`), LineChartProps.markerLabelStyle (`markerLabelStyle`), LineChartProps.tagTextStyle (`tagTextStyle`), LineChartProps.tooltipValueStyle (`tooltipValueStyle`), LineChartProps.scrubStep (`scrubStep`), LineChartProps.tooltipXFormat (`tooltipXFormat`), LineChartProps.tooltipYScale (`tooltipYScale`), LineChartProps.tooltipYDecimals (`tooltipYDecimals`), LineChartProps.tooltipYSuffix (`tooltipYSuffix`), LineChartProps.tooltipTrend (`tooltipTrend`), LineChartProps.semanticLabel (`semanticLabel`)
 
-## field of GraphXAxis (11)
+## field of GraphXAxis (12)
 
-GraphXAxis.fieldDef (`field`), TextFieldProps.min (`min`), GraphXAxis.maxDef (`max`), GraphXAxis.tickValuesDef (`tickValues`), GraphXAxis.labelsDef (`labels`), GraphXAxis.axisHeightDef (`axisHeight`), GraphXAxis.minBarSpacingDef (`minBarSpacing`), GraphXAxis.maxBarSpacingDef (`maxBarSpacing`), TrackFields.clamp (`clamp`), GraphXAxis.historyThresholdDef (`historyThreshold`), GraphXAxis.bandsDef (`bands`)
+GraphXAxis.fieldDef (`field`), TextFieldProps.min (`min`), GraphXAxis.maxDef (`max`), GraphXAxis.tickValuesDef (`tickValues`), GraphXAxis.labelsDef (`labels`), GraphXAxis.axisHeightDef (`axisHeight`), GraphXAxis.minBarSpacingDef (`minBarSpacing`), GraphXAxis.maxBarSpacingDef (`maxBarSpacing`), TrackFields.clamp (`clamp`), GraphXAxis.historyThresholdDef (`historyThreshold`), GraphXAxis.bandsDef (`bands`), ChartProps.maxBarWidth (`maxBarWidth`)
 
-## field of GraphMark (16)
+## field of GraphMark (17)
 
-GraphMark.highDef (`high`), GraphMark.lowDef (`low`), GraphMark.closeDef (`close`), GraphMark.nameDef (`name`), BarChartProps.color (`color`), GraphMark.upColorDef (`upColor`), GraphMark.downColorDef (`downColor`), ChartSeries.stackDef (`stack`), ChartSeries.curvedDef (`curved`), GraphMark.fadeDef (`fade`), GraphMark.fillToDef (`fillTo`), GraphMark.endDotColorDef (`endDotColor`), GraphMark.pulseDef (`pulse`), GraphMark.dimInactiveDef (`dimInactive`), GraphMark.gapDef (`gap`), ChartProps.startAngle (`startAngle`)
+GraphMark.highDef (`high`), GraphMark.lowDef (`low`), GraphMark.closeDef (`close`), GraphMark.nameDef (`name`), BarChartProps.color (`color`), GraphMark.upColorDef (`upColor`), GraphMark.downColorDef (`downColor`), ChartSeries.stackDef (`stack`), GraphMark.curvedDef (`curved`), ChartSeries.fadeDef (`fade`), GraphMark.fillToDef (`fillTo`), GraphMark.endDotColorDef (`endDotColor`), GraphMark.pulseDef (`pulse`), GraphMark.dimInactiveDef (`dimInactive`), GraphMark.gapDef (`gap`), ChartProps.startAngle (`startAngle`), GraphMark.centerLabelDef (`centerLabel`)
 
 ## field of GraphYAxis (6)
 
@@ -335,9 +335,9 @@ GraphPane.coordDef (`coord`), GraphProps.yAxis (`yAxis`), GraphProps.marks (`mar
 
 GraphXAxis.fieldDef (`field`), GraphTransform.asDef (`as`), GraphTransform.periodDef (`period`)
 
-## field of GraphSelection (4)
+## field of GraphSelection (3)
 
-GraphSelection.tooltipDef (`tooltip`), GraphSelection.titleDef (`title`), GraphSelection.tooltipFillDef (`tooltipFill`), GraphSelection.tooltipTextDef (`tooltipText`)
+LineChartProps.tooltip (`tooltip`), GraphSelection.titleDef (`title`), GraphSelection.tooltipTextDef (`tooltipText`)
 
 ## field of GraphCrosshair (6)
 
@@ -347,9 +347,9 @@ GraphCrosshair.enabledDef (`enabled`), GraphCrosshair.verticalDef (`vertical`), 
 
 GraphInteractions.flingDef (`fling`)
 
-## field of GraphStyle (5)
+## field of GraphStyle (7)
 
-GraphStyle.gridDef (`grid`), GraphStyle.crosshairDef (`crosshair`), GraphStyle.tagTextDef (`tagText`), GraphStyle.fontSizeDef (`fontSize`), TextStyleFields.fontFamily (`fontFamily`)
+GraphStyle.gridDef (`grid`), GraphStyle.crosshairDef (`crosshair`), GraphStyle.tagTextDef (`tagText`), GraphStyle.fontSizeDef (`fontSize`), TextStyleFields.fontFamily (`fontFamily`), GraphSelection.tooltipTextDef (`tooltipText`), GraphStyle.tooltipBorderDef (`tooltipBorder`)
 
 ## prop barcode (4)
 
