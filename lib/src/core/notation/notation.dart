@@ -12,7 +12,7 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
-import '../behaviors.dart' show WidgetState, diffPatch, mergePatch;
+import '../behaviors.dart' show AnimationCurve, WidgetState, diffPatch, mergePatch;
 import '../catalog.dart';
 import '../chart_palette.dart';
 import '../design_system.dart';
@@ -2765,12 +2765,26 @@ class _Parser {
     NotationDefinition? read;
     final words = DefinedWords({...options.vocabulary.dictionary, ...options.vocabulary.definitions, ..._defined.page},
         open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), counts: _top._defined.counts, used: (d, p, node, column) => read ??= d);
-    final out = [...words.rewrite(0, head), ...words.finish()];
-    final id = out.isEmpty ? null : RegExp('^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#($notationId)').firstMatch(out.first.text)?[1];
+    final written = [...words.rewrite(0, head), ...words.finish()];
+    // The body's own state (a search sheet's query) and its key, every and
+    // on lines come before the overlay at the margin: they go under its head,
+    // where an overlay's own state lines are read.
+    final preamble = [for (final l in written.takeWhile((l) => l.indent == 0 && _overlayPreamble.hasMatch(l.text))) l];
+    final rest = written.skip(preamble.length).toList();
+    final out = [
+      if (rest.isNotEmpty) rest.first,
+      for (final l in preamble) (indent: l.indent + 1, text: l.text, from: l.from),
+      ...rest.skip(1),
+    ];
+    final id = rest.isEmpty ? null : RegExp('^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#($notationId)').firstMatch(rest.first.text)?[1];
     if (id == null) return null;
     if (read case final d?) _use(d.primitive ? 'primitive' : 'definition', parts.word, 1, to: d.label, node: id, parts: parts, of: d.dictionary);
     return [for (final l in out) '${' ' * l.indent}${l.text}'];
   }
+
+  /// A line a definition writes before its tree: its state, keys, timers
+  /// and screen events.
+  static final _overlayPreamble = RegExp(r'^(state|every|key|on)\s');
 
   static final _overlayWord = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)(?=[#.\s]|$)');
 
@@ -2780,7 +2794,8 @@ class _Parser {
   bool _definesOverlay(String word, [int depth = 0]) {
     if (depth > 4) return false;
     for (final d in _defined.meanings(word)) {
-      final first = d.body.firstOrNull?.text;
+      // Its tree's first line, after the state and keys of its own.
+      final first = d.body.where((l) => !(l.indent == 0 && _overlayPreamble.hasMatch(l.text))).firstOrNull?.text;
       if (first == null) continue;
       if (_overlayWord.hasMatch(first)) return true;
       final inner = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(first);
@@ -5690,6 +5705,7 @@ class _Parser {
     Set<String>? stackAlign;
     Json? animation;
     Map<String, int>? timing;
+    String? animationCurve;
     // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
     String? markText, markQuery;
     var selectedState = false;
@@ -7114,6 +7130,17 @@ class _Parser {
         }
         if ((key == 'duration' || key == 'delay' || key == 'stagger') && _milliseconds(raw) != null) {
           (timing ??= <String, int>{})[key] = _milliseconds(raw)!;
+          continue;
+        }
+        // `animate=fade curve=easeIn`: the preset's easing, on a line whose
+        // type has no curve of its own.
+        if (key == 'curve' && !spec.props.any((p) => p.key == 'curve')) {
+          final name = _literal(raw).$2?.toString() ?? raw;
+          if (AnimationCurve.values.any((c) => c.name == name)) {
+            animationCurve = name;
+          } else {
+            _issue(col, 'No curve=$raw. Written curve=${AnimationCurve.values.map((c) => c.name).take(8).join(', ')}….');
+          }
           continue;
         }
         if (key == 'limit' && type == 'radialGauge') key = 'target';
@@ -8598,6 +8625,7 @@ class _Parser {
     if (animation != null) {
       if (timing?['duration'] case final int d) animation['duration'] = d;
       if (timing?['delay'] case final int d) animation['delay'] = d;
+      if (animationCurve case final String c) animation['curve'] = c;
       node['animations'] = [animation];
       // Under an `each`, each copy starts that much after the one before.
       if (timing?['stagger'] case final int step) {
@@ -8605,6 +8633,8 @@ class _Parser {
       }
     } else if (timing != null) {
       _issue(column, 'duration=, delay= and stagger= go with animate= on the same line (animate=fade duration=400).');
+    } else if (animationCurve != null) {
+      _issue(column, 'curve= goes with animate= on the same line (animate=fade curve=easeIn).');
     }
     // `grow={share}` follows a value: it grows, by 1 until the value is read
     // (a bar's segments sized by their amounts).

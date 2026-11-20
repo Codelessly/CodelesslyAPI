@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13313
+      "words": 13675
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -334,6 +334,13 @@
       "words": 200
     },
     {
+      "topic": "forms-a-code-in-boxes-a-switch-of-its-own-shape",
+      "file": "forms.md",
+      "anchor": "forms-a-code-in-boxes-a-switch-of-its-own-shape",
+      "title": "A code in boxes, a switch of its own shape",
+      "words": 293
+    },
+    {
       "topic": "forms-validation",
       "file": "forms.md",
       "anchor": "forms-validation",
@@ -345,7 +352,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9827
+      "words": 9883
     },
     {
       "topic": "forms-behaviors",
@@ -381,7 +388,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 8087
+      "words": 8253
     },
     {
       "topic": "lists-a-list-over-data",
@@ -403,6 +410,13 @@
       "anchor": "lists-a-list-of-its-own-line",
       "title": "A list of its own line",
       "words": 49
+    },
+    {
+      "topic": "lists-a-wheel-that-snaps-to-its-middle-row",
+      "file": "lists.md",
+      "anchor": "lists-a-wheel-that-snaps-to-its-middle-row",
+      "title": "A wheel that snaps to its middle row",
+      "words": 155
     },
     {
       "topic": "lists-a-list-that-follows-its-newest-entry",
@@ -509,14 +523,14 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 6185
+      "words": 6222
     },
     {
       "topic": "events-an-event",
       "file": "events.md",
       "anchor": "events-an-event",
       "title": "An event",
-      "words": 2010
+      "words": 2047
     },
     {
       "topic": "events-actions",
@@ -531,7 +545,7 @@
       "anchor": "page-interaction",
       "title": "Interaction",
       "summary": "Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches.",
-      "words": 3569
+      "words": 3663
     },
     {
       "topic": "interaction-drag-and-drop",
@@ -552,7 +566,7 @@
       "file": "interaction.md",
       "anchor": "interaction-focus-and-the-keyboard",
       "title": "Focus and the keyboard",
-      "words": 368
+      "words": 462
     },
     {
       "topic": "interaction-behaviors",
@@ -581,14 +595,14 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3640
+      "words": 3666
     },
     {
       "topic": "animation-the-animate-words",
       "file": "animation.md",
       "anchor": "animation-the-animate-words",
       "title": "The animate words",
-      "words": 167
+      "words": 193
     },
     {
       "topic": "animation-animation-lines",
@@ -824,7 +838,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 799
+      "words": 953
     },
     {
       "topic": "design-systems-a-design-system",
@@ -838,7 +852,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 512
+      "words": 666
     },
     {
       "topic": "design-systems-examples",

@@ -97,6 +97,44 @@ Column gap=8
     Text "New" color=#FF2563EB
 ```
 
+A word whose lines are an overlay (`Sheet`, `Dialog`, `Drawer`…) is that overlay: write its use after the page at
+the margin with an id, and `open <id>` shows it. Its own `state` lines, written before the overlay, are the
+overlay's (a search sheet's query, kept apart for each use).
+
+```notation expands
+state country="Chile"
+define PickSheet "title" @value="" items=[]
+  state query=""
+  Sheet "{title}" ...
+    Input "" "Search" @query
+    each option in fuzzy(items, query, o => o)
+      Row h=44 onTap={value=option; close}
+        Text "{option}"
+Column gap=8
+  Button "Country" onTap={open countries}
+  Text "{country}"
+PickSheet#countries "Country" @country items=["Chile","China","Denmark"]
+```
+
+It reads as:
+
+```notation
+state country="Chile"
+state query_countries=""
+Column gap=8
+  Button "Country" onTap={openModal to=countries presentation=bottomSheet sheetWidth=560.0 sheetRadius=20 showDragHandle=true maxHeightFactor=0.9}
+  Text "{country}"
+Canvas#countries "countries" w=560 fill=surface decoration.effects=[{"type":"dropShadow","color":"#24000000","offset":[0,12],"blurRadius":32,"spreadRadius":-6}]
+  Column gap=16 pad=[20,8,20,24]
+    Row gap=12 between
+      Text.heading "Country" color=onSurface grow
+      IconButton "close" color=onSurface onTap={close}
+    Input "" hint=Search @query_countries
+    each item in fuzzy(["Chile","China","Denmark"], query_countries, o => o)
+      Row h=44 onTap={country=item; close}
+        Text "{item}"
+```
+
 
 
 <a id="design-systems-examples"></a>
