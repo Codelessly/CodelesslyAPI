@@ -73,6 +73,21 @@ Column#page w=fill
 
 void main() {
   group('the at line', () {
+    test('a Row\'s block lines are its children, side by side as its own are; its line says another direction there', () {
+      // The part's own line holds at every width: several lines in a Row's
+      // block are in that row, and what reflow gave the row is undone there.
+      const lines = '\n  Text#title "Dishes"\n  Input#find "Search"\n  at phone\n    ...#title\n    Row#tools\n      ...#find';
+      final r = _parse('Row#bar gap=12$lines', width: 1280);
+      expect(r.issues, isEmpty);
+      expect(_node(r, 'bar')['type'], 'row');
+      expect(_kids(r, 'bar'), ['title', 'find', 'title_phone', 'tools']);
+      bool vertical(NotationResult r) => jsonEncode(_node(r, 'bar')['media'] ?? const <Object>[]).contains('"direction":"vertical"');
+      expect(vertical(r), isFalse);
+      final down = _parse('Row#bar gap=12 phone.direction=vertical$lines', width: 1280);
+      expect(down.issues, isEmpty);
+      expect(vertical(down), isTrue);
+    });
+
     test('its lines are the part\'s children at that width; the part\'s own lines are hidden there', () {
       final r = _parse('Row#bar w=fill\n  Text#a "A"\n  Text#b "B"\n  at phone\n    Column#c\n      Text "C"');
       expect(r.issues, isEmpty);

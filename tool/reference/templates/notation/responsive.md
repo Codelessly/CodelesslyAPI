@@ -112,6 +112,10 @@ Row#window w=fill h=fill
   a `Table` the block's lines go in the table's frame in place of its header and rows, and `...` is its cells (a
   list of cards on a phone: `each p in people` / `Column … ` / `...`). An app's `Sidebar` with a block is still its
   drawer on a phone, with its own lines.
+- The part is laid out by its own line where a block holds too: a `Row`'s block lines are side by side, as its own
+  are, and no longer wrap (reflow leaves them as written). For lines down the page there, write them in a `Column`
+  in the block (as the bar above does), or give the part's line the direction at that width
+  (`Row gap=12 phone.direction=vertical`).
 - Not read, and said: `at` at the margin, under an `each` or an `if` (write it under the line the `each` repeats,
   each row's design at that width), inside another block, in a definition's lines, under `App` (write it under the
   pane whose lines change), under a `Grid` (its columns at a width are `phone.cols=1`), a breakpoint by its name
