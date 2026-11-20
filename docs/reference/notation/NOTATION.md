@@ -211,6 +211,14 @@ big as its content. Write a size only where the design needs one.
 - On a Row, Column or Stack: `center` is across the page and `middle` down it. Along a Row or Column: `start`,
   `end`, `between`, `around`, `evenly`. Across it: `top`, `bottom`, `left`, `right`, `stretch`.
 - `scroll` makes a Column scroll (a Row: sideways).
+- Controls in a Row share a height: leave `h` off them all (an Input, a Select, a Button, an IconButton hug to one
+  step), or give each the same `h`. A height on one alone makes the row uneven, and the render says so.
+
+```notation
+Row gap=8
+  Input hint=Message grow
+  IconButton "send"
+```
 
 ```notation
 Row gap=8
@@ -416,22 +424,22 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 
 | Page | What is in it | Open it when | Words |
 |---|---|---|---|
-| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 5013 |
+| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 5095 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1347 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2635 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1947 |
-| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 13077 |
+| [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 13171 |
 | [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 7434 |
-| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3480 |
+| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3556 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5829 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3569 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3536 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 8025 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 2989 |
 | [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 4276 |
-| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 2807 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 2859 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 625 |
-| [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | you write or change `site.json`; every page and component of the site reads what it declares by name. | 564 |
+| [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | you write or change `site.json`; every page and component of the site reads what it declares by name. | 619 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 907 |
 | [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 16395 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1660 |

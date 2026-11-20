@@ -582,4 +582,35 @@ void main() {
       }
     });
   });
+
+  // The NOCD chat: a variable `pressed` beside `pressed.fill=…` on a line
+  // read alike. The state word wins on a line (notationStateKey reads no
+  // variable); a formula reads the variable. The collision is said once.
+  group('a variable named as a state', () {
+    const page = '''
+state pressed=false
+Column#root
+  Row#a pressed.fill=#FF00FF00 onTap={pressed=!pressed}
+    Text#t "{pressed}" pressed.color=#FFFF0000
+  Row#b hovered.fill=#FF0000FF''';
+
+    test('the line\'s word is the state, the formula the variable, and the collision is said once', () {
+      final r = _read(page);
+      expect(_json(_nodeOf(r.document, 'a')['states']), _json({'pressed': {'a': {'decoration': {'fills': [{'color': '#FF00FF00'}]}}}}));
+      expect((_nodeOf(r.document, 't')['props'] as Map)['text'], r'${pressed}');
+      expect(r.issues.map((i) => '${i.line}:${i.column}: ${i.message}'), [
+        startsWith('3:9: pressed.fill=#FF00FF00: pressed is also a variable here, and on a line pressed.… is always the node\'s pressed look, never the variable '
+            '(a formula\'s {pressed} or {pressed.x} reads the variable). Name the variable otherwise (pressedItem)'),
+      ]);
+    });
+
+    test('a site\'s variable of a state\'s name is said too', () {
+      final r = parseNotation('Column#root\n  Row#a hovered.fill=#FF00FF00', catalog: standardCatalog, options: const NotationOptions(projectVariables: {'hovered': {'type': 'text'}}));
+      expect(r.issues.single.message, startsWith('hovered.fill=#FF00FF00: hovered is also a variable here'));
+    });
+
+    test('a variable of a state\'s name with no state word of that name is no issue', () {
+      expect(_read('state hovered=false\nColumn#root\n  Row#a pressed.fill=#FF00FF00 onTap={hovered=true}').issues, isEmpty);
+    });
+  });
 }

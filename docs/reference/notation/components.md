@@ -204,7 +204,10 @@ Row#pill gap=4
   the tree reads it as `props.selected` and sets it with `props.selected=…`, and the call keeps it in its own
   variable (`Picker @choice`). A parameter the call only gives cannot be set from inside.
 - `event name:Type`: an event and the type of its payload (`event onPick:void`, or no type: it passes nothing); `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
-- `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them).
+- `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them). The tree
+  shows it with `Slot name=name`. The lines under a call go in its slot (`trailing`, `actions`, `action` or `end`
+  when it has one, else its first), and a `Slot` with no name is that slot, unless the head says `children=list`
+  (then a `Slot` with no name shows the call's children).
 - `preview "Name" 340x66 key=value …`: a preview, its size and the call's values.
 
 A component's `key`, `every` and `on load` lines, after its tree, are the screen's that shows it: each page that

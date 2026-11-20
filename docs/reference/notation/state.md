@@ -13,10 +13,13 @@ type (`state price:decimal=0`; with no value, `state note:text`). Types: `intege
 value keeps it on the device: `state tab="inbox" saved` (not `state tab saved="inbox"`). A variable every page shares
 is the site's, declared in `site.json` (`"favourites": {"value": [], "persist": true}`): [site.md](site.md). A
 variable is not named after what the runtime gives every formula: `data`, `route`, `storage`, `screen`, `theme`,
-`auth`, `drag`, `perf`, `script`, `speech` (`state perfText=…`, not `state perf=…`).
+`auth`, `drag`, `perf`, `script`, `speech` (`state perfText=…`, not `state perf=…`), nor after a state a line's
+looks are written under (`hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`): on a line `pressed.fill=…`
+is always the node's pressed look, never the variable (`state heldItem=…`, not `state pressed=…`).
 
 `state x=0` is a whole number, and a fraction set into it is rounded: one that holds a fraction says so
-(`state read:decimal=0`).
+(`state read:decimal=0`). `state x=null` is text: a variable that starts empty and later holds a record or a list
+says so (`state replyTo:map=null`); `replyTo=null` empties it again (`replyTo != null` is then false).
 
 ```notation
 state read:decimal=0
@@ -93,7 +96,7 @@ Button "Add" onTap={cart=append(cart,"Tea")}
 | <a id="fn-titleCase"></a>`titleCase` | `titleCase(text)` | `titleCase("SQ *KESTREL FLOWERS") → Sq *Kestrel Flowers` |
 | <a id="fn-split"></a>`split` | `split(text, separator)` | `split("rock, jazz", ", ") → [rock, jazz]` |
 | `split` | `split(text, separator?)` | `split("2481") → [2, 4, 8, 1]` |
-| <a id="fn-matches"></a>`matches` | `matches(text, pattern)` | `matches(code, "^\d{4}$") → true` |
+| <a id="fn-matches"></a>`matches` | `matches(text, pattern)` | `matches(code, "^\d{4}$") → true; JavaScript patterns, with (?i) (?s) (?m) at the start: matches(url, "(?i)^https?://")` |
 | <a id="fn-slug"></a>`slug` | `slug(text)` | `slug("Kind of Blue!") → kind-of-blue` |
 | <a id="fn-charCode"></a>`charCode` | `charCode(text, index)` | `charCode("MX", 1) → 88` |
 | <a id="fn-fromCharCode"></a>`fromCharCode` | `fromCharCode(code, …) or fromCharCode(list)` | `fromCharCode(65 + seat) → B` |

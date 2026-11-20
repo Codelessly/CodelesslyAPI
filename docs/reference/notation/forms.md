@@ -43,6 +43,16 @@ Words a writer reaches for, and what they read as:
   button's shape. `fill=` on a Button or an IconButton is its own ground (its label reads on it unless the
   line gives `color=`).
 - `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
+- Controls in a row share a height. An Input, a Select, a date field, a Button and an IconButton with no height
+  all hug to one step of the control scale (28; 40 on a `Page`), so a row of them lines up: leave the heights
+  off, or give every control in the row the same `h`. A height written on one of them only (`IconButton "send"
+  w=44 h=44` beside a field that hugs) makes the row uneven, and the render says so (`control_heights_differ`).
+
+```notation
+Row gap=8
+  Input hint=Message grow
+  Button "Send"
+```
 
 ```notation expands
 state code=""
