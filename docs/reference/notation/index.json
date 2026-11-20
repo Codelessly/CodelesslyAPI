@@ -423,14 +423,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 8262
+      "words": 8763
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 742
+      "words": 781
     },
     {
       "topic": "lists-a-table-of-records",
@@ -458,7 +458,7 @@
       "file": "lists.md",
       "anchor": "lists-a-list-that-follows-its-newest-entry",
       "title": "A list that follows its newest entry",
-      "words": 561
+      "words": 902
     },
     {
       "topic": "lists-a-list-chosen-from-and-swiped",
@@ -472,7 +472,7 @@
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3230
+      "words": 3351
     },
     {
       "topic": "lists-behaviors",
@@ -974,7 +974,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17440
+      "words": 17506
     },
     {
       "topic": "values-writing-a-value",
@@ -1002,7 +1002,7 @@
       "file": "values.md",
       "anchor": "values-enums",
       "title": "Enums",
-      "words": 11071
+      "words": 11137
     },
     {
       "topic": "values-records",
@@ -1613,6 +1613,7 @@
       "PlotChartSelectionGuides": "values.md#enum-PlotChartSelectionGuides",
       "PopoverPlacement": "values.md#enum-PopoverPlacement",
       "ProgressBarShape": "values.md#enum-ProgressBarShape",
+      "RefreshStyle": "values.md#enum-RefreshStyle",
       "ReorderPlaceholder": "values.md#enum-ReorderPlaceholder",
       "ReorderStart": "values.md#enum-ReorderStart",
       "RevealOrigin": "values.md#enum-RevealOrigin",

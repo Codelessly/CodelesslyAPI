@@ -986,6 +986,14 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 | `bar` | A straight progress bar, or an arc like a dial. |
 | `arc` | A straight progress bar, or an arc like a dial. |
 
+<a id="enum-RefreshStyle"></a>
+### RefreshStyle
+
+| Word | Meaning |
+|---|---|
+| `disc` | A round disc dropping in over the list, its arc filling as the pull goes, then turning (Flutter's `RefreshIndicator`). |
+| `spinner` | Eight ticks drawn in the room the pull opens, one by one as the pull goes, then stepping round while it refreshes, with no disc (iOS's refresh control, `CupertinoSliverRefreshControl`). |
+
 <a id="enum-ReorderPlaceholder"></a>
 ### ReorderPlaceholder
 

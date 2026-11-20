@@ -479,6 +479,9 @@ const Map<String, String> _verdicts = {
   'node:listView/swipeActions': 'c:actions behind a swiped item',
   'node:listView/pullToRefresh': 'b:RefreshIndicator(onRefresh:)',
   'node:listView/stickToEnd': 'c:a chat list that follows new items at the end',
+  'node:listView/stickToStart': 'c:CSS overflow-anchor at the start of a scroller (Chrome suppresses anchoring at offset 0)',
+  'node:listView/jumpToLatest': 'c:a following list\'s own jump-to-latest button',
+  'node:listView/refreshStyle': 'b:RefreshIndicator or CupertinoSliverRefreshControl',
   // gridView
   'node:gridView/minCrossAxisExtent': 'c:CSS repeat(auto-fit, minmax(min, 1fr))',
   'node:gridView/shrinkWrapRows': 'c:rows as tall as their tallest item',

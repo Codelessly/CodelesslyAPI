@@ -5371,6 +5371,9 @@ class _Parser {
     // composer).
     final eachWords = <String, String>{};
     final eachEvents = <String>[];
+    // `each m in rows follow grow jumpToLatest=false`: the following list's
+    // own keys, as its events are.
+    final eachListKeys = <String, Object?>{};
     if (line.startsWith('each ')) {
       line = line.trimRight();
       final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
@@ -5388,7 +5391,7 @@ class _Parser {
         final list = line.substring(eachHead.end);
         final end = _expressionEnd(list);
         if (end < list.length) {
-          final others = <String>[], events = <String>[];
+          final others = <String>[], events = <String>[], keys = <String>[];
           for (final w in _topLevelWords(list.substring(end))) {
             final own = RegExp(r'^(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$').firstMatch(w);
             if (own != null) {
@@ -5396,23 +5399,33 @@ class _Parser {
               eachWords[eq < 0 ? w : w.substring(0, eq)] = eq < 0 ? '' : w.substring(eq + 1);
             } else if (RegExp(r'^on[A-Z][A-Za-z0-9]*=\{').hasMatch(w) && w.endsWith('}')) {
               events.add(w);
+            } else if (RegExp(r'^(jumpToLatest|stickToStart|refreshStyle)=[A-Za-z]+$').hasMatch(w)) {
+              keys.add(w);
             } else {
               others.add(w);
             }
           }
           // `each m in rows follow grow onScroll={…}`: a list that follows
           // its end is the list the each makes, a ListView of its own: its
-          // events (onScroll, onScrollEnd, onRefresh…) are that list's.
+          // events (onScroll, onScrollEnd, onRefresh…) are that list's, and
+          // so are the keys of how it holds its place (jumpToLatest=false,
+          // stickToStart=false, refreshStyle=spinner).
           if (eachWords.containsKey('follow')) {
             eachEvents.addAll(events);
+            for (final k in keys) {
+              final v = k.substring(k.indexOf('=') + 1);
+              eachListKeys[k.substring(0, k.indexOf('='))] = v == 'true' ? true : v == 'false' ? false : v;
+            }
           } else {
-            others.addAll(events);
+            others
+              ..addAll(events)
+              ..addAll(keys);
           }
           line = line.substring(0, eachHead.end + end).trimRight();
           if (others.isNotEmpty) {
             final shown = others.map((w) => w.length > 40 ? '${w.substring(0, 37)}…' : w).join(' ');
             _issue(column + eachHead.end + end,
-                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow; with follow, the list\'s events: onScroll={…}): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
+                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow; with follow, the list\'s events: onScroll={…}, and its jumpToLatest=, stickToStart=, refreshStyle=): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
           }
         }
       }
@@ -5573,6 +5586,7 @@ class _Parser {
                 : {
                     'scrollable': follows,
                     if (follows) 'stickToEnd': true,
+                    ...eachListKeys,
                     'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0,
                     if (reorderNow)
                       'reorder': {
