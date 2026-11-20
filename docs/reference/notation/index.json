@@ -1,5 +1,5 @@
 {
-  "version": "40.1.0",
+  "version": "40.2.0",
   "base": {
     "file": "NOTATION.md",
     "words": 4409
@@ -509,14 +509,14 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 5829
+      "words": 5929
     },
     {
       "topic": "events-an-event",
       "file": "events.md",
       "anchor": "events-an-event",
       "title": "An event",
-      "words": 1813
+      "words": 1913
     },
     {
       "topic": "events-actions",
@@ -581,7 +581,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3536
+      "words": 3568
     },
     {
       "topic": "animation-the-animate-words",
@@ -609,7 +609,7 @@
       "file": "animation.md",
       "anchor": "animation-behaviors",
       "title": "Keys any line takes here",
-      "words": 1780
+      "words": 1812
     },
     {
       "topic": "animation-events-and-actions",
@@ -638,28 +638,28 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8025
+      "words": 8869
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 155
+      "words": 472
     },
     {
       "topic": "charts-words",
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6673
+      "words": 7192
     },
     {
       "topic": "charts-records",
       "file": "charts.md",
       "anchor": "charts-records",
       "title": "Records",
-      "words": 1063
+      "words": 1071
     },
     {
       "topic": "charts-examples",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 16395
+      "words": 17082
     },
     {
       "topic": "values-writing-a-value",
@@ -939,14 +939,14 @@
       "file": "values.md",
       "anchor": "values-enums",
       "title": "Enums",
-      "words": 10681
+      "words": 10863
     },
     {
       "topic": "values-records",
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 4751
+      "words": 5256
     },
     {
       "topic": "values-examples",
@@ -1433,6 +1433,7 @@
       "GraphCrosshair": "values.md#type-GraphCrosshair",
       "GraphGuide": "values.md#type-GraphGuide",
       "GraphInteractions": "values.md#type-GraphInteractions",
+      "GraphLegend": "values.md#type-GraphLegend",
       "GraphMark": "values.md#type-GraphMark",
       "GraphPane": "values.md#type-GraphPane",
       "GraphSelection": "values.md#type-GraphSelection",

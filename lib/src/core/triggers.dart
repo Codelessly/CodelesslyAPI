@@ -21,10 +21,12 @@ enum TriggerType {
   /// out the double tap timeout before its single taps run.
   doubleTap,
 
-  /// A long press.
+  /// A long press: the platform's (500 ms), or held for [Trigger.holdMs]
+  /// when it is set; [Trigger.commitMs] and [Trigger.haptic] as for hold.
   longPress,
 
-  /// A press held for [Trigger.holdMs]; letting go early cancels it.
+  /// A press held for [Trigger.holdMs]; letting go early cancels it (before
+  /// [Trigger.commitMs], when set).
   hold,
 
   /// A right click, or a two-finger tap on a trackpad (`${result.x}`,
@@ -246,7 +248,21 @@ final class Trigger {
     this.visibleMs = 0,
     this.onceKey = '',
     this.event = '',
+    this.commitMs = 0,
+    this.haptic,
   });
+
+  /// [TriggerType.longPress] and [TriggerType.hold]: from this many ms
+  /// after the press the gesture is the node's: letting go or moving no
+  /// longer cancels it, a scroll can no longer take it, and the reaction
+  /// still runs at [holdMs]. 0: no such point (letting go before the end
+  /// cancels).
+  final int commitMs;
+
+  /// A pointer trigger's buzz as the gesture becomes sure: at [commitMs]
+  /// when it has one, else as the reaction runs (a tap, a long press). Null:
+  /// none.
+  final HapticKind? haptic;
 
   final TriggerType type;
 
@@ -270,7 +286,8 @@ final class Trigger {
   /// always.
   final String when;
 
-  /// [TriggerType.hold]: how long the press is held.
+  /// [TriggerType.hold], and [TriggerType.longPress] when set: how long the
+  /// press is held.
   final int holdMs;
 
   /// Viewport triggers: the visible share (0–1) that counts as in view.
@@ -333,7 +350,16 @@ final class Trigger {
       visibleMs: (readInt(m['visibleMs']) ?? 0).clamp(0, 600000),
       onceKey: readString(m['onceKey']) ?? '',
       event: readString(m['event']) ?? '',
+      commitMs: (readInt(m['commitMs']) ?? 0).clamp(0, 600000),
+      haptic: _haptic(m['haptic']),
     );
+  }
+
+  static HapticKind? _haptic(Object? v) {
+    for (final k in HapticKind.values) {
+      if (k.name == v) return k;
+    }
+    return null;
   }
 
   /// An interval: a number, a `${...}` expression, or a bare formula, read
@@ -368,6 +394,8 @@ final class Trigger {
         if (visibleMs != 0) 'visibleMs': visibleMs,
         if (onceKey.isNotEmpty) 'onceKey': onceKey,
         if (event.isNotEmpty) 'event': event,
+        if (commitMs != 0) 'commitMs': commitMs,
+        'haptic': ?haptic?.name,
       };
 
   @override

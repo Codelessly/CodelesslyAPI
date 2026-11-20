@@ -14,6 +14,7 @@ import 'dart:math' as math;
 
 import '../behaviors.dart' show WidgetState, diffPatch, mergePatch;
 import '../catalog.dart';
+import '../chart_palette.dart';
 import '../design_system.dart';
 import '../layout.dart' show SizeFit;
 import '../json.dart';
@@ -1452,36 +1453,14 @@ const _resizable = 'A pane is resized by a Splitter beside it, which keeps its w
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
 
 /// The colors of a chart's slices or series from the theme's [accent]: the
-/// accent, then lighter steps of it toward white, then darker ones (round 11:
-/// a donut drew in colors no theme had). A name that is no color value
-/// gives the fixed palette after it.
+/// accent, then colors of other hues as light and as strong as it
+/// ([chartPalette]), so two series are told apart and all of them belong to
+/// the theme. A name that is no color value gives the fixed palette after
+/// it.
 List<String> notationChartShades(String accent) {
-  final m = RegExp(r'^#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$').firstMatch(accent);
-  if (m == null) return [accent, ..._chartColors];
-  final rgb = [for (var i = 2; i <= 4; i++) int.parse(m[i]!, radix: 16)];
-  String mix(double t, int to) => '#FF${[for (final c in rgb) (c + (to - c) * t).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
-  return [accent, mix(0.35, 255), mix(0.6, 255), mix(0.78, 255), mix(0.3, 0), mix(0.5, 0), mix(0.88, 255)];
+  if (!RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(accent)) return [accent, ..._chartColors];
+  return chartPalette(accent)!;
 }
-
-/// A step of a chart's axis for values up to [max] in [lines] steps: 1, 2,
-/// 2.5 or 5 times a power of ten, the smallest that reaches [max].
-num _axisStep(num max, int lines) {
-  if (max <= 0) return 1;
-  final raw = max / lines;
-  var p = 1.0;
-  while (p * 10 <= raw) {
-    p *= 10;
-  }
-  while (p > raw) {
-    p /= 10;
-  }
-  for (final f in const [1, 2, 2.5, 5, 10]) {
-    if (p * f * lines >= max) return p * f;
-  }
-  return p * 10;
-}
-
-String _axisLabel(num v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1);
 
 /// The verbs an action is written with (design 13 section 3), beside
 /// `name=value` and `cond ? a : b`; every other action is its type and its
@@ -5648,7 +5627,7 @@ class _Parser {
     String? imageFit;
     Json? buttonLook;
     String? gaugeUnit;
-    List<({String label, Object? value, Object? color})>? donutKeys;
+    ({List<String> labels, bool filled, bool sized})? donutLabels;
     // Universal words (docs/design/21-universal-words.md) this line applied
     // where its type has no word of that name (recorded once it is read),
     // and what a stand-in left out (the rest of its words it honours).
@@ -6539,6 +6518,10 @@ class _Parser {
             props['reorder'] = {...before, 'keyboard': true, 'start': word == 'handle' ? 'handle' : before['start'] ?? 'longPress'};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
+          } else if (word == 'stacked' && type == 'barChart' && !component && written != type) {
+            // `BarChart stacked series=[…]`: its series stand on one another
+            // (read with its series, below).
+            props['stacked'] = true;
           } else if (!component && universalFlag(word, col)) {
             // A universal word (docs/design/21), or an Input's own (section 7).
           } else if (type == 'icon' && !component && !standIn && given == 0 && textPosition && RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(word)) {
@@ -7992,20 +7975,26 @@ class _Parser {
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
+      // A slice whose color is not written takes the theme's next series
+      // color where it is drawn (in light and in dark); beside written
+      // colors, the ones the accent gives fill in.
       final palette = notationChartShades(_accentValue);
       props['chartType'] = 'donut';
+      // Whether its slices have labels (a legend's keys).
+      var labeled = labels is List && labels.any((l) => '$l'.isNotEmpty);
       // Lists that follow the state (values={…}, labels={…}, colors={…}):
       // its rows are worked out from them, one for each value.
       final valuesOf = chartList('values', values);
       if (valuesOf != null && (values is! List || bind['props.labels'] is String || bind['props.colors'] is String)) {
         final labelsOf = chartList('labels', labels);
+        labeled = labelsOf != null;
         final colorsOf = chartList('colors', colors is List ? [for (final c in colors) _named(c, 'fill')] : colors);
         final shade = '(${jsonEncode(palette)})[i % ${palette.length}]';
         for (final k in const ['values', 'labels', 'colors']) {
           bind.remove('props.$k');
         }
         bind['props.data'] = '\${= map(range(length($valuesOf)), i => {"label": ${labelsOf == null ? '""' : 'text(coalesce(get($labelsOf, i), ""))'}, '
-            '"value": get($valuesOf, i), "color": ${colorsOf == null ? shade : 'coalesce(get($colorsOf, i), $shade)'}})}';
+            '"value": get($valuesOf, i)${colorsOf == null ? '' : ', "color": coalesce(get($colorsOf, i), $shade)'}})}';
       }
       if (values is List) {
         props['data'] = [
@@ -8013,26 +8002,45 @@ class _Parser {
             {
               'label': labels is List && i < labels.length ? '${labels[i]}' : '',
               'value': values[i],
-              'color': colors is List && i < colors.length ? _named(colors[i], 'fill') : palette[i % palette.length],
+              if (colors is List) 'color': i < colors.length ? _named(colors[i], 'fill') : palette[i % palette.length],
             },
         ];
       }
       props['series'] = [
         {'field': 'value', 'colorField': 'color'},
       ];
-      // On a page its labels are its legend, beside it (under it on a phone).
+      // Its labels are its legend, each with its share: the chart draws it
+      // beside the ring where its box has the room, else under it
+      // (`legend=false`: none). A donut in a Stack has the page's own
+      // things over it, and keeps its whole box.
       final legend = props.remove('legend');
-      if (options.width >= 700 && legend != false && values is List && labels is List && labels.any((l) => '$l'.isNotEmpty)) {
-        final data = (props['data']! as List).cast<Map>();
-        donutKeys = [
-          for (final d in data) (label: '${d['label']}', value: d['value'], color: d['color']),
-        ];
-      }
-      props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
+      final keyed = legend != false && labeled && parent?.type != 'stack';
+      if (legend == false) props['legend'] = false;
+      if (keyed) props['legend'] = true;
+      final pie = written.startsWith('Pie') && props['donut'] != true;
+      props.putIfAbsent('donutThickness', () => pie ? 0.5 : 0.22);
       props.remove('donut');
+      // The whole in a donut's hole, under it what it is a total of
+      // (`total="Visitors"`; `total=false` leaves the hole empty). A donut
+      // in a Stack has the page's own text over it.
+      final total = props.remove('total');
+      if (!pie && total != false && parent?.type != 'stack') props.putIfAbsent('centerLabel', () => total is String ? total : 'Total');
       props.addAll({'showYAxis': false, 'showXAxis': false, 'gridLines': 0});
-      layout.putIfAbsent('width', () => layout['height'] is num ? layout['height'] : 160);
-      layout.putIfAbsent('height', () => layout['width'] is num ? layout['width'] : 160);
+      // The slice under the pointer is selected and says its value; its
+      // legend and tooltip are written at the size of the other charts'.
+      props
+        ..putIfAbsent('selectOnHover', () => true)
+        ..putIfAbsent('tooltip', () => true)
+        ..putIfAbsent('axisFontSize', () => 11);
+      // With a legend it is as wide as what it is in, so the legend has
+      // room beside the ring; in a Row it is the square it was.
+      final beside = keyed && parent?.type != 'row' && !layout.containsKey('width');
+      if (keyed && labels is List) donutLabels = (labels: [for (final l in labels) '$l'], filled: beside, sized: !layout.containsKey('height'));
+      // With no size written it is 160 high, and 200 with a legend, which
+      // takes its room from the ring where it is drawn under it.
+      final side = keyed ? 200 : 160;
+      layout.putIfAbsent('width', () => beside ? <String, Object?>{'fill': 0} : (layout['height'] is num ? layout['height'] : side));
+      layout.putIfAbsent('height', () => layout['width'] is num ? layout['width'] : side);
     }
     // A line chart with named series, labels under it or a filled area is
     // the series chart: one data row per label, one field per series.
@@ -8040,9 +8048,49 @@ class _Parser {
     if (type == 'lineChart') props.remove('fill');
     // Its lists that follow the state (labels={…}, series={[…]}, values={…}
     // with labels or an area): the same chart, its rows worked out.
+    // A bar chart with series (bars side by side; `stacked`: one on
+    // another) is the series chart too.
+    final bars = type == 'barChart' && written != type;
+    final stacked = bars && props.remove('stacked') == true;
     final worked = type == 'lineChart' &&
-        written != 'Sparkline' &&
-        (bind['props.series'] is String || bind['props.labels'] is String || bind['props.values'] is String && (area || props['labels'] is List));
+            written != 'Sparkline' &&
+            (bind['props.series'] is String || bind['props.labels'] is String || bind['props.values'] is String && (area || props['labels'] is List)) ||
+        bars && bind['props.series'] is String;
+    // What a series of the chart is drawn as: a smooth line, an area that
+    // fades under it, a bar.
+    Json seriesKind(int k) => bars
+        ? {'kind': 'bar', if (stacked) 'stack': 's'}
+        : {'kind': area ? 'area' : 'line', 'curved': true, if (area) 'fade': true};
+    // How the notation's chart words look, each a key of the chart the
+    // word writes (the node itself draws none of it unasked), so what the
+    // line says of it wins: what is under the pointer is selected and says
+    // its value, the series have a legend, the scale is rounded out to its
+    // lines, the plot keeps a little room inside, the figures are 11 px;
+    // lines have a dot on each of up to 12 points and a line through the
+    // pointer's row; bars are rounded and at most 40 wide (the theme's
+    // look for bars first).
+    void seriesLook() {
+      props
+        ..putIfAbsent('selectOnHover', () => true)
+        ..putIfAbsent('tooltip', () => true)
+        ..putIfAbsent('legend', () => true)
+        ..putIfAbsent('roundScale', () => true)
+        ..putIfAbsent('plotInset', () => 6)
+        ..putIfAbsent('axisFontSize', () => 11);
+      if (!bars) {
+        props
+          ..putIfAbsent('dots', () => 12)
+          ..putIfAbsent('cursorLine', () => true);
+        return;
+      }
+      for (final e in options.barChart.entries) {
+        if (const {'barRadius', 'maxBarWidth', 'barGap', 'gridColor', 'baselineColor'}.contains(e.key)) props.putIfAbsent(e.key, () => e.value);
+      }
+      props
+        ..putIfAbsent('barRadius', () => 4)
+        ..putIfAbsent('maxBarWidth', () => 40);
+    }
+
     if (worked) {
       final labelsOf = chartList('labels', props.remove('labels'));
       final plainOf = chartList('values', props.remove('values'));
@@ -8064,37 +8112,39 @@ class _Parser {
           if (s['values'] ?? s['data'] case final List v) lines.add((name: jsonEncode('${s['name'] ?? s['label'] ?? ''}'), values: jsonEncode(v), color: s['color']));
         }
       } else if (plainOf != null) {
-        lines.add((name: '""', values: plainOf, color: props.remove('lineColor')));
+        lines.add((name: '""', values: plainOf, color: props.remove(bars ? 'color' : 'lineColor')));
       }
       for (final k in const ['values', 'labels', 'series']) {
         bind.remove('props.$k');
       }
       props.remove('series');
       if (read && lines.isNotEmpty) {
-        final palette = notationChartShades(_accentValue);
-        props.putIfAbsent('fitMinY', () => true);
+        if (!bars) props.putIfAbsent('fitMinY', () => true);
         type = 'chart';
+        seriesLook();
         bind['props.data'] = '\${= map(range(length(${labelsOf ?? lines.first.values})), i => {"label": ${labelsOf == null ? '""' : 'text(coalesce(get($labelsOf, i), ""))'}, '
             '${[for (var k = 0; k < lines.length; k++) '"s$k": get(${lines[k].values}, i)'].join(', ')}})}';
         props
           ..remove('lineColor')
           ..addAll({
-            'chartType': 'line',
+            'chartType': bars ? 'bar' : 'line',
             'series': [
               for (var k = 0; k < lines.length; k++)
                 {
                   'field': 's$k',
                   if (_literal(lines[k].name) case (true, final String name)) ...{if (name.isNotEmpty) 'name': name} else 'name': '\${= ${lines[k].name}}',
-                  'kind': area ? 'area' : 'line',
-                  'color': lines[k].color is String ? _named(lines[k].color, 'fill') : palette[k % palette.length],
-                  'curved': true,
+                  ...seriesKind(k),
+                  // A series that writes no color takes the theme's next
+                  // series color where it is drawn (in light and in dark).
+                  if (lines[k].color is String) 'color': _named(lines[k].color, 'fill'),
                 },
             ],
           });
         layout.putIfAbsent('height', () => 160);
       }
     }
-    if (type == 'lineChart' && written != 'Sparkline' && (props['series'] is List || area || props['labels'] is List && props['values'] is List)) {
+    if (type == 'lineChart' && written != 'Sparkline' && (props['series'] is List || area || props['labels'] is List && props['values'] is List) ||
+        bars && type == 'barChart' && props['series'] is List) {
       final labels = props.remove('labels');
       final written0 = props.remove('series'), plain = props.remove('values');
       final all = [
@@ -8102,8 +8152,8 @@ class _Parser {
           for (final s in written0.map(readMap).nonNulls)
             if (s['values'] ?? s['data'] case final List v) (name: '${s['name'] ?? s['label'] ?? ''}', values: v, color: s['color']),
         // `series=[3,5,4]`: one line's values, as `values=` is.
-        if (written0 is List && written0.isNotEmpty && written0.every((v) => v is num)) (name: '', values: written0, color: props.remove('lineColor')),
-        if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
+        if (written0 is List && written0.isNotEmpty && written0.every((v) => v is num)) (name: '', values: written0, color: props.remove(bars ? 'color' : 'lineColor')),
+        if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove(bars ? 'color' : 'lineColor')),
       ];
       // A series that gives no values draws no line: said, not dropped.
       if (all.isEmpty && written0 is List && !_quiet && !_mediaLine) {
@@ -8111,15 +8161,15 @@ class _Parser {
             'A $written\x27s series give its lines\x27 values: series=[{"name":"Visits","values":[3,5,4]}] (one for each line), or values=[3,5,4] for one line, with labels=[â€¦] under them. This series= gives none, so the chart draws no line.');
       }
       if (all.isNotEmpty) {
-        final palette = notationChartShades(_accentValue);
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
         // Its axis fitted to the data (from 0, a line of 812 to 851 was flat).
-        props.putIfAbsent('fitMinY', () => true);
+        if (!bars) props.putIfAbsent('fitMinY', () => true);
         type = 'chart';
+        seriesLook();
         props
           ..remove('lineColor')
           ..addAll({
-            'chartType': 'line',
+            'chartType': bars ? 'bar' : 'line',
             'data': [
               for (var i = 0; i < rows; i++)
                 {
@@ -8133,9 +8183,8 @@ class _Parser {
                 {
                   'field': 's$k',
                   if (all[k].name.isNotEmpty) 'name': all[k].name,
-                  'kind': area ? 'area' : 'line',
-                  'color': all[k].color is String ? _named(all[k].color, 'fill') : palette[k % palette.length],
-                  'curved': true,
+                  ...seriesKind(k),
+                  if (all[k].color is String) 'color': _named(all[k].color, 'fill'),
                 },
             ],
           });
@@ -8175,8 +8224,8 @@ class _Parser {
         for (final e in options.barChart.entries) {
           props.putIfAbsent(e.key, () => e.value);
         }
-        // With no look of the theme's: bars apart, rounded, over a light
-        // axis with its figures (round 11: bars touched, with no axis).
+        // With no look of the theme's: bars apart and rounded, over light
+        // lines.
         if (options.barChart.isEmpty) {
           props
             ..putIfAbsent('barRadius', () => 4)
@@ -8184,30 +8233,42 @@ class _Parser {
             ..putIfAbsent('barGap', () => 8)
             ..putIfAbsent('gridColor', () => options.line)
             ..putIfAbsent('baselineColor', () => options.line);
-          if (props['values'] case final List values when values.isNotEmpty && values.every((v) => v is num) && !props.containsKey('max') && !props.containsKey('gridLabels')) {
-            final top = values.cast<num>().reduce((a, b) => a > b ? a : b);
-            final lines = props['gridLines'] is int ? props['gridLines'] as int : 3;
-            if (top > 0 && lines > 0) {
-              final step = _axisStep(top, lines);
-              props
-                ..['max'] = step * lines
-                ..['gridLabels'] = [for (var i = 0; i <= lines; i++) i == lines ? '' : _axisLabel(step * i)]
-                ..putIfAbsent('gridLabelsLeft', () => true);
-            }
-          }
         }
+        // Drawn as a chart of several series is: round lines over its
+        // largest value, each with its figure (the chart chooses them, so
+        // they follow values that change), and its labels at the size and
+        // in the family of the page's other charts. A top or labels of its
+        // own are the chart's.
+        if (!props.containsKey('max') && !props.containsKey('gridLabels')) {
+          props
+            ..putIfAbsent('gridValues', () => true)
+            ..putIfAbsent('gridLabelsLeft', () => true)
+            ..putIfAbsent('gridLines', () => 4)
+            ..putIfAbsent('gridLabelWidth', () => 44);
+        }
+        props
+          ..putIfAbsent('labelFontSize', () => 11)
+          ..putIfAbsent('labelFontFamily', () => '')
+          ..putIfAbsent('labelAreaHeight', () => 22)
+          // The bar under the pointer says its value.
+          ..putIfAbsent('tooltip', () => true);
+      }
+      // The notation's line is smooth, and has a fill under it only as an
+      // AreaChart (the node's own soft fill is left out).
+      if (type == 'lineChart' && !asWritten && written != 'Sparkline') {
+        props
+          ..putIfAbsent('smooth', () => true)
+          // The point under the pointer is selected and says its value, a
+          // line up the plot through it; round lines with their figures.
+          ..putIfAbsent('scrubEnabled', () => true)
+          ..putIfAbsent('cursorLine', () => true)
+          ..putIfAbsent('gridValues', () => true);
+        if (!area) props.putIfAbsent('areaTopColor', () => '#00000000');
       }
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
-        // Its axis fitted to the data, not from 0.
-        if (values.isNotEmpty && values.every((v) => v is num) && !props.containsKey('yMin')) {
-          final nums = values.cast<num>();
-          final lo = nums.reduce((a, b) => a < b ? a : b), hi = nums.reduce((a, b) => a > b ? a : b);
-          if (lo > 0 && hi > lo) {
-            final step = _axisStep(hi - lo, 4);
-            props['yMin'] = ((lo - (hi - lo) * 0.1) / step).floor() * step;
-          }
-        }
+        // (Its axis is the chart's to fit to its values: the word writes no
+        // bound worked out from them.)
         props.remove('labels');
         props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
         props['xField'] = 'x';
@@ -9367,7 +9428,7 @@ class _Parser {
         _slotOf[child] = slot;
       }
     }
-    if (donutKeys != null) _donutLegend(id, out, donutKeys, inRow: parent?.type == 'row');
+    if (donutLabels != null) _donuts[id] = donutLabels;
     if (avatarName != null) {
       // "Maya Reyes" is MR; a name read from state (`Avatar "{item.name}"`)
       // is its initials too, worked out as it shows (its first two words'
@@ -9545,34 +9606,33 @@ class _Parser {
     }
   }
 
-  /// The donuts given a legend: each as it was written, and its labels.
-  final _donuts = <String, ({Json chart, List<String> labels})>{};
+  /// The donuts that draw a legend: each one's labels, and whether it was
+  /// made as wide as what it is in for it, and given its height.
+  final _donuts = <String, ({List<String> labels, bool filled, bool sized})>{};
 
   /// A page that writes a donut's legend itself (its labels are texts
-  /// elsewhere on the page) keeps its own: the chart is as it was written.
+  /// elsewhere on the page) keeps its own: the chart draws none, and is the
+  /// square it was.
   void _ownLegends() {
     for (final e in _donuts.entries) {
-      final id = e.key;
-      final own = nodes.keys.where((k) => k != id && k.startsWith(id) && _under(k, id)).toSet();
+      final id = e.key, node = nodes[id];
+      if (node == null) continue;
       final labels = {for (final l in e.value.labels) if (l.trim().isNotEmpty) l.trim().toLowerCase()};
       final written = <String>{};
       for (final n in nodes.entries) {
-        if (own.contains(n.key) || n.value['type'] != 'text') continue;
+        if (n.value['type'] != 'text') continue;
         final text = (n.value['props'] as Map?)?['text'];
         if (text is String && labels.contains(text.trim().toLowerCase())) written.add(text.trim().toLowerCase());
       }
       if (written.length < (labels.length < 2 ? labels.length : 2) || written.isEmpty) continue;
-      own
-        ..forEach(nodes.remove)
-        ..forEach(_parentOf.remove);
-      nodes[id]!
-        ..clear()
-        ..addAll(e.value.chart);
-      if (_canvas) {
-        ops
-          ..add({'op': 'remove', 'ids': ['${id}Chart', '${id}Legend']})
-          ..add({'op': 'set', 'id': id, 'node': {...nodes[id]!}});
+      node['props'] = {...?readMap(node['props']), 'legend': false};
+      if (e.value.filled) {
+        final layout = {...?readMap(node['layout'])};
+        if (e.value.sized) layout['height'] = 160;
+        layout['width'] = layout['height'] is num ? layout['height'] : 160;
+        node['layout'] = layout;
       }
+      if (_canvas) ops.add({'op': 'set', 'id': id, 'node': {...node}});
     }
     _donuts.clear();
   }
@@ -9697,86 +9757,6 @@ class _Parser {
       taken.add({for (final e in r.entries) if (e.key != 'patch') e.key: e.value, 'patch': keep});
     }
     if (taken.isNotEmpty) out['media'] = [...taken, ...own];
-  }
-
-  bool _under(String id, String ancestor) {
-    for (String? at = _parentOf[id]; at != null; at = _parentOf[at]) {
-      if (at == ancestor) return true;
-    }
-    return false;
-  }
-
-  /// A donut with its legend: the line's node becomes a row that wraps, of
-  /// the chart and a line per share (its color, its label, its part of the
-  /// whole). Where the two do not fit side by side the legend goes under.
-  void _donutLegend(String id, Json out, List<({String label, Object? value, Object? color})> keys, {required bool inRow}) {
-    final chart = <String, Object?>{...out};
-    _donuts[id] = (chart: {...out}, labels: [for (final k in keys) k.label]);
-    final layout = (chart['layout']! as Map).cast<String, Object?>();
-    final flex = layout.remove('flex');
-    final side = switch ((layout['width'], layout['height'])) { (final num w, _) => w, (_, final num h) => h, _ => 160 };
-    chart['layout'] = {...layout, 'width': side, 'height': layout['height'] is num ? layout['height'] : side};
-    final visible = (chart['bind'] as Map?)?['visible'];
-    if (visible != null) chart['bind'] = {...(chart['bind']! as Map).cast<String, Object?>()}..remove('visible');
-    out
-      ..clear()
-      ..addAll({
-        'type': 'row',
-        'layout': {'width': flex != null || !inRow ? {'fill': 0} : {'hug': 0}, 'height': {'hug': 0}, 'flex': ?flex},
-        'props': {'spacing': 24, 'runSpacing': 16, 'wrap': true, 'crossAxisAlignment': 'center'},
-        if (visible != null) 'bind': {'visible': visible},
-        'children': <Object?>['${id}Chart', '${id}Legend'],
-      });
-    Object? style(String name) => switch (options.textStyles[name] ?? options.textStyles['body']) { final Map m => _copy(m.cast<String, Object?>()), final other => other };
-    num total = 0;
-    for (final k in keys) {
-      total += k.value is num ? k.value! as num : 0;
-    }
-    nodes['${id}Chart'] = chart;
-    nodes['${id}Legend'] = {
-      'type': 'column',
-      'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'basis': 160, 'flex': 1, 'constraints': {'maxWidth': 320}},
-      'props': {'spacing': 10, 'crossAxisAlignment': 'stretch'},
-      'children': <Object?>[for (var i = 0; i < keys.length; i++) '${id}Key$i'],
-    };
-    _parentOf['${id}Chart'] = id;
-    _parentOf['${id}Legend'] = id;
-    for (var i = 0; i < keys.length; i++) {
-      final k = keys[i];
-      final share = total > 0 && k.value is num ? '${((k.value! as num) / total * 100).round()}%' : null;
-      nodes['${id}Key$i'] = {
-        'type': 'row',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'spacing': 10, 'crossAxisAlignment': 'center'},
-        'children': <Object?>['${id}Dot$i', '${id}Label$i', if (share != null) '${id}Share$i'],
-      };
-      nodes['${id}Dot$i'] = {
-        'type': 'column',
-        'layout': {'width': 10, 'height': 10},
-        'decoration': {
-          'fills': [
-            {'color': k.color},
-          ],
-          'radius': 5,
-        },
-      };
-      nodes['${id}Label$i'] = {
-        'type': 'text',
-        'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'flex': 1},
-        'props': {'text': k.label, 'style': ?style('muted')},
-      };
-      if (share != null) {
-        nodes['${id}Share$i'] = {
-          'type': 'text',
-          'layout': {'width': {'hug': 0}, 'height': {'hug': 0}},
-          'props': {'text': share, 'style': ?style('strong')},
-        };
-      }
-      _parentOf['${id}Key$i'] = '${id}Legend';
-      for (final part in ['Dot', 'Label', if (share != null) 'Share']) {
-        _parentOf['${id}$part$i'] = '${id}Key$i';
-      }
-    }
   }
 
   void _strings(List<String> texts, String type, String id, Json out) {

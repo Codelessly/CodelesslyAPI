@@ -138,13 +138,17 @@ final class ChartSeries extends PropRecord {
   static const fillToDef = PropDef<String?>('fillTo', IndicatorCodecs.optionalString, null);
   static const fillOpacityDef = PropDef<double>('fillOpacity', DoubleCodec(min: 0, max: 1), 0.25);
 
+  /// Area series: the fill is strongest under the line and fades to
+  /// nothing at the foot of the plot.
+  static const fadeDef = PropDef<bool>('fade', Codecs.bool, false);
+
   /// Line and area series: its [name] and last value written at the end of
   /// its line, in its color (labels of different series are kept apart).
   static const endLabelDef = PropDef<bool>('endLabel', Codecs.bool, false);
 
   static const spec = WidgetSpec('ChartSeries', props: [
     fieldDef, nameDef, kindDef, colorDef, colorFieldDef, stackDef, dashedDef, strokeWidthDef, endDotDef, //
-    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef, endLabelDef,
+    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef, endLabelDef, fadeDef,
   ]);
 
   @override
@@ -158,6 +162,7 @@ final class ChartSeries extends PropRecord {
   bool get dashed => get(dashedDef);
   double get strokeWidth => get(strokeWidthDef);
   bool get endDot => get(endDotDef);
+  bool get fade => get(fadeDef);
   Color? get endDotHaloColor => get(endDotHaloColorDef);
   bool get curved => get(curvedDef);
   String? get fillTo => get(fillToDef);
@@ -426,6 +431,12 @@ final class GraphXAxis extends PropRecord {
   /// `step` (every n-th row) or `calendar` (the rows that start an hour, a
   /// day, a month, a year).
   static const ticksDef = PropDef<String>('ticks', _gs, 'step');
+
+  /// Whether the ticks' labels are written. Labels that would touch are
+  /// thinned to every second, third… from the first, evenly apart: the
+  /// step ends on the last label where one near it does, else the last is
+  /// left out. Long labels are first cut with an ellipsis to the room
+  /// between two, where thinning alone would write fewer than half.
   static const labelsDef = PropDef<bool>('labels', _gb, true);
 
   /// Whether a line is drawn up each pane at every tick.
@@ -461,10 +472,20 @@ final class GraphXAxis extends PropRecord {
   /// Named stretches of the scale: `{id, from, to, group}`.
   static const bandsDef = PropDef<List<Json>>('bands', Codecs.jsonList, []);
 
+  /// Pixels kept clear at each end of a fitted view (`fit`): the first and
+  /// the last row stand this far inside the plot, so a dot or a line's end
+  /// there is whole.
+  static const insetDef = PropDef<double>('inset', _gp, 0);
+
+  /// The widest a bar or a candle is drawn, in the middle of its place
+  /// (bars side by side: each of them); its share of the place when not
+  /// given, however wide.
+  static const maxBarWidthDef = PropDef<double?>('maxBarWidth', _gn, null);
+
   static const spec = WidgetSpec('GraphXAxis', props: [
     scaleDef, fieldDef, minDef, maxDef, labelDef, formatDef, fitDef, slotsDef, tickValuesDef, tickEveryDef, ticksDef, //
     labelsDef, gridDef, axisHeightDef, barSpacingDef, minBarSpacingDef, maxBarSpacingDef, rightOffsetDef, followDef,
-    clampDef, overscrollDef, moreHistoryDef, historyThresholdDef, morphDef, bandsDef,
+    clampDef, overscrollDef, moreHistoryDef, historyThresholdDef, morphDef, bandsDef, insetDef, maxBarWidthDef,
   ]);
 
   @override
@@ -515,9 +536,13 @@ final class GraphYAxis extends PropRecord {
   /// `{value, label}`.
   static const tickValuesDef = PropDef<Object?>('tickValues', Codecs.any, null);
 
+  /// A fitted domain is rounded out to the ticks, so the plot starts and
+  /// ends on a labeled line (`margins` are then not added).
+  static const niceDef = PropDef<bool>('nice', _gb, false);
+
   static const spec = WidgetSpec('GraphYAxis', props: [
     domainDef, minDef, maxDef, marginsDef, includeDef, modeDef, sideDef, widthDef, labelsDef, decimalsDef, prefixDef, //
-    suffixDef, ticksDef, tickValuesDef,
+    suffixDef, ticksDef, tickValuesDef, niceDef,
   ]);
 
   @override
@@ -544,14 +569,20 @@ final class GraphMark extends PropRecord {
   static const lowDef = PropDef<String>('low', _gs, '');
   static const closeDef = PropDef<String>('close', _gs, '');
 
-  /// What a tooltip calls the mark; its field when empty.
+  /// What a tooltip and the legend call the mark; its field when empty (a
+  /// mark with no name has no key in the legend).
   static const nameDef = PropDef<String>('name', _gs, '');
+
+  /// Its color; when not given, the next of the style's `palette` (the
+  /// first field drawn takes the first color, and every mark of one field
+  /// the same).
   static const colorDef = PropDef<Color?>('color', _gc, null);
 
   /// A row field holding the row's own color.
   static const colorFieldDef = PropDef<String>('colorField', _gs, '');
 
-  /// Colors row by row (a slice's, a bar's), where the row gives none.
+  /// Colors row by row (a slice's, a bar's), where the row gives none. An
+  /// arc that gives neither these nor a `color` takes the style's `palette`.
   static const colorsDef = PropDef<List<String>>('colors', Codecs.strings, []);
   static const upColorDef = PropDef<Color?>('upColor', _gc, null);
   static const downColorDef = PropDef<Color?>('downColor', _gc, null);
@@ -568,7 +599,13 @@ final class GraphMark extends PropRecord {
 
   /// A line's width.
   static const widthDef = PropDef<double>('width', _gp, 1.5);
+
+  /// A line or an area is drawn as a smooth curve through its values,
+  /// which never rises above or dips below the values it joins.
   static const curvedDef = PropDef<bool>('curved', _gb, false);
+
+  /// A line: a dot of this radius on every row (0: none).
+  static const dotsDef = PropDef<double>('dots', _gp, 0);
 
   /// An area: its fill's opacity, whether it fades to nothing at the
   /// bottom, or the color it runs to there.
@@ -597,10 +634,18 @@ final class GraphMark extends PropRecord {
   static const gapDef = PropDef<double>('gap', _gp, 0);
   static const startAngleDef = PropDef<double>('startAngle', _gd, 0);
 
+  /// An arc with a hole: what is written in it. `total`: the sum of its
+  /// values, and while a slice is selected that slice's value. Empty:
+  /// nothing. `centerLabel` is written small under the figure (while a
+  /// slice is selected, its label).
+  static const centerDef = PropDef<String>('center', _gs, '');
+  static const centerLabelDef = PropDef<String>('centerLabel', _gs, '');
+
   static const spec = WidgetSpec('GraphMark', props: [
     typeDef, yDef, openDef, highDef, lowDef, closeDef, nameDef, colorDef, colorFieldDef, colorsDef, upColorDef, //
     downColorDef, stackDef, radiusDef, labelsDef, widthDef, curvedDef, fillOpacityDef, fadeDef, fillToDef, endDotDef,
-    endDotColorDef, pulseDef, overlayDef, segmentByDef, dimInactiveDef, innerDef, gapDef, startAngleDef,
+    endDotColorDef, pulseDef, overlayDef, segmentByDef, dimInactiveDef, innerDef, gapDef, startAngleDef, dotsDef,
+    centerDef, centerLabelDef,
   ]);
 
   @override
@@ -730,6 +775,9 @@ final class GraphSelection extends PropRecord {
 
   /// The row field of the tooltip's first line; the x label when empty.
   static const titleDef = PropDef<String>('title', _gs, '');
+
+  /// The tooltip's ground and text; the style's `tooltip` and
+  /// `tooltipText` when not given.
   static const tooltipFillDef = PropDef<Color?>('tooltipFill', _gc, null);
   static const tooltipTextDef = PropDef<Color?>('tooltipText', _gc, null);
 
@@ -846,9 +894,25 @@ final class GraphStyle extends PropRecord {
   /// Room above the panes.
   static const topInsetDef = PropDef<double>('topInset', _gp, 0);
 
+  /// A figure written large (the one in a donut's hole).
+  static const inkDef = PropDef<Color?>('ink', _gc, null);
+
+  /// A tooltip: its ground, its text and the line round it. When not
+  /// given: the surface the graph is on, that surface's ink, and a
+  /// hairline of it.
+  static const tooltipDef = PropDef<Color?>('tooltip', _gc, null);
+  static const tooltipTextDef = PropDef<Color?>('tooltipText', _gc, null);
+  static const tooltipBorderDef = PropDef<Color?>('tooltipBorder', _gc, null);
+
+  /// The colors of the marks that give none, in turn, and of an arc's
+  /// slices. When not given: the theme's series colors (`chart1`,
+  /// `chart2`…) where it names them, else its primary followed by colors of
+  /// other hues as light and as strong as it.
+  static const paletteDef = PropDef<List<String>>('palette', Codecs.strings, []);
+
   static const spec = WidgetSpec('GraphStyle', props: [
     backgroundDef, gridDef, textDef, crosshairDef, tagDef, tagTextDef, separatorDef, fontSizeDef, fontFamilyDef, //
-    topInsetDef,
+    topInsetDef, inkDef, paletteDef, tooltipDef, tooltipTextDef, tooltipBorderDef,
   ]);
 
   @override
@@ -856,4 +920,35 @@ final class GraphStyle extends PropRecord {
   static const empty = GraphStyle._(Props.empty);
   static GraphStyle fromJson(Object? json) => GraphStyle._(Props.fromJson(spec, json));
   static const codec = ValueCodec<GraphStyle>(fromJson, _recordOut, PropType.record('GraphStyle', spec));
+}
+
+/// A graph's legend: a key for each named mark (a dot in its color and its
+/// name), or in a polar pane for each slice (its color, its label and its
+/// share of the whole).
+final class GraphLegend extends PropRecord {
+  const GraphLegend._(super.props);
+
+  /// `none`. `auto`: drawn when there is more than one thing to tell apart
+  /// and there is room: under a plot with two or more named marks; beside
+  /// labeled slices in a graph wide enough that the ring keeps at least
+  /// three quarters of its height (slices in a narrower graph have none).
+  /// `always`: whenever there is a key to draw (slices in a narrower
+  /// graph: under them).
+  static const showDef = PropDef<String>('show', _gs, 'none');
+
+  /// `bottom` or `top` (a line of keys in the middle, wrapped) or `right`
+  /// (a list). `auto`: under a plot; beside slices where the list fits
+  /// there, else under them.
+  static const positionDef = PropDef<String>('position', _gs, 'auto');
+
+  /// Each slice's share is written after its label.
+  static const valuesDef = PropDef<bool>('values', _gb, true);
+
+  static const spec = WidgetSpec('GraphLegend', props: [showDef, positionDef, valuesDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  static const empty = GraphLegend._(Props.empty);
+  static GraphLegend fromJson(Object? json) => GraphLegend._(Props.fromJson(spec, json));
+  static const codec = ValueCodec<GraphLegend>(fromJson, _recordOut, PropType.record('GraphLegend', spec));
 }
