@@ -648,7 +648,7 @@ String _openPrompt(String taught, {bool define = true}) {
     // is a part, not a function: one written as a function is refused).
     if (l.startsWith('- state name=value on its own line (top level) declares')) {
       out.add(
-          '$l state total:decimal={price*qty} is worked out and kept up to date, always with its type (:integer, :text, :boolean, :list); with parameters it is your own function, not named as a listed one: state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).');
+          '$l state total={price*qty} is worked out and kept up to date; with parameters and its type (:boolean, :text, :integer, :decimal, :list) it is your own function, not named as a listed one: state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).');
       continue;
     }
     if (l.startsWith('- Beyond these words:') ||
@@ -691,7 +691,7 @@ String _openPrompt(String taught, {bool define = true}) {
         // The keys writers guess: a Select's value, a chart's lists.
         .replaceFirst('Select and SegmentedButton take items=["A","B"] (', 'Select and SegmentedButton take items=["A","B"] and keep the chosen one in @name (')
         .replaceFirst(' On a page a Donut draws its labels as a legend beside it (under it where there is no room), each with its share: write no legend of your own (legend=false leaves it out).',
-            ' A Donut draws its own legend: write none (legend=false leaves it out). A chart follows the state through values={map(rows,r=>r.n)} (a BarChart\'s labels={…} too); a LineChart\'s labels and series and a Donut\'s lists are written out.')
+            ' A Donut written out draws its own legend: write none (legend=false leaves it out). A chart\'s lists follow the state in braces: values={map(rows,r=>r.n)} labels={map(rows,r=>r.day)}, series={[{"name":"A","values":map(rows,r=>r.a)}]}.')
         // Said twice, or what a writer works out.
         .replaceFirst(' "{page+1} of {length(items)}" says which page it is.', '')
         .replaceFirst(' (Gauge {speed} follows a variable)', '')

@@ -746,7 +746,7 @@ ${blocks.join('\n')}
         'Icon "{c.icon}", never Icon c.icon',
         'Text "{\'if (x) { y }\'}"',
         'take items=["A","B"] and keep the chosen one in @name',
-        'A chart follows the state through values={map(rows,r=>r.n)}',
+        'A chart\'s lists follow the state in braces: values={map(rows,r=>r.n)} labels={map(rows,r=>r.day)}, series={[{"name":"A","values":map(rows,r=>r.a)}]}.',
       ]) {
         expect(page, contains(said), reason: said);
         expect(taught(1280), isNot(contains(said)), reason: said);
@@ -779,7 +779,7 @@ state kind="All"
 state seg="A"
 state price=2.5
 state qty=2
-state total:decimal={price*qty}
+state total={price*qty}
 state list=[30,60,45]
 state rows=[{"n":3,"d":"Mon"},{"n":5,"d":"Tue"}]
 state cards=[{"name":"Lamb","kind":"Meat","icon":"restaurant"},{"name":"Leek","kind":"Veg","icon":"eco"}]
@@ -801,7 +801,9 @@ Page
         repeat count={length(list)}
           rect rect=[{index*10},0,6,{list[index]}] fill=#80000000
     BarChart values={map(rows,r=>r.n)} labels={map(rows,r=>r.d)} h=120
-    LineChart values={map(rows,r=>r.n)} h=120
+    LineChart values={map(rows,r=>r.n)} labels={map(rows,r=>r.d)} h=120
+    LineChart labels={map(rows,r=>r.d)} series={[{"name":"A","values":map(rows,r=>r.n)}]} h=120
+    Donut values={map(rows,r=>r.n)} labels={map(rows,r=>r.d)}
     each c in filter(cards,c=>fits(c))
       Row gap=8
         Icon "{c.icon}"
