@@ -4,6 +4,7 @@
 // of the app's own that sends, a frame with a spacer in it, and a place or an
 // effect with a field nothing reads (said, not dropped in silence).
 import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api/notation.dart' show printNotation;
 import 'package:test/test.dart';
 
 NotationResult _expand(String text) =>
@@ -87,6 +88,66 @@ void main() {
     test('not when every field is one', () {
       final r = _expand('Stack w=200 h=80\n  Box w=20 h=20 x={"align":0} y={"end":8} effects=[{"type":"dropShadow","blurRadius":4,"offset":[0,2]}]');
       expect(r.issues, isEmpty);
+    });
+  });
+
+  group('insets on a child of a Stack', () {
+    test('right=16 bottom=16 place a floating button from the Stack\'s end edges', () {
+      // `FloatingActionButton "edit" right=16 bottom=16` was "has no right
+      // (did you mean height?)" and drew at the top left.
+      final r = _expand('Stack w=fill h=fill\n  Column w=fill h=fill\n    Text "Feed"\n  FloatingActionButton#fab "edit" right=16 bottom=16');
+      expect(r.issues, isEmpty);
+      final layout = (_node(r, 'fab')['layout']! as Map).cast<String, Object?>();
+      expect(layout['x'], {'end': 16});
+      expect(layout['y'], {'end': 16});
+      final both = _expand('Stack w=200 h=80\n  Box#b h=20 left=8 right=8 top=4');
+      final l = (_node(both, 'b')['layout']! as Map).cast<String, Object?>();
+      expect(l['x'], {'start': 8, 'end': 8});
+      expect(l['y'], {'start': 4});
+    });
+
+    test('outside a Stack an inset is said with how a node is placed, not as a near key', () {
+      final r = _expand('Column\n  FloatingActionButton#fab "edit" right=16');
+      final said = r.issues.map((i) => i.message).join('\n');
+      expect(said, contains('x={"end":16}'));
+      expect(said, isNot(contains('did you mean height')));
+    });
+  });
+
+  group('a field in a framed row of icons', () {
+    test('is drawn bare: the pill is its box and its ground', () {
+      // `Row radius=8 fill=… { Icon search; TextField }` drew a white field
+      // inset in the grey pill.
+      final r = _expand('Column\n  Row#pill w=fill h=36 radius=8 fill=#FFE9EEF4 gap=6 middle\n    Icon "search" size=22\n    TextField#q hint="Search" grow');
+      final d = (_props(r, 'q')['decoration']! as Map).cast<String, Object?>();
+      expect(d['filled'], false);
+      expect((d['border']! as Map)['type'], 'none');
+    });
+
+    test('a print keeps a field drawn in its own box there in its box', () {
+      final doc = {
+        'schema': 3,
+        'roots': ['col'],
+        'nodes': {
+          'col': {'type': 'column', 'children': ['pill']},
+          'pill': {
+            'type': 'row',
+            'layout': {'width': {'fill': 0}, 'height': 36},
+            'decoration': {'radius': 8, 'fills': [{'color': '#FFE9EEF4'}]},
+            'children': ['icon', 'q'],
+          },
+          'icon': {'type': 'icon', 'props': {'icon': 'search', 'size': 22}},
+          'q': {'type': 'textField', 'layout': {'flex': 1}, 'props': {'decoration': {'hintText': 'Search'}}},
+        },
+      };
+      final printed = Catalog.run(standardCatalog, () => printNotation(doc, catalog: standardCatalog));
+      expect(printed, contains('decoration.filled=true'));
+      final back = _expand(printed);
+      final q = back.document['nodes'] as Map;
+      final field = q.values.cast<Map>().firstWhere((n) => n['type'] == 'textField');
+      final d = ((field['props'] as Map)['decoration'] as Map).cast<String, Object?>();
+      expect(d['border'], isNull);
+      expect(d['filled'], isNot(false), reason: printed);
     });
   });
 }

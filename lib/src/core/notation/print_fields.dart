@@ -1039,6 +1039,13 @@ final class _NodeLine {
       doneProps.add('obscureText');
     }
     final d = readMap(props['decoration']);
+    // In a frame (a search pill, a composer's row) the expander draws a
+    // field bare unless its line says its box: one drawn in a box of its own
+    // there says so, and reads back as it is.
+    if (type == 'textField' && (d == null || (!d.containsKey('border') && !d.containsKey('filled'))) &&
+        notationFieldPlace(c.nodes, c._parentId, id).frame != null) {
+      words.add('decoration.filled=true');
+    }
     if (d == null) return;
     for (final e in _fieldDecoration.entries) {
       if (e.key == 'labelText' && doneProps.contains('decoration.labelText')) continue;
