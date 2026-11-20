@@ -554,8 +554,9 @@ and screen-reader speech still need a device.
 Each stage is useful by itself.
 
 **Stage one: the device's edges** (built, §9). `screen.insets`, `screen.keyboard` and `screen.textScale` come from
-the platform or the host's `MediaQuery`. The render tool's `--insets`, `--text-scale` and `--keyboard` simulate
-them. It unlocks the register's most-cited native entry, "Provide native insets and text scaling" (parts 01, 03,
+the platform or the host's `MediaQuery`; a full-screen page is laid out above the keyboard by the SDK itself, so
+`screen.keyboard` is what still covers the page (0 there). The render tool's `--insets`, `--text-scale` and
+`--keyboard` simulate them. It unlocks the register's most-cited native entry, "Provide native insets and text scaling" (parts 01, 03,
 07, 19, 28), and "Independent alert guards and system insets" (02). Of the "out of reach" rows, it reaches the 16
 insets, keyboard and text-scale rows and the keyboard parts of the 11 chat-thread rows: wrappers that pad for a
 status bar (03, 05, 12, 17), composers and sheets that ride the keyboard (07, 12, 23, 24, 26, 27), and Robin's draft.
@@ -595,11 +596,14 @@ the host's declarations alone.
    the nodes' text is drawn at its written size: `screen.textScale` reads 1.3, but the picture is the same as at 1.
    Should the SDK's text follow it (and then which nodes: body text yes, a fixed-height tab label no), or should
    layouts only read it and choose?
-5. **The keyboard and the other agent's fix.** Another checkout is making the SDK keep a focused field visible
-   when the keyboard opens. If that moves or shrinks the page by itself, `screen.keyboard` must then mean "the part
-   of this page the keyboard still covers", which is 0 once the SDK has made room, as `MediaQuery.removeViewInsets`
-   does inside a sheet today. Otherwise a page that pads by it lifts the composer twice. That contract needs settling
-   between the two.
+5. **The keyboard and the SDK making room (settled).** The SDK now lays a full-screen page out above the keyboard
+   and keeps the focused control in view, as Flutter's Scaffold with `resizeToAvoidBottomInset` does. So
+   `screen.keyboard` means "the part of this page the keyboard still covers": 0 once the SDK has made room (as
+   `MediaQuery.removeViewInsets` gives a Scaffold's body), the keyboard's height only where it has not (a layout
+   that is not full-screen, a host that handles the inset itself). The bottom inset is 0 while the keyboard is
+   open (the home indicator is under it). A page that pads its composer by `screen.keyboard +
+   screen.insets.bottom` and a page that writes nothing both end with the composer on the keyboard, never lifted
+   twice.
 6. **Who publishes adapters.** Should Codelessly publish first-party adapter packages for the common packages
    (permission_handler, record, image_picker, google_sign_in, share_plus, pubnub, firebase_messaging,
    remote_config), or leave adapters to apps and agents, with only the declaration format and the mock shipped?
@@ -614,8 +618,8 @@ What a page reads (`CodelesslySDK/lib/src/runtime/expressions/scopes.dart`, `dev
 
 | Value | From | Meaning |
 |---|---|---|
-| `screen.insets.top`, `.right`, `.bottom`, `.left` | `MediaQuery.padding` | The safe area. A side the keyboard covers has none, so `screen.keyboard + screen.insets.bottom` is the one gap a bottom bar needs. A `SafeArea` the host puts around the layout consumes them |
-| `screen.keyboard` | `MediaQuery.viewInsets.bottom` | How much of the screen's bottom the soft keyboard covers; 0 while closed |
+| `screen.insets.top`, `.right`, `.bottom`, `.left` | `MediaQuery.padding` | The safe area. A side the keyboard covers has none (the home indicator is under an open keyboard), so `screen.keyboard + screen.insets.bottom` is the one gap a bottom bar needs. A `SafeArea` the host puts around the layout consumes them |
+| `screen.keyboard` | `MediaQuery.viewInsets.bottom`, where the SDK has not made room | How much of the page the soft keyboard still covers; 0 while closed. A full-screen page is laid out above the keyboard by the SDK (the focused control kept in view), so there it reads 0: a bar at its foot rests on the keyboard whether it pads itself by this sum or writes nothing |
 | `screen.textScale` | `MediaQuery.textScaler`, clamped to `CodelesslyConfig.maxTextScaleFactor` | The device's text size setting as far as the host lets layouts follow it (1 by default) |
 
 They are part of the `screen` value on `CodelesslyWidget` (`_updateScreen`) and on the session view
@@ -632,8 +636,9 @@ The example is [`the-native-edge/composer.txt`](the-native-edge/composer.txt), a
 sits on a box `h={screen.keyboard + screen.insets.bottom}` tall, with the values printed in its header. Its
 [`states.json`](the-native-edge/states.json) renders five states at 390×844. In "desktop window" there are no
 insets. In "phone" (`--insets 47,34`) the header clears the status bar and the bar clears the home indicator. In
-"keyboard open" (`--focus composer --keyboard 336 --type …`) the bar sits on the keyboard; the header reads
-`keyboard 336 · insets 47/0`. In "closed again" (send, unfocus, `--keyboard 0`) it is back above the home
+"keyboard open" (`--focus composer --keyboard 336 --type …`) the bar sits on the keyboard. (These pictures were
+taken before the SDK made room for the keyboard by itself and the header read `keyboard 336 · insets 47/0`; it
+now reads `keyboard 0 · insets 47/0`, the page itself ending at the keyboard, and the bar is in the same place.) In "closed again" (send, unfocus, `--keyboard 0`) it is back above the home
 indicator, with the sent message in the thread. In "large text" (`--text-scale 1.3`) the header reads 1.3, but the
 text is unchanged (question 4). The pictures are in `the-native-edge/out/<state>/` and on one sheet,
 `the-native-edge/out/sheet.png`.
@@ -641,4 +646,6 @@ text is unchanged (question 4). The pictures are in `the-native-edge/out/<state>
 Tests: `CodelesslySDK/test/app/device_edges_test.dart` (the values in formulas, from the platform, from a host
 `MediaQuery`, the text scale clamped by the config, a `SafeArea` consuming them) and
 `CodelesslySDK/test/tool/render_device_edges_test.dart` (the options parse; the composer's bar ends at 844 − 34
-with the keyboard closed, at 844 − 336 with it open, and returns when it closes).
+with the keyboard closed, at 844 − 336 with it open, and returns when it closes; the same page with nothing written
+under the bar also ends at 844 − 336: never lifted twice). The page laid out above the keyboard and the focused
+field kept in view are `CodelesslySDK/test/app/keyboard_inset_test.dart`.

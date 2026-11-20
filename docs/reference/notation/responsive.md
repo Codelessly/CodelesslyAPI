@@ -48,9 +48,13 @@ A tap that does different things at different widths reads the window in its act
 open detail : picked=item.id}` opens a sheet on a phone and fills the pane beside the list on a desktop.
 
 What the device covers is read the same way: `screen.insets.top` (and `.bottom`, `.left`, `.right`) is the safe
-area (a status bar, a home indicator), `screen.keyboard` the height the soft keyboard covers (0 while it is closed),
-`screen.textScale` the device's text size setting. A bar pinned to the bottom rides above the keyboard with a box
-under it: the home indicator's inset is 0 while the keyboard covers it, so one sum serves both.
+area (a status bar, a home indicator), `screen.keyboard` how much of the page the soft keyboard still covers (0
+while it is closed), `screen.textScale` the device's text size setting. A full-screen page makes room for the
+keyboard by itself (it lays out above it, as Flutter's Scaffold does, and keeps the focused field in view), so a bar
+at its foot rests on the keyboard with nothing written, and there `screen.keyboard` reads 0 and the home indicator's
+inset is 0 under it. Where the page does not make room (it is not full-screen, or the host handles the keyboard), the
+keyboard's height is read. So a box under the bar of `screen.keyboard + screen.insets.bottom` clears the home
+indicator while the keyboard is closed and rests the bar on the keyboard in both cases, never lifted twice.
 
 ```notation
 state draft=""

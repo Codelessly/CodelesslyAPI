@@ -229,11 +229,14 @@ final class NotationResult {
   }
 
   final entry = byButton && !multiline && beside.any((t) => t != 'iconButton' && buttons.contains(t)) && !(labelAndHint && endsForm());
-  // The frame: the row's own, or a box's holding the row alone. (Beside a
-  // button: a composer's frame. A framed row of an icon and a field alone,
-  // a document's search pill, is as it was written.)
+  // The frame: the row's own, or a box's holding the row alone (beside a
+  // button: a composer's frame).
+  // A framed row of a field and icons (texts) alone is the field's box too:
+  // a search pill, its ground the pill's. (A print keeps a field drawn in
+  // its own box there with `decoration.filled=true`, print_fields.dart.)
+  final pill = alone && beside.isNotEmpty && beside.contains('icon') && beside.every(const {'icon', 'text', 'spacer', 'box', 'row', 'column', 'stack'}.contains);
   String? frame;
-  if (byButton && beside.every(quiet.contains)) {
+  if ((byButton && beside.every(quiet.contains)) || pill) {
     for (String? f = row; f != null; f = parentOf(f)) {
       if (framed(f)) {
         frame = f;
@@ -8013,6 +8016,19 @@ class _Parser {
           continue;
         }
         final path = pathOf(key);
+        // `right=16 bottom=16` on a child of a Stack (CSS's insets of a
+        // positioned box: a floating button over a page) is its place from
+        // that edge, `x={"end":16} y={"end":16}`; `left` and `top` are from
+        // the start. A type with a key of that name keeps it.
+        if (unknownKey && parent?.type == 'stack' && const {'left', 'right', 'top', 'bottom'}.contains(key) && num.tryParse(raw.trim()) != null) {
+          final axis = key == 'left' || key == 'right' ? 'x' : 'y';
+          final edge = key == 'left' || key == 'top' ? 'start' : 'end';
+          final place = layout[axis] is Map ? (layout[axis]! as Map).cast<String, Object?>() : <String, Object?>{};
+          place.remove('align');
+          place[edge] = num.parse(raw.trim());
+          layout[axis] = place;
+          continue;
+        }
         if (unknownKey && !_identifier.hasMatch(key) || unknownKey && key.contains('.')) {
           // A path that is none of the type's (`pan.axs`, `props.colour`):
           // said, with the nearest, or recorded.
@@ -12520,6 +12536,14 @@ class _Parser {
     if (component && takes != null) {
       final look = const {'radius', 'shadow', 'effects', 'clip', 'clipBehavior', 'opacity'}.contains(key) && key != 'opacity';
       return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.${look ? ' ${_callLookWhy(written)}' : ''}';
+    }
+    // An inset (CSS's `right: 16px`) is a place in a Stack, not a near
+    // spelling of another key ("right" read as "height").
+    if (const {'left', 'right', 'top', 'bottom'}.contains(key)) {
+      final axis = key == 'left' || key == 'right' ? 'x' : 'y';
+      final edge = key == 'left' || key == 'top' ? 'start' : 'end';
+      return 'A $written has no "$key": left out. A node is placed from an edge as a child of a Stack: $key=16 there, or $axis={"$edge":16} '
+          '(a floating button over a page: a Stack holding the page, then the button with right=16 bottom=16).';
     }
     final near = notationKeyNearest(key, type, catalog: catalog);
     return 'A $written has no "$key"${near == null ? '' : ' (did you mean $near?)'}: left out.';

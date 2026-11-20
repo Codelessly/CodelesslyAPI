@@ -262,10 +262,11 @@ Column
     expect(_node(r, 'search')['states'], isNull);
     expect(_decoration(r, 'q'), containsPair('border', {'type': 'none'}));
     expect(_decoration(r, 'q'), containsPair('filled', false));
-    // A framed row of an icon and a field alone (no button) is as written:
-    // a document's pill (examples/showcase/desktop/native/site_landing.json)
-    // prints back as it was.
-    expect(_decoration(r, 'mail'), {'labelText': '', 'hintText': 'you@example.com'});
+    // A framed row of an icon and a field alone (no button), a search pill,
+    // is the field's box too: the field is bare on the pill's ground. (A
+    // document's pill drawn in a box of its own prints with
+    // `decoration.filled=true` and reads back as it was.)
+    expect(_decoration(r, 'mail'), {'labelText': '', 'hintText': 'you@example.com', 'border': {'type': 'none'}, 'filled': false});
     // A card's form field keeps its box.
     expect(_decoration(r, 'email'), {'labelText': 'Email', 'hintText': 'you@example.com'});
   });
