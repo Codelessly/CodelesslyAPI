@@ -343,7 +343,7 @@ The props that matter most; each type's page lists all of them.
 | `flex` (ui_docs "node-flex") | children | `direction` horizontal|vertical, `mainAxisAlignment` start|end|center|spaceBetween|spaceAround|spaceEvenly, `crossAxisAlignment` start|end|center|stretch|baseline, `spacing` number, `wrap` bool |
 | `stack` (ui_docs "node-stack") | children |  |
 | `box` (ui_docs "node-box") | none |  |
-| `text` (ui_docs "node-text") | none; no decoration | `text` text, `style` TextStyle {from, fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing}, `textAlign` left|right|center|justify|start|end, `maxLines` int, `overflow` clip|fade|ellipsis|visible |
+| `text` (ui_docs "node-text") | none; no decoration | `text` text, `style` TextStyle {from, fontFamily, fontFamilyFallback, fontWeight, fontStyle, fontSize, color, foreground}, `textAlign` left|right|center|justify|start|end, `maxLines` int, `overflow` clip|fade|ellipsis|visible |
 | `icon` (ui_docs "node-icon") | none; no decoration | `icon` icon name, `color` "#AARRGGBB", `size` number |
 | `spacer` (ui_docs "node-spacer") | none; no decoration |  |
 | `divider` (ui_docs "node-divider") | none; no decoration | `thickness` number, `color` "#AARRGGBB" |
@@ -608,9 +608,9 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 | How one value type is written (color, alignment, insets) | "values-colors-and-alignments" |
 
 - "layout": Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
-- "theme": Theme and text. Documents text, textDirection, defaultTextStyle.
+- "theme": Theme and text. Documents text, textDirection, defaultTextStyle, linkTap.
 - "decoration": Decoration, images, icons and drawing. Documents icon, path, customPaint, imageLoading, imageLoaded, imageError.
-- "forms": Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, splitter, calendar, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, submitted, deleted, editingComplete, focusGained, focusLost, keyDown, keyUp, focus.
+- "forms": Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, splitter, calendar, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, form, radioGroup, changed, changeEnd, changeStart, submitted, deleted, editingComplete, focusGained, focusLost, keyDown, keyUp, focus.
 - "lists": Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, sort, paginate.
 - "navigation": Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, announce, confirm.
 - "state": State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, if, forEach, delay, retryFailed.

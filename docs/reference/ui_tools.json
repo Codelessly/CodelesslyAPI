@@ -323,7 +323,7 @@
             },
             "decoration": {
               "type": "object",
-              "description": "Paint: fills, strokes, strokeWidth, strokeAlign, strokeSides, strokeCap, dashPattern, radius, effects, clip, blendMode, foregroundFills, shape."
+              "description": "Paint: fills, strokes, strokeWidth, strokeAlign, strokeSides, strokeCap, dashPattern, radius, effects, clip, blendMode, foregroundFills, shape, clipPath, clipViewBox, clipFit, clipCuts."
             },
             "props": {
               "type": "object",

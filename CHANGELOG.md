@@ -1,3 +1,108 @@
+## 41.0.0
+
+A major version: lines that were silently read as nothing are now read as written or said, and a few lines draw
+differently. Read "Reads differently" before upgrading. New: links in a text's runs, pictures that stretch from a
+centre slice, a clip shape on any node, banners over everything, lists that hold their place, snapping lists, lifted
+elements, and the device's edges in formulas. With CodelesslySDK 41.0.0.
+
+### Reads differently
+
+Layout and text:
+
+- **`pad=[x, y]`** (and a two-number margin) is horizontal and vertical; it was no padding at all. An inset list
+  of another count (`pad=[16,18,16]`), and a list a key cannot read (`viewBox=[0,0,12,12]` on a Path), are said
+  and left out; they were kept and read as nothing.
+- **`top`/`bottom` on a Column and `left`/`right` on a Row** are along it, as `middle`/`center` are; they were
+  across it. With a number on a Stack's child they are its place from that edge (`right=16` is `x={"end":16}`);
+  they were dropped.
+- **`align=` on a Stack's child** is its place on both axes; it was not read (the child sat at 0,0).
+  `mainAxisAlignment=center` alone on a Column centres across too when no cross alignment is written.
+- **A text placed at a side** (`Text … w=fill align=end`, `align=center` in a Stack) has its lines follow the
+  side unless `textAlign` is written. A text's `style={…}` after `color=`/`size=` joins them, the later key
+  winning; it replaced them.
+- **A dialog's or sheet's end buttons with a written width** keep it, and ones written one under another stay so;
+  they took equal shares on a phone.
+
+Fields:
+
+- **A multi-line field beside a box that takes a tap** (a round send box) is a composer: it takes the hint and
+  grows from one line. A field in a framed row beside a button, or a `TextField` in a framed row of icons (a
+  search pill), is drawn bare, the frame taking its focus ring; it drew a second border or a white inset.
+- **A bound border on an Input** (`border={…}`) is the field's own border colour or width; it went to the node's
+  stroke. `icon=none` on an Input is no icon. `multiline=true` (and `italic`, `clip`, `keep` written `=true`) is
+  the flag; it was refused.
+
+Values and formulas:
+
+- **`if condition={a || b} then={…} else={…}`** reads its predicate; the condition was kept as text and the else
+  ran. A typed state's formula (`not x`, `and`, `or`) is read as every other formula.
+- **A count in braces inside a formula's quoted text** (`'\d{3}'`, `{2,}`) stays text; it was read as a value.
+- **A paint with `"colors"` and number `"stops"`** in `fill=`/`fills=` is read as stop records; it drew nothing.
+- **`state p:Map?=null`** and capitalised type words are read; `state selected:map=null` prints `=null`. A
+  sheet's stop variable declared as a whole number is widened to a decimal.
+- **A worked-out value in a field that takes one written out** (`delay ms={x ? 4000 : 3000}`) moves to the field
+  the action names for it (`duration`); it was dropped for the default. With no such field it is said.
+- **`mergePatch` over a value that is not a map** drops the patch's nulls (RFC 7386). `.length` of a record or of
+  a value not known at expand stays `.length`.
+
+Words, repeats and overlays:
+
+- **An id built from data on a repeated line** (`Row#row-{row.id}` under an each) is refused: the line has no id,
+  and the issue names the fixed id to write (its copies are `row#0`, `row#1`…; an action reaches one by its item,
+  `scrollTo node=row item={i}`). It was read as its fixed part without a word.
+- **In a `define`**, a bare name that is a parameter or a variable stays one where an id of that name exists
+  (`if expand` beside `Glyph#expand`); `{props.size}` is the word's own parameter; a record key named like a
+  parameter is kept; a parameter written where an action goes (`onTap={save}`) is the use's actions whatever its
+  name; `@query` with `param @query` binds `props.query`.
+- **`GridView data={…}`** is a grid over the data, its line the cell. An each under a ListView or in a Stack whose
+  lines are several nodes makes them one item; the list repeated the first only. A ListView with lines beside its
+  each and an `onRefresh` stays a list, and pulls.
+- **An overlay line's route fields** (`Sheet#s maxHeightFactor=0.9 showDragHandle=false`, `Dialog#d
+  barrierDismissible=false`, `enterScale=0.6` on a Menu or Popover) are what every open of it says; they were
+  refused as the column's keys.
+- **A run written with `"text"` and no `start`** is that text where the line first has it. A component call keeps
+  its radius and clip.
+
+### New
+
+- **Links in a text.** A run's `link` takes the tap: `onLinkTap` (trigger `linkTap`; result `link`, `text`,
+  `start`, `end`), else the link opens. `regexMatches(text, pattern)` gives `[{start, end, text, groups}]`, and
+  `a ?? b` is the null fallback, so a text's links can be worked out from what it says.
+- **Pictures that stretch and shapes that clip.** `ImagePaint.centerSlice` (`centerSlice=` and `scale=` on an
+  Image line) stretches a picture from its middle. `Decoration.clipPath`, `clipViewBox`, `clipFit` and `clipCuts`
+  cut any node to a shape, a Text, an icon and a picture included, as `shape` and `clip=` now do. A linear
+  gradient takes `angle`; a drawing's paint `blurRadius`.
+- **Shown over everything, and in sequence.** `presentation=banner` is a banner over the page and its overlays,
+  queued, closed after `closeAfterMs`. `animate=… after=<id>` starts an animation when another node's ends, and
+  `curve=` beside a preset names its curve. `transition property=layout` eases a node's width and height, and
+  `property=decoration` a text field's.
+- **Lifted elements.** `hero.flies=lift` lifts a node out of its page over a new one and back to where it is, and
+  a long press takes `holdMs`, `commitMs` and `haptic`.
+- **Lists that hold their place.** A ListView's `stickToStart`, `jumpToLatest` and `refreshStyle` (`disc`,
+  `spinner`), also on an `each … follow` line.
+- **Snapping lists and custom controls.** `snapPhysics` on a ListView, GridView or PageView; a PageView's
+  `perspective`; `motion.translateZ`; `pageOffset`, a row's distance from where its list snaps; `Trigger.focused`
+  (`onKeyDown(key=…, focused=true)`); `SwitchProps.thumbWidth`; `onChangeStart` on a Slider; `overscroll` in a
+  scroll's result; `result.cancelled` on `dragEnd`.
+- **The device's edges in formulas**: `screen.insets.top`, `.right`, `.bottom`, `.left`, `screen.keyboard` and
+  `screen.textScale`.
+- **Text and fields**: `TextStyle.fontFamilyFallback`, `enableSuggestions` on an Input, input formatters `email`
+  and `phone`, `Sticky` from a number, and `concat` of texts gives a text.
+
+### Said, where it was silent
+
+The expander names what it cannot read: an overlay with nothing under it, a ListView with `data=` and an each
+under it, a place past a hugging Stack's edge, a state named `index` read inside an each, `showDragHandle=false`
+beside `snapHeights`, an input formatter of a kind no field applies, a run's text the line does not have, `curve=`
+alone or misspelled, `after=` without `animate=`, `blurRadius` without a paint, a bad `centerSlice` or `scale`,
+and a formula function that does not exist.
+
+### The reference
+
+The notation reference gains pages and examples for what writers looked for and did not find: sizes of controls
+side by side, text runs and links, lists in a chat, pickers and wheels, overlays in sequence, clip shapes, and the
+device's edges.
+
 ## 40.2.0
 
 The notation's chart words draw finished charts from one line: `LineChart`, `AreaChart`, `BarChart`, `Donut` and

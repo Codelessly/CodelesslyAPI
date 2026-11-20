@@ -382,6 +382,9 @@
               "enterScale": {
                 "type": "number"
               },
+              "closeAfterMs": {
+                "type": "integer"
+              },
               "routeTransition": {
                 "anyOf": [
                   {
@@ -1869,6 +1872,35 @@
         },
         "shape": {
           "$ref": "#/$defs/enum.DecorationShape"
+        },
+        "clipPath": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clipViewBox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Rect"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clipFit": {
+          "$ref": "#/$defs/enum.BoxFit"
+        },
+        "clipCuts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.ClipCut"
+          }
         }
       },
       "additionalProperties": false
@@ -2353,7 +2385,8 @@
     "enum.HeroFlies": {
       "enum": [
         "betweenScreens",
-        "inPlace"
+        "inPlace",
+        "lift"
       ]
     },
     "enum.HeroFlightShuttle": {
@@ -2661,6 +2694,12 @@
       "enum": [
         "bar",
         "arc"
+      ]
+    },
+    "enum.RefreshStyle": {
+      "enum": [
+        "disc",
+        "spinner"
       ]
     },
     "enum.ReorderPlaceholder": {
@@ -3109,6 +3148,7 @@
         "pinch",
         "changed",
         "changeEnd",
+        "changeStart",
         "submitted",
         "deleted",
         "editingComplete",
@@ -3140,6 +3180,7 @@
         "swipeAction",
         "rowTap",
         "sort",
+        "linkTap",
         "actionError",
         "event"
       ]
@@ -3657,6 +3698,36 @@
         },
         "fade": {
           "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.ClipCut": {
+      "type": "object",
+      "properties": {
+        "center": {
+          "$ref": "#/$defs/value.Alignment"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "d": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -4985,6 +5056,16 @@
               "type": "null"
             }
           ]
+        },
+        "centerSlice": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Rect"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -5722,6 +5803,9 @@
         "translateY": {
           "type": "number"
         },
+        "translateZ": {
+          "type": "number"
+        },
         "shiftX": {
           "type": "number"
         },
@@ -6006,6 +6090,16 @@
               "type": "null"
             }
           ]
+        },
+        "after": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -6251,6 +6345,16 @@
             {
               "type": "number",
               "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "angle": {
+          "anyOf": [
+            {
+              "type": "number"
             },
             {
               "type": "null"
@@ -6645,6 +6749,9 @@
           "type": "number"
         },
         "translateY": {
+          "type": "number"
+        },
+        "translateZ": {
           "type": "number"
         },
         "shiftX": {
@@ -7180,6 +7287,12 @@
               "type": "null"
             }
           ]
+        },
+        "fontFamilyFallback": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "fontWeight": {
           "anyOf": [
@@ -8344,7 +8457,8 @@
                 },
                 {
                   "type": [
-                    "boolean"
+                    "boolean",
+                    "number"
                   ]
                 }
               ]
@@ -9105,6 +9219,16 @@
                   "dragEdgeScroll": {
                     "type": "boolean"
                   },
+                  "snapPhysics": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GesturePhysics"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "scrollable": {
                     "type": "boolean"
                   },
@@ -9219,6 +9343,15 @@
                   },
                   "stickToEnd": {
                     "type": "boolean"
+                  },
+                  "stickToStart": {
+                    "type": "boolean"
+                  },
+                  "jumpToLatest": {
+                    "type": "boolean"
+                  },
+                  "refreshStyle": {
+                    "$ref": "#/$defs/enum.RefreshStyle"
                   }
                 },
                 "additionalProperties": false
@@ -9302,6 +9435,16 @@
                   },
                   "dragEdgeScroll": {
                     "type": "boolean"
+                  },
+                  "snapPhysics": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GesturePhysics"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "crossAxisCount": {
                     "type": "integer",
@@ -9491,6 +9634,20 @@
                     "$ref": "#/$defs/enum.PagePaintOrder"
                   },
                   "edgeFade": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
+                  "snapPhysics": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GesturePhysics"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "perspective": {
                     "type": "number",
                     "minimum": 0.0
                   }
@@ -10379,6 +10536,9 @@
                   "autocorrect": {
                     "type": "boolean"
                   },
+                  "enableSuggestions": {
+                    "type": "boolean"
+                  },
                   "autofocus": {
                     "type": "boolean"
                   },
@@ -10883,6 +11043,17 @@
                     ]
                   },
                   "thumbRadius": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "thumbWidth": {
                     "anyOf": [
                       {
                         "type": "number",
@@ -17800,6 +17971,7 @@
             "pinch",
             "changed",
             "changeEnd",
+            "changeStart",
             "submitted",
             "deleted",
             "editingComplete",
@@ -17831,6 +18003,7 @@
             "swipeAction",
             "rowTap",
             "sort",
+            "linkTap",
             "actionError",
             "event"
           ]
@@ -17874,6 +18047,23 @@
             },
             "event": {
               "type": "string"
+            },
+            "commitMs": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "haptic": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/enum.HapticKind"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "focused": {
+              "type": "boolean"
             }
           },
           "required": [

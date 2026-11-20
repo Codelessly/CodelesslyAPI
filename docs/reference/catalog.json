@@ -1,6 +1,6 @@
 {
   "package": "codelessly_api",
-  "version": "40.2.0",
+  "version": "41.0.0",
   "schema": 3,
   "document": {
     "keys": [
@@ -1283,6 +1283,15 @@
           "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
         },
         {
+          "key": "snapPhysics",
+          "type": "GesturePhysics",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "GesturePhysics",
+          "doc": "How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). Null: one page per fling."
+        },
+        {
           "key": "scrollable",
           "type": "bool",
           "kind": "boolean",
@@ -1500,6 +1509,35 @@
           "default": false,
           "nullable": false,
           "doc": "Opens at the end, keeps its place when items are put before, follows new items at the end."
+        },
+        {
+          "key": "stickToStart",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "At its start, shows items put at the start (a list away from its start always keeps what is in view); false keeps what is in view at the start too, once the items fill the list."
+        },
+        {
+          "key": "jumpToLatest",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "A list that sticks to its end draws its own jump-to-latest button while scrolled up from the end; false draws none (draw your own from `onScroll`)."
+        },
+        {
+          "key": "refreshStyle",
+          "type": "RefreshStyle",
+          "kind": "enumeration",
+          "default": "disc",
+          "nullable": false,
+          "enum": "RefreshStyle",
+          "values": [
+            "disc",
+            "spinner"
+          ],
+          "doc": "What a list pulled to refresh draws: `disc` (a round disc over the list) or `spinner` (iOS's ticked spinner in the room the pull opens, no disc)."
         }
       ],
       "docs": "lists.md#node-listView"
@@ -1643,6 +1681,15 @@
           "default": true,
           "nullable": false,
           "doc": "Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto)."
+        },
+        {
+          "key": "snapPhysics",
+          "type": "GesturePhysics",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "GesturePhysics",
+          "doc": "How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). Null: one page per fling."
         },
         {
           "key": "crossAxisCount",
@@ -1945,6 +1992,24 @@
           "nullable": false,
           "min": 0.0,
           "doc": "The next page showing at the edge fades out over this many pixels, not cut hard."
+        },
+        {
+          "key": "snapPhysics",
+          "type": "GesturePhysics",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "GesturePhysics",
+          "doc": "How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). Null: one page per fling."
+        },
+        {
+          "key": "perspective",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A camera at the view's middle for its pages' 3D turns (rotateX, rotateY of their motion): how strongly depth is seen, as a motion's perspective, every page seen from one point (a drum, a cover flow). 0: none."
         }
       ],
       "docs": "lists.md#node-pageView"
@@ -3107,6 +3172,14 @@
           "doc": ""
         },
         {
+          "key": "enableSuggestions",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "The keyboard's word suggestions (Flutter's enableSuggestions); off for a password field."
+        },
+        {
           "key": "autofocus",
           "type": "bool",
           "kind": "boolean",
@@ -3734,6 +3807,15 @@
           "nullable": true,
           "min": 0.0,
           "doc": "The thumb's corner radius: null is round; a square switch sets a small one. With it the switch is a plain toggle."
+        },
+        {
+          "key": "thumbWidth",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "min": 0.0,
+          "doc": "The thumb's length along the track: null is as long as it is tall (a round thumb); longer is a pill that slides the rest of the track (a 28 × 20 thumb on a 48 × 24 track: `thumbInset=2 thumbWidth=28`). Kept inside the track."
         }
       ],
       "docs": "forms.md#node-switch"
@@ -6084,7 +6166,7 @@
       "docs": "forms.md#node-outlinedButton"
     },
     "iconButton": {
-      "doc": "Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a \"tooltip\" (the behavior) to name it.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
+      "doc": "Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a \"tooltip\" (the behavior) to name it. Its target and its glyph are sized apart: `w` and `h` the target, `size` the glyph (`style.iconSize`): `IconButton \"close\" w=36 h=32 size=12`.\n\n`IconButton`: an icon, styled by a `ButtonStyle`.",
       "flutter": "IconButton",
       "children": "none",
       "slots": [],
@@ -12425,6 +12507,51 @@
           "circle"
         ],
         "doc": "A rectangle (rounded by `radius`) or a circle."
+      },
+      {
+        "key": "clipPath",
+        "type": "String",
+        "kind": "string",
+        "default": null,
+        "nullable": true,
+        "doc": "The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`, whatever the node is (a box, a text, an icon, a picture, a control): SVG path data in `clipViewBox`'s units mapped by `clipFit`; with neither, the box's unit square, 0 to 1 across and down whatever its size, so one curve fits every width. What it paints and its children are cut, its border is drawn along the path (inside) and its shadow takes its shape; a pointer outside it passes through. A header whose foot is a wave: `clipPath=\"M0 0 H1 V0.8 C0.75 1 0.25 0.6 0 0.85 Z\"`."
+      },
+      {
+        "key": "clipViewBox",
+        "type": "Rect",
+        "kind": "value",
+        "default": null,
+        "nullable": true,
+        "doc": "The units `clipPath` is written in, `[width, height]` or `[minX, minY, width, height]`, as a `customPaint`'s `viewBox`, mapped onto the box by `clipFit`. Unset: the unit square, or with `clipFit=none` the box's pixels."
+      },
+      {
+        "key": "clipFit",
+        "type": "BoxFit",
+        "kind": "enumeration",
+        "default": "fill",
+        "nullable": false,
+        "enum": "BoxFit",
+        "values": [
+          "fill",
+          "contain",
+          "cover",
+          "fitWidth",
+          "fitHeight",
+          "none",
+          "scaleDown"
+        ],
+        "doc": "How `clipViewBox` maps onto the box, as a `customPaint`'s `fit`: `fill` stretches it, `contain` keeps its aspect, `none` keeps its units pixels (without a view box: the box's own pixels from its top left)."
+      },
+      {
+        "key": "clipCuts",
+        "type": "List<ClipCut>",
+        "kind": "list",
+        "default": [],
+        "nullable": false,
+        "item": "ClipCut",
+        "itemKind": "object",
+        "item_object": "ClipCut",
+        "doc": "Shapes cut out of the node in its own pixels at points of its box, so they keep their size as it stretches: `{\"center\": \"centerLeft\", \"radius\": 12}` (a circle), or `{\"center\": \"topRight\", \"d\": \"M-20 0 H0 V20 Z\"}` (SVG path data, its origin at the point). Cut from `clipPath` when there is one, else from the node's own shape (its `radius`, a circle). A ticket: `radius=12 clipCuts=[{\"center\":\"centerLeft\",\"radius\":12},{\"center\":\"centerRight\",\"radius\":12}]`."
       }
     ]
   },
@@ -12771,13 +12898,13 @@
       },
       {
         "type": "longPress",
-        "doc": "A long press.",
+        "doc": "A long press: the platform's (500 ms), or held for `Trigger.holdMs` when it is set; `Trigger.commitMs` and `Trigger.haptic` as for hold.",
         "group": "pointer",
         "docs": "interaction.md#trigger-longPress"
       },
       {
         "type": "hold",
-        "doc": "A press held for `Trigger.holdMs`; letting go early cancels it.",
+        "doc": "A press held for `Trigger.holdMs`; letting go early cancels it (before `Trigger.commitMs`, when set).",
         "group": "pointer",
         "docs": "interaction.md#trigger-hold"
       },
@@ -12795,7 +12922,7 @@
       },
       {
         "type": "pointerUp",
-        "doc": "A pointer went up (or was canceled) on the node.",
+        "doc": "A pointer went up on the node, or was cancelled (taken away by the system or a scroll): `${result.cancelled}` says which (`onPointerUp={result.cancelled ? close : pick}`), `${result.x}`, `${result.y}` where, in the node.",
         "group": "pointer",
         "docs": "interaction.md#trigger-pointerUp"
       },
@@ -12843,7 +12970,7 @@
       },
       {
         "type": "drag",
-        "doc": "The node is dragged (every move); `dragEnd` when it's let go.",
+        "doc": "The node is dragged (every move); `dragEnd` when it's let go (`${result.vx}`, `${result.vy}`: its speed; `${result.cancelled}`: the drag was taken away, not let go).",
         "group": "pointer",
         "docs": "interaction.md#trigger-drag"
       },
@@ -12876,6 +13003,12 @@
         "doc": "A slider was let go, with its final value.",
         "group": "input",
         "docs": "forms.md#trigger-changeEnd"
+      },
+      {
+        "type": "changeStart",
+        "doc": "A slider was taken (a drag or a press on it began, or a key moves it), with its value before the change (Flutter's `onChangeStart`).",
+        "group": "input",
+        "docs": "forms.md#trigger-changeStart"
       },
       {
         "type": "submitted",
@@ -12969,7 +13102,7 @@
       },
       {
         "type": "scroll",
-        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show.",
+        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items, `${result.overscroll}` how far it is pulled past an end: below 0 past the start, above 0 past the end, 0 within). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`).",
         "group": "other",
         "docs": "layout.md#trigger-scroll"
       },
@@ -13064,6 +13197,12 @@
         "docs": "lists.md#trigger-sort"
       },
       {
+        "type": "linkTap",
+        "doc": "A link in a text was tapped: a run of its `runs` with a `link` (`TextRun.link`). `${result.link}` is the run's link, `${result.text}` its characters, `${result.start}` and `${result.end}` where they are in the text. Without this reaction the tap opens the link (a web page, `mailto:`, `tel:`, an app link), as `openLink` does; with it, its actions run instead (a run whose link names something of the app's own: `link=\"restart\"`).",
+        "group": "other",
+        "docs": "theme.md#trigger-linkTap"
+      },
+      {
         "type": "actionError",
         "doc": "On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction.",
         "group": "screen",
@@ -13132,7 +13271,7 @@
         "kind": "integer",
         "default": 1200,
         "nullable": false,
-        "doc": "`TriggerType.hold`: how long the press is held."
+        "doc": "hold, and longPress when set (else the platform's 500 ms): how long the press is held (ms)."
       },
       {
         "key": "visibleFraction",
@@ -13174,6 +13313,39 @@
         "default": "",
         "nullable": false,
         "doc": "event: the key of the component event it handles (one of the component's widget.events)."
+      },
+      {
+        "key": "commitMs",
+        "type": "int",
+        "kind": "integer",
+        "default": 0,
+        "nullable": false,
+        "min": 0,
+        "doc": "longPress and hold: from this many ms the press is the node's (letting go, moving or a scroll no longer cancels it; it still fires at holdMs). 0: none."
+      },
+      {
+        "key": "haptic",
+        "type": "HapticKind",
+        "kind": "enumeration",
+        "default": null,
+        "nullable": true,
+        "enum": "HapticKind",
+        "values": [
+          "selection",
+          "light",
+          "medium",
+          "heavy",
+          "vibrate"
+        ],
+        "doc": "A pointer trigger's buzz as the gesture becomes sure: at commitMs when set, else as it fires."
+      },
+      {
+        "key": "focused",
+        "type": "bool",
+        "kind": "boolean",
+        "default": false,
+        "nullable": false,
+        "doc": "keyDown and keyUp: only while the node, or a control inside it, has the keyboard focus (a control of one's own: a wheel's arrows), not whatever has the focus."
       }
     ]
   },
@@ -13554,7 +13726,15 @@
             "kind": "number",
             "default": 1,
             "nullable": false,
-            "doc": ""
+            "doc": "How large it starts (0–1), growing to its size as it comes in: a dialog about its middle, an anchored popover about the middle of the node that opened it (a menu that grows out of its button). 1: as the presentation comes."
+          },
+          {
+            "key": "closeAfterMs",
+            "type": "int",
+            "kind": "integer",
+            "default": 0,
+            "nullable": false,
+            "doc": "Closes itself (no result) this many ms after it has come in; the clock holds while it is pressed or dragged. 0: stays until closed."
           },
           {
             "key": "routeTransition",
@@ -14078,7 +14258,7 @@
             "kind": "integer",
             "default": 500,
             "nullable": false,
-            "doc": ""
+            "doc": "A fixed wait, a whole number of milliseconds (`delay ms=300`). A wait worked out is `duration`."
           },
           {
             "key": "duration",
@@ -14086,7 +14266,7 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A formula giving milliseconds."
+            "doc": "A formula giving milliseconds: `delay duration={fast ? 300 : 800}`."
           }
         ],
         "docs": "state.md#action-delay"
@@ -14433,7 +14613,7 @@
             "kind": "number",
             "default": 0,
             "nullable": false,
-            "doc": ""
+            "doc": "Pixels the view stops short of the node: `offset=16` leaves 16 before it (the view scrolls 16 less), a negative offset scrolls past it. The view never scrolls past its start or its end."
           },
           {
             "key": "axis",
@@ -16957,6 +17137,39 @@
         }
       ]
     },
+    "ClipCut": {
+      "doc": "A shape cut out of a node at a point of its box (`Decoration.clipCuts`), in the node's own pixels whatever its size, so a ticket's notch stays a round 12 px however the ticket grows: a circle of `radius` centered at `center`, or SVG path data `d` with its origin there.",
+      "fields": [
+        {
+          "key": "center",
+          "type": "Alignment",
+          "kind": "value",
+          "default": [
+            0,
+            0
+          ],
+          "nullable": false,
+          "doc": "The point of the box it sits at, an alignment (`\"centerLeft\"`, `[1, 0]`): a circle's center, a path's origin."
+        },
+        {
+          "key": "radius",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "min": 0.0,
+          "doc": "A circle of this radius in pixels."
+        },
+        {
+          "key": "d",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "SVG path data in pixels, its (0, 0) at `center`."
+        }
+      ]
+    },
     "ColorStop": {
       "doc": "One gradient stop.",
       "fields": [
@@ -19090,9 +19303,10 @@
           "enum": "HeroFlies",
           "values": [
             "betweenScreens",
-            "inPlace"
+            "inPlace",
+            "lift"
           ],
-          "doc": "When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays) or `inPlace` (when it appears, from where the node with its tag just was on screen)."
+          "doc": "When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays), `inPlace` (when it appears, from where the node with its tag just was on screen) or `lift` (when it appears while a node with its tag is shown: lifted out of that node's place, above everything, and back when it goes)."
         },
         {
           "key": "flightShuttle",
@@ -19131,7 +19345,7 @@
           "default": null,
           "nullable": true,
           "object": "Flight",
-          "doc": "How it flies in place: on a spring when unset, or timed along an arc."
+          "doc": "How it flies in place (on a spring when unset, or timed along an arc) or lifted (its duration and curve)."
         }
       ]
     },
@@ -19294,6 +19508,14 @@
           "default": null,
           "nullable": true,
           "doc": "`[left, top, width, height]`, or null (placed by fit and alignment)."
+        },
+        {
+          "key": "centerSlice",
+          "type": "Rect",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "The image's middle, `[left, top, width, height]` in its logical pixels (its pixels divided by `scale`), as Flutter's `centerSlice` and CSS `border-image-slice`: the image is drawn in nine parts, the corners at their own size, the edges stretched along their side, the middle both ways, so a chat bubble's rounded corners and tail keep their size however large the box grows. A sliced image fills the box (`fit` is not read). A 159×121 PNG drawn at `scale` 3 is 53×40.3 logical pixels; `[14, 12, 28, 8]` keeps 14 px on the left, 12 on top, 11 on the right and 20.3 under the middle (the tail)."
         }
       ]
     },
@@ -20164,6 +20386,14 @@
           "doc": "Pixels (`Transform.translate(offset:)`)."
         },
         {
+          "key": "translateZ",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Pixels toward the viewer (negative: away), in 3D: nearer or farther only with a perspective (the node's, or a page view's camera)."
+        },
+        {
           "key": "shiftX",
           "type": "double",
           "kind": "number",
@@ -20508,6 +20738,14 @@
           "default": null,
           "nullable": true,
           "doc": "Waits to start until this share of the node is in view."
+        },
+        {
+          "key": "after",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "The id of a node it waits for: it starts (then its delay) once that node has settled: its entrances, the animations inside it and a lifted hero in it no longer moving. This starts when that ends."
         }
       ]
     },
@@ -20904,6 +21142,14 @@
           "doc": "A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `\"tileMode\": \"repeated\"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{\"type\": \"linear\", \"begin\": \"topCenter\", \"end\": \"bottomCenter\", \"length\": 80, \"tileMode\": \"repeated\", \"stops\": [{\"position\": 0, \"color\": \"#FF1F2937\"}, {\"position\": 0.0125, \"color\": \"#FF1F2937\"}, {\"position\": 0.0125, \"color\": \"#00000000\"}, {\"position\": 1, \"color\": \"#00000000\"}]}`: a 1 px line every 80 px (a background grid is two such paints)."
         },
         {
+          "key": "angle",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Linear: its direction in degrees, as CSS `linear-gradient(103deg, …)`: 0 runs up, 90 to the right, 180 down. Its line crosses the box's middle and reaches its farthest corners, so the angle is the same on the screen at any aspect (a banner that grows as its text wraps keeps its sheen). In place of `begin`/`end` and `transform`."
+        },
+        {
           "key": "noise",
           "type": "NoisePaint",
           "kind": "object",
@@ -21069,7 +21315,7 @@
           "default": 40,
           "nullable": false,
           "min": 0,
-          "doc": ""
+          "doc": "How many particles a burst has."
         },
         {
           "key": "emit",
@@ -21095,7 +21341,7 @@
           "nullable": false,
           "item": "Color",
           "itemKind": "value",
-          "doc": ""
+          "doc": "Their colors, taken in turn."
         },
         {
           "key": "shapes",
@@ -21120,7 +21366,7 @@
             "squiggle",
             "emoji"
           ],
-          "doc": ""
+          "doc": "Their shapes, taken in turn (`star`: a five-point star)."
         },
         {
           "key": "size",
@@ -21128,7 +21374,7 @@
           "kind": "number",
           "default": 10,
           "nullable": false,
-          "doc": ""
+          "doc": "A particle's size in px, give or take 30%."
         },
         {
           "key": "originX",
@@ -21136,7 +21382,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "Where they leave from across the box: an alignment, -1 (left) to 1 (right)."
         },
         {
           "key": "originY",
@@ -21144,7 +21390,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "Where they leave from down the box: -1 (top) to 1 (bottom)."
         },
         {
           "key": "originWidth",
@@ -21152,7 +21398,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "A share of the box's width they leave along, centred on the origin (0: one point)."
         },
         {
           "key": "direction",
@@ -21160,7 +21406,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Degrees."
+          "doc": "Degrees: 0 up, 90 right, 180 down."
         },
         {
           "key": "spread",
@@ -21168,7 +21414,7 @@
           "kind": "number",
           "default": 60,
           "nullable": false,
-          "doc": ""
+          "doc": "Degrees either side of `direction` they scatter over."
         },
         {
           "key": "speed",
@@ -21176,7 +21422,7 @@
           "kind": "number",
           "default": 700,
           "nullable": false,
-          "doc": ""
+          "doc": "How fast they leave (px/s, 55 to 115% of it)."
         },
         {
           "key": "gravity",
@@ -21184,7 +21430,7 @@
           "kind": "number",
           "default": 900,
           "nullable": false,
-          "doc": ""
+          "doc": "How hard they are pulled down (px/s²; 0: they fly straight, negative: they rise)."
         },
         {
           "key": "lifetime",
@@ -21193,7 +21439,7 @@
           "default": 2600,
           "nullable": false,
           "min": 0,
-          "doc": ""
+          "doc": "How long each particle lives (ms)."
         },
         {
           "key": "playOnAppear",
@@ -21201,7 +21447,7 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": ""
+          "doc": "Bursts when the line first shows; otherwise an `animate` action with `animation=particles` fires it."
         },
         {
           "key": "delay",
@@ -21618,6 +21864,14 @@
           "default": 0,
           "nullable": false,
           "doc": "Pixels (`Transform.translate(offset:)`)."
+        },
+        {
+          "key": "translateZ",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Pixels toward the viewer (negative: away), in 3D: nearer or farther only with a perspective (the node's, or a page view's camera)."
         },
         {
           "key": "shiftX",
@@ -22170,7 +22424,7 @@
       ]
     },
     "Sticky": {
-      "doc": "Pins the node inside the scrolling row or column it scrolls in, as CSS `position: sticky`: once its leading edge reaches `offset` from the view's leading edge it stays there, drawn above the content scrolling under it, until the end of its parent (the section it heads) pushes it on. `${sticky.stuck}` says whether it is pinned now (the node's own bindings and the nodes inside it read it). The design canvas, which doesn't scroll, draws it in place. JSON `true` or `{\"offset\": 8}`.",
+      "doc": "Pins the node inside the scrolling row or column it scrolls in, as CSS `position: sticky`: once its leading edge reaches `offset` from the view's leading edge it stays there, drawn above the content scrolling under it, until the end of its parent (the section it heads) pushes it on. `${sticky.stuck}` says whether it is pinned now (the node's own bindings and the nodes inside it read it). The design canvas, which doesn't scroll, draws it in place. JSON `true`, `{\"offset\": 8}`, or the offset alone (`8`, as a bound `sticky={on ? 0 : null}` gives it); `false` or null: none.",
       "fields": [
         {
           "key": "offset",
@@ -22451,7 +22705,7 @@
           "kind": "string",
           "default": null,
           "nullable": true,
-          "doc": "A URL the run opens when tapped."
+          "doc": "What a tap on the run means: a URL it opens (`https:`, `mailto:`, `tel:`, an app link), or, on a text with a `linkTap` reaction, the value that reaction reads as `result.link` instead."
         }
       ]
     },
@@ -22473,6 +22727,16 @@
           "default": null,
           "nullable": true,
           "doc": "The font family (`\"Inter\"`); `fontWeight` picks its file. Without one: the platform's default (Roboto)."
+        },
+        {
+          "key": "fontFamilyFallback",
+          "type": "List<String>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "String",
+          "itemKind": "string",
+          "doc": "The families tried, in order, for a glyph fontFamily lacks (`[\"Roboto\", \"Noto Sans\"]`)."
         },
         {
           "key": "fontWeight",
@@ -24911,6 +25175,10 @@
       {
         "value": "inPlace",
         "doc": "When it appears, from where the node with its tag was a moment ago (a node hidden or removed in the last two seconds, a dropped drag copy, a node on a screen that is closing): a picked emoji flying from its picker to its chip. Flutter's `Hero` has no such trigger (the `local_hero` package's `LocalHero` is the nearest). Heroes that fly in place find each other only."
+      },
+      {
+        "value": "lift",
+        "doc": "Lifted out of another node's place: when it comes on screen while another node with its tag is shown (on the same screen, on a screen or an overlay under it), it flies from that node's place to its own, drawn above everything (an overlay's backdrop too), and the node it left keeps its place hidden (a gap) while it is shown. When it goes (its overlay closes, it is removed, its tag changes) it flies back to that node, which shows again as it lands. Both ends are followed while it flies (a list that scrolls); a place that is gone is flown to where it was last seen, fading. Timed by `HeroTag.flight`'s `duration` and `curve` (the way back plays the curve backward), else 300 ms; with reduced motion it does not fly. A long-pressed bubble to its menu, a photo to its viewer, a row to a sheet. Lifted heroes find each other only."
       }
     ],
     "HeroFlightShuttle": [
@@ -25188,7 +25456,7 @@
       },
       {
         "value": "banner",
-        "doc": "A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), with no barrier: the app behind stays usable. It slides in, a swipe dismisses it when `OpenModalAction.barrierDismissible`, and its screen closes it with a `CloseModalAction` (after a `delay`, for one that goes by itself). A runtime that doesn't know it shows a dialog."
+        "doc": "A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), over everything (a dialog and its barrier included), with no barrier: the app behind stays usable. It slides in (or as its `OpenModalAction.routeTransition`'s enter side says), a swipe toward its edge dismisses it when `OpenModalAction.barrierDismissible`, `OpenModalAction.closeAfterMs` closes it by itself, and its screen closes it with a `CloseModalAction`. Banners show one at a time, in the order they were opened: a toast is a banner. A runtime that doesn't know it shows a dialog."
       }
     ],
     "NavigationDestinationLabelBehavior": [
@@ -25607,6 +25875,16 @@
       {
         "value": "arc",
         "doc": "A straight progress bar, or an arc like a dial."
+      }
+    ],
+    "RefreshStyle": [
+      {
+        "value": "disc",
+        "doc": "A round disc dropping in over the list, its arc filling as the pull goes, then turning (Flutter's `RefreshIndicator`)."
+      },
+      {
+        "value": "spinner",
+        "doc": "Eight ticks drawn in the room the pull opens, one by one as the pull goes, then stepping round while it refreshes, with no disc (iOS's refresh control, `CupertinoSliverRefreshControl`)."
       }
     ],
     "ReorderPlaceholder": [
@@ -26574,11 +26852,11 @@
       },
       {
         "value": "longPress",
-        "doc": "A long press."
+        "doc": "A long press: the platform's (500 ms), or held for `Trigger.holdMs` when it is set; `Trigger.commitMs` and `Trigger.haptic` as for hold."
       },
       {
         "value": "hold",
-        "doc": "A press held for `Trigger.holdMs`; letting go early cancels it."
+        "doc": "A press held for `Trigger.holdMs`; letting go early cancels it (before `Trigger.commitMs`, when set)."
       },
       {
         "value": "secondaryClick",
@@ -26590,7 +26868,7 @@
       },
       {
         "value": "pointerUp",
-        "doc": "A pointer went up (or was canceled) on the node."
+        "doc": "A pointer went up on the node, or was cancelled (taken away by the system or a scroll): `${result.cancelled}` says which (`onPointerUp={result.cancelled ? close : pick}`), `${result.x}`, `${result.y}` where, in the node."
       },
       {
         "value": "hover",
@@ -26622,7 +26900,7 @@
       },
       {
         "value": "drag",
-        "doc": "The node is dragged (every move); `dragEnd` when it's let go."
+        "doc": "The node is dragged (every move); `dragEnd` when it's let go (`${result.vx}`, `${result.vy}`: its speed; `${result.cancelled}`: the drag was taken away, not let go)."
       },
       {
         "value": "dragEnd",
@@ -26643,6 +26921,10 @@
       {
         "value": "changeEnd",
         "doc": "A slider was let go, with its final value."
+      },
+      {
+        "value": "changeStart",
+        "doc": "A slider was taken (a drag or a press on it began, or a key moves it), with its value before the change (Flutter's `onChangeStart`)."
       },
       {
         "value": "submitted",
@@ -26706,7 +26988,7 @@
       },
       {
         "value": "scroll",
-        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show."
+        "doc": "The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items, `${result.overscroll}` how far it is pulled past an end: below 0 past the start, above 0 past the end, 0 within). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`)."
       },
       {
         "value": "scrollEnd",
@@ -26767,6 +27049,10 @@
       {
         "value": "sort",
         "doc": "A table header was activated by pointer or keyboard: `${result.column}` is its key, `${result.columnIndex}` its index, and `${result.ascending}` the new direction."
+      },
+      {
+        "value": "linkTap",
+        "doc": "A link in a text was tapped: a run of its `runs` with a `link` (`TextRun.link`). `${result.link}` is the run's link, `${result.text}` its characters, `${result.start}` and `${result.end}` where they are in the text. Without this reaction the tap opens the link (a web page, `mailto:`, `tel:`, an app link), as `openLink` does; with it, its actions run instead (a run whose link names something of the app's own: `link=\"restart\"`)."
       },
       {
         "value": "actionError",
@@ -27293,6 +27579,11 @@
         "name": "matches",
         "signature": "matches(text, pattern)",
         "example": "matches(code, \"^\\d{4}$\") → true; JavaScript patterns, with (?i) (?s) (?m) at the start: matches(url, \"(?i)^https?://\")"
+      },
+      {
+        "name": "regexMatches",
+        "signature": "regexMatches(text, pattern)",
+        "example": "regexMatches(\"call 555-0100 or 555-0199\", \"\\d{3}-\\d{4}\") → [{start: 5, end: 13, text: 555-0100, groups: []}, …]; the runs of a text: map(regexMatches(t, \"#\\w+\"), m => {start: m.start, end: m.end, link: m.text})"
       },
       {
         "name": "slug",
