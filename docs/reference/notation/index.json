@@ -737,14 +737,14 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 2989
+      "words": 3092
     },
     {
       "topic": "responsive-keys-at-other-widths",
       "file": "responsive.md",
       "anchor": "responsive-keys-at-other-widths",
       "title": "Keys at other widths",
-      "words": 369
+      "words": 472
     },
     {
       "topic": "responsive-a-design-at-a-width",

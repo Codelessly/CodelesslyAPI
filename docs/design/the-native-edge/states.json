@@ -1,0 +1,11 @@
+{
+  "documents": ["composer.json"],
+  "sizes": "390x844",
+  "states": [
+    {"name": "desktop-window", "args": []},
+    {"name": "phone", "args": ["--insets", "47,34"]},
+    {"name": "keyboard-open", "args": ["--insets", "47,34"], "steps": [{"focus": "composer"}, {"keyboard": 336}, {"type": "composer=Thank you, that helps"}]},
+    {"name": "keyboard-closed-again", "args": ["--insets", "47,34"], "steps": [{"focus": "composer"}, {"keyboard": 336}, {"type": "composer=Thank you"}, {"tap": "send"}, {"unfocus": true}, {"keyboard": 0}]},
+    {"name": "large-text", "args": ["--insets", "47,34", "--text-scale", "1.3"]}
+  ]
+}

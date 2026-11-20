@@ -1,0 +1,87 @@
+[
+ {
+  "state": "desktop-window",
+  "status": 0,
+  "failed": false,
+  "seconds": 11.1,
+  "renderer": "server",
+  "errors": 0,
+  "warnings": 0,
+  "codes": [],
+  "matching": null,
+  "comparisons": [],
+  "images": [
+   "C:/Users/searc/Development/CodelesslyEditor/.claude/worktrees/nocd-rebuild-dsl-test-006b1c/CodelesslyAPI/docs/design/the-native-edge/out/desktop-window/screen@390x844-desktop-window.png"
+  ],
+  "problems": [],
+  "log": null
+ },
+ {
+  "state": "phone",
+  "status": 0,
+  "failed": false,
+  "seconds": 9.3,
+  "renderer": "server",
+  "errors": 0,
+  "warnings": 0,
+  "codes": [],
+  "matching": null,
+  "comparisons": [],
+  "images": [
+   "C:/Users/searc/Development/CodelesslyEditor/.claude/worktrees/nocd-rebuild-dsl-test-006b1c/CodelesslyAPI/docs/design/the-native-edge/out/phone/screen@390x844-phone.png"
+  ],
+  "problems": [],
+  "log": null
+ },
+ {
+  "state": "keyboard-open",
+  "status": 0,
+  "failed": false,
+  "seconds": 12.7,
+  "renderer": "server",
+  "errors": 0,
+  "warnings": 0,
+  "codes": [],
+  "matching": null,
+  "comparisons": [],
+  "images": [
+   "C:/Users/searc/Development/CodelesslyEditor/.claude/worktrees/nocd-rebuild-dsl-test-006b1c/CodelesslyAPI/docs/design/the-native-edge/out/keyboard-open/screen@390x844-keyboard-open.png"
+  ],
+  "problems": [],
+  "log": null
+ },
+ {
+  "state": "keyboard-closed-again",
+  "status": 0,
+  "failed": false,
+  "seconds": 8.6,
+  "renderer": "server",
+  "errors": 0,
+  "warnings": 0,
+  "codes": [],
+  "matching": null,
+  "comparisons": [],
+  "images": [
+   "C:/Users/searc/Development/CodelesslyEditor/.claude/worktrees/nocd-rebuild-dsl-test-006b1c/CodelesslyAPI/docs/design/the-native-edge/out/keyboard-closed-again/screen@390x844-keyboard-closed-again.png"
+  ],
+  "problems": [],
+  "log": null
+ },
+ {
+  "state": "large-text",
+  "status": 0,
+  "failed": false,
+  "seconds": 6.4,
+  "renderer": "server",
+  "errors": 0,
+  "warnings": 0,
+  "codes": [],
+  "matching": null,
+  "comparisons": [],
+  "images": [
+   "C:/Users/searc/Development/CodelesslyEditor/.claude/worktrees/nocd-rebuild-dsl-test-006b1c/CodelesslyAPI/docs/design/the-native-edge/out/large-text/screen@390x844-large-text.png"
+  ],
+  "problems": [],
+  "log": null
+ }
+]
