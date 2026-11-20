@@ -36,11 +36,15 @@ its own (`query_countries`, `query_zones`).
 
 **3. A code field's slots are the field's own box.** The slots took the field's fill, border, corners and height:
 `CodeInput … w=300 h=60 radius=12 fill=… border=… focused.border=…` gives five 53.6 × 60 slots, rounded 12, in
-those colors; the slot typed into next is drawn in the focused border twice as thick (or the decoration's own
-`focusedBorder`). With nothing written the slots are as before (the theme's surface and border, 32 high where the
-field hugs, the accent ring only when the keyboard brought the focus). The 48 px cap on a slot's height is gone: a
-field written taller has taller slots. Open: `focused.border=` recolors every slot while the code is typed, not the
-active one only (the state patch replaces the field's border; the resting border is not kept apart).
+those colors. The 48 px cap on a slot's height is gone: a field written taller has taller slots.
+
+The focused look is the active slot's, one rule: while the field has the focus (a pointer's or the keyboard's), the
+slot typed into next, and only it, is drawn in the field's focused look: its `focused.` keys (`focused.border=`,
+twice as thick, `focused.fill=`), else its decoration's `focusedBorder`, else 2 px in the accent; every other slot
+keeps the resting look. A code field's own `focused` state patch is therefore not applied to the whole field
+(`NodeTree._patched` leaves it out for a text field with `otpLength`); the field reads the patch itself
+(`focusedDecoration`) and draws it on the one slot. (Before: the patch recolored every slot, and with nothing
+written the ring showed only when the keyboard brought the focus.)
 
 **4. A switch's thumb length: `thumbWidth`.** The thumb was a circle (or a rounded square) as tall as the track less
 its inset. `thumbWidth` is its length along the track, kept between that height and the track's length: a 28 × 20
@@ -49,6 +53,44 @@ switch without it.
 
 And one easing: **`curve=` beside `animate=`** is the preset's curve (`animate=fadeIn duration=200 curve=easeIn`),
 read and printed; on a line with no `animate=` it is said.
+
+## A fling that carries: `snapPhysics`
+
+The model already had the words for a release's motion: `GesturePhysics` (a pan's, a drag source's return, a
+transform gesture's): `fling`, `friction` (the share of speed lost a second, Flutter's `FrictionSimulation`),
+`spring`, `minFlingVelocity`, `maxFlingVelocity`, and `projectFling`, where friction alone stops a fling. A scroll
+that snaps had only Flutter's: a page view one page a fling (`PageScrollPhysics`), a list with `itemSnapping` the
+item nearest the platform's coast. The scroll now takes the same record: `snapPhysics` (a field of every collection's
+scroll keys and of the page view). With it a release coasts by its speed, slowing by `friction`, over as many items
+as it carries, and rests exactly on the item nearest `projectFling`'s end: the coast is aimed at that item (the drag
+that stops it there) and handed to `spring` for its last stretch once slower than 60 px/s, so it lands on the row
+boundary. A release slower than `minFlingVelocity` settles on the nearest item on the spring; with reduced motion
+it goes to the same item on the spring with no coast. `snap` and `overscroll` are not read (the items are the snap
+points; the scroll's own `physics` keeps its edges). Written `snapPhysics.friction=0.865` or `snapPhysics={…}`;
+0.865 is a phone's deceleration. SDK: `FlingSnapPhysics` in `widgets/collections_page_runtime.dart`, used by the page view
+(pages a `viewportDimension × viewportFraction` apart) and by a list's `itemSnapping` (its items' starts).
+
+## Rows by angle: what a row is driven by, and one camera
+
+A page of a page view already reads `pageOffset`: its signed distance from the page at rest, in pages, continuous as
+it scrolls and not clamped (the two-page clamp is `pageMotion`'s, a one-record shortcut). A formula on any key of the
+page's line reads it, so every motion key follows it: `motion.translateX`, `translateY`, `shiftX`, `shiftY`,
+`scale`, `scaleX`, `scaleY`, `rotate` (z), `rotateX`, `rotateY`, `perspective`, `alignment`, `path` (a translate along
+a path), and `opacity`. A writer bounds it with a formula (`clamp(pageOffset, -3, 3)`). That is the distance value:
+nothing new was needed to drive a row by it.
+
+A drum of radius R (half the wheel's height) with rows h apart puts a row d rows away at the angle θ = d·h/R: at
+`R·sin θ` from the middle (the page view lays it at d·h, so `motion.translateY={R*sin(θ) - d*h}`) and turned by θ
+(`motion.rotateX={-θ in degrees}`); seen from afar (no perspective) it is h·cos θ tall. The rows crowd and flatten
+toward the top and bottom, and past 90° they are faded out. The same reading gives a cover flow (`rotateY` and
+`translateX` by distance), a carousel that tilts, a stacked deck (`translateY` and `scale`).
+
+What was missing is perspective said once for the list. A motion's own `perspective` sees each row from its own
+middle, so rows on a drum or covers in a flow each have their own vanishing point. The page view's `perspective`
+key is one camera at the view's middle for every page (the pages write `motion.perspective=0`): the SDK wraps each
+page in the perspective about the view's middle, so a page's own turn is seen from there. 0 (the default) draws
+the turns flat. The `Wheel` word draws its drum flat, as the cylinder's own geometry (the test pins rows 0 to 3 at
+R·sin θ and h·cos θ); the camera is for a flow or a tilt that wants depth.
 
 ## What stays data
 
@@ -59,12 +101,13 @@ A switch of its own measure is the base `Toggle` line, written out in forms.md.
 
 ## Open
 
-- A wheel's drum is `pageMotion`, interpolated by distance and clamped at two rows: with seven rows the outer two are
-  drawn as the two inside them. A true cylinder (rows spaced by the sine of their angle, not evenly) would need the
-  page view to place pages by angle. Not built: the clamp could become a field of the page view if a design needs
-  seven rows.
-- A wheel reads to a screen reader as a button with its middle row's text, not as an adjustable control
-  (VoiceOver's increment and decrement). An adjustable role (`semantics.adjustable` with increase and decrease
-  actions running two reactions) is the generic addition; not built here.
-- Fling physics are the page view's (Flutter's page physics): a fling comes to rest one row past where the finger
-  let go, not with a wheel's momentum over many rows.
+- There is no translate in depth (`translateZ`) among the motion keys, so a drum's rows do not recede as they turn;
+  with a camera they are tilted in perspective but stay at the drum's front. A true 3D drum seen in perspective
+  needs `translateZ` (R·cos θ − R) beside `rotateX`; not built.
+- `pageOffset` is a page's; an item of a `ListView` with `itemSnapping` has no distance from its snap position to
+  read. Not built (the wheel is a page view).
+- The page view reports the page under the middle as the coast passes it (`@value` changes mid-spin), not only when
+  it rests.
+- A list's `snapPhysics` aims at the nearest start among the items it has built; a fling past them rests on the
+  last built one.
+- A wheel's adjustable screen-reader role: set aside by the owner.

@@ -109,4 +109,34 @@ Toggle#sw w=48 h=24 @on fillTrack=true thumbInset=2 thumbWidth=28
       expect(_parse('Text "Sent" animate=fade curve=wobbly\n').issues.map((i) => i.message), contains(contains('No curve=wobbly')));
     });
   });
+
+  group('a snapping scroll\'s fling and its camera', () {
+    test('snapPhysics is a GesturePhysics on a page view and a list, read by field and printed back', () {
+      final r = _parse('''
+state n=0
+Column
+  Pages#reel @n h=180 scrollDirection=vertical peek=0.2 snapPhysics.friction=0.9 perspective=1
+    each i in range(60)
+      Text "{i}"
+  ListView#cards h=200 itemSnapping=true snapPhysics={"friction":0.8}
+    each i in range(9)
+      Text "{i}"
+''');
+      expect(r.issues, isEmpty);
+      final props = _node(r, 'reel')['props'] as Map;
+      expect(props['snapPhysics'], {'friction': 0.9});
+      expect(props['perspective'], 1);
+      expect(GesturePhysics.fromJson(props['snapPhysics'])!.friction, 0.9);
+      expect((_node(r, 'cards')['props'] as Map)['snapPhysics'], {'friction': 0.8});
+      final printed = printNotation(r.document, catalog: standardCatalog);
+      expect(printed, contains('perspective=1'));
+      expect(printed, contains('snapPhysics'));
+      expect(_parse(printed).document['nodes'], r.document['nodes']);
+    });
+
+    test('a fling projects where friction stops it: 1500 px/s at 0.865 coasts 749 px', () {
+      expect(GesturePhysics.standard.projectFling(0, 1500), closeTo(1500 / 2.0025, 1));
+      expect(GesturePhysics.standard.projectFling(100, 20), 100, reason: 'slower than minFlingVelocity: no coast');
+    });
+  });
 }

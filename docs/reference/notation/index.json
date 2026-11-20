@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13533
+      "words": 13548
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -338,7 +338,7 @@
       "file": "forms.md",
       "anchor": "forms-a-code-in-boxes-a-switch-of-its-own-shape",
       "title": "A code in boxes, a switch of its own shape",
-      "words": 293
+      "words": 308
     },
     {
       "topic": "forms-validation",
@@ -388,7 +388,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 8091
+      "words": 8573
     },
     {
       "topic": "lists-a-list-over-data",
@@ -416,7 +416,7 @@
       "file": "lists.md",
       "anchor": "lists-a-wheel-that-snaps-to-its-middle-row",
       "title": "A wheel that snaps to its middle row",
-      "words": 155
+      "words": 428
     },
     {
       "topic": "lists-a-list-that-follows-its-newest-entry",
@@ -437,7 +437,7 @@
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3230
+      "words": 3439
     },
     {
       "topic": "lists-behaviors",
