@@ -1,3 +1,28 @@
+## 40.1.0
+
+The open prompt (`notationPrompt(open: true)`) teaches more of what the notation already has, at the same length.
+Nothing in the notation changed, and the taught prompts (`open: false`) are as they were.
+
+### The open prompt
+
+- **Drawing.** A page's open prompt teaches a `customPaint` line under a `Box` with a line per shape (`rect`,
+  `circle`, `path`, `line` in an example; `rrect`, `oval`, `arc`, `paragraph`, `repeat` named), so a picture is
+  drawn and not stacked from boxes. The lines are `notationPaintLines`. A card's open prompt (under 700 wide) does
+  not have them.
+- **A value worked out and a function of the writer's own.** `state total:decimal={price*qty}` and
+  `state fits(c):boolean={…}` used as `filter(cards,c=>fits(c))`, each with its type.
+- **`at phone`.** Where rows side by side are taught, a block of the part's lines on a phone with `...#id` placing
+  a line again, in an example, and `phone.gap=8` for one value that differs. The lines are `notationAtPhoneLines`.
+- **Keys.** A `Select` and a `SegmentedButton` keep the chosen item in `@name`; a chart follows the state through
+  `values={…}` (a `BarChart`'s `labels={…}` too) and a `LineChart`'s `labels` and `series` and a `Donut`'s lists
+  are written out; a main string from a variable is quoted (`Icon "{c.icon}"`); a text with braces of its own is a
+  formula's string (`Text "{'if (x) { y }'}"`).
+- **Left out to make the room**: the events of a design system's `SiteNav` (its line in the list of words that
+  already exist names them); a table written as rows of fixed-width cells; a sidebar's item and a sidebar's
+  contents in prose (the app example shows them); `Row between` said a second time; the JSON of `site.json`'s
+  variables; three sentences that restated what reflow does or what an example shows; and shorter wording for a
+  `Donut`'s legend, a gallery `Lightbox`, `hide=`/`show=`, a sticky rail, `go` and `scroll`.
+
 ## 40.0.0
 
 Lines of the notation that looked right and drew wrongly now draw what they say, and what a page names wrongly is
