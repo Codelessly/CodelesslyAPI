@@ -161,8 +161,8 @@ void main() {
     });
 
     test('a JSON value: a list or a map', () {
-      word('Column', 'effects', '[{"type":"layerBlur","radius":4}]', 'decoration.effects', [
-        {'type': 'layerBlur', 'radius': 4},
+      word('Column', 'effects', '[{"type":"layerBlur","blurRadius":4}]', 'decoration.effects', [
+        {'type': 'layerBlur', 'blurRadius': 4},
       ]);
       word('Column', 'pan', '{"axis":"vertical"}', 'pan', {'axis': 'vertical'});
     });

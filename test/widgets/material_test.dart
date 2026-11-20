@@ -44,7 +44,7 @@ void main() {
       'label': 3,
       'side': 'oops',
       'shape': {'type': 'hexagon', 'borderRadius': 'x'},
-      'padding': [1, 2],
+      'padding': [1, 2, 3],
       'elevation': 'high',
     });
     expect(n.prop(ChipProps.label), '3');

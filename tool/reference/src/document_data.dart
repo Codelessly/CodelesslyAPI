@@ -6,7 +6,7 @@
 /// The JSON forms each value type reads, as a reader would write them.
 const Map<String, String> valueForms = {
   'Color': '"#AARRGGBB" or "#RRGGBB" (hex, alpha first)',
-  'EdgeInsets': 'a number (all sides) or [left, top, right, bottom]',
+  'EdgeInsets': 'a number (all sides), [horizontal, vertical] or [left, top, right, bottom]',
   'BorderRadius': 'a number (every corner), [x, y] (every corner elliptical) or [topLeft, topRight, bottomRight, bottomLeft] (each a number or [x, y])',
   'Alignment': '[x, y] from -1 to 1, or a name: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight',
   'Offset': '[dx, dy]',

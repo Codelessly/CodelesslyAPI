@@ -125,8 +125,8 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.width` | `AxisSize` | a number (fixed) or {"fill"\|"flexible"\|"hug"\|"fixed": number} |
 | `layout.height` | `AxisSize` | a number (fixed) or {"fill"\|"flexible"\|"hug"\|"fixed": number} |
 | `layout.constraints` | `BoxConstraints` | {"minWidth", "maxWidth", "minHeight", "maxHeight"} (each optional, numbers >= 0) |
-| `layout.margin` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
-| `layout.padding` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
+| `layout.margin` | `EdgeInsets` | a number (all sides), [horizontal, vertical] or [left, top, right, bottom] |
+| `layout.padding` | `EdgeInsets` | a number (all sides), [horizontal, vertical] or [left, top, right, bottom] |
 | `layout.aspectRatio` | `double` | a number |
 | `layout.widthFactor` | `double` | a number |
 | `layout.heightFactor` | `double` | a number |

@@ -206,11 +206,13 @@ big as its content. Write a size only where the design needs one.
 
 - `w`, `h`: a number (fixed), `fill` (the room the parent gives), `hug` (the content's size). `grow` on a child of a
   Row or Column takes the room left (shared by every child with `grow`).
-- `pad`: one number, or `[left,top,right,bottom]`. `gap`: the room between children. `margin` as `pad`.
+- `pad`: one number, `[x,y]` (`[14,12]`: 14 left and right, 12 top and bottom), or `[left,top,right,bottom]`. `gap`: the room between children. `margin` as `pad`.
 - `maxWidth=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
 - On a Row, Column or Stack: `center` is across the page and `middle` down it; `center middle` is both (a
   Column starts its children at the left unless a word says otherwise). Along a Row or Column: `start`,
-  `end`, `between`, `around`, `evenly`. Across it: `top`, `bottom`, `left`, `right`, `stretch`.
+  `end`, `between`, `around`, `evenly`. `left` and `right` are across the page and `top` and `bottom` down it, as
+  `center` and `middle` (a Column `bottom` gathers its children at its foot, a Row `top` lines them up at its top).
+  Across it: `stretch`.
 - `scroll` makes a Column scroll (a Row: sideways).
 - Controls in a Row share a height: leave `h` off them all (an Input, a Select, a Button, an IconButton hug to one
   step), or give each the same `h`. A height on one alone makes the row uneven, and the render says so.
@@ -442,7 +444,7 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 799 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | you write or change `site.json`; every page and component of the site reads what it declares by name. | 635 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 988 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17101 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17105 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1660 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | a UI sells something. | 300 |

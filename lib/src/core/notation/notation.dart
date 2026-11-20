@@ -43,6 +43,7 @@ import '../triggers.dart' show TriggerType;
 import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
 import '../custom_paint.dart' show DrawOp;
 import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
+import '../value_fields.dart' show EffectFields;
 // A ListView with lines of its own is read as a scrolling Column (_listOfLines).
 import '../widgets/flex.dart' show FlexProps;
 
@@ -174,7 +175,9 @@ final class NotationResult {
 ({bool composer, bool toolbar, bool entry, String? frame}) notationFieldPlace(Map<String, Object?> nodes, String? Function(String id) parentOf, String id) {
   const buttons = {'iconButton', 'filledButton', 'outlinedButton', 'textButton', 'elevatedButton', 'floatingActionButton'};
   const fields = {'textField', 'dropdown', 'datePicker', 'timePicker', 'dateTimeInput', 'checkbox', 'switch', 'slider', 'radio', 'segmentedButton'};
-  const quiet = {'icon', 'text', 'spacer', 'row', 'column', 'stack', 'image', ...buttons};
+  // (A `box`: a spacer kept where a button shows only while there is a
+  // draft, `else box w=12`.)
+  const quiet = {'icon', 'text', 'spacer', 'box', 'row', 'column', 'stack', 'image', ...buttons};
   Json? node(String? id) => id == null ? null : readMap(nodes[id]);
   List<String> kids(String id) => [...?(node(id)?['children'] as List?)?.whereType<String>().where(nodes.containsKey)];
   Iterable<String> types(String id) sync* {
@@ -204,7 +207,11 @@ final class NotationResult {
   final inRow = row != null && node(row)?['type'] == 'row';
   final beside = inRow ? [for (final k in kids(row)) if (k != at) ...types(k)] : const <String>[];
   final alone = inRow && !beside.any(fields.contains);
-  final byButton = alone && beside.any(buttons.contains);
+  // A box of the app's own that takes a tap (a round send box with an
+  // arrow in it) is a button beside the field as a stock one is.
+  bool taps(String id) =>
+      ((node(id)?['actions'] as List?) ?? const []).any((a) => a is Map && (a['trigger'] as Map?)?['type'] == 'click') || kids(id).any(taps);
+  final byButton = alone && (beside.any(buttons.contains) || (inRow && kids(row).any((k) => k != at && taps(k))));
   final composer = byButton && multiline;
   const chips = {'chip', 'choiceChip', 'filterChip', 'actionChip', 'inputChip'};
   final Object? rowHeight = inRow ? (readMap(node(row)?['layout']) ?? const <String, Object?>{})['height'] : null;
@@ -4514,6 +4521,19 @@ class _Parser {
           ((patch['bind'] as Json?) ?? (patch['bind'] = <String, Object?>{}))['props.$key'] = _formula(v.substring(1, v.length - 1).trim());
           continue;
         }
+        // `fill={step == 0 ? sky : dusk}`: the screen's ground follows data,
+        // as a box's fill does. The braces were kept as the colour's text
+        // and the screen drew transparent.
+        if (w.key == 'fill') {
+          patch['decoration'] = {
+            ...?(patch['decoration'] as Json?),
+            'fills': [
+              {'color': '#00000000'},
+            ],
+          };
+          ((patch['bind'] as Json?) ?? (patch['bind'] = <String, Object?>{}))['decoration.fills[0].color'] = _formula(v.substring(1, v.length - 1).trim());
+          continue;
+        }
       }
       final path = switch (w.key) {
         '"' => 'name',
@@ -4821,6 +4841,31 @@ class _Parser {
       return id;
     }();
   }
+
+  /// A field written in a place (`x`, `y`) or an effect that nothing reads
+  /// is said where the line is: `x={"center":0}` drew at the start and
+  /// `{"type":"layerBlur","radius":40}` drew no blur, with nothing said.
+  void _unreadFields(Json layout, Json decoration, int column) {
+    void check(Object? record, List<String> fields, String what) {
+      if (record is! Map) return;
+      for (final k in record.keys) {
+        if (k is! String || fields.contains(k)) continue;
+        final near = didYouMean(k, fields);
+        _issue(column, '$what takes ${fields.map((f) => '"$f"').join(', ')}: "$k" is not read${near == null ? '' : ' (did you mean "$near"?)'}.');
+      }
+    }
+
+    for (final axis in const ['x', 'y']) {
+      check(layout[axis], const ['start', 'end', 'align', 'relative'], 'A place ($axis={…}, {"align":0} the middle)');
+    }
+    if (decoration['effects'] case final List effects) {
+      for (final e in effects) {
+        check(e, _effectFieldKeys, 'An effect');
+      }
+    }
+  }
+
+  static final List<String> _effectFieldKeys = [for (final f in EffectFields.all) f.key];
 
   void _issue(int column, String message) {
     // A line read again (an overlay's foot, a sidebar's copy in its drawer) said what was wrong the first time.
@@ -6468,6 +6513,12 @@ class _Parser {
             props['style'] = style..['fontStyle'] = 'italic';
           } else if (_mainWords[word] case final String m when type == 'row' || type == 'column' || type == 'flex') {
             props['mainAxisAlignment'] = m;
+          } else if ((type == 'column' && (word == 'top' || word == 'bottom')) || (type == 'row' && (word == 'left' || word == 'right'))) {
+            // A side named along the line's own axis places the line there,
+            // as `center` and `middle` do: a Column `bottom` gathers what is
+            // in it at its foot (it put them at its right), a Row `right` at
+            // its end.
+            props['mainAxisAlignment'] = _crossWords[word];
           } else if (_crossWords[word] case final String c when type == 'row' || type == 'column' || type == 'flex') {
             props['crossAxisAlignment'] = c;
             _crossWritten.add(id);
@@ -9180,6 +9231,7 @@ class _Parser {
       }
     }
 
+    _unreadFields(layout, decoration, column);
     if (options.iconStyle case final style?) _styleIcons(props, style);
     bindReads(props, 'props');
     bindReads(layout, 'layout');
