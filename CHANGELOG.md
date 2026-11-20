@@ -1,7 +1,27 @@
 ## 40.1.0
 
-The open prompt (`notationPrompt(open: true)`) teaches more of what the notation already has, at the same length.
-Nothing in the notation changed, and the taught prompts (`open: false`) are as they were.
+The open prompt (`notationPrompt(open: true)`) teaches more of what the notation already has, at the same length;
+the taught prompts (`open: false`) are as they were. Lines of the notation that were read by nothing, with no word
+said, are read or said. With CodelesslySDK 40.1.0.
+
+### The notation
+
+- **A state written as a formula with no type** (`state limit={pick == "15 min" ? 15 : 100000}`) is read by a
+  function, by a typed formula variable and by a drawing's lines, wherever it is declared. A function that read
+  it compared against nothing (its list was empty), and a `paragraph "Peak {total}"` drew no value.
+- **A function with no type** (`state fits(c)={…}`) is said, with the line to write
+  (`state fits(c):boolean={…}`); it said only that state is written `name=value`.
+- **A `customPaint` line's own key that is worked out** (`viewBox=[{length(rows) * 10},100]`) is said and left out:
+  the painter's keys are values. It was kept and read by nothing, and the drawing was in the box's pixels.
+- **A chart's lists follow the state.** `LineChart` and `AreaChart` take `labels={…}`, `values={…}` and
+  `series={[{"name":"Visits","values":map(rows, r => r.visits)}]}` (a part of a series may be in braces of its
+  own); a `Donut` takes `values={…}`, `labels={…}` and `colors={…}`. Each was left out, the Donut drawing a grey
+  ring. The chart's rows are worked out from them (`props.data` is bound). A Donut whose lists are worked out
+  draws no legend of its own. A `series` that is one variable is said: how many lines it has is not known.
+- **A chart over rows.** `BarChart data={rows} xField="day" yField="count"` reads its values and labels from those
+  fields (it drew nothing and refused `xField`); `AreaChart data={rows} …` fills under its line.
+- The reference's page on a design at a width says what a `Row`'s block lines do: they are side by side, as its
+  own are, and a `Column` in the block or `phone.direction=vertical` on the row's line puts them down the page.
 
 ### The open prompt
 
@@ -9,13 +29,12 @@ Nothing in the notation changed, and the taught prompts (`open: false`) are as t
   `circle`, `path`, `line` in an example; `rrect`, `oval`, `arc`, `paragraph`, `repeat` named), so a picture is
   drawn and not stacked from boxes. The lines are `notationPaintLines`. A card's open prompt (under 700 wide) does
   not have them.
-- **A value worked out and a function of the writer's own.** `state total:decimal={price*qty}` and
-  `state fits(c):boolean={…}` used as `filter(cards,c=>fits(c))`, each with its type.
+- **A value worked out and a function of the writer's own.** `state total={price*qty}`, and
+  `state fits(c):boolean={…}` with its type, used as `filter(cards,c=>fits(c))`.
 - **`at phone`.** Where rows side by side are taught, a block of the part's lines on a phone with `...#id` placing
   a line again, in an example, and `phone.gap=8` for one value that differs. The lines are `notationAtPhoneLines`.
-- **Keys.** A `Select` and a `SegmentedButton` keep the chosen item in `@name`; a chart follows the state through
-  `values={…}` (a `BarChart`'s `labels={…}` too) and a `LineChart`'s `labels` and `series` and a `Donut`'s lists
-  are written out; a main string from a variable is quoted (`Icon "{c.icon}"`); a text with braces of its own is a
+- **Keys.** A `Select` and a `SegmentedButton` keep the chosen item in `@name`; a chart's lists follow the state in braces
+  (`values={…}`, `labels={…}`, `series={[…]}`); a main string from a variable is quoted (`Icon "{c.icon}"`); a text with braces of its own is a
   formula's string (`Text "{'if (x) { y }'}"`).
 - **Left out to make the room**: the events of a design system's `SiteNav` (its line in the list of words that
   already exist names them); a table written as rows of fixed-width cells; a sidebar's item and a sidebar's
