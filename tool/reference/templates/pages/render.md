@@ -34,7 +34,8 @@ scrolled to the middle first, and a tap that would land on another node is repor
 reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`,
 `--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
 (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that
-many times as far apart), `--navigate <screen>`, `--wait <ms>`. A step
+many times as far apart), `--long-press <id>` (`=<ms>` held that long; `=<ms>,hold` not lifted), `--navigate <screen>`,
+`--wait <ms>`, `--frames <ms>,...`. A step
 may name a node by its `name` too. In a site, steps name nodes inside components by path (`--tap plans/card1/cta`)
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`); with no
 `#<n>` a step reaches the first copy in view; `#<n>` counts the copies shown, not those an `if` hides. A node
@@ -58,8 +59,13 @@ navigation first unfocuses a focused text field elsewhere, as a click outside it
 diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
 `--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A
 capture after a navigation is named after the screen it shows. After each step the page settles before the next one and the capture
-(about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
-lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
+(about a second): an animation shorter than that is over when the screenshot is taken. To see one mid-flight,
+`--frames <ms>,<ms>...` right after the step captures what it started at those times with no settle first
+(`<png>-f<n>-<ms>ms.png`, with its layout under `--dump-layout`): `--tap send --frames 120` shows a row pending
+before its delay ends, `--navigate detail --frames 0,100,200` a route's entrance, `--frames` first a page's load
+(a mount animation, a first timer), and `--long-press msg=399,hold --frames 0` a hold still in progress (`,hold`
+keeps the finger down until the next step). The page's clock is the run's: timers, delays and animations move only
+by the frames drawn, so each frame is the same on every run. In a states manifest: `{"frames": [0, 120]}`. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
 focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the
 whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
 day. `--full-page` captures the whole page from its top, its own scroll
@@ -105,7 +111,10 @@ The annual price: `--tap billingSwitch --label annual`. An open menu at phone wi
 menuButton --label menu`. An error state: `--type seats=0 --unfocus --label error`. A value set directly:
 `--set annual=true`. A detail page with its parameter: `--navigate speaker?id=ada --full-page`. A reordered list or
 a slider: `--drag handle#0=0,120`, `--drag volume=80,0`. A countdown before the event: `--now
-2026-11-13T09:00:00Z`.
+2026-11-13T09:00:00Z`. A pending row 120 ms after Send: `--tap send --frames 120`. Many states at once: `tool/codelessly
+states <states.json>` renders a manifest's states on one warm renderer (it starts the render server for the run when
+none is up and stops it after; each state still starts from a fresh app; its first line and each state's line say
+warm or cold; `--cold` starts Flutter for each state).
 
 ### What a run keeps
 
