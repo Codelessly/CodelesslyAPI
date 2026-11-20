@@ -27,6 +27,16 @@ box w=200 h=120
     line p1=[0,110] p2=[200,110] stroke=#FF5D6D7E strokeWidth=2
 ```
 
+`paint=[…]` is the op's list of paints, each drawing the shape once, in order: `color`, `style` (`fill` or
+`stroke`), `strokeWidth`, `strokeCap`, `strokeJoin`, `dashPattern`, `blendMode`, and `shader`, a gradient or an
+image ([Paint](decoration.md#type-Paint)) laid over the shape's bounds in place of `color`: a stroke in a gradient.
+
+```notation
+box w=40 h=40
+  customPaint viewBox=[40,40]
+    path d="M4 36 L36 4" paint=[{"style":"stroke","strokeWidth":4,"strokeCap":"round","shader":{"type":"linear","stops":[{"position":0,"color":"#FF2563EB"},{"position":1,"color":"#FFDB2777"}]}}]
+```
+
 A value is a number, a word, a quoted string, JSON, or `{expression}`; a list may hold expressions among its
 numbers: `c=[{60 + index * 34},48]`.
 

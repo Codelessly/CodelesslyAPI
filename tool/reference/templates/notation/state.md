@@ -14,6 +14,11 @@ variable is not named after what the runtime gives every formula: `data`, `route
 looks are written under (`hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`): on a line `pressed.fill=…`
 is always the node's pressed look, never the variable (`state heldItem=…`, not `state pressed=…`).
 
+The type words are these and no others: `boolean` (not `bool`), `integer` or `decimal` (not `int`, `number`,
+`double`), `text` (not `String` or `string`), `list`, `map`. A component's `param` is typed in Flutter's names
+instead (`param open:bool=false`, [components.md](components.md#components-writing-one)). There is no `formula`
+line: a value worked out is a `state` whose value is braced (`state valid:boolean={matches(url, '^https?://')}`).
+
 `state x=0` is a whole number, and a fraction set into it is rounded: one that holds a fraction says so
 (`state read:decimal=0`). `state x=null` is text: a variable that starts empty and later holds a record or a list
 says so (`state replyTo:map=null`); `replyTo=null` empties it again (`replyTo != null` is then false).
@@ -49,6 +54,20 @@ Column gap=8
   Text "Clicked {count} times"
   Text "Twice: {count * 2}"
   Button "Reset" visible={count > 0} onTap={count=0}
+```
+
+A formula is not JavaScript. Logic is `!x`, `a && b`, `a || b` (not `not`, `and`, `or`); a list is the first
+argument of a function, not a method (`any(facts, f => f.done)`, not `facts.some(…)`); a record changes by
+`set(p, 'following', !p.following)`, with no `{...p}`. A field of a record that is null is null, not an error:
+`coalesce(selected.iso, "")` is `""` while nothing is selected.
+
+```notation
+state people=[{"id":"a","following":false}]
+state selected={}
+Column gap=8
+  Text "Following someone" visible={any(people, p => p.following)}
+  Button "Follow" onTap={people=map(people, p => p.id == "a" ? set(p, "following", !p.following) : p)}
+  Button "Book" enabled={coalesce(selected.iso, "") != ""}
 ```
 
 ## Changing state

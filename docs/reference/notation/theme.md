@@ -20,6 +20,14 @@ Column gap=4
   Text.title "In the theme's primary" color=primary
 ```
 
+A part of a text in its own style, or a link, is a run over its characters: `runs=[…]`, each
+[TextRun](#type-TextRun) a range `start` to `end` (the end not included) with its `style` and its `link`. A run
+holds no text of its own; it styles the text that is there.
+
+```notation
+Text "Feeling stuck? Find help here." runs=[{"start":15,"end":29,"style":{"color":"#FF545CEA","fontWeight":600},"link":"https://example.com/help"}]
+```
+
 A theme color or text style is written by its name (`color=primary`, `color=onSurface`, `style=title`): the
 document's theme gives it. A key written after a named style changes only that key, at every width:
 `style=title size=13` and `style=title phone.size=13` are the title at 13, its colour and weight kept (`from=title`

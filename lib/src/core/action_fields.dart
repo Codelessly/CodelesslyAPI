@@ -354,8 +354,10 @@ abstract final class ConfirmFields {
 
 /// [DelayAction].
 abstract final class DelayFields {
-  static const ms = PropDef<int>('ms', Codecs.int, 500);
-  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'A formula giving milliseconds.');
+  static const ms = PropDef<int>('ms', Codecs.int, 500,
+      doc: 'A fixed wait, a whole number of milliseconds (`delay ms=300`). A wait worked out is `duration`.');
+  static const duration = PropDef<String>('duration', Codecs.string, '',
+      doc: 'A formula giving milliseconds: `delay duration={fast ? 300 : 800}`.');
   static const List<PropDef<Object?>> all = [ms, duration];
 }
 
@@ -448,7 +450,9 @@ abstract final class ScrollToFields {
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
   static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
   static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
-  static const offset = PropDef<double>('offset', Codecs.double, 0);
+  static const offset = PropDef<double>('offset', Codecs.double, 0,
+      doc: 'Pixels the view stops short of the node: `offset=16` leaves 16 before it (the view scrolls 16 less), a '
+          'negative offset scrolls past it. The view never scrolls past its start or its end.');
   static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
       doc: 'Only the scroll views along this axis; null: every one.');
   static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];

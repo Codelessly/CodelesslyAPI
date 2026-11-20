@@ -5,7 +5,8 @@ element, lays out a grid, shows a table or pages through items.
 
 ## A list over data
 
-`each item in list` repeats the lines under it once per element: `{item.field}` reads it, `index` is its place. An
+`each item in list` repeats the lines under it once per element: `{item.field}` reads it, `index` is its place
+(there with nothing written: `each dot in range(count)`, not `each dot, i in …`). An
 each inside an each is best given names of its own (`each group in groups` / `each msg in group.items`): the inner
 lines read `{group.name}` and `{msg.subject}`. An inner each that reuses the outer's name (`each item in item.items`)
 hides it, as in any language: `{item}` under it is the inner element, and `parent.item` the outer. A name inside a
@@ -68,6 +69,33 @@ state page=0
 Pages @page h=160
   Text "One"
   Text "Two"
+```
+
+A `PageView` (or `Pages`) reports the page it settles on with `onChange` (`result.index`), as a carousel's dots
+read it; `onScroll` fires on every move of the drag.
+
+```notation
+state reviews=["Kind","Clear","Calm"]
+state at=0
+Column gap=8
+  PageView h=120 onChange={at=result.index}
+    each item in reviews
+      Text "{item}"
+  Row gap=6 center
+    each item in reviews
+      Column w=6 h=6 fill={index == at ? '#FF2563EB' : '#FFD1D5DB'} radius=3
+```
+
+A `ListView` is a list over data: the one line under its `each` is repeated, and what only a list does goes with
+it (pull to refresh with `onRefresh` or `pullToRefresh`, `pagination`, swipe actions, `stickToEnd`). Lines of its
+own beside the `each` make it a scrolling Column holding them and the each, which does none of those; the expand
+says so. Headings among the items are the list's `sections` (`sections.groupBy`, its `sectionHeader` slot).
+
+```notation
+state posts=[{"id":"a","text":"First"},{"id":"b","text":"Second"}]
+ListView h=300 onRefresh={posts=posts}
+  each item in posts
+    Text "{item.text}"
 ```
 
 ## A table of records

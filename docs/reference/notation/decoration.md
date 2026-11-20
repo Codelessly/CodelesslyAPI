@@ -3,7 +3,7 @@
 # Decoration
 
 Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. Open it when a box needs more than
-`fill`, `border` and `radius`.
+`fill`, `border` and `radius`: a shadow, a gradient, a picture placed in its box.
 
 <a id="decoration-fills-borders-and-corners"></a>
 ## Fills, borders and corners
@@ -30,7 +30,9 @@ Row gap=8
     box w=40 h=40 gradient={[item.c1, item.c2]} shape=circle
 ```
 
-Shadows and blurs are `effects=[…]` ([Effect](#type-Effect)); `clip=true` clips the content to the corners.
+Shadows and blurs are `effects=[…]` ([Effect](#type-Effect)); `clip=true` clips the content to the corners. A
+shadow is written only so: there is no `shadow=` or `shadows=` key. Its numbers are pixels: `offset` `[x, y]`,
+`blurRadius`, `spreadRadius` (CSS `box-shadow: 0 4px 16px` is `"offset":[0,4],"blurRadius":16`).
 
 ```notation
 Column w=120 h=80 fill=#FFFFFFFF effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}]
@@ -39,13 +41,20 @@ Column w=120 h=80 fill=#FFFFFFFF effects=[{"type":"dropShadow","color":"#3300000
 <a id="decoration-pictures-and-icons"></a>
 ## Pictures and icons
 
-`Image "url"` is a picture (an image fill on a box; `Image url="…"` and `url={…}` the same); `Icon "name"` a Material
-icon.
+`Image "url"` is a picture (an image fill on a box; `Image url="…"` and `url={…}` the same; a path is read from
+the document's folder, in a site the site's: `Image "assets/card.png"`); `fit=` is how it fills its box (`cover`, `contain`…). Its paint's other
+fields ([ImagePaint](#type-ImagePaint): `alignment`, `tint`, `repeat`) are written on a box's fill:
+`box w=fill h=180 fills=[{"image":{"url":"…","fit":"cover","alignment":"topCenter"}}]`. `Icon "name"` is a
+Material icon.
 
 ```notation
 Row gap=8
   Image "https://example.com/a.png" w=120 h=80 radius=8
   Icon "star" size=24 color=#FFF59E0B
+```
+
+```notation
+box w=200 h=120 fills=[{"image":{"url":"https://example.com/a.png","fit":"cover","alignment":"topCenter"}}] radius=8
 ```
 
 Drawing your own shapes is [paint.md](paint.md).

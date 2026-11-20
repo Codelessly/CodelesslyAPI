@@ -46,6 +46,29 @@ Column gap=8
     Text "Old"
 ```
 
+A use takes the keys its head names. `...` at the end of one of its lines gives that line every other key a use
+writes, a place in a Stack among them; without it, `x=` on a use is refused. Each id in its lines is the use's own:
+`#ini` is `ini_portrait1` in the first use and `ini_portrait2` in the next, as a render step names it.
+
+```notation expands
+define Portrait "initials"
+  Column w=32 h=32 radius=16 fill=#FFE5E7EB center middle ...
+    Text#ini "{initials}"
+Stack w=120 h=40
+  Portrait "AS" x=0 y=4
+  Portrait "BK" x=24 y=4
+```
+
+It reads as:
+
+```notation
+Stack w=120 h=40
+  Column#portrait1 middle center w=32 h={"hug":32} x=0 y=4 minHeight=32 fill=#FFE5E7EB radius=16
+    Text#ini_portrait1 "AS"
+  Column#portrait2 middle center w=32 h={"hug":32} x=24 y=4 minHeight=32 fill=#FFE5E7EB radius=16
+    Text#ini_portrait2 "BK"
+```
+
 A defined word's lines may read the looks the theme gives the notation's own words as `{theme.<name>}`, worked out
 as the word is used, under whatever theme the page is read with (a design system's, the site's, or the notation's
 own looks): `accent`, `accentText`, `line`, `selectedFill`, `surface`, `overlaySurface`, `track`, `band`, `siteFill`,

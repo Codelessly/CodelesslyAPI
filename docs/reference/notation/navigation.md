@@ -236,6 +236,39 @@ Dialog#signup "Join the waitlist"
   Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
 ```
 
+An overlay's id is one of the page's ids, so the line that opens it has another (`IconButton#openFilters …
+onTap={open filters}` and `Sheet#filters`). The actions after `open id` in the same chain run once the overlay has
+closed, however it closed (its `close`, a tap outside, a drag down, Escape, back): that is where a page reacts to a
+sheet going away, and `result` there is what `closeModal result=…` gave. A Sheet's own corners are 20 at its top;
+`radius=` on its line rounds the content under it, not the sheet.
+
+```notation width=390 expands
+state rating=0
+state rated=false
+Column gap=12
+  Button "Rate" onTap={open rate; rated=rating > 0}
+Sheet#rate "Rate your anxiety"
+  Slider @rating min=0 max=10
+  Button "Done" onTap={close}
+```
+
+It reads as:
+
+```notation
+state rating=0
+state rated=false
+Column gap=12
+  Button "Rate" onTap={openModal to=rate presentation=bottomSheet sheetWidth=560.0 sheetRadius=20 showDragHandle=true maxHeightFactor=0.9; rated=rating > 0}
+Canvas#rate "rate" w=560 fill=surface decoration.effects=[{"type":"dropShadow","color":"#24000000","offset":[0,12],"blurRadius":32,"spreadRadius":-6}]
+  Column gap=16 pad=[20,8,20,24]
+    Row gap=12 between
+      Text.heading "Rate your anxiety" color=onSurface grow
+      IconButton "close" color=onSurface onTap={close}
+    Slider @rating min=0 max=10
+    Row#column2Actions gap=8
+      Button "Done" grow onTap={close}
+```
+
 A Dialog, Sheet or Drawer that must not close while something is typed says so on its line: `guard={dirty}` (or
 `blockBack={dirty}`) keeps Escape, a tap outside and back from closing it while it holds; `guardText="Discard the
 draft?"` asks that first (a yes runs `onDiscard={…}` and closes); `onBackPressed={open keepDraft}` runs instead.

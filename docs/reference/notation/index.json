@@ -2,7 +2,7 @@
   "version": "40.2.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4409
+    "words": 4430
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4409
+      "words": 4430
     },
     {
       "topic": "notation-a-line",
@@ -46,7 +46,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-state",
       "title": "State",
-      "words": 148
+      "words": 159
     },
     {
       "topic": "notation-formulas",
@@ -95,7 +95,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-the-references",
       "title": "The references",
-      "words": 1003
+      "words": 1013
     },
     {
       "topic": "layout",
@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5095
+      "words": 5141
     },
     {
       "topic": "layout-sizes",
@@ -117,7 +117,7 @@
       "file": "layout.md",
       "anchor": "layout-place",
       "title": "Place",
-      "words": 150
+      "words": 196
     },
     {
       "topic": "layout-scrolling",
@@ -167,14 +167,14 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1462
+      "words": 1522
     },
     {
       "topic": "theme-text",
       "file": "theme.md",
       "anchor": "theme-text",
       "title": "Text",
-      "words": 277
+      "words": 337
     },
     {
       "topic": "theme-words",
@@ -217,21 +217,21 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2684
+      "words": 2773
     },
     {
       "topic": "decoration-fills-borders-and-corners",
       "file": "decoration.md",
       "anchor": "decoration-fills-borders-and-corners",
       "title": "Fills, borders and corners",
-      "words": 131
+      "words": 160
     },
     {
       "topic": "decoration-pictures-and-icons",
       "file": "decoration.md",
       "anchor": "decoration-pictures-and-icons",
       "title": "Pictures and icons",
-      "words": 41
+      "words": 91
     },
     {
       "topic": "decoration-keys-every-decorated-line-takes",
@@ -274,14 +274,14 @@
       "anchor": "page-paint",
       "title": "Custom paint",
       "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
-      "words": 1947
+      "words": 2006
     },
     {
       "topic": "paint-the-lines",
       "file": "paint.md",
       "anchor": "paint-the-lines",
       "title": "The lines",
-      "words": 320
+      "words": 379
     },
     {
       "topic": "paint-the-painter-s-keys",
@@ -310,14 +310,14 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13171
+      "words": 13313
     },
     {
       "topic": "forms-a-control-and-its-value",
       "file": "forms.md",
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
-      "words": 430
+      "words": 572
     },
     {
       "topic": "forms-tabs-segments-and-chips-chosen-from",
@@ -381,14 +381,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7925
+      "words": 8087
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 571
+      "words": 733
     },
     {
       "topic": "lists-a-table-of-records",
@@ -459,21 +459,21 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3556
+      "words": 3714
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 246
+      "words": 302
     },
     {
       "topic": "state-bindings",
       "file": "state.md",
       "anchor": "state-bindings",
       "title": "Bindings",
-      "words": 58
+      "words": 160
     },
     {
       "topic": "state-changing-state",
@@ -509,21 +509,21 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 5929
+      "words": 6107
     },
     {
       "topic": "events-an-event",
       "file": "events.md",
       "anchor": "events-an-event",
       "title": "An event",
-      "words": 1913
+      "words": 1932
     },
     {
       "topic": "events-actions",
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 3939
+      "words": 4098
     },
     {
       "topic": "interaction",
@@ -581,7 +581,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3568
+      "words": 3640
     },
     {
       "topic": "animation-the-animate-words",
@@ -595,7 +595,7 @@
       "file": "animation.md",
       "anchor": "animation-animation-lines",
       "title": "Animation lines",
-      "words": 520
+      "words": 592
     },
     {
       "topic": "animation-transitions",
@@ -638,14 +638,14 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8869
+      "words": 8908
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 472
+      "words": 511
     },
     {
       "topic": "charts-words",
@@ -717,7 +717,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 4276
+      "words": 4449
     },
     {
       "topic": "navigation-page-frames",
@@ -731,7 +731,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 736
+      "words": 909
     },
     {
       "topic": "navigation-screens",
@@ -774,7 +774,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2859
+      "words": 2890
     },
     {
       "topic": "components-calling-one",
@@ -795,7 +795,7 @@
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 423
+      "words": 454
     },
     {
       "topic": "components-words",
@@ -824,7 +824,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 672
+      "words": 799
     },
     {
       "topic": "design-systems-a-design-system",
@@ -838,7 +838,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 385
+      "words": 512
     },
     {
       "topic": "design-systems-examples",
@@ -875,14 +875,14 @@
       "anchor": "page-document",
       "title": "The document",
       "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
-      "words": 907
+      "words": 989
     },
     {
       "topic": "document-the-order-of-a-document",
       "file": "document.md",
       "anchor": "document-the-order-of-a-document",
       "title": "The order of a document",
-      "words": 181
+      "words": 263
     },
     {
       "topic": "document-fields-of-every-node",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17082
+      "words": 17101
     },
     {
       "topic": "values-writing-a-value",
@@ -939,7 +939,7 @@
       "file": "values.md",
       "anchor": "values-enums",
       "title": "Enums",
-      "words": 10863
+      "words": 10882
     },
     {
       "topic": "values-records",

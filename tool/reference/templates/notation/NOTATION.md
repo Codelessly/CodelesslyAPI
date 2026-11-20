@@ -142,7 +142,7 @@ Every layout key is on [layout.md](layout.md).
 `state name=value` at the margin, before the tree, declares a variable; its type is its value's. A type the value
 does not say is written after a colon: `state price:decimal=0`. A value worked out from others is a formula
 variable, kept up to date: `state total:decimal={price * qty}`. `saved` keeps a value on the device across reloads.
-Types: {{variableTypes}}.
+Types: {{variableTypes}} (`boolean`, not `bool`; a component's `param` is typed in Flutter's names).
 
 - `{name}` in a string, and `key={expression}` on any key, follow the state.
 - `@name` keeps a control's value in a variable, both ways: `Slider @volume`, `Input "Email" @email`; any other

@@ -85,6 +85,12 @@ abstract final class CollectionScrollProps {
     doc: 'The axis it scrolls along.',
   );
   static const reverse = PropDef<bool>('reverse', Codecs.bool, false);
+
+  /// How it answers a drag past its ends (Flutter's `ScrollPhysics`): the
+  /// platform's, `bouncing` (iOS), `clamping` (Android), `never` (it does not
+  /// scroll), `rangeMaintaining`. That it can be pulled when its items fit
+  /// (Flutter's `AlwaysScrollableScrollPhysics`) is `alwaysScroll`, not a
+  /// physics.
   static const physics = PropDef<ScrollPhysicsType>(
     'physics',
     EnumCodec(ScrollPhysicsType.values),
