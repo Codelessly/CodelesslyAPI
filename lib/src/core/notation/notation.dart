@@ -257,6 +257,7 @@ final class NotationOptions {
     this.badge = defaultBadge,
     this.cta,
     this.palette = const {},
+    this.chartColors = const [],
     this.nearestColors = false,
     this.tile,
     this.sectionRadius,
@@ -361,6 +362,7 @@ final class NotationOptions {
         badge: badge,
         cta: cta,
         palette: palette,
+        chartColors: chartColors,
         nearestColors: nearestColors,
         tile: tile,
         sectionRadius: sectionRadius,
@@ -426,6 +428,7 @@ final class NotationOptions {
       badge: base.badge,
       cta: base.cta,
       palette: base.palette,
+      chartColors: base.chartColors,
       nearestColors: base.nearestColors,
       tile: base.tile,
       sectionRadius: base.sectionRadius,
@@ -687,6 +690,7 @@ final class NotationOptions {
       },
       cta: ctaHeight == null ? null : {'width': {'fill': 0}, 'height': ctaHeight},
       palette: named ? _palette(colors, theme) : const {},
+      chartColors: [for (var i = 1; hexOf('chart$i') != null; i++) hexOf('chart$i')!],
       nearestColors: named && nearestColors,
       progress: {
         if (radii['progress'] != null) 'borderRadius': radii['progress'],
@@ -785,6 +789,7 @@ final class NotationOptions {
         badge: badge,
         cta: cta,
         palette: palette,
+        chartColors: chartColors,
         nearestColors: nearestColors,
         tile: tile,
         sectionRadius: sectionRadius,
@@ -1020,6 +1025,11 @@ final class NotationOptions {
   /// The theme's colors by name → `#AARRGGBB` ([NotationOptions.fromTheme]
   /// with `named`). Empty: the theme's looks are written as values.
   final Map<String, String> palette;
+
+  /// The theme's series colors (`chart1`, `chart2`…), as `#AARRGGBB`, where
+  /// it names them: a chart's slices take them in turn. Empty: the accent,
+  /// then hues apart from it ([chartPalette]).
+  final List<String> chartColors;
 
   /// Whether a color the notation writes is read as the theme's nearest
   /// color of the [palette] (`fill=#FFF5F5F5` on a panel is the theme's
@@ -7898,7 +7908,9 @@ class _Parser {
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
-      final palette = notationChartShades(_accentValue);
+      // The theme's series colors where it names them (`chart1`,
+      // `chart2`…), else its accent and hues apart from it.
+      final palette = options.chartColors.length > 1 ? options.chartColors : notationChartShades(_accentValue);
       props['chartType'] = 'donut';
       // Whether its slices have labels (a legend's keys).
       var labeled = labels is List && labels.any((l) => '$l'.isNotEmpty);

@@ -31,6 +31,8 @@ series have a legend, a donut says its total, and what is under the pointer says
   that one. The accent first, then seven colors of other hues, each about as light and as strong as it (a yellow a
   little lighter, as yellows are); an accent with no hue (a black, a gray) is followed by colors of a moderate
   strength.
+- **A `Donut`'s slices are the theme's series colors** (`colors.chart1`, `chart2`…) where it names two or more, in
+  turn (`NotationOptions.chartColors`, read by `NotationOptions.fromTheme`); else the accent's palette.
 - **`BarChart` takes `series`**: `BarChart labels=["Q1","Q2"] series=[{"name":"2024","values":[30,42]},{"name":
   "2025","values":[36,45]}]` draws each label's bars side by side, and `BarChart stacked …` one on another. The
   series follow the state in braces, as a `LineChart`'s do. `series=` on a `BarChart` was left out.

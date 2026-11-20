@@ -117,6 +117,17 @@ Column
   });
 
   group('a donut', () {
+    test('its slices are the theme\'s series colors where it names them, in turn', () {
+      final options = NotationOptions.fromTheme({
+        'primary': '#FF4F46E5',
+        'colors': {'chart1': '#FF4F46E5', 'chart2': '#FF14B8A6', 'chart3': '#FFF59E0B'},
+      }, width: 1440);
+      final r = Catalog.run(standardCatalog,
+          () => parseNotation('Column\n  Donut#d values=[4,3,2,1] labels=["a","b","c","e"]\n', catalog: standardCatalog, options: options));
+      final rows = ((((r.document['nodes'] as Map)['dChart'] as Map)['props'] as Map)['data'] as List).cast<Map>();
+      expect([for (final d in rows) d['color']], ['#FF4F46E5', '#FF14B8A6', '#FFF59E0B', '#FF4F46E5']);
+    });
+
     test('has its total in its hole; total= names it or leaves it out, and a Pie has no hole', () {
       final r = _parse('''
 Column
