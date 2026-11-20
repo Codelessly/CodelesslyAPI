@@ -1798,7 +1798,7 @@ Page
       expect((at(site, 'hero', 390)['layout']! as Map)['padding'], [20, 40, 20, 40]);
     });
 
-    test('a donut written with labels has its legend beside it, and under it where the two do not fit', () {
+    test('a donut written with labels draws them as its legend, beside it or under it', () {
       const text = '''
 Page
   Section
@@ -1808,16 +1808,22 @@ Page
 ''';
       final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(page));
       expect(r.issues, isEmpty);
+      // One node: the chart draws the legend itself (beside the ring where
+      // its box has the room, else under it), so it is as wide as the card.
       final mix = node(r, 'mix');
-      expect(mix['type'], 'row');
-      expect((mix['props']! as Map)['wrap'], true);
-      expect(mix['children'], ['mixChart', 'mixLegend']);
-      expect(node(r, 'mixChart')['layout'], {'height': 240, 'width': 240});
-      expect((node(r, 'mixLegend')['layout']! as Map)['basis'], 160);
-      expect((node(r, 'mixLabel0')['props']! as Map)['text'], 'Street trees');
-      expect((node(r, 'mixShare0')['props']! as Map)['text'], '59%');
-      expect(node(r, 'bare')['type'], 'chart');
-      // A page that writes the legend itself keeps its own.
+      expect(mix['type'], 'chart');
+      expect(mix.containsKey('children'), isFalse);
+      expect(mix['layout'], {'height': 240, 'width': {'fill': 0}});
+      expect((mix['props']! as Map)['legend'], true);
+      expect(nodesOf(r).keys.where((k) => k.startsWith('mix')), ['mix']);
+      // Its slices take the theme's series colors where they are drawn.
+      expect(((mix['props']! as Map)['data']! as List).first, {'label': 'Street trees', 'value': 1370});
+      final bare = node(r, 'bare');
+      expect(bare['type'], 'chart');
+      expect((bare['props']! as Map)['legend'], false);
+      expect((bare['layout']! as Map)['width'], 160);
+      // A page that writes the legend itself keeps its own: the chart
+      // draws none and is the square it was.
       final own = parseNotation('''
 Page
   Section
@@ -1830,10 +1836,12 @@ Page
       Text.strong "48%"
 ''', catalog: standardCatalog, options: withTestWords(page));
       expect(node(own, 'mix')['type'], 'chart');
-      expect(nodesOf(own).keys.where((k) => k.startsWith('mixLegend')), isEmpty);
-      // On a card it is the chart alone, as before.
+      expect((node(own, 'mix')['props']! as Map)['legend'], false);
+      expect(node(own, 'mix')['layout'], {'width': 160, 'height': 160});
+      // On a card it is the same chart with the same legend.
       final card = parseNotation('Column\n  Donut#mix values=[3,1] labels=["Yes","No"]\n', catalog: standardCatalog, options: withTestWords());
       expect(node(card, 'mix')['type'], 'chart');
+      expect((node(card, 'mix')['props']! as Map)['legend'], true);
     });
 
     test('a short each alias leaves layout keys intact', () {

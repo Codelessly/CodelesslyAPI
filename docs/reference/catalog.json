@@ -9039,7 +9039,7 @@
           "key": "axisFontSize",
           "type": "double",
           "kind": "number",
-          "default": 11,
+          "default": 10,
           "nullable": false,
           "min": 0.0,
           "doc": ""
@@ -9075,9 +9075,9 @@
           "key": "maxBarWidth",
           "type": "double",
           "kind": "number",
-          "default": 36,
-          "nullable": false,
-          "doc": ""
+          "default": null,
+          "nullable": true,
+          "doc": "The widest a bar is drawn, in the middle of its place (bars side by side: each of them). Null: its share of the place, however wide."
         },
         {
           "key": "barGap",
@@ -9091,7 +9091,7 @@
           "key": "barRadius",
           "type": "double",
           "kind": "number",
-          "default": 4,
+          "default": 0,
           "nullable": false,
           "doc": ""
         },
@@ -9219,7 +9219,7 @@
           "key": "selectOnHover",
           "type": "bool",
           "kind": "boolean",
-          "default": true,
+          "default": false,
           "nullable": false,
           "doc": "The category (a donut's slice) under the pointer, or under a finger while it is down, is the selected one."
         },
@@ -9229,7 +9229,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": ""
+          "doc": "Room kept clear inside the plot: above its top line, and for a line chart at each end, so the first and the last point (and their dots) are whole. Null: none."
         },
         {
           "key": "fitMinY",
@@ -9283,7 +9283,7 @@
           "key": "tooltip",
           "type": "bool",
           "kind": "boolean",
-          "default": true,
+          "default": false,
           "nullable": false,
           "doc": "A box over the selected (or hovered) category: its label, then each series' name and value there."
         },
@@ -9291,9 +9291,34 @@
           "key": "legend",
           "type": "bool",
           "kind": "boolean",
-          "default": null,
-          "nullable": true,
-          "doc": "A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps at least three quarters of its height). True: always (a donut in a narrower box: under it)."
+          "default": false,
+          "nullable": false,
+          "doc": "A legend: under a plot, a key for each named series when there are two or more; for a donut, each labeled slice with its share, beside the ring where the chart's box has the room, else under it (the ring as high as is left)."
+        },
+        {
+          "key": "roundScale",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "The scale is rounded out to its grid lines, so the plot starts and ends on a labeled line, its figures have the decimals its step has, a thousand and more is written with its separator and ten thousand and more short (`20K`)."
+        },
+        {
+          "key": "dots",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Line series: a dot on each point while the chart has this many rows or fewer (0: none)."
+        },
+        {
+          "key": "cursorLine",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Line charts: a line up the plot through the category under the pointer (with `selectOnHover`)."
         },
         {
           "key": "centerLabel",
@@ -9309,7 +9334,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark."
+          "doc": "Null: the surface the chart is on, with a hairline round it (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipTextColor",
@@ -9317,7 +9342,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "Null: the theme's surface (`ControlTheme`), so it reads in light and dark."
+          "doc": "Null: the theme's onSurface (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipTitleField",
@@ -10290,7 +10315,7 @@
           "kind": "string",
           "default": "JetBrains Mono",
           "nullable": false,
-          "doc": ""
+          "doc": "The family of the labels and figures; empty: no family of its own (the app's)."
         },
         {
           "key": "labelFontSize",
@@ -10482,6 +10507,14 @@
           "default": false,
           "nullable": false,
           "doc": "With no `gridLabels` and no `max`: the chart's top is a round value over its largest, its grid lines stand at round values and each is labeled with its own (as the values change, so do they)."
+        },
+        {
+          "key": "tooltip",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "The bar under the pointer, or under a finger while it is down, is set apart and says its value in a tooltip."
         }
       ],
       "docs": "charts.md#node-barChart"
@@ -10667,7 +10700,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark."
+          "doc": "Null: the surface the chart is on, with a hairline round it (`ControlTheme`), so it reads in light and dark."
         },
         {
           "key": "tooltipShadowColor",
@@ -10759,7 +10792,7 @@
           "key": "scrubEnabled",
           "type": "bool",
           "kind": "boolean",
-          "default": true,
+          "default": false,
           "nullable": false,
           "doc": "Hovering or dragging selects the nearest point in a running app."
         },
@@ -10930,6 +10963,30 @@
           "doc": "Moves every x label right by this much (negative: left)."
         },
         {
+          "key": "cursorLine",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "A line up the plot through the point under the pointer (with `scrubEnabled`)."
+        },
+        {
+          "key": "gridValues",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "With no `yTicks`: round grid lines chosen for the values, each labeled with its own in the room `plotPadding` keeps left of the plot, on a scale rounded out to them."
+        },
+        {
+          "key": "tooltip",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "With `scrubEnabled`: the selected point says its value in a tooltip."
+        },
+        {
           "key": "animate",
           "type": "bool",
           "kind": "boolean",
@@ -11087,7 +11144,7 @@
           "default": {},
           "nullable": false,
           "object": "GraphLegend",
-          "doc": "The legend: drawn when there is more than one named mark (or labeled slices in a graph wide enough for it beside them), unless its `show` says."
+          "doc": "The legend; none unless its `show` says."
         },
         {
           "key": "animationDuration",
@@ -16889,6 +16946,14 @@
           "default": false,
           "nullable": false,
           "doc": "Line and area series: its `name` and last value written at the end of its line, in its color (labels of different series are kept apart)."
+        },
+        {
+          "key": "fade",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
         }
       ]
     },
@@ -18002,9 +18067,9 @@
           "key": "show",
           "type": "String",
           "kind": "string",
-          "default": "auto",
+          "default": "none",
           "nullable": false,
-          "doc": "`auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`, or `none`."
+          "doc": "`none`. `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`: whenever there is a key to draw (slices in a narrower graph: under them)."
         },
         {
           "key": "position",
@@ -18448,7 +18513,7 @@
           "kind": "value",
           "default": null,
           "nullable": true,
-          "doc": "The tooltip's ground and text; the style's `tag` and `tagText` when not given."
+          "doc": "The tooltip's ground and text; the style's `tooltip` and `tooltipText` when not given."
         },
         {
           "key": "tooltipText",
@@ -18570,6 +18635,30 @@
           "item": "String",
           "itemKind": "string",
           "doc": "The colors of the marks that give none, in turn, and of an arc's slices. When not given: the theme's series colors (`chart1`, `chart2`…) where it names them, else its primary followed by colors of other hues as light and as strong as it."
+        },
+        {
+          "key": "tooltip",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "A tooltip: its ground, its text and the line round it. When not given: the surface the graph is on, that surface's ink, and a hairline of it."
+        },
+        {
+          "key": "tooltipText",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "tooltipBorder",
+          "type": "Color",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": ""
         }
       ]
     },
@@ -18845,7 +18934,7 @@
           "kind": "number",
           "default": null,
           "nullable": true,
-          "doc": "The widest a bar or a candle is drawn, in the middle of its place (bars side by side: each of them); its share of the place when not given, however wide."
+          "doc": ""
         }
       ]
     },

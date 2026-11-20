@@ -638,28 +638,28 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8479
+      "words": 8869
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 364
+      "words": 472
     },
     {
       "topic": "charts-words",
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6918
+      "words": 7192
     },
     {
       "topic": "charts-records",
       "file": "charts.md",
       "anchor": "charts-records",
       "title": "Records",
-      "words": 1063
+      "words": 1071
     },
     {
       "topic": "charts-examples",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 16870
+      "words": 16900
     },
     {
       "topic": "values-writing-a-value",
@@ -946,7 +946,7 @@
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 5226
+      "words": 5256
     },
     {
       "topic": "values-examples",

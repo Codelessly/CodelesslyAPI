@@ -138,13 +138,17 @@ final class ChartSeries extends PropRecord {
   static const fillToDef = PropDef<String?>('fillTo', IndicatorCodecs.optionalString, null);
   static const fillOpacityDef = PropDef<double>('fillOpacity', DoubleCodec(min: 0, max: 1), 0.25);
 
+  /// Area series: the fill is strongest under the line and fades to
+  /// nothing at the foot of the plot.
+  static const fadeDef = PropDef<bool>('fade', Codecs.bool, false);
+
   /// Line and area series: its [name] and last value written at the end of
   /// its line, in its color (labels of different series are kept apart).
   static const endLabelDef = PropDef<bool>('endLabel', Codecs.bool, false);
 
   static const spec = WidgetSpec('ChartSeries', props: [
     fieldDef, nameDef, kindDef, colorDef, colorFieldDef, stackDef, dashedDef, strokeWidthDef, endDotDef, //
-    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef, endLabelDef,
+    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef, endLabelDef, fadeDef,
   ]);
 
   @override
@@ -158,6 +162,7 @@ final class ChartSeries extends PropRecord {
   bool get dashed => get(dashedDef);
   double get strokeWidth => get(strokeWidthDef);
   bool get endDot => get(endDotDef);
+  bool get fade => get(fadeDef);
   Color? get endDotHaloColor => get(endDotHaloColorDef);
   bool get curved => get(curvedDef);
   String? get fillTo => get(fillToDef);
@@ -428,8 +433,10 @@ final class GraphXAxis extends PropRecord {
   static const ticksDef = PropDef<String>('ticks', _gs, 'step');
 
   /// Whether the ticks' labels are written. Labels that would touch are
-  /// thinned: every second, third… is written, the first and the last
-  /// always.
+  /// thinned to every second, third… from the first, evenly apart: the
+  /// step ends on the last label where one near it does, else the last is
+  /// left out. Long labels are first cut with an ellipsis to the room
+  /// between two, where thinning alone would write fewer than half.
   static const labelsDef = PropDef<bool>('labels', _gb, true);
 
   /// Whether a line is drawn up each pane at every tick.
@@ -769,8 +776,8 @@ final class GraphSelection extends PropRecord {
   /// The row field of the tooltip's first line; the x label when empty.
   static const titleDef = PropDef<String>('title', _gs, '');
 
-  /// The tooltip's ground and text; the style's `tag` and `tagText` when
-  /// not given.
+  /// The tooltip's ground and text; the style's `tooltip` and
+  /// `tooltipText` when not given.
   static const tooltipFillDef = PropDef<Color?>('tooltipFill', _gc, null);
   static const tooltipTextDef = PropDef<Color?>('tooltipText', _gc, null);
 
@@ -890,6 +897,13 @@ final class GraphStyle extends PropRecord {
   /// A figure written large (the one in a donut's hole).
   static const inkDef = PropDef<Color?>('ink', _gc, null);
 
+  /// A tooltip: its ground, its text and the line round it. When not
+  /// given: the surface the graph is on, that surface's ink, and a
+  /// hairline of it.
+  static const tooltipDef = PropDef<Color?>('tooltip', _gc, null);
+  static const tooltipTextDef = PropDef<Color?>('tooltipText', _gc, null);
+  static const tooltipBorderDef = PropDef<Color?>('tooltipBorder', _gc, null);
+
   /// The colors of the marks that give none, in turn, and of an arc's
   /// slices. When not given: the theme's series colors (`chart1`,
   /// `chart2`…) where it names them, else its primary followed by colors of
@@ -898,7 +912,7 @@ final class GraphStyle extends PropRecord {
 
   static const spec = WidgetSpec('GraphStyle', props: [
     backgroundDef, gridDef, textDef, crosshairDef, tagDef, tagTextDef, separatorDef, fontSizeDef, fontFamilyDef, //
-    topInsetDef, inkDef, paletteDef,
+    topInsetDef, inkDef, paletteDef, tooltipDef, tooltipTextDef, tooltipBorderDef,
   ]);
 
   @override
@@ -914,12 +928,13 @@ final class GraphStyle extends PropRecord {
 final class GraphLegend extends PropRecord {
   const GraphLegend._(super.props);
 
-  /// `auto`: drawn when there is more than one thing to tell apart and
-  /// there is room: under a plot with two or more named marks; beside
+  /// `none`. `auto`: drawn when there is more than one thing to tell apart
+  /// and there is room: under a plot with two or more named marks; beside
   /// labeled slices in a graph wide enough that the ring keeps at least
   /// three quarters of its height (slices in a narrower graph have none).
-  /// `always`, or `none`.
-  static const showDef = PropDef<String>('show', _gs, 'auto');
+  /// `always`: whenever there is a key to draw (slices in a narrower
+  /// graph: under them).
+  static const showDef = PropDef<String>('show', _gs, 'none');
 
   /// `bottom` or `top` (a line of keys in the middle, wrapped) or `right`
   /// (a list). `auto`: under a plot; beside slices where the list fits

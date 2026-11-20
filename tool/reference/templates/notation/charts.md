@@ -19,23 +19,27 @@ Column gap=12
   Gauge 72 min=0 max=180 limit=100 unit="km/h"
 ```
 
-Give a chart a height. What its line does not say, the chart supplies:
+Give a chart a height. The words above write their look on the chart they stand for, as its keys, so a key
+written on the line wins (`legend=false`, `selectOnHover=false`, `dots=0`, `barRadius=0`, `roundScale=false`); a
+`chart`, `barChart` or `lineChart` written by its type takes none of them and draws as its own defaults say.
 
-- round grid lines with their figures, and under the plot the labels that fit: where they would touch, every
-  second, third… is written, the first and the last always;
-- its colors: the theme's series colors (`chart1`, `chart2`… where the theme names them), else its accent and then
-  colors of other hues as light and as strong as it, so two series are never two shades of one color;
-- a legend under a chart with two or more named series, and for a `Donut` its labels with their shares, beside it
-  where it has the room (on a page, under it where it has not);
-- a `Donut`'s total in its hole (`total="Visitors"` names it, `total=false` leaves the hole empty; a `Pie` has no
-  hole);
-- a smooth line that never rises above or dips below its values, with a dot on each of up to 12 points, and under an
-  `AreaChart`'s line a fill that fades to the foot of the plot;
-- rounded bars no wider than 40 (`maxBarWidth=`), bars of several `series` side by side (`stacked`: one on
-  another);
-- a tooltip for what is under the pointer or a finger.
+- What is under the pointer or a finger is selected and says its value in a tooltip (`selectOnHover`, `tooltip`;
+  a line of values: `scrubEnabled`), a line chart with a line up the plot through it (`cursorLine`).
+- Round grid lines with their figures, the scale ending on a labeled line (`roundScale`; one series:
+  `gridValues`): 2,500 with its separator, 20K for 20000.
+- A legend under a chart with two or more named series, and for a `Donut` or a `Pie` its labels with their shares,
+  beside the ring where its box has the room, else under it (`legend`).
+- A `Donut`'s total in its hole (`total="Visitors"` names it, `total=false` leaves the hole empty; a `Pie` has no
+  hole).
+- A smooth line with a dot on each of up to 12 points (`dots`), and under an `AreaChart`'s line a fill that fades
+  to the foot of the plot.
+- Rounded bars no wider than 40 (`barRadius`, `maxBarWidth`); bars of several `series` side by side (`stacked`:
+  one on another).
 
-A key written on the line wins: `legend=false`, `tooltip=false`, `barRadius=0`, a series' own `"color"`.
+Every chart, however it is written: the labels under the plot never touch (every second, third… from the first is
+written, evenly apart, and long ones are first cut to their room with an ellipsis); a series or a slice with no
+color takes the theme's next series color (`chart1`, `chart2`… where the theme names them, else its accent and then
+colors of other hues as light and as strong as it); a smooth line never rises above or dips below its values.
 
 {{reference}}
 

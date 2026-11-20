@@ -29,7 +29,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [interaction.md](interaction.md) | Feature page. | 6342 | 10264 |
 | [animation.md](animation.md) | Feature page. | 4742 | 7746 |
 | [components.md](components.md) | Feature page. | 3820 | 7627 |
-| [charts.md](charts.md) | Feature page. | 7959 | 11760 |
+| [charts.md](charts.md) | Feature page. | 8234 | 12090 |
 | [data.md](data.md) | Feature library page. | 2311 | 3762 |
 | [auth.md](auth.md) | Feature library page. | 470 | 998 |
 | [commerce.md](commerce.md) | Feature library page. | 439 | 911 |
@@ -38,14 +38,14 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [publish.md](publish.md) | Feature page. | 681 | 1254 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3587 | 5860 |
 | [render.md](render.md) | Feature page. | 1660 | 2838 |
-| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 16529 | 24873 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 114326 | 196589 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 80607 | 209047 |
+| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 16565 | 24937 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 114637 | 196977 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 80963 | 209823 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10669 | 29573 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27219 | 113321 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27303 | 113652 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1276 | 3856 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
-| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2790 | 11718 |
+| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2792 | 11729 |
 
 The old per-kind pages (`nodes.md`, `behaviors.md`, `triggers.md`, `actions.md`, `bindings.md`, `formulas.md`,
 `variables-conditions-scripts.md`) are stubs that say where each item went, so old links keep working. Old guide

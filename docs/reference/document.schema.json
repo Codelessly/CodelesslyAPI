@@ -3654,6 +3654,9 @@
         },
         "endLabel": {
           "type": "boolean"
+        },
+        "fade": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -4588,6 +4591,36 @@
           "items": {
             "type": "string"
           }
+        },
+        "tooltip": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tooltipText": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tooltipBorder": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -15402,7 +15435,14 @@
                     "type": "number"
                   },
                   "maxBarWidth": {
-                    "type": "number"
+                    "anyOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "barGap": {
                     "type": "number"
@@ -15525,14 +15565,17 @@
                     "type": "boolean"
                   },
                   "legend": {
-                    "anyOf": [
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "boolean"
+                  },
+                  "roundScale": {
+                    "type": "boolean"
+                  },
+                  "dots": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "cursorLine": {
+                    "type": "boolean"
                   },
                   "centerLabel": {
                     "anyOf": [
@@ -16474,6 +16517,9 @@
                   },
                   "gridValues": {
                     "type": "boolean"
+                  },
+                  "tooltip": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -16832,6 +16878,15 @@
                   },
                   "xLabelOffset": {
                     "type": "number"
+                  },
+                  "cursorLine": {
+                    "type": "boolean"
+                  },
+                  "gridValues": {
+                    "type": "boolean"
+                  },
+                  "tooltip": {
+                    "type": "boolean"
                   },
                   "animate": {
                     "type": "boolean"

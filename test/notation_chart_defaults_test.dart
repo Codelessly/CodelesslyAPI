@@ -1,7 +1,8 @@
-// What the chart words supply when a line gives only its data: series
-// colors left to the theme, a smooth line with no fill, a donut's total and
-// where its legend is drawn, bars of several series, and the colors a
-// theme's accent gives.
+// What the chart words write when a line gives only its data. A chart node
+// that leaves a key out draws as its type always has; the look of the
+// notation's words (LineChart, AreaChart, BarChart, Donut, Pie, Sparkline)
+// is the keys they write on the node, each one the line's own to say
+// otherwise. And the colors a theme's accent gives.
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
@@ -96,36 +97,39 @@ Column
       expect((_node(r, 'b')['bind'] as Map)['props.data'], contains('"s1": get(map(rows,r=>r.b), i)'));
     });
 
-    test('values that follow the state: the chart chooses its lines and their figures', () {
-      final r = _parse('state v=[3,5,4]\nColumn\n  BarChart#b values={v}\n  BarChart#w values=[3,5,4]\n  BarChart#own values={v} max=10\n');
+    test('one series is drawn as several are: round lines the chart chooses, each with its figure', () {
+      final r = _parse('state v=[3,5,4]\nColumn\n  BarChart#b values={v}\n  BarChart#w values=[3,5,4] labels=["a","b","c"]\n  BarChart#own values={v} max=10\n  BarChart#said values=[3,5] gridLabels=["0","5"] labelFontSize=9 labelFontFamily="Inter"\n  barChart#raw values=[3,5]\n');
       expect(_said(r), isEmpty);
       expect(_node(r, 'b')['type'], 'barChart');
       expect((_node(r, 'b')['bind'] as Map)['props.values'], r'${v}');
-      expect(_props(r, 'b')['gridValues'], isTrue);
-      expect(_props(r, 'b')['gridLabelsLeft'], isTrue);
-      // Written out, its figures are in the document; a top of its own is the chart's.
-      expect(_props(r, 'w').containsKey('gridValues'), isFalse);
-      expect(_props(r, 'w')['gridLabels'], ['0', '2', '4', '']);
+      for (final id in ['b', 'w']) {
+        final p = _props(r, id);
+        // The scale and its figures are the chart's to choose, as the values come.
+        expect([p['gridValues'], p['gridLabelsLeft'], p['gridLines'], p['gridLabelWidth']], [true, true, 4, 44], reason: id);
+        expect(p.keys, isNot(anyOf(contains('max'), contains('gridLabels'))), reason: id);
+        // Labels as a series chart's: 11 px, in no family of the chart's own, in a band 22 high.
+        expect([p['labelFontSize'], p['labelFontFamily'], p['labelAreaHeight']], [11, '', 22], reason: id);
+      }
+      // A top or labels of its own are the chart's, and so is what the line says of its labels.
       expect(_props(r, 'own').containsKey('gridValues'), isFalse);
+      expect(_props(r, 'said').containsKey('gridValues'), isFalse);
+      expect([_props(r, 'said')['labelFontSize'], _props(r, 'said')['labelFontFamily']], [9, 'Inter']);
+      // The node as its type spells it is as written.
+      expect(_props(r, 'raw').keys, ['values']);
     });
 
-    test('ten thousand and more is written in thousands on its axis', () {
-      final r = _parse('Column\n  BarChart#b values=[12400,27300]\n  BarChart#m values=[1200000,2900000]\n');
-      expect(_props(r, 'b')['gridLabels'], ['0', '10K', '20K', '']);
-      expect(_props(r, 'm')['gridLabels'], ['0', '1M', '2M', '']);
+    test('bars of several series are as wide at the most as one series\' are', () {
+      final r = _parse('Column\n  BarChart#g labels=["Q1"] series=[{"name":"A","values":[3]},{"name":"B","values":[4]}]\n  BarChart#one values=[3]\n');
+      expect(_props(r, 'g')['maxBarWidth'], 40);
+      expect(_props(r, 'one')['maxBarWidth'], 40);
     });
   });
 
   group('a donut', () {
-    test('its slices are the theme\'s series colors where it names them, in turn', () {
-      final options = NotationOptions.fromTheme({
-        'primary': '#FF4F46E5',
-        'colors': {'chart1': '#FF4F46E5', 'chart2': '#FF14B8A6', 'chart3': '#FFF59E0B'},
-      }, width: 1440);
-      final r = Catalog.run(standardCatalog,
-          () => parseNotation('Column\n  Donut#d values=[4,3,2,1] labels=["a","b","c","e"]\n', catalog: standardCatalog, options: options));
-      final rows = ((((r.document['nodes'] as Map)['dChart'] as Map)['props'] as Map)['data'] as List).cast<Map>();
-      expect([for (final d in rows) d['color']], ['#FF4F46E5', '#FF14B8A6', '#FFF59E0B', '#FF4F46E5']);
+    test('its slices are left to the theme: no color is written unless the line writes colors', () {
+      final r = _parse('Column\n  Donut#d values=[4,3,2] labels=["a","b","c"]\n  Donut#c values=[4,3] labels=["e","f"] colors=["#FF111111","#FF222222"]\n');
+      expect((_props(r, 'd')['data'] as List).cast<Map>().every((row) => !row.containsKey('color')), isTrue);
+      expect([for (final row in (_props(r, 'c')['data'] as List).cast<Map>()) row['color']], ['#FF111111', '#FF222222']);
     });
 
     test('has its total in its hole; total= names it or leaves it out, and a Pie has no hole', () {
@@ -152,48 +156,178 @@ Column
       }
     });
 
-    test('the legend written out on a page is the only one; elsewhere the chart draws its own, with room beside it', () {
-      // On a page: the row of the chart and its legend, the chart told to draw none.
+    test('one legend, the chart\'s own: wherever it is written, with room beside the ring', () {
+      Map<String, Object?> layout(NotationResult r, String id) => (_node(r, id)['layout'] as Map).cast<String, Object?>();
+      // On a page, on a narrow canvas, with lists written out or following
+      // the state: the same node, told to draw its legend, as wide as what
+      // it is in.
       final page = _parse('Column\n  Donut#d values=[60,40] labels=["Rent","Food"]\n');
-      expect(_node(page, 'd')['type'], 'row');
-      expect(_props(page, 'dChart')['legend'], isFalse);
-      expect((_node(page, 'dChart')['layout'] as Map)['width'], 160);
-      // Lists that follow the state, or a narrow canvas: the chart's own
-      // legend, the chart as wide as what it is in.
-      final bound = _parse('state v=[60,40]\nstate l=["Rent","Food"]\nColumn\n  Donut#d values={v} labels={l} h=200\n');
-      expect(_node(bound, 'd')['type'], 'chart');
-      expect(_props(bound, 'd').containsKey('legend'), isFalse);
-      expect((_node(bound, 'd')['layout'] as Map)['width'], {'fill': 0});
       final narrow = _parse('Column\n  Donut#d values=[60,40] labels=["Rent","Food"]\n', width: 390);
-      expect(_node(narrow, 'd')['type'], 'chart');
-      expect((_node(narrow, 'd')['layout'] as Map)['width'], {'fill': 0});
-      // No labels, legend=false, or in a Row: the square it was.
-      final square = _parse('Column\n  Donut#a values=[60,40]\n  Donut#b values=[60,40] labels=["Rent","Food"] legend=false\n  Row\n    Donut#c values=[60,40] labels=["x","y"]\n', width: 390);
-      for (final id in ['a', 'b', 'c']) {
-        expect((_node(square, id)['layout'] as Map)['width'], 160, reason: id);
+      final bound = _parse('state v=[60,40]\nstate l=["Rent","Food"]\nColumn\n  Donut#d values={v} labels={l} h=200\n');
+      for (final r in [page, narrow, bound]) {
+        expect(_said(r), isEmpty);
+        expect(_node(r, 'd')['type'], 'chart');
+        expect(_props(r, 'd')['legend'], isTrue);
+        expect(layout(r, 'd')['width'], {'fill': 0});
+        expect((r.document['nodes'] as Map).keys.where((k) => '$k'.startsWith('d')), ['d']);
       }
-      expect(_props(square, 'b')['legend'], isFalse);
-      expect(_props(square, 'a').containsKey('legend'), isFalse);
+      // No labels: nothing to list, the square it was. legend=false: none.
+      // In a Row: the square, its legend under the ring. In a Stack: the
+      // page's own things are over it, and it keeps its box.
+      final other = _parse('Column\n  Donut#a values=[60,40]\n  Donut#b values=[60,40] labels=["Rent","Food"] legend=false\n  Row\n    Donut#c values=[60,40] labels=["x","y"]\n  Stack\n    Donut#s values=[60,40] labels=["p","q"]\n  Donut#w values=[60,40] labels=["m","n"] w=300\n', width: 390);
+      for (final id in ['a', 'b', 's']) {
+        expect(layout(other, id)['width'], 160, reason: id);
+      }
+      // With a legend it is 200 high (and, in a Row, wide) with no size written.
+      expect((layout(other, 'c')['width'], layout(other, 'c')['height']), (200, 200));
+      expect(layout(narrow, 'd')['height'], 200);
+      expect(layout(bound, 'd')['height'], 200);
+      expect(layout(other, 'w')['width'], 300);
+      expect(_props(other, 'a').containsKey('legend'), isFalse);
+      expect(_props(other, 'b')['legend'], isFalse);
+      expect(_props(other, 'c')['legend'], isTrue);
+      expect(_props(other, 's').containsKey('legend'), isFalse);
+      expect(_props(other, 'w')['legend'], isTrue);
     });
   });
 
-  group('the chart and the graph say their defaults', () {
-    test('a chart selects under the pointer with a tooltip, and rounds its bars', () {
-      expect(ChartProps.selectOnHover.defaultValue, isTrue);
-      expect(ChartProps.tooltip.defaultValue, isTrue);
-      expect(ChartProps.barRadius.defaultValue, 4);
-      expect(ChartProps.legend.defaultValue, isNull);
-      expect(ChartProps.centerLabel.defaultValue, isNull);
-      expect(LineChartProps.scrubEnabled.defaultValue, isTrue);
-      expect(BarChartProps.gridValues.defaultValue, isFalse);
+  group('the words write their look on the node', () {
+    Map<String, Object?> only(Map<String, Object?> props, List<String> keys) => {for (final k in keys) k: props[k]};
+    const look = ['selectOnHover', 'tooltip', 'legend', 'roundScale', 'plotInset', 'axisFontSize'];
+
+    test('a LineChart or an AreaChart of series', () {
+      final r = _parse('''
+Column
+  LineChart#l labels=["W1","W2"] series=[{"name":"A","values":[1,2]},{"name":"B","values":[3,4]}]
+  AreaChart#a labels=["W1","W2"] values=[1,2]
+  LineChart#own labels=["W1","W2"] series=[{"name":"A","values":[1,2]}] legend=false tooltip=false dots=0 roundScale=false plotInset=0 axisFontSize=9 cursorLine=false selectOnHover=false
+''');
+      expect(_said(r), isEmpty);
+      for (final id in ['l', 'a']) {
+        expect(_node(r, id)['type'], 'chart');
+        expect(only(_props(r, id), [...look, 'dots', 'cursorLine']), {
+          'selectOnHover': true,
+          'tooltip': true,
+          'legend': true,
+          'roundScale': true,
+          'plotInset': 6,
+          'axisFontSize': 11,
+          'dots': 12,
+          'cursorLine': true,
+        }, reason: id);
+        expect(_props(r, id).keys, isNot(anyOf(contains('barRadius'), contains('maxBarWidth'))), reason: id);
+      }
+      expect([for (final s in (_props(r, 'l')['series'] as List).cast<Map>()) (s['kind'], s['curved'], s['fade'])],
+          [('line', true, null), ('line', true, null)]);
+      // An area fades under its line.
+      expect([for (final s in (_props(r, 'a')['series'] as List).cast<Map>()) (s['kind'], s['curved'], s['fade'])], [('area', true, true)]);
+      // What the line says is the chart's.
+      expect(only(_props(r, 'own'), [...look, 'dots', 'cursorLine']), {
+        'selectOnHover': false,
+        'tooltip': false,
+        'legend': false,
+        'roundScale': false,
+        'plotInset': 0,
+        'axisFontSize': 9,
+        'dots': 0,
+        'cursorLine': false,
+      });
     });
 
-    test('a graph\'s legend, palette, inset and rounded scale are keys of its records', () {
+    test('a BarChart of series', () {
+      final r = _parse('Column\n  BarChart#b labels=["Q1"] series=[{"name":"A","values":[3]},{"name":"B","values":[4]}]\n  BarChart#own labels=["Q1"] series=[{"name":"A","values":[3]}] barRadius=0 maxBarWidth=12\n');
+      expect(only(_props(r, 'b'), [...look, 'barRadius', 'maxBarWidth']), {
+        'selectOnHover': true,
+        'tooltip': true,
+        'legend': true,
+        'roundScale': true,
+        'plotInset': 6,
+        'axisFontSize': 11,
+        'barRadius': 4,
+        'maxBarWidth': 40,
+      });
+      expect(_props(r, 'b').keys, isNot(anyOf(contains('dots'), contains('cursorLine'))));
+      expect(only(_props(r, 'own'), ['barRadius', 'maxBarWidth']), {'barRadius': 0, 'maxBarWidth': 12});
+    });
+
+    test('a LineChart or an AreaChart of one line of values or of rows, and a Sparkline', () {
+      final r = _parse('''
+state rows=[{"d":"Mon","n":3}]
+Column
+  LineChart#v values=[3,5,4]
+  LineChart#d data={rows} xField="d" yField="n"
+  AreaChart#a data={rows} xField="d" yField="n"
+  LineChart#own values=[3,5,4] scrubEnabled=false gridValues=false cursorLine=false
+  Sparkline#s values=[3,5,4]
+''');
+      expect(_said(r), isEmpty);
+      for (final id in ['v', 'd', 'a']) {
+        expect(_node(r, id)['type'], 'lineChart');
+        expect(only(_props(r, id), ['smooth', 'scrubEnabled', 'cursorLine', 'gridValues']),
+            {'smooth': true, 'scrubEnabled': true, 'cursorLine': true, 'gridValues': true}, reason: id);
+      }
+      expect(only(_props(r, 'own'), ['scrubEnabled', 'cursorLine', 'gridValues']), {'scrubEnabled': false, 'cursorLine': false, 'gridValues': false});
+      // A small trend to look at: nothing under the pointer, no figures.
+      expect(_props(r, 's').keys, isNot(anyOf(contains('scrubEnabled'), contains('cursorLine'), contains('gridValues'))));
+    });
+
+    test('a BarChart of one series', () {
+      final r = _parse('Column\n  BarChart#b values=[3,5,4]\n  BarChart#own values=[3,5,4] tooltip=false barRadius=0\n');
+      expect(only(_props(r, 'b'), ['tooltip', 'gridValues', 'barRadius', 'maxBarWidth', 'labelFontSize']),
+          {'tooltip': true, 'gridValues': true, 'barRadius': 4, 'maxBarWidth': 40, 'labelFontSize': 11});
+      expect(only(_props(r, 'own'), ['tooltip', 'barRadius']), {'tooltip': false, 'barRadius': 0});
+    });
+
+    test('a Donut and a Pie', () {
+      final r = _parse('Column\n  Donut#d values=[60,40] labels=["Rent","Food"]\n  Pie#p values=[60,40] labels=["a","b"]\n  Donut#own values=[60,40] labels=["c","e"] tooltip=false selectOnHover=false legend=false total=false\n');
+      expect(only(_props(r, 'd'), ['selectOnHover', 'tooltip', 'legend', 'centerLabel']),
+          {'selectOnHover': true, 'tooltip': true, 'legend': true, 'centerLabel': 'Total'});
+      expect(only(_props(r, 'p'), ['selectOnHover', 'tooltip', 'legend', 'centerLabel']),
+          {'selectOnHover': true, 'tooltip': true, 'legend': true, 'centerLabel': null});
+      expect(only(_props(r, 'own'), ['selectOnHover', 'tooltip', 'legend', 'centerLabel']),
+          {'selectOnHover': false, 'tooltip': false, 'legend': false, 'centerLabel': null});
+    });
+
+    test('a node written by its type is as written: the words\' look is not the node\'s', () {
+      final r = _parse('''
+Column
+  chart#c chartType=line series=[{"field":"a","name":"A"}] data=[{"label":"x","a":1}]
+  barChart#b values=[3,5]
+  lineChart#l data=[{"x":1,"y":2}]
+''');
+      expect(_props(r, 'c').keys, unorderedEquals(['chartType', 'series', 'data']));
+      expect(_props(r, 'b').keys, ['values']);
+      expect(_props(r, 'l').keys, ['data']);
+    });
+  });
+
+  group('the nodes\' own defaults are as they were, and their new keys are off', () {
+    test('chart, lineChart, barChart', () {
+      expect(ChartProps.selectOnHover.defaultValue, isFalse);
+      expect(ChartProps.tooltip.defaultValue, isFalse);
+      expect(ChartProps.barRadius.defaultValue, 0);
+      expect(ChartProps.axisFontSize.defaultValue, 10);
+      expect(ChartProps.maxBarWidth.defaultValue, isNull);
+      expect(ChartProps.legend.defaultValue, isFalse);
+      expect(ChartProps.roundScale.defaultValue, isFalse);
+      expect(ChartProps.dots.defaultValue, 0);
+      expect(ChartProps.cursorLine.defaultValue, isFalse);
+      expect(ChartProps.plotInset.defaultValue, isNull);
+      expect(ChartProps.centerLabel.defaultValue, isNull);
+      expect(ChartSeries.fadeDef.defaultValue, isFalse);
+      expect(LineChartProps.scrubEnabled.defaultValue, isFalse);
+      expect(LineChartProps.cursorLine.defaultValue, isFalse);
+      expect(LineChartProps.gridValues.defaultValue, isFalse);
+      expect(BarChartProps.gridValues.defaultValue, isFalse);
+      expect(BarChartProps.tooltip.defaultValue, isFalse);
+    });
+
+    test('a graph\'s legend, palette, inset and rounded scale are keys of its records, off unless set', () {
       final g = Node.fromJson({
         'type': 'graph',
         'props': {
           'legend': {'show': 'always', 'position': 'right'},
-          'style': {'palette': ['#FF111111', '#FF222222'], 'ink': '#FF000000'},
+          'style': {'palette': ['#FF111111', '#FF222222'], 'ink': '#FF000000', 'tooltip': '#FFFFFFFF'},
           'xAxis': {'inset': 6, 'maxBarWidth': 24},
           'yAxis': {'nice': true},
           'marks': [
@@ -211,8 +345,12 @@ Column
       final marks = g.prop(GraphProps.marks);
       expect((marks[0].get(GraphMark.centerDef), marks[0].get(GraphMark.centerLabelDef)), ('total', 'Total'));
       expect(marks[1].get(GraphMark.dotsDef), 3);
-      // With nothing said: a legend when there is something to tell apart.
-      expect(GraphLegend.showDef.defaultValue, 'auto');
+      expect(GraphLegend.showDef.defaultValue, 'none');
+      expect(GraphYAxis.niceDef.defaultValue, isFalse);
+      expect(GraphXAxis.insetDef.defaultValue, 0);
+      expect(GraphMark.dotsDef.defaultValue, 0);
+      expect(GraphMark.centerDef.defaultValue, '');
+      expect(GraphStyle.paletteDef.defaultValue, isEmpty);
     });
   });
 }

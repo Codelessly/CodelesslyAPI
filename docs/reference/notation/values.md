@@ -1779,7 +1779,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `show` | text | `"auto"` | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`, or `none`. |
+| `show` | text | `"none"` | `none`. `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`: whenever there is a key to draw (slices in a narrower graph: under them). |
 | `position` | text | `"auto"` | `bottom` or `top` (a line of keys in the middle, wrapped) or `right` (a list). `auto`: under a plot; beside slices where the list fits there, else under them. |
 | `values` | `true`/`false` | `true` | Each slice's share is written after its label. |
 
@@ -1859,7 +1859,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `dot` | number (≥ 0) | `4` | A dot of this radius on each line at the selected row (0: none). |
 | `tooltip` | `true`/`false` | `true` |  |
 | `title` | text | `""` |  |
-| `tooltipFill` | [Color](#type-Color) |  | The tooltip's ground and text; the style's `tag` and `tagText` when not given. |
+| `tooltipFill` | [Color](#type-Color) |  | The tooltip's ground and text; the style's `tooltip` and `tooltipText` when not given. |
 | `tooltipText` | [Color](#type-Color) |  |  |
 | `total` | `true`/`false` | `false` | A last tooltip row with the sum of the row's marks. |
 
@@ -1884,6 +1884,9 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `topInset` | number (≥ 0) | `0` | Room above the panes. |
 | `ink` | [Color](#type-Color) |  | A figure written large (the one in a donut's hole). |
 | `palette` | list of text | `[]` | The colors of the marks that give none, in turn, and of an arc's slices. When not given: the theme's series colors (`chart1`, `chart2`…) where it names them, else its primary followed by colors of other hues as light and as strong as it. |
+| `tooltip` | [Color](#type-Color) |  | A tooltip: its ground, its text and the line round it. When not given: the surface the graph is on, that surface's ink, and a hairline of it. |
+| `tooltipText` | [Color](#type-Color) |  |  |
+| `tooltipBorder` | [Color](#type-Color) |  |  |
 
 <a id="type-GraphTransform"></a>
 ### GraphTransform
@@ -1935,7 +1938,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `morph` | number (≥ 0) | `0` | Milliseconds a line takes to change its shape to new rows' (0: at once). |
 | `bands` | list of JSON | `[]` |  |
 | `inset` | number (≥ 0) | `0` | Pixels kept clear at each end of a fitted view (`fit`): the first and the last row stand this far inside the plot, so a dot or a line's end there is whole. |
-| `maxBarWidth` | number |  | The widest a bar or a candle is drawn, in the middle of its place (bars side by side: each of them); its share of the place when not given, however wide. |
+| `maxBarWidth` | number |  |  |
 
 <a id="type-GraphYAxis"></a>
 ### GraphYAxis

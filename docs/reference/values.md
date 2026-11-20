@@ -261,7 +261,7 @@ A graph's legend: a key for each named mark (a dot in its color and its name), o
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `show` | String | `"auto"` |  | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`, or `none`. |
+| `show` | String | `"none"` |  | `none`. `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`: whenever there is a key to draw (slices in a narrower graph: under them). |
 | `position` | String | `"auto"` |  | `bottom` or `top` (a line of keys in the middle, wrapped) or `right` (a list). `auto`: under a plot; beside slices where the list fits there, else under them. |
 | `values` | bool | `true` |  | Each slice's share is written after its label. |
 
@@ -335,7 +335,7 @@ The selection: the row (or the one bar or slice) under the pointer or a finger, 
 | `dot` | double | `4` | ≥ 0 | A dot of this radius on each line at the selected row (0: none). |
 | `tooltip` | bool | `true` |  |  |
 | `title` | String | `""` |  |  |
-| `tooltipFill` | [Color](values.md#type-Color) | unset |  | The tooltip's ground and text; the style's `tag` and `tagText` when not given. |
+| `tooltipFill` | [Color](values.md#type-Color) | unset |  | The tooltip's ground and text; the style's `tooltip` and `tooltipText` when not given. |
 | `tooltipText` | [Color](values.md#type-Color) | unset |  |  |
 | `total` | bool | `false` |  | A last tooltip row with the sum of the row's marks. |
 
@@ -358,6 +358,9 @@ A graph's colors and text.
 | `topInset` | double | `0` | ≥ 0 | Room above the panes. |
 | `ink` | [Color](values.md#type-Color) | unset |  | A figure written large (the one in a donut's hole). |
 | `palette` | List<String> | `[]` |  | The colors of the marks that give none, in turn, and of an arc's slices. When not given: the theme's series colors (`chart1`, `chart2`…) where it names them, else its primary followed by colors of other hues as light and as strong as it. |
+| `tooltip` | [Color](values.md#type-Color) | unset |  | A tooltip: its ground, its text and the line round it. When not given: the surface the graph is on, that surface's ink, and a hairline of it. |
+| `tooltipText` | [Color](values.md#type-Color) | unset |  |  |
+| `tooltipBorder` | [Color](values.md#type-Color) | unset |  |  |
 
 <a id="type-GraphTransform"></a>
 ### GraphTransform
@@ -405,7 +408,7 @@ A graph's x scale: where each row stands, what is written under it, and the view
 | `morph` | double | `0` | ≥ 0 | Milliseconds a line takes to change its shape to new rows' (0: at once). |
 | `bands` | List<Object> | `[]` |  |  |
 | `inset` | double | `0` | ≥ 0 | Pixels kept clear at each end of a fitted view (`fit`): the first and the last row stand this far inside the plot, so a dot or a line's end there is whole. |
-| `maxBarWidth` | double | unset |  | The widest a bar or a candle is drawn, in the middle of its place (bars side by side: each of them); its share of the place when not given, however wide. |
+| `maxBarWidth` | double | unset |  |  |
 
 <a id="type-GraphYAxis"></a>
 ### GraphYAxis
