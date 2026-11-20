@@ -118,6 +118,12 @@ abstract final class MotionFields {
   static const translateX = PropDef<double>('translateX', Codecs.double, 0);
   static const translateY = PropDef<double>('translateY', Codecs.double, 0);
 
+  /// Pixels toward the viewer, in 3D: seen nearer or farther only with a
+  /// perspective (the node's own, or a page view's camera).
+  static const translateZ = PropDef<double>('translateZ', Codecs.double, 0,
+      doc: "Pixels toward the viewer (negative: away), in 3D: nearer or farther only with a perspective (the node's, or "
+          "a page view's camera).");
+
   /// Times the node's size (`FractionalTranslation`).
   static const shiftX = PropDef<double>('shiftX', Codecs.double, 0);
   static const shiftY = PropDef<double>('shiftY', Codecs.double, 0);
@@ -145,7 +151,7 @@ abstract final class MotionFields {
   static const path = PropDef<PathFollow?>('path', ValueCodec(PathFollow.fromJson, _out, pathFollowType), null);
 
   static const List<PropDef<Object?>> all = [
-    translateX, translateY, shiftX, shiftY, scale, scaleX, scaleY, rotate, rotateX, rotateY, perspective, //
+    translateX, translateY, translateZ, shiftX, shiftY, scale, scaleX, scaleY, rotate, rotateX, rotateY, perspective, //
     alignment, backfaceHidden, path,
   ];
 }

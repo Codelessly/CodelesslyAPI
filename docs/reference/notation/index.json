@@ -345,7 +345,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13745
+      "words": 13760
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -373,7 +373,7 @@
       "file": "forms.md",
       "anchor": "forms-a-code-in-boxes-a-switch-of-its-own-shape",
       "title": "A code in boxes, a switch of its own shape",
-      "words": 293
+      "words": 308
     },
     {
       "topic": "forms-validation",
@@ -423,7 +423,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 8763
+      "words": 9380
     },
     {
       "topic": "lists-a-list-over-data",
@@ -451,7 +451,7 @@
       "file": "lists.md",
       "anchor": "lists-a-wheel-that-snaps-to-its-middle-row",
       "title": "A wheel that snaps to its middle row",
-      "words": 155
+      "words": 563
     },
     {
       "topic": "lists-a-list-that-follows-its-newest-entry",
@@ -472,7 +472,7 @@
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3351
+      "words": 3560
     },
     {
       "topic": "lists-behaviors",
@@ -630,7 +630,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 4663
+      "words": 4693
     },
     {
       "topic": "animation-the-animate-words",
@@ -665,7 +665,7 @@
       "file": "animation.md",
       "anchor": "animation-behaviors",
       "title": "Keys any line takes here",
-      "words": 1941
+      "words": 1971
     },
     {
       "topic": "animation-events-and-actions",
@@ -974,7 +974,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17506
+      "words": 17536
     },
     {
       "topic": "values-writing-a-value",
@@ -1009,7 +1009,7 @@
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 5402
+      "words": 5432
     },
     {
       "topic": "values-examples",

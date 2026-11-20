@@ -279,20 +279,44 @@ ListView h=120 scrollDirection=horizontal
 
 A wheel (an hour, a minute, a number chosen by turning) is a `Pages` that scrolls down, one page a row: `peek=` is a
 row's share of its height (`0.2`: five rows show), `padEnds=true` lets the first and last rows reach the middle, and
-`@hour` is the row resting in the middle, read and written (a drag or a fling settles on a row and sets it; setting
-it turns the wheel, over `animationDuration`). `pageMotion=` is how a row one away from the middle is drawn (turned
-away with `rotateX`, faded, smaller), a row two away twice that: the drum. A band behind the middle row marks the
-choice; the keys of a wheel of your own are `onKeyDown(key=ArrowDown, focused=true)` on its line
-([interaction.md](interaction.md)).
+`@hour` is the row resting in the middle, read and written (a drag settles on the nearest row and sets it; setting
+it turns the wheel, over `animationDuration`). A band behind the middle row marks the choice; the keys of a wheel of
+your own are `onKeyDown(key=ArrowDown, focused=true)` on its line ([interaction.md](interaction.md)).
+
+**A spin.** `snapPhysics=` is how a fling carries: a [GesturePhysics](values.md#type-GesturePhysics), the
+release a dragged node has. With it a fling coasts by its speed over as many rows as it carries, slowing by
+`friction` (the share of its speed lost a second; 0.865 is a phone's), and rests on the row nearest where it would
+stop, settling on its `spring`; a release slower than `minFlingVelocity` settles on the nearest row; with reduced
+motion it goes to that row with no coast. Without it a fling turns one page. It is the same on a `ListView` with
+`itemSnapping`.
+
+**Rows by their distance.** Each page reads `pageOffset`, its distance from the middle in pages (0 the middle one,
+1.5 halfway between the next two, negative before it; not clamped: `clamp(pageOffset, -3, 3)` bounds it), so any key
+of a row can follow it: its `motion` (`translateX`, `translateY`, `translateZ`, `scale`, `rotate`, `rotateX`,
+`rotateY`, `path`) and its `opacity`. A row of a `ListView` with `itemSnapping` reads the same `pageOffset`: its
+distance from the list's snap point (the start of the view) in rows, so a list's rows can scale or fade by it too.
+
+A drum of radius R (half the wheel's height) puts a row d rows away at the angle d·h/R: at `R·sin(angle)`
+(`motion.translateY`, less the d·h the pages put it at), turned by the angle (`motion.rotateX`) and pushed back by
+`R·(cos(angle) - 1)` (`motion.translateZ`: toward the viewer is positive, away negative), so the rows crowd, flatten
+and shrink toward the top and bottom while the middle row is untouched. `perspective=` on the `Pages` is one camera at
+the view's middle for every page (the pages' own `motion.perspective=0`): with it the drum is seen in depth; 0 draws
+it flat. A cover flow turns its pages about y, a deck stacks them with `translateY`, `translateZ` and `scale`.
+`pageMotion=` says the common case in one record, drawn by distance up to two pages.
 
 ```notation
 state hour:decimal=8
 Stack w=96 h=180
   Column w=fill h=36 y=72 fill=#FFF1F5F9 radius=8
-  Pages h=fill @hour scrollDirection=vertical peek=0.2 padEnds=true edgeFade=0 animationDuration=200 pageMotion={"rotateX":-28,"perspective":0.003,"opacity":0.55,"scale":0.94}
+  Pages h=fill @hour scrollDirection=vertical peek=0.2 padEnds=true edgeFade=0 allowImplicitScrolling=true snapPhysics={"friction":0.865} perspective=2
     each item in range(24)
-      Text "{item}" size=20 center h=fill
+      Text "{item}" size=20 center h=fill motion.translateY={90 * sin(pageOffset * 0.4) - pageOffset * 36} motion.translateZ={90 * (cos(pageOffset * 0.4) - 1)} motion.rotateX={-pageOffset * 0.4 * 180 / pi()} opacity={abs(pageOffset * 0.4) < pi() / 2 ? 1 - 0.7 * abs(pageOffset * 0.4) / (pi() / 2) : 0} motion.perspective=0
 ```
+
+**While it turns.** `@hour` changes as each row passes the middle, not only at rest, so anything bound to it follows
+the spin. The position between rows is the `onScroll` reaction's `result.page` (a decimal: 8.4 is four tenths of the
+way from 8 to 9; `result.index` the row nearest, `result.offset` the pixels), stored in a variable another part reads
+(`onScroll={turn=result.page}`, `state turn:decimal=8`). Where it comes to rest is `onScrollEnd` (`result.index`).
 
 <a id="lists-a-list-that-follows-its-newest-entry"></a>
 ## A list that follows its newest entry
@@ -467,6 +491,7 @@ Flutter `ListView`; the first child is the item.
 | `query` | JSON | `{}` | 0 | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `itemSnapping` | `true`/`false` | `false` | 0 | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `dragEdgeScroll` | `true`/`false` | `true` | 0 | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
+| `snapPhysics` | [GesturePhysics](values.md#type-GesturePhysics) |  | 0 | How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). Null: one page per fling. |
 | `scrollable` | `true`/`false` | `true` | 0 | False builds every item without a viewport when the count is known and the list hugs its items (or stretches them across a cross axis it hugs). |
 | `itemExtent` | number (≥ 0) |  | 0 | Each item's extent along the scroll direction. |
 | `separator` | `none` `space` `divider` | `none` | 0 |  |
@@ -518,6 +543,7 @@ Flutter `GridView`; the first child is the item.
 | `query` | JSON | `{}` | 0 | Where the items come from in a running app: a cloud query (`{"collectionPath", "limit", "whereFilters", "orderByFilters", "paging", "loadRelated", "statusVariable"}`). Runtime only. |
 | `itemSnapping` | `true`/`false` | `false` | 0 | Each drag or fling comes to rest with an item at the start of the view (CSS `scroll-snap-type: mandatory` with `scroll-snap-align: start`), as PageView.pageSnapping does for pages: a carousel of cards. |
 | `dragEdgeScroll` | `true`/`false` | `true` | 0 | Scrolls while a dragged node is held near its edges; off: stays put under a drag (a strip of tabs a card is dragged onto). |
+| `snapPhysics` | [GesturePhysics](values.md#type-GesturePhysics) |  | 0 | How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). Null: one page per fling. |
 | `cols` (or `crossAxisCount`) | whole number (≥ 1) | `2` | 0 | A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use `minCrossAxisExtent` instead. |
 | `maxCrossAxisExtent` | number (≥ 0) |  | 0 |  |
 | `minCrossAxisExtent` | number (≥ 0) |  | 0 | CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with `crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. `280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints. |
@@ -562,6 +588,8 @@ Flutter `PageView`; the first child is the page.
 | `pageMotionBefore` | [Pose](values.md#type-Pose) |  | 1 | The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, alignment: [-1, 0]}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored. |
 | `paintOrder` | `forward` `reverse` | `forward` | 1 | Which pages draw on top where they overlap: `forward` (Flutter's order: later pages over earlier ones) or `reverse` (earlier pages on top, so a page turning away covers the one it reveals). Taps reach the page on top first. |
 | `edgeFade` | number (≥ 0) | `0` | 1 | The next page showing at the edge fades out over this many pixels, not cut hard. |
+| `snapPhysics` | [GesturePhysics](values.md#type-GesturePhysics) |  | 1 | How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). Null: one page per fling. |
+| `perspective` | number (≥ 0) | `0` | 1 | A camera at the view's middle for its pages' 3D turns (rotateX, rotateY of their motion): how strongly depth is seen, as a motion's perspective, every page seen from one point (a drum, a cover flow). 0: none. |
 
 <a id="node-tableView"></a>
 ### `TableView` (`tableView`)

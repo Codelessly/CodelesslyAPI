@@ -142,10 +142,11 @@ clip=antiAlias` around `IconButton "remove" border-right=…`, `Input … decora
 ## A code in boxes, a switch of its own shape
 
 `CodeInput @code length=6 digits` is one field drawn as a row of slots, one per character (one value, one Tab stop,
-paste and Backspace as in any field). Each slot is the field's own box: `fill=`, `border=` and `radius=` are the
-slots', `focused.border=` colors them while the code is typed, and the slot typed into next is drawn in that border
-twice as thick. The slots are as tall as the field and share its width (8 between them): `h=60 w=300` gives five
-slots 53.6 × 60; leave the height off and they hug with the other inputs.
+paste and Backspace as in any field). Each slot is the field's own box at rest: `fill=`, `border=` and `radius=`
+are the slots'. While the field has the focus, the slot typed into next (and only it) is drawn in the field's
+focused look: `focused.border=` (twice as thick) and `focused.fill=`, else the accent; the others stay at rest. The
+slots are as tall as the field and share its width (8 between them): `h=60 w=300` gives five slots 53.6 × 60; leave
+the height off and they hug with the other inputs.
 
 ```notation expands
 state code=""

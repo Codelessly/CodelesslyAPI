@@ -135,11 +135,28 @@ abstract final class CollectionScrollProps {
   /// Scrolls while a drag and drop is held near its edges.
   static const dragEdgeScroll = ScrollProps.dragEdgeScroll;
 
+  /// How a fling of a scroll that snaps (a page view's pages, a list's
+  /// `itemSnapping`) carries on: the [GesturePhysics] a drag's release has.
+  /// With it a fling coasts by its speed over as many items as it carries,
+  /// slowing by `friction` (the share of speed lost a second), and comes to
+  /// rest on the item nearest where it would stop (`projectFling`), settling
+  /// on `spring`; a release slower than `minFlingVelocity` settles on the
+  /// nearest item. Its `snap` and `overscroll` are not read: the items are
+  /// the snap points. Null: one page per fling (Flutter's `PageScrollPhysics`;
+  /// a list, the item nearest the platform's coast).
+  static const snapPhysics = PropDef<GesturePhysics?>('snapPhysics', _snapPhysicsCodec, null,
+      doc: 'How a fling of a snapping scroll carries on: with it, a fling coasts over as many items as its speed '
+          'carries, slowing by friction, and rests on the item nearest where it would stop (a wheel, a reel). '
+          'Null: one page per fling.');
+
   static const List<PropDef<Object?>> all = [
     scrollDirection, reverse, physics, alwaysScroll, primary, keyboardDismissBehavior, clipBehavior, //
-    itemCount, cacheExtent, query, itemSnapping, dragEdgeScroll,
+    itemCount, cacheExtent, query, itemSnapping, dragEdgeScroll, snapPhysics,
   ];
 }
+
+Object? _snapPhysicsOut(GesturePhysics? p) => p?.toJson();
+const _snapPhysicsCodec = ValueCodec<GesturePhysics?>(GesturePhysics.fromJson, _snapPhysicsOut, gesturePhysicsType);
 
 /// Flutter `ListView`: its first child repeated per item.
 abstract final class ListViewProps {
@@ -382,6 +399,15 @@ abstract final class PageViewProps {
   static const edgeFade = PropDef<double>('edgeFade', DoubleCodec(min: 0), 0,
       doc: 'The next page showing at the edge fades out over this many pixels, not cut hard.');
 
+  /// A camera at the view's middle for its pages' turns in 3D (a `rotateX`
+  /// or `rotateY` in a page's `motion`: a drum's rows, a cover flow's
+  /// covers): how strongly depth is seen, as a motion's `perspective` (1
+  /// moderate), said once for the view so every page is seen from one point.
+  /// The pages' own motion then writes `perspective=0`. 0: none.
+  static const perspective = PropDef<double>('perspective', DoubleCodec(min: 0), 0,
+      doc: "A camera at the view's middle for its pages' 3D turns (rotateX, rotateY of their motion): how strongly depth "
+          "is seen, as a motion's perspective, every page seen from one point (a drum, a cover flow). 0: none.");
+
   static const spec = WidgetSpec(
     'pageView',
     fillsWidth: true,
@@ -389,7 +415,7 @@ abstract final class PageViewProps {
       CollectionScrollProps.scrollDirection, CollectionScrollProps.reverse, CollectionScrollProps.physics, //
       CollectionScrollProps.alwaysScroll, CollectionScrollProps.clipBehavior, CollectionScrollProps.itemCount,
       pageSnapping, padEnds, keepPage, initialPage, viewportFraction, allowImplicitScrolling, animationDuration,
-      animationCurve, pageMotion, pageMotionBefore, paintOrder, edgeFade,
+      animationCurve, pageMotion, pageMotionBefore, paintOrder, edgeFade, CollectionScrollProps.snapPhysics, perspective,
     ],
     children: ChildModel.list,
     childFits: cellChildFits,

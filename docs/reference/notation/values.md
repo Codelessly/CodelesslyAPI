@@ -2027,6 +2027,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 |---|---|---|---|
 | `translateX` | number | `0` | Pixels. |
 | `translateY` | number | `0` | Pixels (`Transform.translate(offset:)`). |
+| `translateZ` | number | `0` | Pixels toward the viewer (negative: away), in 3D: nearer or farther only with a perspective (the node's, or a page view's camera). |
 | `shiftX` | number | `0` | Times the node's size (`FractionalTranslation`). |
 | `shiftY` | number | `0` | Multiples of the node's own size (`FractionalTranslation`). |
 | `scale` | number | `1` | The axis factors multiply `scale`. |
