@@ -135,6 +135,8 @@ the first section before upgrading.
 - **A bound size takes its fit as a word**: a binding of `layout.width` or `layout.height` that gives `"fill"` or
   `"hug"` is that fit (`w={fluid ? 'fill' : edge}`); it read as no size.
 
+- **`fill` on `Button`** (any kind) is the button's own ground, with a label that reads on it unless the line
+  gives `color`. It was kept on the node, where a button draws none, and the button stayed the theme's primary.
 - **`radius` on `Button` and `IconButton`**: the corners of the button's shape (`Button "Donate" h=44 radius=22`).
   It was refused.
 - **`phone.axis=vertical` and `phone.direction=column`** on a Row or Column read as `phone.direction=vertical`.

@@ -646,4 +646,19 @@ Page
     expect(_at(r, _parentOf(r, donate.last), 390)['visible'], false, reason: 'not said twice in the menu');
     expect(_at(r, _idOf(r, 'About'), 390)['visible'], false);
   });
+
+  test('a Button takes fill: its own ground, of any kind of button', () {
+    final r = _parse('''
+Column
+  Button "Donate" fill=#FFE4572E
+  Button.outline "More" fill=#FFFFF3D6
+  Button.ghost "Quiet" fill=#FF224466 color=#FFFFFFFF
+''');
+    expect(r.issues, isEmpty);
+    Map style(String label) => (_node(r, _idOf(r, label))['props'] as Map)['style'] as Map;
+    expect(style('Donate')['backgroundColor'], '#FFE4572E');
+    expect(style('More')['backgroundColor'], '#FFFFF3D6');
+    expect(style('Quiet'), {'backgroundColor': '#FF224466', 'foregroundColor': '#FFFFFFFF'});
+    expect(_node(r, _idOf(r, 'Donate'))['decoration'], isNull);
+  });
 }

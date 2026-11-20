@@ -40,7 +40,8 @@ Words a writer reaches for, and what they read as:
 - A field's label goes above it. Where it has no room there (beside buttons or chips in a row, in a row of a set
   height under 56) the label is its hint; `label="…"` by name keeps it above.
 - `Button "Donate" h=44 radius=22` and `IconButton "play_arrow" radius=20`: `radius` is the corners of a
-  button's shape.
+  button's shape. `fill=` on a Button or an IconButton is its own ground (its label reads on it unless the
+  line gives `color=`).
 - `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
 
 ```notation expands

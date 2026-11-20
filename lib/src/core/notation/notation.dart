@@ -6878,7 +6878,10 @@ class _Parser {
         // `IconButton "play_arrow" fill=accent`: the button's own ground
         // (its style's), which it draws under its icon; a fill on the node
         // is not drawn by a button.
-        if (key == 'fill' && type == 'iconButton' && !component) {
+        // (A `Button` the same, of any kind: `Button "Donate" fill=#FFE4572E`
+        // was drawn in the theme's primary, the fill kept where nothing
+        // draws it.)
+        if (key == 'fill' && type.endsWith('Button') && spec.prop('style') != null && !component) {
           if (raw.startsWith('=')) {
             bind['props.style.backgroundColor'] = _namedIn(_read(raw.substring(1)), 'fill');
             buttonLook ??= <String, Object?>{};

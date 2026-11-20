@@ -310,14 +310,14 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 12936
+      "words": 13077
     },
     {
       "topic": "forms-a-control-and-its-value",
       "file": "forms.md",
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
-      "words": 195
+      "words": 336
     },
     {
       "topic": "forms-tabs-segments-and-chips-chosen-from",
@@ -381,7 +381,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7433
+      "words": 7434
     },
     {
       "topic": "lists-a-list-over-data",
@@ -395,7 +395,7 @@
       "file": "lists.md",
       "anchor": "lists-a-table-of-records",
       "title": "A table of records",
-      "words": 933
+      "words": 934
     },
     {
       "topic": "lists-a-list-of-its-own-line",
@@ -459,7 +459,7 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3443
+      "words": 3480
     },
     {
       "topic": "state-variables",
@@ -487,7 +487,7 @@
       "file": "state.md",
       "anchor": "state-functions",
       "title": "Functions",
-      "words": 2750
+      "words": 2787
     },
     {
       "topic": "state-events-and-actions",
@@ -638,14 +638,14 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8004
+      "words": 8025
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 134
+      "words": 155
     },
     {
       "topic": "charts-words",
@@ -674,14 +674,14 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 2327
+      "words": 2921
     },
     {
       "topic": "responsive-keys-at-other-widths",
       "file": "responsive.md",
       "anchor": "responsive-keys-at-other-widths",
       "title": "Keys at other widths",
-      "words": 304
+      "words": 369
     },
     {
       "topic": "responsive-a-design-at-a-width",
@@ -695,7 +695,7 @@
       "file": "responsive.md",
       "anchor": "responsive-what-reflow-does",
       "title": "What reflow does",
-      "words": 808
+      "words": 1337
     },
     {
       "topic": "responsive-breakpoints",
@@ -717,14 +717,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 4069
+      "words": 4276
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 939
+      "words": 1146
     },
     {
       "topic": "navigation-over-the-page",
