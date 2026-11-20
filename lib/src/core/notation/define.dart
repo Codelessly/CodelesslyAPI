@@ -1168,14 +1168,18 @@ final class DefinedWords {
     // An id written in the body is made the use's (the root's is the use's
     // own), and the body's actions that name it name the use's.
     final renamed = <String, String>{};
-    final ids = <String>{};
+    final ids = <String, String>{};
     final bodyRoot = d.body.firstWhere((b) => b.indent == 0 && !_preamble(b.text), orElse: () => d.body.first);
     for (final l in d.body) {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*(?:~[a-z]+)?#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
-        renamed[m[1]!] = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
-        ids.add(m[1]!);
+        final to = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
+        ids[m[1]!] = to;
+        // An id named like one of the word's parameters (`expand=true` and
+        // `Glyph#expand`) is that id only where an id is read (`#expand`, an
+        // action's target); the bare name is the parameter.
+        if (!d.parameters.containsKey(m[1]) && !d.strings.contains(m[1])) renamed.putIfAbsent(m[1]!, () => to);
       }
     }
     // The variables of the use: what it binds is the page's (the body's own
@@ -1599,9 +1603,11 @@ final class _Substitution {
       };
   final NotationDefinition d;
 
-  /// The ids written in the body (keys of [renamed]): an action may name one
-  /// as `#name` or `"name"` too.
-  final Set<String> ids;
+  /// The ids written in the body, each with the use's id for it: an action
+  /// may name one as `#name` or `"name"` too. In a value (`data={rows}`,
+  /// `if open`) a bare name is never an id: it is the variable or the
+  /// parameter of that name.
+  final Map<String, String> ids;
 
   /// The use's values as written, by parameter (strings by their names).
   final Map<String, String?> values;
@@ -1655,7 +1661,7 @@ final class _Substitution {
 
   /// [text] (an expression or actions) with the parameters and the body's
   /// own names put in. A string in it keeps its words; its `{…}` are read.
-  String expression(String text) {
+  String expression(String text, {bool value = false}) {
     final b = StringBuffer();
     var i = 0;
     while (i < text.length) {
@@ -1665,8 +1671,8 @@ final class _Substitution {
         final s = text.substring(i, end);
         // `focus "cellInput"`: an id of the body, named by an action.
         final quoted = s.length > 2 ? s.substring(1, s.length - 1) : '';
-        if (ids.contains(quoted) && RegExp(r'\b(focus|scroll|open|close|toggle)\s*$').hasMatch(text.substring(0, i))) {
-          b.write('"${renamed[quoted]}"');
+        if (ids.containsKey(quoted) && RegExp(r'\b(focus|scroll|open|close|toggle)\s*$').hasMatch(text.substring(0, i))) {
+          b.write('"${ids[quoted]}"');
         } else {
           b.write(_string(s));
         }
@@ -1683,7 +1689,7 @@ final class _Substitution {
         final m = RegExp(r'#[A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*').matchAsPrefix(text, i)!;
         // `focus #cellInput`: an id of the body; `#FF2563EB` a colour.
         final id = m[0]!.substring(1);
-        b.write(ids.contains(id) ? '#${renamed[id]}' : m[0]);
+        b.write(ids.containsKey(id) ? '#${ids[id]}' : m[0]);
         i = m.end;
         continue;
       }
@@ -1710,7 +1716,20 @@ final class _Substitution {
         continue;
       }
       i = m.end;
+      // `{props.size}` in a definition, as a component's tree reads its
+      // parameters: the word's own parameter `size`.
+      if (word == 'props' && before != '.' && !renamed.containsKey('props')) {
+        if (RegExp(r'\.([A-Za-z_][A-Za-z0-9_]*)').matchAsPrefix(text, i) case final p? when _isParameter(p[1]!) && renamed[p[1]!] == null) {
+          b.write(_expression(p[1]!));
+          i = p.end;
+          continue;
+        }
+      }
       if (before == '.' || call) {
+        b.write(word);
+      } else if (value && ids[word] != null && renamed[word] == ids[word]) {
+        // `data={therapists}` beside `PageView#therapists`: in a value a
+        // bare name is the variable, never the id.
         b.write(word);
       } else if (renamed[word] case final String to) {
         b.write(to);
@@ -1754,7 +1773,7 @@ final class _Substitution {
           // the look as the page words write it, a value or the theme's name.
           b.write(switch (_themeAt(n, 0)!.value) { null => '', final num v => foldNumber(v), final v => '$v' });
         } else {
-          final e = expression(inner);
+          final e = expression(inner, value: true);
           final v = foldExpression(e);
           final t = identical(v, unknown) || v == null ? null : foldText(v);
           b.write(t ?? '{$e}');
@@ -1839,7 +1858,7 @@ final class _Substitution {
       return '...${slot.name} ${line('X ${slot.words}')!.substring(2)}';
     }
     if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)$').firstMatch(text) case final m?) {
-      return 'state ${renamed[m[1]!] ?? m[1]}=${expression(m[2]!.trim())}';
+      return 'state ${renamed[m[1]!] ?? m[1]}=${expression(m[2]!.trim(), value: true)}';
     }
     if (RegExp(r'^(if|else if)\s+(.*)$').firstMatch(text) case final m?) return '${m[1]} ${_braced(m[2]!)}';
     if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.*?)(\s+reorder(?:=\S+)?)?$').firstMatch(text) case final m?) {
@@ -1873,7 +1892,7 @@ final class _Substitution {
     }
     if (RegExp(r'^([A-Z][A-Za-z0-9]*)\.\{').firstMatch(text) case final m?) {
       final close = _braceEnd(text, m.end - 1);
-      final e = expression(text.substring(m.end, close - 1));
+      final e = expression(text.substring(m.end, close - 1), value: true);
       final v = foldExpression(e);
       final rest = text.substring(close).trim();
       final after = rest.isEmpty ? '' : line('X $rest')?.substring(1) ?? '';
@@ -1910,7 +1929,7 @@ final class _Substitution {
             final v = _themeAt(whole, 0)!.value;
             if (v != null) parts.add('$k=${v is num ? foldNumber(v) : v}');
           } else if (whole != null) {
-            final e = expression(whole);
+            final e = expression(whole, value: true);
             // Reading nothing at run time, it is worked out here: a value
             // that is nothing leaves the key out (a hidden line stays hidden),
             // and a line shown is shown without saying so.
@@ -1951,7 +1970,7 @@ final class _Substitution {
             final v = _value(inner);
             if (v != null && v.isNotEmpty) parts.add(v.startsWith('{') ? v : '{${_expression(inner)}}');
           } else {
-            parts.add('{${expression(inner)}}');
+            parts.add('{${expression(inner, value: true)}}');
           }
           final rest = x.raw.substring(close).trim();
           if (rest.isNotEmpty) parts.add(line('X $rest')!.substring(2));
@@ -1962,7 +1981,7 @@ final class _Substitution {
       }
     }
     var id = p.id;
-    final to = id.isEmpty ? null : renamed[id.substring(1)];
+    final to = id.isEmpty ? null : ids[id.substring(1)] ?? renamed[id.substring(1)];
     if (to != null) id = '#$to';
     return ['${p.word}${p.variant}$id', ...parts].join(' ');
   }
@@ -2024,9 +2043,9 @@ final class _Substitution {
         if (v != null && v.startsWith('{') && v.endsWith('}')) return v.substring(1, v.length - 1).trim();
         return _expression(inner);
       }
-      return expression(inner);
+      return expression(inner, value: true);
     }
-    return expression(t);
+    return expression(t, value: true);
   }
 }
 

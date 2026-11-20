@@ -142,6 +142,7 @@ extension _Events on _Parser {
         continue;
       }
       trigger[key] = _fieldValue(raw, column);
+      _literalOnly(TriggerFields.all, key, trigger[key], "A trigger's", column);
     }
   }
 
@@ -179,6 +180,17 @@ extension _Events on _Parser {
         final v = out[key];
         out[key] = {'left': v is bool ? '\${= $v}' : v, 'op': 'isTrue'};
       }
+      // (After the predicate is made a record: a condition worked out is
+      // read, never said.)
+      _literalOnly([...spec.fields, ...ActionCommonFields.all], key, out[key], 'A ${spec.type} action\x27s', column);
+    }
+    // `stopVariable=name`: the stops are shares (0.5), which a whole-number
+    // variable would round away.
+    if (out['stopVariable'] case final String name when out['snapHeights'] is List && RegExp(r"^[A-Za-z_][A-Za-z0-9_]*$").hasMatch(name)) _widen(name, null);
+    // A sheet with stops always draws its grip, the handle its stops are
+    // dragged between: `showDragHandle=false` beside them is not read.
+    if (out['showDragHandle'] == false && out['snapHeights'] is List && (out['snapHeights']! as List).isNotEmpty) {
+      _issue(column, 'A sheet with snapHeights always draws its drag handle (it is what moves the sheet between its stops), so showDragHandle=false is not read beside them. For a sheet without a grip, leave out snapHeights and give it one height (maxHeightFactor=…).');
     }
     _top._actionLines[out] = _line;
     return out;
@@ -187,6 +199,27 @@ extension _Events on _Parser {
   /// The action fields that hold a predicate (`ActionIfFields.condition`,
   /// `ActionCommonFields.when`): `{"left": …, "op": …}` or a junction.
   static const _predicateFields = {'condition', 'when'};
+
+  /// Says a value worked out (`${…}`) given to a field that holds only a
+  /// value written out (a number, true or false, one of its words): it is
+  /// read once, as the document loads, and the `${…}` would be dropped for
+  /// the field's default. Names the fields of [fields] that do take one.
+  void _literalOnly(List<PropDef<Object?>> fields, String key, Object? value, String whose, int column) {
+    if (value is! String || !value.contains(r'${')) return;
+    final f = fields.where((f) => f.key == key).firstOrNull;
+    if (f == null) return;
+    final c = f.codec;
+    if (c is! IntCodec && c is! DoubleCodec && c is! BoolCodec && c is! OptionalIntCodec && c is! OptionalDoubleCodec && c is! OptionalBoolCodec && c is! EnumCodec && c is! OptionalEnumCodec) return;
+    final worked = [
+      for (final g in fields)
+        if (g.key != key && (g.codec is ExprCodec || (g.codec is StringCodec && RegExp(r'formula|expression', caseSensitive: false).hasMatch(g.doc)))) g.key,
+      // `enabled={…}`: whether the action runs is its `when`.
+      if (identical(f, ActionCommonFields.enabled)) 'when',
+    ];
+    _issue(column,
+        '$whose $key is a value written out (${c is BoolCodec || c is OptionalBoolCodec ? 'true or false' : c is EnumCodec || c is OptionalEnumCodec ? 'one of its words' : 'a number'}); it does not read a value worked out, so $value would be dropped for its default. '
+        '${worked.isEmpty ? 'Write the value itself.' : 'A value worked out goes in ${worked.map((k) => '$k={…}').join(' or ')}.'}');
+  }
 
   /// Whether [a] starts with an action type's name and a field of it (not a
   /// choice to read as `cond ? a : b`).

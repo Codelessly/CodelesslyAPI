@@ -42,7 +42,7 @@ import '../triggers.dart' show TriggerType;
 // Paint, motion and charts (design 22, 4.6): paint_words.dart.
 import '../behavior_fields.dart' show AnimationTrackFields, NodeAnimationFields, TransitionFields;
 import '../custom_paint.dart' show DrawOp;
-import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs;
+import '../custom_paint_fields.dart' show CustomPaintFields, DrawOpCommonFields, DrawOpSpecs, ExprCodec;
 import '../value_fields.dart' show EffectFields;
 // A ListView with lines of its own is read as a scrolling Column (_listOfLines).
 import '../widgets/flex.dart' show FlexProps;
@@ -2048,6 +2048,11 @@ class _Parser {
   /// that has it.
   String _twice(String id, String? condition) {
     final first = _top._idAt[id];
+    // The page's own canvas (named after its file) or an overlay's: the
+    // line and the lines under it are left out, so say whose it is.
+    if (first == null && _rootIds.contains(id)) {
+      return 'The id "$id" is the canvas\'s own (${id == _top.options.screen ? 'this page, named after its file' : 'an overlay of this page'}): this line is left out (the lines under it go to the line above). Give it an id of its own (${id}Body).';
+    }
     if (first == null) return 'The id "$id" is used twice. Give this line an id of its own.';
     if (first.condition != null && condition != null && first.condition != condition) {
       return 'The id "$id" is used twice: line ${first.line} has it too, in the other branch of the if. A document holds one node per id, so both branches '
@@ -2153,7 +2158,10 @@ class _Parser {
     // `stop=@name`: the variable is bound, so it is declared; any other form says how it is written.
     if (o.stop case final String stop) {
       if (o.action['stopVariable'] case final String name) {
-        _bindsVariable(name, 1, () => 0);
+        // The stops are shares (0.5): a whole-number variable (`state
+        // sheetStop=0`) would round each one the sheet writes away.
+        _bindsVariable(name, 1, () => 0.0);
+        _widen(name, null);
       } else {
         _issue(
             1,
@@ -2716,6 +2724,7 @@ class _Parser {
 
   /// Whether a state named item read inside an each was said.
   bool _itemSaid = false;
+  bool _indexSaid = false;
 
   /// Line [base]'s media rules (docs/design/22 section 2.4): `hide=`/`show=`
   /// as they are, and each run of words with one condition (`phone.pad=16
@@ -3168,6 +3177,9 @@ class _Parser {
   /// (`app`, `nav`, `section`, `sidebar`, `main`, `pane`), a grid's rows
   /// and the rows whose columns share their width: what [PageReflow] reads.
   String? _lastNode;
+
+  /// The line and column each node of the text was read at.
+  final _placedAt = <String, ({int line, int column})>{};
   final _roles = <String, String>{};
   final _gridRows = <String, _Grid>{};
 
@@ -3277,6 +3289,74 @@ class _Parser {
       }
     }
   }
+
+  /// An `each` under a ListView (GridView, PageView) line of its own whose
+  /// lines put more than one node under the list (two lines at its margin,
+  /// an `if` holding a title and a list): the list repeats its first child
+  /// only, so they are one item, a column of them, and none is dropped.
+  void _oneItem(_Open open) {
+    final list = nodes[open.id];
+    if (open.pages != null || list == null || !const {'listView', 'gridView', 'pageView'}.contains(list['type'])) return;
+    final kids = readStrings(list['children']);
+    if (kids.length < 2) return;
+    final itemId = _taken('${open.id}Item') ? _id('column') : '${open.id}Item';
+    final gap = readMap(list['props'])?['spacing'];
+    // In a stack the copies are layered, each line where its x and y say:
+    // the item is a layer as big as the list, they keep their places in it.
+    final layered = readMap(list['props'])?['layout'] == 'stack';
+    nodes[itemId] = {
+      'type': layered ? 'stack' : 'column',
+      'layout': {
+        'width': {'fill': 0},
+        'height': layered ? {'fill': 0} : {'hug': 0},
+        if (layered) 'x': 0,
+        if (layered) 'y': 0,
+      },
+      if (!layered) 'props': {'crossAxisAlignment': 'start', if (gap is num && gap > 0) 'spacing': gap},
+      'children': kids,
+    };
+    _parentOf[itemId] = open.id;
+    for (final k in kids) {
+      _parentOf[k] = itemId;
+    }
+    list['children'] = [itemId];
+    if (_canvas) {
+      _patches
+        ..add({'op': 'set', 'id': itemId, 'parent': open.id, 'index': 0, 'node': {...nodes[itemId]!}..remove('children')})
+        ..addAll([for (var i = 0; i < kids.length; i++) {'op': 'move', 'id': kids[i], 'parent': itemId, 'index': i}]);
+    }
+  }
+
+  /// A Stack that hugs an axis (no `w=`, `h=`) is as big as its largest
+  /// child there, and a child placed further in (`x=20` on a 40 wide child
+  /// beside another 40 wide one) is kept inside it, drawn at its edge: said
+  /// at the child, with the size that holds it.
+  void _keptInside(String id) {
+    final stack = nodes[id];
+    if (stack == null || _top._quiet) return;
+    final layout = readMap(stack['layout']) ?? const {};
+    final kids = [for (final k in readStrings(stack['children'])) if (nodes[k] case final n?) (k, readMap(n['layout']) ?? const <String, Object?>{})];
+    for (final (axis, at) in const [('width', 'x'), ('height', 'y')]) {
+      final hugs = readMap(layout[axis])?.containsKey('hug') ?? false;
+      if (!hugs) continue;
+      final sizes = [for (final (_, l) in kids) if (l[axis] case final num n) n];
+      if (sizes.length != kids.length || sizes.isEmpty) continue;
+      final largest = sizes.reduce(math.max);
+      final need = [for (final (_, l) in kids) ((l[at] is num ? l[at] as num : 0) + (l[axis] as num))].reduce(math.max);
+      for (final (k, l) in kids) {
+        final place = l[at], size = l[axis];
+        if (place is! num || size is! num || place <= 0 || place + size <= largest) continue;
+        final where = _placedAt[k];
+        if (where == null) continue;
+        issues.add(NotationIssue(where.line, where.column,
+            'This line is placed at $at=${_n(place)} in a Stack that is as ${axis == 'width' ? 'wide' : 'tall'} as its largest child (${_n(largest)}): it is kept inside it, drawn at ${_n(largest - size)}. '
+            'Give the Stack its size (${axis == 'width' ? 'w' : 'h'}=${_n(need)}) for the place to hold.'));
+        break;
+      }
+    }
+  }
+
+  static String _n(num v) => v == v.roundToDouble() ? v.round().toString() : v.toString();
 
   /// A button a dialog or a sheet ends with, not an icon's.
   bool _actionButton(String id) {
@@ -4941,6 +5021,12 @@ class _Parser {
       _itemSaid = true;
       _issue(indent + 1, 'item inside an each is the copy it repeats (each ${eaches.last} in … is item in the document), so the state item cannot be read here: name the state otherwise (state itemRecord=…).');
     }
+    // So is `index`: the copy's place in the list (0, 1, 2…), whatever the
+    // page's state of that name holds.
+    if (eaches.isNotEmpty && !eaches.contains('index') && variables.containsKey('index') && !_indexSaid && _rename(line, 'index', 'index_') != line) {
+      _indexSaid = true;
+      _issue(indent + 1, 'index inside an each is the place of the copy it repeats (0, 1, 2…), so the state index cannot be read here: name the state otherwise (state currentIndex=…).');
+    }
     for (var k = 0; k < eaches.length; k++) {
       final around = eaches.length - 1 - k;
       final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
@@ -5652,13 +5738,31 @@ class _Parser {
     // a node has one id however many copies an each makes of it (each copy
     // is told apart by its element), so the id is the fixed part.
     line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#([A-Za-z_][A-Za-z0-9_]*)?[-_]*\{[^{}]*\}[A-Za-z0-9_{}.-]*(?=\s|$)'), (m) {
-      final fixed = m[2];
-      return fixed == null || _taken(fixed) ? m[1]! : '${m[1]}#$fixed';
+      // `remove_{index}`: the fixed part is `remove`.
+      final fixed = m[2]?.replaceFirst(RegExp(r'(?<=.)_+$'), '');
+      final id = fixed == null || _taken(fixed) ? null : fixed;
+      // Under an each, the writer meant an id per copy: said, with how a
+      // copy is named (the copies are told apart by their place).
+      if (_stack.any((o) => o.each != null) && !_top._quiet) {
+        final written = RegExp(r'#[A-Za-z_][A-Za-z0-9_]*[-_]*{[^{}]*}[A-Za-z0-9_{}.-]*').firstMatch(source)?[0] ?? m[0]!.substring(m[1]!.length);
+        _issue(column,
+            'A copy an each repeats has no id of its own: $written is read as ${id == null ? 'no id' : '#$id'}. '
+            '${id == null ? 'Give the line a fixed id (#remove)' : 'Its copies are $id#0, $id#1… in order (a step taps $id#2)'}; an action reaches one copy by its item: scrollTo node=${id ?? 'remove'} item={i}.');
+      }
+      return id == null ? m[1]! : '${m[1]}#$id';
     });
     // A quoted text the line ends inside (a line break typed in it): said,
     // with how a break is written; the line is read up to its end.
     if (RegExp(r'(?<!\\)"').allMatches(line).length.isOdd) {
       _issue(column, 'A quoted text is not closed on its line: a text is one line, a line break in it is written \\n ("one\\ntwo", and in an expression \'\\n\').');
+    }
+    // `GridView data={rows}` (or `Grid`): a grid over data is the catalog's
+    // gridView, its line under it the cell repeated for each row, as
+    // `ListView data={…}` is; the Grid word lays out the lines written
+    // under it and has no data.
+    if (RegExp(r'^(GridView|Grid)(?=[#\s])').hasMatch(line) && catalog.widget(line.split(RegExp(r'[#\s]')).first) == null &&
+        (LineParts.of(line)?.parts.any((p) => p.kind == 'pair' && p.key == 'data') ?? false)) {
+      line = line.replaceFirst(RegExp(r'^(GridView|Grid)'), 'gridView');
     }
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?').firstMatch(line);
@@ -5858,6 +5962,7 @@ class _Parser {
     }
     if (head[3] != null) _top._idAt.putIfAbsent(id, () => (line: _line, condition: under));
     _lastNode = id;
+    _placedAt[id] = (line: _line, column: column);
     // A stand-in, or the root of a use of a primitive declared with no lines:
     // what it draws is settled when it closes ([_silence]).
     if (_bareUse.remove(id) case final bare?) {
@@ -7777,8 +7882,27 @@ class _Parser {
           _use('alias', key, col, of: 'parameter', to: 'icon', on: written);
           key = 'icon';
         }
+        // A formatter is one of the kinds a field applies; another is said
+        // (it would let every edit through).
+        if (key == 'inputFormatter' && type == 'textField' && raw.startsWith('{"')) {
+          final kind = (() {
+            try {
+              return (jsonDecode(raw) as Map)['type'];
+            } catch (_) {
+              return null;
+            }
+          })();
+          if (kind is String && !const {'none', 'email', 'phone', 'regex'}.contains(kind)) {
+            _issue(col, 'An inputFormatter is {"type":"email"} (no spaces), {"type":"phone"} (digits, +, spaces, (), -, .) or {"type":"regex","pattern":"…","allow":true}: "$kind" is not one, so every edit would be let through.');
+          }
+        }
         if (key == 'icon' && type == 'textField') {
           final field = (props['decoration'] as Json?) ?? (props['decoration'] = <String, Object?>{});
+          // `icon=none`: no icon in the field (a search field's magnifier too).
+          if (raw == 'none' || raw == '"none"') {
+            field.remove('prefixIcon');
+            continue;
+          }
           field['prefixIcon'] = {'icon': raw.startsWith('=') ? 'search' : _value(raw), 'size': 18};
           if (raw.startsWith('=')) bind['props.decoration.prefixIcon.icon'] = _read(raw.substring(1));
           continue;
@@ -10930,6 +11054,8 @@ class _Parser {
     _slotAction(open);
     _removable(open);
     if (open.each != null) _selectThrough(open.id);
+    if (open.each != null) _oneItem(open);
+    if (open.type == 'stack' && open.each == null) _keptInside(open.id);
     if (open.each == null && open.condition == null) _listOfLines(open.id);
     if (open.each != null) _gridPlace(open.id);
     if (open.grid case final g? when open.id == g.id && open.condition == null) _gridOverlay(g);
@@ -12477,9 +12603,12 @@ class _Parser {
           .replaceAllMapped(RegExp(r'\band\b'), (_) => '&&')
           .replaceAllMapped(RegExp(r'\bor\b'), (_) => '||')
           .replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
-      // `clip.length` of a record that has a length field is the field.
+      // `clip.length` of a record is the record's: its length field when it
+      // has one, else its count, as the page reads it; so is it of a value
+      // not known here (a component's record parameter, a row of a list
+      // worked out). Of a list or a text it is the count.
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'),
-          (m) => switch (_sample(m[1]!)) { final Map<Object?, Object?> r when r.containsKey('length') => m[0]!, _ => 'length(${m[1]})' });
+          (m) => switch (_sample(m[1]!)) { null || Map() => m[0]!, _ => 'length(${m[1]})' });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
         if (!_methods.contains(m[2])) return m[0]!;
@@ -12521,6 +12650,16 @@ class _Parser {
     }
     if (at < parts.length && parts[at] == 'item') return _sampleIn(element(up), parts.sublist(at + 1));
     if (up > 0) return null;
+    // A component's `props`: its parameters, each at its default
+    // (`props.length` under `param length=243` is that parameter).
+    if (parts.first == 'props' && !variables.containsKey('props')) {
+      if (_top._widget?['props'] case final List<Object?> params) {
+        return _sampleIn({
+          for (final p in params)
+            if (p is Map && p['key'] is String) p['key']: p['default'],
+        }, parts.sublist(1));
+      }
+    }
     return _sampleIn(variables[parts.first]?['value'], parts.sublist(1));
   }
 
