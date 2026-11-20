@@ -31,7 +31,8 @@ renders each screen with the SDK at each size, writes `shots/<screen>@<w>x<h>.pn
 In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is
 scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`,
 `--focus <id>` (any node that takes the keyboard focus: a field, a button, a row or handle with a tap or key
-reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`,
+reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>` (a newline in the text is typed: a
+multi-line field gets every line), `--key <key>`, `--set <variable>=<json>`, `--stage <variable>=<json>`,
 `--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
 (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that
 many times as far apart), `--navigate <screen>`, `--wait <ms>`. A step
@@ -39,7 +40,10 @@ may name a node by its `name` too. In a site, steps name nodes inside components
 and a node in a list's copy as `<template>#<n>/<node>` (`evCard#0/evReserve`, the same as `evReserve#0`); with no
 `#<n>` a step reaches the first copy in view; `#<n>` counts the copies shown, not those an `if` hides. A node
 inside a component is also found by the end of its path (`joinSeason/action`, `action`) when one node on screen
-has it; with several, the error lists their paths. A tab, a segment or a navigation destination is tapped by its
+has it; with several, the error lists their paths. A node written inside a defined word (a site's
+`components/*.txt`, a dictionary word: expanded in place, `IconButton#editorBack` in `EditorBar` becomes
+`editorBack_editorBar1`) is reached by the id written there (`--tap editorBack`, `dayCell#22`) when one is on
+screen; with several calls the error names each as `<call>/<id>` (`editorBar2/editorBack`), which reaches one. A tab, a segment or a navigation destination is tapped by its
 position (`--tap tabs@2`, the third, from zero) or, where it has one no node shares, by its own id or value
 (`--tap stay` for the tab `{"id": "stay"}`). A control's parts have names: `quantity@decrement`,
 `quantity@increment` on a NumberInput, `level@thumb` (`@thumb-end` on a range) on a Slider,
@@ -50,8 +54,10 @@ an error listing how to name each (`page/saved`, the page's own under its canvas
 component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
 component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
-act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
-not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()` (with none, a site's `"now"` in
+act on the screen navigated to. A `--set` holds when only `--wait` and `--set` steps follow it: a timer or `load`
+reaction that writes the variable afterwards does not change the capture (`set_overwritten` says it happened). A
+`--stage` sets the value once and never holds it, so a timer or a reaction after it moves it on (`--stage
+currentIndex=0 --wait 3000` for an auto-advancing indicator); `--now <ISO time>` pins `now()` (with none, a site's `"now"` in
 `site.json` does: the date its seed data is written for; with neither, the run starts at the real time and `--wait`
 moves it). A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
@@ -78,7 +84,8 @@ The render step reports what rendering shows: `render_exception` (naming the nod
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `icon_smaller_than_size` (an icon's `size` larger than its box),
 `zero_size` (a node that paints, laid out 0 wide or 0 high, with the cause), `control_heights_differ` (controls in one
 Row drawn at different heights: each named with its height, written or hugged), `expression_not_evaluated`, `path_overflow`, `font_fallback`,
-`font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
+`font_missing` (one report for the site, before any screen: each declared face whose file is not there, where it
+was looked for and what it is drawn with instead), `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
 `component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have),
 `paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran:
 the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout`
