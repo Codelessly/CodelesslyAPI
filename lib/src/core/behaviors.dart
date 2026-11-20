@@ -2318,6 +2318,21 @@ enum HeroFlies {
   /// `local_hero` package's `LocalHero` is the nearest). Heroes that fly in
   /// place find each other only.
   inPlace,
+
+  /// Lifted out of another node's place: when it comes on screen while
+  /// another node with its tag is shown (on the same screen, on a screen or
+  /// an overlay under it), it flies from that node's place to its own,
+  /// drawn above everything (an overlay's backdrop too), and the node it
+  /// left keeps its place hidden (a gap) while it is shown. When it goes
+  /// (its overlay closes, it is removed, its tag changes) it flies back to
+  /// that node, which shows again as it lands. Both ends are followed while
+  /// it flies (a list that scrolls); a place that is gone is flown to where
+  /// it was last seen, fading. Timed by [HeroTag.flight]'s `duration` and
+  /// `curve` (the way back plays the curve backward), else 300 ms; with
+  /// reduced motion it does not fly. A long-pressed bubble to its menu, a
+  /// photo to its viewer, a row to a sheet. Lifted heroes find each other
+  /// only.
+  lift,
 }
 
 /// Makes the node a shared element (Flutter's `Hero`): it flies from where
@@ -2355,7 +2370,9 @@ final class HeroTag extends _Value {
   static HeroTag? fromJson(Object? json) {
     if (json is String) return json.isEmpty ? null : HeroTag(json);
     final m = readMap(json);
-    final tag = readString(m?['tag']);
+    // A tag that is bound (`"bind": {"hero.tag": "m${item.id}"}`) is not in
+    // the record: the record still says how it flies.
+    final tag = readString(m?['tag']) ?? (m != null && m.isNotEmpty ? '' : null);
     if (m == null || tag == null) return null;
     return HeroTag(
       tag,
@@ -2376,7 +2393,7 @@ final class HeroTag extends _Value {
   Object toJson() => isPlain
       ? tag
       : {
-          'tag': tag,
+          if (tag.isNotEmpty) 'tag': tag,
           if (flies != HeroFlies.betweenScreens) 'flies': flies.name,
           if (flightShuttle != HeroFlightShuttle.standard) 'flightShuttle': flightShuttle.name,
           if (placeholder != HeroPlaceholder.none) 'placeholder': placeholder.name,

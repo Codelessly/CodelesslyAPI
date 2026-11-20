@@ -38,7 +38,13 @@ abstract final class TriggerFields {
       doc: 'Timer: ms between ticks (a number or an expression).');
   static const key = PropDef<String>('key', Codecs.string, '');
   static const when = PropDef<String>('when', Codecs.string, '');
-  static const holdMs = PropDef<int>('holdMs', Codecs.int, kDefaultHoldMs);
+  static const holdMs = PropDef<int>('holdMs', Codecs.int, kDefaultHoldMs,
+      doc: 'hold, and longPress when set (else the platform\'s 500 ms): how long the press is held (ms).');
+  static const commitMs = PropDef<int>('commitMs', IntCodec(min: 0), 0,
+      doc: 'longPress and hold: from this many ms the press is the node\'s (letting go, moving or a scroll no longer '
+          'cancels it; it still fires at holdMs). 0: none.');
+  static const haptic = PropDef<HapticKind?>('haptic', OptionalEnumCodec(HapticKind.values), null,
+      doc: 'A pointer trigger\'s buzz as the gesture becomes sure: at commitMs when set, else as it fires.');
   static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
   static const repeat = PropDef<bool>('repeat', Codecs.bool, false, doc: 'keyDown: also while the key repeats.');
   static const visibleMs = PropDef<int>('visibleMs', IntCodec(min: 0), 0,
@@ -49,7 +55,7 @@ abstract final class TriggerFields {
       doc: 'event: the key of the component event it handles (one of the component\'s widget.events).');
   static const List<PropDef<Object?>> all = [
     type, debounceMs, variable, intervalMs, key, when, holdMs, visibleFraction, repeat, //
-    visibleMs, onceKey, event,
+    visibleMs, onceKey, event, commitMs, haptic,
   ];
 }
 

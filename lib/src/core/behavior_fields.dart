@@ -408,8 +408,10 @@ abstract final class HeroTagFields {
   static const tag = PropDef<String>('tag', Codecs.string, '');
 
   /// When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation
-  /// plays) or `inPlace` (when it appears, from where the node with its tag
-  /// just was on screen).
+  /// plays), `inPlace` (when it appears, from where the node with its tag
+  /// just was on screen) or `lift` (when it appears while a node with its
+  /// tag is shown: lifted out of that node's place, above everything, and
+  /// back when it goes).
   static const flies = PropDef<HeroFlies>('flies', EnumCodec(HeroFlies.values), HeroFlies.betweenScreens);
 
   /// What a flight between screens draws (`Hero.flightShuttleBuilder`).
@@ -424,7 +426,8 @@ abstract final class HeroTagFields {
     HeroPlaceholder.none,
   );
 
-  /// How it flies in place: on a spring when unset, or timed along an arc.
+  /// How it flies in place (on a spring when unset, or timed along an arc)
+  /// or lifted (its duration and curve).
   static const flight = PropDef<Flight?>('flight', ValueCodec(Flight.fromJson, _out, flightType), null);
   static const List<PropDef<Object?>> all = [tag, flies, flightShuttle, placeholder, flight];
 }

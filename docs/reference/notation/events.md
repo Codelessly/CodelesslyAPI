@@ -46,12 +46,14 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | `intervalMs` | whole number | `1000` | Timer: ms between ticks (a number or an expression). |
 | `key` | text | `""` | Key triggers: the key or combination (`KeyCombo`); empty: any key. |
 | `when` | text | `""` | A formula; the reaction runs only while it's true (key triggers take the key only then; a timer or a frame ticker runs only then). Empty: always. |
-| `holdMs` | whole number | `1200` | `TriggerType.hold`: how long the press is held. |
+| `holdMs` | whole number | `1200` | hold, and longPress when set (else the platform's 500 ms): how long the press is held (ms). |
 | `visibleFraction` | number | `0.15` | Viewport triggers: the visible share (0–1) that counts as in view. |
 | `repeat` | `true`/`false` | `false` | keyDown: also while the key repeats. |
 | `visibleMs` | whole number (≥ 0) | `0` | Viewport: how long it stays in view before firing (ms). |
 | `onceKey` | text | `""` | Runs once per key (an expression, such as ${item.id}) per app session. |
 | `event` | text | `""` | event: the key of the component event it handles (one of the component's widget.events). |
+| `commitMs` | whole number (≥ 0) | `0` | longPress and hold: from this many ms the press is the node's (letting go, moving or a scroll no longer cancels it; it still fires at holdMs). 0: none. |
+| `haptic` | `selection` `light` `medium` `heavy` `vibrate` |  | A pointer trigger's buzz as the gesture becomes sure: at commitMs when set, else as it fires. |
 
 <a id="events-events"></a>
 ### Events
@@ -60,8 +62,8 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 |---|---|---|---|
 | <a id="trigger-click"></a>`onTap` | `click` | 0 | A tap (a click with a mouse). `${result}` holds where it landed (`x`, `y` in the node, `globalX`, `globalY`) and the modifier keys held (`meta`, `shift`, `alt`). |
 | <a id="trigger-doubleTap"></a>`onDoubleTap` | `doubleTap` | 2 | Two taps in quick succession. A node with double tap reactions waits out the double tap timeout before its single taps run. |
-| <a id="trigger-longPress"></a>`onLongPress` | `longPress` | 2 | A long press. |
-| <a id="trigger-hold"></a>`onHold` | `hold` | 4 | A press held for `Trigger.holdMs`; letting go early cancels it. |
+| <a id="trigger-longPress"></a>`onLongPress` | `longPress` | 2 | A long press: the platform's (500 ms), or held for `Trigger.holdMs` when it is set; `Trigger.commitMs` and `Trigger.haptic` as for hold. |
+| <a id="trigger-hold"></a>`onHold` | `hold` | 4 | A press held for `Trigger.holdMs`; letting go early cancels it (before `Trigger.commitMs`, when set). |
 | <a id="trigger-secondaryClick"></a>`onRightClick` | `secondaryClick` | 4 | A right click, or a two-finger tap on a trackpad (`${result.x}`, `${result.y}`: where, on screen). |
 | <a id="trigger-pointerDown"></a>`onPointerDown` | `pointerDown` | 4 | A pointer went down on the node. |
 | <a id="trigger-pointerUp"></a>`onPointerUp` | `pointerUp` | 4 | A pointer went up (or was canceled) on the node. |

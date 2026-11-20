@@ -299,10 +299,10 @@ Written `hero={…}` on any line ([HeroTag](#type-HeroTag)). Level 4.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `hero.tag` | text | `""` | Flutter's `Hero.tag`: the node with the same tag is where it flies from. |
-| `hero.flies` | `betweenScreens` `inPlace` | `betweenScreens` | When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays) or `inPlace` (when it appears, from where the node with its tag just was on screen). |
+| `hero.flies` | `betweenScreens` `inPlace` `lift` | `betweenScreens` | When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays), `inPlace` (when it appears, from where the node with its tag just was on screen) or `lift` (when it appears while a node with its tag is shown: lifted out of that node's place, above everything, and back when it goes). |
 | `hero.flightShuttle` | `standard` `morphCorners` `arc` `morph` `fadeThrough` `containerTransform` | `standard` | What a flight between screens draws (`Hero.flightShuttleBuilder`). |
 | `hero.placeholder` | `none` `source` | `none` | What the destination shows until its own image has loaded (between screens). |
-| `hero.flight` | [Flight](values.md#type-Flight) |  | How it flies in place: on a spring when unset, or timed along an arc. |
+| `hero.flight` | [Flight](values.md#type-Flight) |  | How it flies in place (on a spring when unset, or timed along an arc) or lifted (its duration and curve). |
 
 <a id="behavior-viewProgress"></a>
 ### `viewProgress` (behavior)

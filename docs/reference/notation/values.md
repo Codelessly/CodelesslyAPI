@@ -644,6 +644,7 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 |---|---|
 | `betweenScreens` | While a navigation plays, from its place on the screen that goes to its place on the screen that comes, when both have the tag (Flutter's `Hero`). |
 | `inPlace` | When it appears, from where the node with its tag was a moment ago (a node hidden or removed in the last two seconds, a dropped drag copy, a node on a screen that is closing): a picked emoji flying from its picker to its chip. Flutter's `Hero` has no such trigger (the `local_hero` package's `LocalHero` is the nearest). Heroes that fly in place find each other only. |
+| `lift` | Lifted out of another node's place: when it comes on screen while another node with its tag is shown (on the same screen, on a screen or an overlay under it), it flies from that node's place to its own, drawn above everything (an overlay's backdrop too), and the node it left keeps its place hidden (a gap) while it is shown. When it goes (its overlay closes, it is removed, its tag changes) it flies back to that node, which shows again as it lands. Both ends are followed while it flies (a list that scrolls); a place that is gone is flown to where it was last seen, fading. Timed by `HeroTag.flight`'s `duration` and `curve` (the way back plays the curve backward), else 300 ms; with reduced motion it does not fly. A long-pressed bubble to its menu, a photo to its viewer, a row to a sheet. Lifted heroes find each other only. |
 
 <a id="enum-HeroFlightShuttle"></a>
 ### HeroFlightShuttle
@@ -1445,8 +1446,8 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 |---|---|
 | `click` | A tap (a click with a mouse). `${result}` holds where it landed (`x`, `y` in the node, `globalX`, `globalY`) and the modifier keys held (`meta`, `shift`, `alt`). |
 | `doubleTap` | Two taps in quick succession. A node with double tap reactions waits out the double tap timeout before its single taps run. |
-| `longPress` | A long press. |
-| `hold` | A press held for `Trigger.holdMs`; letting go early cancels it. |
+| `longPress` | A long press: the platform's (500 ms), or held for `Trigger.holdMs` when it is set; `Trigger.commitMs` and `Trigger.haptic` as for hold. |
+| `hold` | A press held for `Trigger.holdMs`; letting go early cancels it (before `Trigger.commitMs`, when set). |
 | `secondaryClick` | A right click, or a two-finger tap on a trackpad (`${result.x}`, `${result.y}`: where, on screen). |
 | `pointerDown` | A pointer went down on the node. |
 | `pointerUp` | A pointer went up (or was canceled) on the node. |
