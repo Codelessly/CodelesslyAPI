@@ -195,10 +195,12 @@ Row#pill gap=4
 
 - `param name[:Type]=default`: a parameter, its type in Flutter's names (`String`, `bool`, `double`, `int`, `Map`
   or `dynamic` for a record or anything, `List<…>` (`List<Map>`: records; `List` alone: anything), `ValueNotifier<…>` for a variable parameter, an enum's values joined by `|`) where the default does
-  not say it; `required` and `doc="…"` after it. `param @selected=""` is a variable parameter of its default's type:
+  not say it; `required` and `doc="…"` after it. These are not a `state` line's type words (`boolean`, `decimal`,
+  `text`: [state.md](state.md#state-variables)): `param open:bool=false`, `state open:boolean=false`. `param @selected=""` is a variable parameter of its default's type:
   the tree reads it as `props.selected` and sets it with `props.selected=…`, and the call keeps it in its own
   variable (`Picker @choice`). A parameter the call only gives cannot be set from inside.
-- `event name:Type`: an event and the type of its payload (`event onPick:void`, or no type: it passes nothing); `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
+- `event onName:Type`: an event, its name beginning `on` (`event onShare`, not `event share`; the call handles it
+  as `onShare={…}`), and the type of its payload (`event onPick:void`, or no type: it passes nothing); `emit name value` sends it (`emit onRemove props.label`, `emit onNavigate "{result}"`: a text with values in it reads them).
 - `slot name`: a place the caller fills with one line (several actions in a slot: a Row around them). The tree
   shows it with `Slot name=name`. The lines under a call go in its slot (`trailing`, `actions`, `action` or `end`
   when it has one, else its first), and a `Slot` with no name is that slot, unless the head says `children=list`

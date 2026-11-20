@@ -135,8 +135,10 @@ enum TriggerType {
   /// The node (a scrolling row, column, list, grid or canvas) scrolled
   /// (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1,
   /// `${result.index}` the item at the start of the view (the last at the
-  /// end), `${result.count}` the items), or came near its end (load the next
-  /// page). Store what a carousel's arrows, dots or progress bar show.
+  /// end), `${result.count}` the items). Store what a carousel's arrows,
+  /// dots or progress bar show. How near the end it is, to load more:
+  /// `${result.max - result.offset}` (under 600: fetch the next page); a
+  /// list's `pagination` loads its next page by itself (`thresholdPixels`).
   scroll,
 
   /// The node stopped scrolling; `${result}` as for [scroll].

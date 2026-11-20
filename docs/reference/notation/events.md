@@ -95,7 +95,7 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | <a id="trigger-frame"></a>`onFrame` | `frame` | 4 | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | <a id="trigger-keyDown"></a>`onKeyDown` | `keyDown` | 4 | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | <a id="trigger-keyUp"></a>`onKeyUp` | `keyUp` | 4 |  |
-| <a id="trigger-scroll"></a>`onScroll` | `scroll` | 4 | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items), or came near its end (load the next page). Store what a carousel's arrows, dots or progress bar show. |
+| <a id="trigger-scroll"></a>`onScroll` | `scroll` | 4 | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`). |
 | <a id="trigger-scrollEnd"></a>`onScrollEnd` | `scrollEnd` | 4 | The node stopped scrolling; `${result}` as for `scroll`. |
 | <a id="trigger-enterViewport"></a>`onEnterViewport` | `enterViewport` | 4 | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | <a id="trigger-exitViewport"></a>`onExitViewport` | `exitViewport` | 4 |  |
@@ -121,7 +121,9 @@ Actions are separated by `;`. A verb says a common action in a word; any action 
 name, each value as on a line (a number, a word, `"text"` in which `{x}` reads a value, `{expression}`, JSON).
 A field that holds actions takes them in braces: `confirm "Remove it?" then {close}`, `onError={toast "Failed"}`.
 `cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty; `cond ? a` alone does nothing when it
-does not hold). `close` closes the overlay the action
+does not hold). `if` is a line of the tree, not a verb: `onTap={missing ? {open naming} : {open account}}`, not
+`onTap={if missing {…} else {…}}` (the action by its type is `if condition={missing} then={…} else={…}`). A verb
+says only the fields its row shows; any other is the action by its type: `showToast message="Saved" style=success`. `close` closes the overlay the action
 runs in; a second `close` in the same chain closes the one under it (`close; close` from a dialog over a dialog
 closes both).
 
@@ -137,7 +139,9 @@ read there too (`title="…"`, `message="…"`, `confirmLabel="…"`, `cancelLab
 A click's `result` holds `x`, `y`, `globalX`, `globalY` and the keys held: `shift`, `alt`, `meta` (Control or
 Command, the platform's "add to" key), `ctrl` (Control). A drag's (every move) holds `dx`, `dy` (the move since the
 last event), `x`, `y`, `globalX`, `globalY`, `startX`, `startY`, `pointerCount`; a drag's end holds `vx`, `vy` (the
-speed). A text field's change is the text itself (`result`, not `result.text`). A press that reads the keys held
+speed). `x`, `y`, `startX` and `startY` are in the node where it is now, `globalX` and `globalY` on the screen: a
+node that moves with the pointer (a drawer pulled open) keeps `x` near `startX`, and how far it has been dragged is
+each move's `dx` added up (`onDrag={pull=pull + result.dx}`). A text field's change is the text itself (`result`, not `result.text`). A press that reads the keys held
 (a list whose rows are chosen this way needs none of it: `selectable`,
 [lists.md](lists.md#lists-a-list-chosen-from-and-swiped)):
 
@@ -416,8 +420,8 @@ Written `delay ms=… duration=…`. Level 2.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `ms` | whole number | `500` |  |
-| `duration` | text | `""` | A formula giving milliseconds. |
+| `ms` | whole number | `500` | A fixed wait, a whole number of milliseconds (`delay ms=300`). A wait worked out is `duration`. |
+| `duration` | text | `""` | A formula giving milliseconds: `delay duration={fast ? 300 : 800}`. |
 
 <a id="action-copyToClipboard"></a>
 ### `copyToClipboard`: Copy to clipboard
@@ -537,7 +541,7 @@ Written `scrollTo node=… item=…`; the verb: `scroll pricing`. Level 2.
 | `durationMs` | whole number | `400` |  |
 | `curve` | text | `"easeInOut"` | A Curves name. |
 | `alignment` | number | `0` | 0: at the start of the view, 1: at the end. |
-| `offset` | number | `0` |  |
+| `offset` | number | `0` | Pixels the view stops short of the node: `offset=16` leaves 16 before it (the view scrolls 16 less), a negative offset scrolls past it. The view never scrolls past its start or its end. |
 | `axis` | `horizontal` `vertical` |  | Only the scroll views along this axis; null: every one. |
 
 <a id="action-animate"></a>

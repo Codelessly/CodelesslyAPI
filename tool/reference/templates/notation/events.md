@@ -47,7 +47,9 @@ Actions are separated by `;`. A verb says a common action in a word; any action 
 name, each value as on a line (a number, a word, `"text"` in which `{x}` reads a value, `{expression}`, JSON).
 A field that holds actions takes them in braces: `confirm "Remove it?" then {close}`, `onError={toast "Failed"}`.
 `cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty; `cond ? a` alone does nothing when it
-does not hold). `close` closes the overlay the action
+does not hold). `if` is a line of the tree, not a verb: `onTap={missing ? {open naming} : {open account}}`, not
+`onTap={if missing {…} else {…}}` (the action by its type is `if condition={missing} then={…} else={…}`). A verb
+says only the fields its row shows; any other is the action by its type: `showToast message="Saved" style=success`. `close` closes the overlay the action
 runs in; a second `close` in the same chain closes the one under it (`close; close` from a dialog over a dialog
 closes both).
 
@@ -63,7 +65,9 @@ read there too (`title="…"`, `message="…"`, `confirmLabel="…"`, `cancelLab
 A click's `result` holds `x`, `y`, `globalX`, `globalY` and the keys held: `shift`, `alt`, `meta` (Control or
 Command, the platform's "add to" key), `ctrl` (Control). A drag's (every move) holds `dx`, `dy` (the move since the
 last event), `x`, `y`, `globalX`, `globalY`, `startX`, `startY`, `pointerCount`; a drag's end holds `vx`, `vy` (the
-speed). A text field's change is the text itself (`result`, not `result.text`). A press that reads the keys held
+speed). `x`, `y`, `startX` and `startY` are in the node where it is now, `globalX` and `globalY` on the screen: a
+node that moves with the pointer (a drawer pulled open) keeps `x` near `startX`, and how far it has been dragged is
+each move's `dx` added up (`onDrag={pull=pull + result.dx}`). A text field's change is the text itself (`result`, not `result.text`). A press that reads the keys held
 (a list whose rows are chosen this way needs none of it: `selectable`,
 [lists.md](lists.md#lists-a-list-chosen-from-and-swiped)):
 

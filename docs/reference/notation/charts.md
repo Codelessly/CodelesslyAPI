@@ -55,6 +55,16 @@ written on the line wins (`legend=false`, `selectOnHover=false`, `dots=0`, `barR
 - Rounded bars no wider than 40 (`barRadius`, `maxBarWidth`); bars of several `series` side by side (`stacked`:
   one on another).
 
+A spinner is `CircularProgressIndicator w=32 h=32` (also `Ring`: an arc going round) or `ActivityIndicator
+radius=16` (Cupertino ticks, twice `radius` across). `ProgressRing` and `ProgressIndicator` are not words, and
+neither takes `size=`.
+
+```notation
+Row gap=12
+  CircularProgressIndicator w=32 h=32
+  ActivityIndicator radius=16
+```
+
 Every chart, however it is written: the labels under the plot never touch (every second, third… from the first is
 written, evenly apart, and long ones are first cut to their room with an ellipsis); a series or a slice with no
 color takes the theme's next series color (`chart1`, `chart2`… where the theme names them, else its accent and then

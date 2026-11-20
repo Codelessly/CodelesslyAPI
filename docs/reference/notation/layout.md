@@ -36,7 +36,9 @@ Column maxWidth=720
 
 In a Stack a child sits where `x` and `y` put it (a number from the start, or `{"end":8}`, `{"align":0}`), or
 where `align` puts it on both axes (`align=center` is `x={"align":0} y={"align":0}`, and the child is as wide as
-it is). A negative place puts it past that edge (`x=-5`, `y={"end":-12}`: a bubble's tail, a badge
+it is). `{"align":a}` runs from -1 (against the start edge) through 0 (centred) to 1 (against the end edge), as
+Flutter's `Alignment`: `y={"align":0.5}` is three quarters of the free room down, not halfway (a child 352
+tall in a Stack 844 tall sits at 369; at `{"align":0}`, 246). A negative place puts it past that edge (`x=-5`, `y={"end":-12}`: a bubble's tail, a badge
 on a corner), drawn there with `clipBehavior=none`. A Stack that hugs is as big as its largest child; a child that
 fills it with no number (`w=fill`) is as big as its content there. Only a Stack places: under a Column, a Row or a
 `Box` its lines sit in turn and `x` and `y` are not read (a label over a picture: a Stack holding both).

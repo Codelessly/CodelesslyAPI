@@ -52,6 +52,17 @@ Column w=40 h=40 fill=#FFE5E7EB
 
 The `animate` action plays, reverses or sets one: `onTap={animate node=card command=forward}`.
 
+An animation that loops says `repeat=true` (`repeat.reverse=true` back and forth, `repeat.count=3`; there is no
+`loop`). A track that passes through values on its way takes them as its `keyframes`, a list on its own line
+(`at` 0 to 1 of the run), not lines under it. A turn is `motion.rotate` in degrees (not `rotation`; from
+radians, `{degrees(a)}`).
+
+```notation
+Column w=40 h=40 fill=#FFE5E7EB
+  animation#shine duration=1500 repeat=true curve=linear
+    track path=opacity from=0 to=0 keyframes=[{"at":0.2,"value":1},{"at":0.8,"value":1}]
+```
+
 <a id="animation-an-animation-s-fields"></a>
 ### An animation's fields
 

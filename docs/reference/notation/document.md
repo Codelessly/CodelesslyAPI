@@ -21,7 +21,12 @@ every 1s onTick={count=count+1}
 ```
 
 - **`canvas`** sets the screen: its name in quotes, `path`, `w`, `h`, `fill`, and any other field by its path from
-  the canvas (`props.blockBack=true`). `canvas none`: the document has no canvas, its root is the first line.
+  the canvas (`props.blockBack=true`). `canvas none`: the document has no canvas, its root is the first line. The
+  canvas's id is not written on it (`canvas#menu` is not a canvas line): a site's page is named by its file
+  (`pages/chat-menu.txt` is `chat-menu`), a lone file by `expand --id chat-menu`.
+- **Ids**: a document holds one node per id, the page's canvas, its overlays and both branches of an `if`
+  included: an `if` and its `else` that each draw a close button give them two ids, or write one line whose
+  values are worked out (`label={open ? "Hide" : "Show"}`).
 - **`state`** declares a variable of the screen ([state.md](state.md)); `saved` keeps it on the device.
 - **`project name=value`** reads and sets a variable of the whole site (declared in site.json) by name. The whole
   manifest (pages, variables kept with `persist`, the theme's colors, styles, spacing and radii) is on
