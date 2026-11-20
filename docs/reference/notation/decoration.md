@@ -73,24 +73,52 @@ Column pad=[16,12,16,24] w=240 fills=[{"type":"image","image":{"url":"https://ex
   Text "Great work. Let us use the same plan for the next practice step tonight."
 ```
 
-<a id="decoration-a-box-cut-to-a-curve"></a>
-## A box cut to a curve
+<a id="decoration-cutting-a-line-to-a-shape"></a>
+## Cutting a line to a shape
 
-`clipPath="…"` cuts a box to a path, as CSS `clip-path` and Flutter's `ClipPath`: SVG path data in the box's own
-unit square (0 to 1 across and down, whatever its size), so one curve fits every width. Its fills, border, shadows and
-children are cut to it, and a tap outside it goes to what is under. A header whose foot is a wave, over a picture:
+Any line can be cut: a box, a picture, a text, an icon, a control, a list, a component. What it paints and its
+children are cut, and a tap in the cut part goes to what is under. The common shapes need no path data:
+
+- rounded corners, each its own: `radius=[24,24,0,0] clip=antiAlias`; a circle: `shape=circle clip=antiAlias`;
+- notches and bites that keep their size as the line grows: `clipCuts=[…]`, each a circle (`"radius"`) or SVG path
+  data (`"d"`, its origin at the point) in pixels, at a point of the box (`"center"`: an alignment). They are cut
+  from the line's own corners (or from `clipPath`).
+
+A ticket at two sizes: its notches stay round 12 px circles. A border is drawn along the cut, inside it, and a shadow
+takes its shape:
+
+```notation
+Row gap=12 bottom
+  Stack w=160 h=80 fill=#FF4F46E5 radius=12 clipCuts=[{"center":"centerLeft","radius":12},{"center":"centerRight","radius":12}]
+    Text "Admit one" color=#FFFFFFFF x=24 y=12
+  Stack w=200 h=140 fill=#FF4F46E5 border=#FFF59E0B strokeWidth=3 radius=12 effects=[{"type":"dropShadow","color":"#66000000","offset":[0,6],"blurRadius":12}] clipCuts=[{"center":"centerLeft","radius":12},{"center":"centerRight","radius":12}]
+    Text "Admit one" color=#FFFFFFFF x=24 y=20
+```
+
+A card with a bite out of its top right corner:
+
+```notation
+Column pad=16 fill=#FFFFFFFF border=#FFE5E7EB strokeWidth=2 radius=16 clipCuts=[{"center":"topRight","radius":28}]
+  Text "A card with a bite out of its corner, its border along the bite."
+```
+
+Any other shape is `clipPath="…"`: SVG path data, as CSS `clip-path` and Flutter's `ClipPath`. It is written in the
+box's unit square (0 to 1 across and down, stretched over the box: one curve for every width), or in units of your
+own with `clipViewBox=[width,height]`, mapped onto the box by `clipFit` as a `customPaint`'s `viewBox` and `fit` are
+(`fill` stretches, `contain` keeps the aspect, `none` keeps the units pixels; `clipFit=none` with no view box: the
+box's own pixels from its top left). A header whose foot is a wave, over a picture:
 
 ```notation
 Stack w=390 h=180 fills=[{"type":"image","image":{"url":"https://example.com/sky.png"}}] clipPath="M0 0 H1 V0.78 C0.72 1 0.3 0.6 0 0.86 Z"
   Text.heading2 "Good morning" color=#FFFFFFFF x=24 y=24
 ```
 
-A ticket's notches are two arcs cut into its sides. An arc's radii are shares of the width and of the height, so
-for round notches on a 300×120 ticket the arc is `0.04` across and `0.1` down (12 px each way):
+A text or an icon cut as a box is (a reveal, a half-filled rating star):
 
 ```notation
-Stack w=300 h=120 fill=#FF4F46E5 radius=12 clipPath="M0 0 H1 V0.4 A0.04 0.1 0 0 0 1 0.6 V1 H0 V0.6 A0.04 0.1 0 0 0 0 0.4 Z"
-  Text "Admit one" color=#FFFFFFFF x=20 y=20
+Row gap=16
+  Text "Half" size=40 clipPath="M0 0 H0.5 V1 H0 Z"
+  Icon "star" clipPath="M0 0 H0.5 V1 H0 Z" size=48 color=#FFF59E0B
 ```
 
 <a id="decoration-gradients-at-an-angle"></a>
@@ -138,7 +166,10 @@ short words: `fill`, `gradient`, `border`, `radius`.
 | `blendMode` | [BlendMode](values.md#enum-BlendMode) | `srcOver` | 0 |  |
 | `foregroundFills` | list of [Paint](#type-Paint) | `[]` | 0 | Fills painted over the content. |
 | `shape` | `rectangle` `circle` | `rectangle` | 0 | A rectangle (rounded by `radius`) or a circle. |
-| `clipPath` | text |  | 0 | The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`: SVG path data in the box's own unit square, 0 to 1 across and down whatever its size, so one curve fits every width. Its fills, border, shadows and children are cut to it, and a pointer outside it passes through. A header whose foot is a wave: `clipPath="M0 0 H1 V0.8 C0.75 1 0.25 0.6 0 0.85 Z"`. |
+| `clipPath` | text |  | 0 | The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`, whatever the node is (a box, a text, an icon, a picture, a control): SVG path data in `clipViewBox`'s units mapped by `clipFit`; with neither, the box's unit square, 0 to 1 across and down whatever its size, so one curve fits every width. What it paints and its children are cut, its border is drawn along the path (inside) and its shadow takes its shape; a pointer outside it passes through. A header whose foot is a wave: `clipPath="M0 0 H1 V0.8 C0.75 1 0.25 0.6 0 0.85 Z"`. |
+| `clipViewBox` | [Rect](values.md#type-Rect) |  | 0 | The units `clipPath` is written in, `[width, height]` or `[minX, minY, width, height]`, as a `customPaint`'s `viewBox`, mapped onto the box by `clipFit`. Unset: the unit square, or with `clipFit=none` the box's pixels. |
+| `clipFit` | `fill` `contain` `cover` `fitWidth` `fitHeight` `none` `scaleDown` | `fill` | 0 | How `clipViewBox` maps onto the box, as a `customPaint`'s `fit`: `fill` stretches it, `contain` keeps its aspect, `none` keeps its units pixels (without a view box: the box's own pixels from its top left). |
+| `clipCuts` | list of [ClipCut](values.md#type-ClipCut) | `[]` | 0 | Shapes cut out of the node in its own pixels at points of its box, so they keep their size as it stretches: `{"center": "centerLeft", "radius": 12}` (a circle), or `{"center": "topRight", "d": "M-20 0 H0 V20 Z"}` (SVG path data, its origin at the point). Cut from `clipPath` when there is one, else from the node's own shape (its `radius`, a circle). A ticket: `radius=12 clipCuts=[{"center":"centerLeft","radius":12},{"center":"centerRight","radius":12}]`. |
 
 <a id="decoration-words"></a>
 ## Words

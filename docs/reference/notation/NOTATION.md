@@ -426,7 +426,7 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 |---|---|---|---|
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 5095 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1462 |
-| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 3400 |
+| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 3790 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 2055 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 13171 |
 | [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 7925 |
@@ -441,7 +441,7 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 672 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | you write or change `site.json`; every page and component of the site reads what it declares by name. | 635 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 907 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17082 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17228 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1660 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | a UI sells something. | 300 |

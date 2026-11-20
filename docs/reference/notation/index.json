@@ -217,7 +217,7 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 3400
+      "words": 3790
     },
     {
       "topic": "decoration-fills-borders-and-corners",
@@ -241,11 +241,11 @@
       "words": 145
     },
     {
-      "topic": "decoration-a-box-cut-to-a-curve",
+      "topic": "decoration-cutting-a-line-to-a-shape",
       "file": "decoration.md",
-      "anchor": "decoration-a-box-cut-to-a-curve",
-      "title": "A box cut to a curve",
-      "words": 167
+      "anchor": "decoration-cutting-a-line-to-a-shape",
+      "title": "Cutting a line to a shape",
+      "words": 355
     },
     {
       "topic": "decoration-gradients-at-an-angle",
@@ -266,7 +266,7 @@
       "file": "decoration.md",
       "anchor": "decoration-keys-every-decorated-line-takes",
       "title": "Keys every decorated line takes",
-      "words": 358
+      "words": 560
     },
     {
       "topic": "decoration-words",
@@ -960,7 +960,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17082
+      "words": 17228
     },
     {
       "topic": "values-writing-a-value",
@@ -995,7 +995,7 @@
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 5256
+      "words": 5402
     },
     {
       "topic": "values-examples",
@@ -1476,6 +1476,7 @@
       "FocusGroup": "interaction.md#type-FocusGroup",
       "AnimationRepeat": "values.md#type-AnimationRepeat",
       "AnimationTrack": "values.md#type-AnimationTrack",
+      "ClipCut": "values.md#type-ClipCut",
       "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",

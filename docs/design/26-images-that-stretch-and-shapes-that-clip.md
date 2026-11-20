@@ -33,14 +33,36 @@ without losing its corners only if it is drawn so; nine-slicing a picture is lef
 notation: `Image "…" scale=3 centerSlice=[14,12,28,8]`, and `"centerSlice"` in any image paint (`fills=[…]` behind
 text). `scale` on an `Image` line is new with it (it was a field of the paint the line could not say).
 
-**`clipPath`** on [Decoration]: SVG path data in the box's unit square (0 to 1 across and down). CSS's
-`clip-path` semantics: everything the node draws is cut (its fills, border, shadows and children), and the hit test
-follows the path, so a tap outside it goes to what is under. In the SDK it is a `RenderClipPath` (anti-aliased) at the
-top of the node's shell, outside its decoration, its clipper the path scaled to the box. Unit space was chosen so one
-path fits every width (a header's wave across a phone and a desktop). The cost: a shape that must keep pixel sizes
-at any aspect (a round notch on a ticket that grows) is written for one aspect (an arc's radii are shares of the width
-and of the height). A path in pixels, or one that mixes units, would need a view box on the clip (`Path`'s `viewBox`
-already is that idea): left open (section 4).
+**A node cut to a shape** ([Decoration]: `clipPath`, `clipViewBox`, `clipFit`, `clipCuts`). The owner, on the first
+version: "Whatever makes the clippath work as expected when used", and "Clip should work on text and icon right?
+That's how Flutter's Clip widget works."
+
+- `clipPath`: SVG path data, CSS `clip-path` and Flutter's `ClipPath`. Its units are `clipViewBox`'s, mapped onto the
+  box by `clipFit`, exactly as a `customPaint`'s `viewBox` and `fit` are (same reader, same mapping, centered). With
+  neither, the unit square stretched over the box (one wave for every width). `clipFit=none` with no view box: the
+  box's own pixels from its top left (as a `customPaint` or a `Path` without a view box).
+- `clipCuts`: shapes cut out in the node's own pixels at points of its box (`{"center": "centerLeft", "radius": 12}`
+  a circle; `{"center": "topRight", "d": "…"}` path data with its origin there), from `clipPath` when there is one,
+  else from the node's own shape (its `radius`, its circle). This is the smallest generic form for the case a single
+  coordinate space cannot say: a body that stretches with notches that keep their size (a ticket that grows, a card
+  with a bite). One path in one space either stretches the notches (unit space) or cannot follow the box's far edges
+  (pixels); edge-relative path commands would be a second path grammar. A cut anchored at an alignment is how the base
+  already places things (a radial gradient's `center`, a particle origin). `Path.combine(difference)` in the SDK.
+- What is cut, uniformly for every node type: what it paints and its children; the hit test follows the shape (a tap
+  in a notch passes through). Its **border** is drawn along the shape, inside it, at the border's width (the stroke
+  doubled and clipped), over the content as a shell's inside border is; its **drop shadows** take the shape (the shape
+  offset and blurred, a spread drawn as an outline that wide, in a layer of the shadow's alpha), painted outside the
+  cut. The shell draws neither for such a node.
+- **One common place.** The clip is applied in the node box's chain for every type alike (`_clipLayers` in
+  `node_tree.dart`): inside the node's motion (it moves and scales with it), outside its reactions (so the tap test
+  follows the cut), around its blurs, custom paint and content. A text, an icon, a picture, a control drawn by its
+  recipe, a list, a component call, an external widget all get it without per-type code. `clip=` (to the corners or
+  the circle) now also works on every type from the same place; a node its shell draws (rows, columns, stacks, boxes,
+  inputs in a shell, the canvas) keeps the shell's `clip`, which leaves its BoxDecoration shadow outside the cut as
+  before. The model keeps the clip keys (`clip`, `radius`, `shape`, `clipPath`, `clipViewBox`, `clipFit`,
+  `clipCuts`) on an undecorated type's node; the notation takes them on any line (`DecorationFields.undecorated`).
+  A platform view the host composites (a video, a web view) is cut where the host supports clipping platform views;
+  it is not special-cased.
 
 **`angle`** on a linear [Paint]: CSS's `linear-gradient(<angle>, …)`: 0 runs up, 90 to the right, clockwise; the
 gradient line crosses the box's middle and is `|w sin a| + |h cos a|` long, so the far corners are its ends. In
@@ -67,16 +89,24 @@ Defaults are unchanged everywhere: a document without the new keys reads, draws 
   under the line passes through while one above reaches the child; a blurred circle is grey on both sides of its
   edge where a sharp one is black and white; an angled gradient runs left to right at 90, down at 180, and corner to
   corner at 45 on boxes of two aspects.
+- The clip follow-up, same files. API: `clipViewBox`/`clipFit`/`clipCuts` decode, round-trip and compare; written on a
+  line and printed back (`Stack … clipCuts=[…]`, `clipViewBox=[300,120] clipFit=contain`); a `Text` and an `Icon` line
+  take `clipPath=` and `clipCuts=`; a text node read from JSON keeps its clip, radius and clip path but no fill. SDK, by
+  pixels and taps: a ticket's 12 px notches are round circles at 160×80 and at 320×200 (transparent 1, 6 and 10 px in
+  on the middle line and 9 px above it 3 px in; filled 14 px in and 14 px above); a red 3 px border runs along the
+  notch inside it and along the top edge, the fill inside it; a shadow with no fill over it fills the body and not the
+  notch; a tap in a notch passes through and one on the body counts; a text, an icon and a picture cut to their left
+  half draw in it and nothing in the right; a button cut so counts a tap in its left half only; `clipFit=none` cuts
+  at 50 px, and `clipViewBox=[100,100]` stretched over 200 px cuts at 100.
 - The reference's new blocks (decoration.md, paint.md, animation.md, charts.md) are read and printed back by the
   generator.
 
 ## 4. Open
 
-- A clip in pixels or mixed units (a ticket whose notches stay round at any aspect): a `viewBox` beside `clipPath`,
-  as `Path` has, or units in the path.
-- Strokes along the clip path: the border is cut by the path, not drawn along it. A shape whose outline is the path
-  (fill and border both following it) is the `Path` node; a box with children and a border along a curve is not said.
-- Nine-slicing an SVG picture.
-- `clipPath` is read where the node's decoration is drawn by its shell: rows, columns, stacks, boxes (an `Image`)
-  and inputs with a shell. A text, an icon or a widget drawn by its own recipe does not read it; it is clipped by a
-  box around it. Whether the expander should say so is open.
+- Nine-slicing an SVG picture (the owner: leave it).
+- A border along the shape is always inside it (`strokeAlign` center and outside would draw past the cut) and solid
+  (`dashPattern` is not read along a shape yet).
+- A text's or an icon's drop shadow (`effects`) is kept only with a clip shape (it then takes the shape); before,
+  shadows on undecorated types were dropped, and still are without one.
+- Changed, pinned by a test: `keys_test` said `Text shape=circle` is "no shape"; a text now takes `shape` (and
+  `radius`, `clip`) for its clip. The test now pins a box-only key (`strokeSides`) instead.

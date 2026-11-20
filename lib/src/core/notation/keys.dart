@@ -290,7 +290,7 @@ List<PropDef<Object?>> _sectionFields(String section, String type, Catalog c) =>
 /// The decoration fields a node of [spec] keeps: all of them where the
 /// catalog says it is decorated, else its effects (the blurs it keeps).
 List<PropDef<Object?>> _decoration(WidgetSpec? spec) =>
-    spec == null || spec.decorated ? DecorationFields.all : [for (final f in DecorationFields.all) if (f.key == 'effects') f];
+    spec == null || spec.decorated ? DecorationFields.all : DecorationFields.undecorated;
 
 final _constraints = LayoutFields.all.firstWhere((f) => f.key == 'constraints');
 

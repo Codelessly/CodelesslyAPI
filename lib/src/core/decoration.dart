@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import 'custom_paint.dart' show CustomPaint;
 import 'json.dart';
 import 'values/enums.dart';
 import 'values/geometry.dart';
@@ -94,6 +95,53 @@ enum DecorationShape {
   circle,
 }
 
+/// A shape cut out of a node at a point of its box ([Decoration.clipCuts]),
+/// in the node's own pixels whatever its size, so a ticket's notch stays a
+/// round 12 px however the ticket grows: a circle of [radius] centered at
+/// [center], or SVG path data [d] with its origin there.
+@immutable
+final class ClipCut {
+  const ClipCut({this.center = Alignment.center, this.radius, this.d});
+
+  /// The point of the box the cut sits at (an alignment: `"centerLeft"`,
+  /// `[1, 0]`): a circle's center, a path's origin.
+  final Alignment center;
+
+  /// A circle of this radius in pixels.
+  final double? radius;
+
+  /// SVG path data in pixels, its (0, 0) at [center] (with [radius], both).
+  final String? d;
+
+  static ClipCut? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = readDouble(m['radius']);
+    final d = readString(m['d'])?.trim();
+    // With neither a radius nor a path it cuts nothing (kept, as written).
+    return ClipCut(
+      center: Alignment.fromJson(m['center']) ?? Alignment.center,
+      radius: r != null && r > 0 && r.isFinite ? r : null,
+      d: d == null || d.isEmpty ? null : d,
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{};
+    final named = Alignment.named.entries.where((e) => e.value == center).firstOrNull?.key;
+    if (center != Alignment.center) j['center'] = named ?? center.toJson();
+    put(j, 'radius', radius == null ? null : writeDouble(radius!));
+    put(j, 'd', d);
+    return j;
+  }
+
+  @override
+  bool operator ==(Object other) => other is ClipCut && other.center == center && other.radius == radius && other.d == d;
+
+  @override
+  int get hashCode => Object.hash(center, radius, d);
+}
+
 /// A box's paint: Flutter's `BoxDecoration`, with stacked paints as in a
 /// design tool (fills bottom to top, then strokes).
 @immutable
@@ -113,6 +161,9 @@ final class Decoration {
     this.blendMode = BlendMode.srcOver,
     this.shape = DecorationShape.rectangle,
     this.clipPath,
+    this.clipViewBox,
+    this.clipFit = BoxFit.fill,
+    this.clipCuts = const [],
   });
 
   static const Decoration none = Decoration();
@@ -140,12 +191,32 @@ final class Decoration {
   final DecorationShape shape;
 
   /// The node cut to a path, as CSS `clip-path: path(…)` and Flutter's
-  /// `ClipPath`: SVG path data in the box's own unit square (0 to 1 across
-  /// and down, whatever its size), so the same curve fits the box at every
-  /// width (a header's wave, a ticket's notches). Everything the node draws
-  /// is cut to it: its fills, border, shadows and children, and a pointer
-  /// outside it passes through to what is under. Null: no path.
+  /// `ClipPath`: SVG path data in [clipViewBox]'s units, mapped onto the box
+  /// by [clipFit] as a `customPaint`'s view box is. With neither, the box's
+  /// unit square stretched over it (0 to 1 across and down, whatever its
+  /// size): a header's wave that fits every width. The node's fills and
+  /// children are cut to it, its border is drawn along it (inside) and its
+  /// shadow takes its shape; a pointer outside it passes through. Null: the
+  /// node's own shape ([radius], [shape]), cut by [clipCuts] when it has any.
   final String? clipPath;
+
+  /// The units [clipPath] is written in, `[width, height]` or `[minX, minY,
+  /// width, height]`, as a `customPaint`'s or a `path`'s `viewBox`. Null:
+  /// the unit square, or with [clipFit] `none` the box's own pixels.
+  final List<double>? clipViewBox;
+
+  /// How [clipViewBox] maps onto the box (Flutter's `BoxFit`, as a
+  /// `customPaint`'s `fit`): `fill` stretches it (the default), `none` keeps
+  /// its units pixels, `contain` keeps its aspect.
+  final BoxFit clipFit;
+
+  /// Shapes cut out of the node in its own pixels at points of its box (a
+  /// ticket's notches, a bite out of a card's corner): they keep their size
+  /// as the body stretches.
+  final List<ClipCut> clipCuts;
+
+  /// Whether the node is cut to a shape of its own ([clipPath] or [clipCuts]).
+  bool get hasClipShape => clipPath != null || clipCuts.isNotEmpty;
 
   bool get isNone => this == none;
   Iterable<Paint> get visibleFills => fills.where((p) => p.visible);
@@ -166,6 +237,9 @@ final class Decoration {
     BlendMode? blendMode,
     DecorationShape? shape,
     String? clipPath,
+    List<double>? clipViewBox,
+    BoxFit? clipFit,
+    List<ClipCut>? clipCuts,
   }) =>
       Decoration(
         fills: fills ?? this.fills,
@@ -182,6 +256,9 @@ final class Decoration {
         blendMode: blendMode ?? this.blendMode,
         shape: shape ?? this.shape,
         clipPath: clipPath ?? this.clipPath,
+        clipViewBox: clipViewBox ?? this.clipViewBox,
+        clipFit: clipFit ?? this.clipFit,
+        clipCuts: clipCuts ?? this.clipCuts,
       );
 
   static Decoration fromJson(Object? json) {
@@ -202,6 +279,9 @@ final class Decoration {
       blendMode: readEnum(BlendMode.values, m['blendMode'], BlendMode.srcOver),
       shape: readEnum(DecorationShape.values, m['shape'], DecorationShape.rectangle),
       clipPath: switch (readString(m['clipPath'])?.trim()) { final String p when p.isNotEmpty => p, _ => null },
+      clipViewBox: CustomPaint.readViewBox(m['clipViewBox']),
+      clipFit: readEnum(BoxFit.values, m['clipFit'], BoxFit.fill),
+      clipCuts: [...?readList(m['clipCuts'])?.map(ClipCut.fromJson).nonNulls],
     );
   }
 
@@ -223,6 +303,9 @@ final class Decoration {
     put(j, 'blendMode', blendMode.name, BlendMode.srcOver.name);
     put(j, 'shape', shape.name, DecorationShape.rectangle.name);
     put(j, 'clipPath', clipPath);
+    put(j, 'clipViewBox', clipViewBox == null ? null : CustomPaint.writeViewBox(clipViewBox!));
+    put(j, 'clipFit', clipFit.name, BoxFit.fill.name);
+    if (clipCuts.isNotEmpty) j['clipCuts'] = [for (final c in clipCuts) c.toJson()];
     return j;
   }
 
@@ -242,9 +325,12 @@ final class Decoration {
       other.clip == clip &&
       other.blendMode == blendMode &&
       other.shape == shape &&
-      other.clipPath == clipPath;
+      other.clipPath == clipPath &&
+      listEquals(other.clipViewBox, clipViewBox) &&
+      other.clipFit == clipFit &&
+      listEquals(other.clipCuts, clipCuts);
 
   @override
   int get hashCode => Object.hash(Object.hashAll(fills), Object.hashAll(strokes), strokeWidth, strokeAlign,
-      strokeSides, radius, Object.hashAll(effects), clip, blendMode, shape, clipPath);
+      strokeSides, radius, Object.hashAll(effects), clip, blendMode, shape, clipPath, clipFit, Object.hashAll(clipCuts));
 }
