@@ -137,6 +137,25 @@ Column w=40 h=40 fill=#FFE5E7EB
 | `keyframes` | list of [Keyframe](values.md#type-Keyframe) | `[]` |  |
 | `interpolation` | `linear` `monotoneCubic` | `linear` |  |
 
+<a id="animation-bursts-confetti-stars-sparkles"></a>
+## Bursts: confetti, stars, sparkles
+
+`particles.*` keys on a line make it an emitter (the [particles](#behavior-particles) keys below): on cue, `count`
+particles leave from the origin (`originX`, `originY`: an alignment in the box, -1 to 1; `originWidth`: a share of the
+width they leave along), heading `direction` degrees (0 up, 90 right) within `spread` degrees either side, at `speed`
+px/s give or take, slowed by `drag`, pulled down by `gravity` px/s², spinning, and fading out over the last
+`fadeOut` ms of `lifetime`. `emit` spreads their leaving over that many ms (a stream rather than one pop); `shapes`
+picks paper squares, strips, circles, five-point `star`s, triangles, squiggles, an `image` or an `emoji`. Each burst
+is scattered afresh. The cue is `particles.playOnAppear=true` (when the line first shows) or an `animate` action
+naming the line and `animation=particles`; the particles draw over the line's content and are not cut by its corners.
+
+```notation
+Column gap=12
+  Stack#card h=220 fill=#FFFFFFFF radius=16 particles.count=70 particles.emit=300 particles.shapes=["star","circle","strip"] particles.originY=0.2 particles.spread=70 particles.speed=650 particles.drag=0.6 particles.lifetime=1800
+    Text.heading2 "7-day streak!" size=22 x={"align":0} y={"align":0.2}
+  Button "Celebrate" onTap={animate node=card animation=particles}
+```
+
 <a id="animation-behaviors"></a>
 ## Keys any line takes here
 
@@ -248,20 +267,20 @@ Written `particles={…}` on any line ([ParticleEmitter](#type-ParticleEmitter))
 <a id="type-ParticleEmitter"></a>
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `particles.count` | whole number (≥ 0) | `40` |  |
+| `particles.count` | whole number (≥ 0) | `40` | How many particles a burst has. |
 | `particles.emit` | whole number (≥ 0) | `0` | Over how long the particles leave (0: all at once). |
-| `particles.colors` | list of [Color](values.md#type-Color) | `["#FFFFC83D","#FFFF6F61","#FF2FD9A4",…` |  |
-| `particles.shapes` | list of `square` `circle` `strip` `star` `image` `triangle` `squiggle` `emoji` | `["square","strip","circle"]` |  |
-| `particles.size` | number | `10` |  |
-| `particles.originX` | number | `0` |  |
-| `particles.originY` | number | `0` |  |
-| `particles.originWidth` | number | `0` |  |
-| `particles.direction` | number | `0` | Degrees. |
-| `particles.spread` | number | `60` |  |
-| `particles.speed` | number | `700` |  |
-| `particles.gravity` | number | `900` |  |
-| `particles.lifetime` | whole number (≥ 0) | `2600` |  |
-| `particles.playOnAppear` | `true`/`false` | `false` |  |
+| `particles.colors` | list of [Color](values.md#type-Color) | `["#FFFFC83D","#FFFF6F61","#FF2FD9A4",…` | Their colors, taken in turn. |
+| `particles.shapes` | list of `square` `circle` `strip` `star` `image` `triangle` `squiggle` `emoji` | `["square","strip","circle"]` | Their shapes, taken in turn (`star`: a five-point star). |
+| `particles.size` | number | `10` | A particle's size in px, give or take 30%. |
+| `particles.originX` | number | `0` | Where they leave from across the box: an alignment, -1 (left) to 1 (right). |
+| `particles.originY` | number | `0` | Where they leave from down the box: -1 (top) to 1 (bottom). |
+| `particles.originWidth` | number | `0` | A share of the box's width they leave along, centred on the origin (0: one point). |
+| `particles.direction` | number | `0` | Degrees: 0 up, 90 right, 180 down. |
+| `particles.spread` | number | `60` | Degrees either side of `direction` they scatter over. |
+| `particles.speed` | number | `700` | How fast they leave (px/s, 55 to 115% of it). |
+| `particles.gravity` | number | `900` | How hard they are pulled down (px/s²; 0: they fly straight, negative: they rise). |
+| `particles.lifetime` | whole number (≥ 0) | `2600` | How long each particle lives (ms). |
+| `particles.playOnAppear` | `true`/`false` | `false` | Bursts when the line first shows; otherwise an `animate` action with `animation=particles` fires it. |
 | `particles.delay` | whole number (≥ 0) | `0` | Wait after the cue (ms). |
 | `particles.drag` | number (≥ 0) | `0` | Speed lost per second, e^(-drag). |
 | `particles.terminalVelocity` | number (≥ 0) | `0` | The fastest fall (px/s; 0: no limit). |

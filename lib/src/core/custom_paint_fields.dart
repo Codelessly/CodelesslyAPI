@@ -149,9 +149,12 @@ abstract final class DrawPaintFields {
       doc: 'Dash and gap lengths, alternating; empty is solid.');
   static const scaleStroke = PropDef<bool>('scaleStroke', Codecs.bool, true,
       doc: 'Off: the stroke width and dashes stay in box pixels under a scaling view box or group.');
+  static const blurRadius = PropDef<Expr<double>>('blurRadius', _positive, Expr(0.0),
+      doc: 'Softens the shape\'s edge by this much, as an effect\'s `blurRadius` does a box\'s (Flutter\'s '
+          '`MaskFilter.blur`): a glow, a soft shadow, a feathered blob. In the drawing\'s units, scaled with it. 0: sharp.');
   static const List<PropDef<Object?>> all = [
     id, color, shader, style, strokeWidth, strokeCap, strokeJoin, strokeMiterLimit, blendMode, isAntiAlias, //
-    dashPattern, scaleStroke,
+    dashPattern, scaleStroke, blurRadius,
   ];
 }
 

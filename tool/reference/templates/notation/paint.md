@@ -53,6 +53,21 @@ box h=160
 For a bar, line or donut chart with axes and a legend, the chart words (`BarChart`, `LineChart`, `Donut`) on
 [charts.md](charts.md) are shorter.
 
+## Glows, soft shadows and gradients in a drawing
+
+`blurRadius=` beside `fill=` or `stroke=` softens the shape's edge (Flutter's `MaskFilter.blur`, the same softness as
+an effect's `blurRadius` on a box): a glow behind a sun, a soft shadow under a drawn card, a feathered blob. It is in
+the drawing's units and scales with it. A paint a colour cannot say is `paint={…}`: a gradient laid out in the
+shape's bounds is its `shader` (a [Paint](decoration.md#type-Paint), with an `angle` as on a box).
+
+```notation
+box w=200 h=120 fill=#FF111827 radius=12
+  customPaint viewBox=[200,120]
+    circle c=[100,60] radius=34 fill=#B3F59E0B blurRadius=28
+    circle c=[100,60] radius=16 fill=#FFFDE68A
+    rrect rect=[24,92,152,10] radius=5 fill=#66000000 blurRadius=8
+```
+
 ## The painter's keys
 
 {{customPaintFields}}

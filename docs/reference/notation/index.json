@@ -217,7 +217,7 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2773
+      "words": 3489
     },
     {
       "topic": "decoration-fills-borders-and-corners",
@@ -234,11 +234,39 @@
       "words": 91
     },
     {
+      "topic": "decoration-pictures-that-stretch-nine-slice",
+      "file": "decoration.md",
+      "anchor": "decoration-pictures-that-stretch-nine-slice",
+      "title": "Pictures that stretch: nine-slice",
+      "words": 145
+    },
+    {
+      "topic": "decoration-a-box-cut-to-a-curve",
+      "file": "decoration.md",
+      "anchor": "decoration-a-box-cut-to-a-curve",
+      "title": "A box cut to a curve",
+      "words": 167
+    },
+    {
+      "topic": "decoration-gradients-at-an-angle",
+      "file": "decoration.md",
+      "anchor": "decoration-gradients-at-an-angle",
+      "title": "Gradients at an angle",
+      "words": 77
+    },
+    {
+      "topic": "decoration-soft-glows",
+      "file": "decoration.md",
+      "anchor": "decoration-soft-glows",
+      "title": "Soft glows",
+      "words": 41
+    },
+    {
       "topic": "decoration-keys-every-decorated-line-takes",
       "file": "decoration.md",
       "anchor": "decoration-keys-every-decorated-line-takes",
       "title": "Keys every decorated line takes",
-      "words": 278
+      "words": 358
     },
     {
       "topic": "decoration-words",
@@ -259,7 +287,7 @@
       "file": "decoration.md",
       "anchor": "decoration-records",
       "title": "Records",
-      "words": 1451
+      "words": 1629
     },
     {
       "topic": "decoration-examples",
@@ -274,7 +302,7 @@
       "anchor": "page-paint",
       "title": "Custom paint",
       "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
-      "words": 2006
+      "words": 2114
     },
     {
       "topic": "paint-the-lines",
@@ -282,6 +310,13 @@
       "anchor": "paint-the-lines",
       "title": "The lines",
       "words": 379
+    },
+    {
+      "topic": "paint-glows-soft-shadows-and-gradients-in-a-drawing",
+      "file": "paint.md",
+      "anchor": "paint-glows-soft-shadows-and-gradients-in-a-drawing",
+      "title": "Glows, soft shadows and gradients in a drawing",
+      "words": 97
     },
     {
       "topic": "paint-the-painter-s-keys",
@@ -595,7 +630,7 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3666
+      "words": 3972
     },
     {
       "topic": "animation-the-animate-words",
@@ -619,11 +654,18 @@
       "words": 118
     },
     {
+      "topic": "animation-bursts-confetti-stars-sparkles",
+      "file": "animation.md",
+      "anchor": "animation-bursts-confetti-stars-sparkles",
+      "title": "Bursts: confetti, stars, sparkles",
+      "words": 170
+    },
+    {
       "topic": "animation-behaviors",
       "file": "animation.md",
       "anchor": "animation-behaviors",
       "title": "Keys any line takes here",
-      "words": 1812
+      "words": 1941
     },
     {
       "topic": "animation-events-and-actions",
@@ -652,7 +694,7 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8908
+      "words": 9162
     },
     {
       "topic": "charts-writing-a-chart",
@@ -660,6 +702,13 @@
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
       "words": 511
+    },
+    {
+      "topic": "charts-a-history-scrub-it-page-it-pan-it",
+      "file": "charts.md",
+      "anchor": "charts-a-history-scrub-it-page-it-pan-it",
+      "title": "A history: scrub it, page it, pan it",
+      "words": 243
     },
     {
       "topic": "charts-words",

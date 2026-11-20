@@ -165,6 +165,7 @@ final class DrawPaint {
     this.isAntiAlias = true,
     this.dashPattern = const [],
     this.scaleStroke = true,
+    this.blurRadius = const Expr(0.0),
   });
 
   /// Stable id, so a binding can target this paint.
@@ -188,9 +189,14 @@ final class DrawPaint {
   /// the view box and groups scale the drawing.
   final bool scaleStroke;
 
+  /// Softens the shape's edge by this much (Flutter's `MaskFilter.blur`,
+  /// its sigma worked out as a box shadow's `blurRadius` gives it): a glow,
+  /// a soft shadow. In the drawing's units. 0: a sharp edge.
+  final Expr<double> blurRadius;
+
   static const keys = {
     'id', 'color', 'shader', 'style', 'strokeWidth', 'strokeCap', 'strokeJoin', 'strokeMiterLimit', 'blendMode', //
-    'isAntiAlias', 'dashPattern', 'scaleStroke',
+    'isAntiAlias', 'dashPattern', 'scaleStroke', 'blurRadius',
   };
 
   /// Only a color: written as the color alone.
@@ -204,6 +210,7 @@ final class DrawPaint {
     final m = readMap(json);
     if (m == null) return null;
     final width = _num(m['strokeWidth']);
+    final blur = _num(m['blurRadius']);
     return DrawPaint(
       id: readString(m['id']),
       color: Expr.read<Color>(m['color'], Color.fromJson) ?? const Expr(Color.black),
@@ -217,6 +224,7 @@ final class DrawPaint {
       isAntiAlias: readBool(m['isAntiAlias']) ?? true,
       dashPattern: [...?readList(m['dashPattern'])?.map(readDouble).nonNulls.where((v) => v >= 0)],
       scaleStroke: readBool(m['scaleStroke']) ?? true,
+      blurRadius: blur == null || (blur.value ?? 0) < 0 ? const Expr(0.0) : blur,
     );
   }
 
@@ -235,6 +243,7 @@ final class DrawPaint {
     put(j, 'isAntiAlias', isAntiAlias, true);
     if (dashPattern.isNotEmpty) j['dashPattern'] = dashPattern.map(writeDouble).toList();
     put(j, 'scaleStroke', scaleStroke, true);
+    if (blurRadius != const Expr(0.0)) j['blurRadius'] = _numOut(blurRadius);
     return j;
   }
 
@@ -251,6 +260,7 @@ final class DrawPaint {
     bool? isAntiAlias,
     List<double>? dashPattern,
     bool? scaleStroke,
+    Expr<double>? blurRadius,
   }) => DrawPaint(
     id: id ?? this.id,
     color: color ?? this.color,
@@ -264,11 +274,12 @@ final class DrawPaint {
     isAntiAlias: isAntiAlias ?? this.isAntiAlias,
     dashPattern: dashPattern ?? this.dashPattern,
     scaleStroke: scaleStroke ?? this.scaleStroke,
+    blurRadius: blurRadius ?? this.blurRadius,
   );
 
   List<Object?> get _props => [
     id, color, shader, style, strokeWidth, strokeCap, strokeJoin, strokeMiterLimit, blendMode, isAntiAlias, //
-    dashPattern, scaleStroke,
+    dashPattern, scaleStroke, blurRadius,
   ];
 
   @override
