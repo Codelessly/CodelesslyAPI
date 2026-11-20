@@ -2,7 +2,7 @@
   "version": "40.2.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4409
+    "words": 4450
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4409
+      "words": 4450
     },
     {
       "topic": "notation-a-line",
@@ -39,7 +39,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-sizes-and-alignment",
       "title": "Sizes and alignment",
-      "words": 223
+      "words": 264
     },
     {
       "topic": "notation-state",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17082
+      "words": 17086
     },
     {
       "topic": "values-writing-a-value",
@@ -932,7 +932,7 @@
       "file": "values.md",
       "anchor": "values-value-types",
       "title": "Value types",
-      "words": 331
+      "words": 335
     },
     {
       "topic": "values-enums",

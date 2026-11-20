@@ -103,9 +103,9 @@ A 32-bit ARGB color, as Flutter's `Color`. JSON: `"#AARRGGBB"` (`"#RRGGBB"` and 
 <a id="type-EdgeInsets"></a>
 ### EdgeInsets
 
-Written: a number (all sides) or [left, top, right, bottom].
+Written: a number (all sides), [horizontal, vertical] or [left, top, right, bottom].
 
-Flutter's `EdgeInsets` (left, top, right, bottom). JSON: a number (all sides) or `[left, top, right, bottom]`.
+Flutter's `EdgeInsets` (left, top, right, bottom). JSON: a number (all sides), `[horizontal, vertical]` or `[left, top, right, bottom]`.
 
 <a id="type-FontFeature"></a>
 ### FontFeature

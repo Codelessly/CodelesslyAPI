@@ -3,11 +3,12 @@ import 'package:meta/meta.dart';
 import '../json.dart';
 
 /// Flutter's `EdgeInsets` (left, top, right, bottom). JSON: a number (all
-/// sides) or `[left, top, right, bottom]`.
+/// sides), `[horizontal, vertical]` or `[left, top, right, bottom]`.
 @immutable
 /// Flutter's `EdgeInsets`, or `EdgeInsetsDirectional` when [directional].
 ///
-/// JSON: a number (every side), `[left, top, right, bottom]`, or a map. A map
+/// JSON: a number (every side), `[horizontal, vertical]` (`[14, 12]`: 14 left
+/// and right, 12 top and bottom), `[left, top, right, bottom]`, or a map. A map
 /// with `start` or `end` is directional (Flutter's `EdgeInsetsDirectional`):
 /// `{"start": 16, "top": 8, "end": 4, "bottom": 8}` puts 16 on the left under
 /// a left-to-right `textDirection` and on the right under right-to-left. A map
@@ -71,6 +72,12 @@ final class EdgeInsets {
       return EdgeInsets.fromLTRB(side('left'), side('top'), side('right'), side('bottom'));
     }
     final l = readList(json);
+    // `[horizontal, vertical]`: left and right, then top and bottom (as a
+    // bound value reads it, and as `[left, top]` repeated).
+    if (l != null && l.length == 2) {
+      final h = readDouble(l[0]) ?? 0, v = readDouble(l[1]) ?? 0;
+      return EdgeInsets.fromLTRB(h, v, h, v);
+    }
     if (l == null || l.length != 4) return zero;
     return EdgeInsets.fromLTRB(readDouble(l[0]) ?? 0, readDouble(l[1]) ?? 0, readDouble(l[2]) ?? 0, readDouble(l[3]) ?? 0);
   }

@@ -92,7 +92,7 @@ void main() {
       'type': 'row',
       'opacity': 'lots',
       'children': [1, 'a', null],
-      'layout': {'width': {'stretchy': 'x'}, 'height': -5, 'flex': 'two', 'margin': [1, 2], 'x': 7},
+      'layout': {'width': {'stretchy': 'x'}, 'height': -5, 'flex': 'two', 'margin': [1, 2, 3], 'x': 7},
       'props': {'mainAxisAlignment': 'sideways', 'spacing': -3, 'wrap': 'true'},
       'decoration': {'fills': [{'type': 'solid', 'color': 'not a color'}, 5], 'radius': [1, 2, 3]},
     }, id: 'r')!;

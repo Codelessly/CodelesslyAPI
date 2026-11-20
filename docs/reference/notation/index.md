@@ -9,7 +9,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 
 | Page | What is in it | Words |
 |---|---|---|
-| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4409 |
+| [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4450 |
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5095 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1462 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 2684 |
@@ -27,7 +27,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 672 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | 635 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 907 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 17082 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 17086 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | 1660 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | 300 |
