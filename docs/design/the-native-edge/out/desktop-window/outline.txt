@@ -1,0 +1,41 @@
+== screen@390x844-desktop-window
+canvas screen                                0,0 390x844
+  column column1                             0,0 390x844
+    column column2                           0,0 390x0               (empty: draws nothing)
+    row header                               0,0 390x56
+      column column3                         16,10 36x36
+        text column3Text                     26,20 16.5x17           "RL"
+      column column4                         64,13 310x31
+        text text1                           64,13 310x16            "Robin Lee"
+        text text2                           64,31 310x13            "keyboard 0 · insets 0/0 · text 1"
+    column thread                            0,56 390x744
+      listView listView1                     16,72 358x196
+        column listView1Item                 16,72 358x34
+          row row1                           16,72 358x34
+            spacer spacer1                   16,89 0x0               (empty: draws nothing)
+            column column5                   16,72 237x34
+              text text3                     28,80 213x18            "How did the exposure go today?"
+            spacer spacer2                   253,89 121x0            (empty: draws nothing)
+        column listView1Item                 16,114 358x52
+          row row1                           16,114 358x52
+            spacer spacer1                   16,140 0x0              (empty: draws nothing)
+            column column5                   16,114 358x52
+              text text3                     28,122 334x36           "Better than yesterday. I stayed with it for ten minutes."
+            spacer spacer2                   374,140 0x0             (empty: draws nothing)
+        column listView1Item                 16,174 358x52
+          row row1                           16,174 358x52
+            spacer spacer1                   16,200 0x0              (empty: draws nothing)
+            column column5                   16,174 358x52
+              text text3                     28,182 334x36           "That is real progress. What did you notice when the urge peaked?"
+            spacer spacer2                   374,200 0x0             (empty: draws nothing)
+        column listView1Item                 16,234 358x34
+          row row1                           16,234 358x34
+            spacer spacer1                   16,251 104.5x0          (empty: draws nothing)
+            column column5                   120,234 253.5x34
+              text text3                     132,242 229.5x18        "It dropped on its own after a while."
+            spacer spacer2                   374,251 0x0             (empty: draws nothing)
+    row composerBar                          0,800 390x44
+      textField composer                     12,808 330x28           "Message Robin"
+      iconButton send                        350,808 28x28
+    column keyboardRoom                      0,844 390x0             (empty: draws nothing)
+

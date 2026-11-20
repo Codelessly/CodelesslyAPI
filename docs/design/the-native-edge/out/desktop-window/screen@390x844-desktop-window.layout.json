@@ -1,0 +1,301 @@
+[
+ {
+  "id": "screen",
+  "x": 0,
+  "y": 0,
+  "w": 390.0,
+  "h": 844.0
+ },
+ {
+  "id": "column1",
+  "x": 0,
+  "y": 0,
+  "w": 390.0,
+  "h": 844.0
+ },
+ {
+  "id": "column2",
+  "x": 0,
+  "y": 0,
+  "w": 390.0,
+  "h": 0.0
+ },
+ {
+  "id": "header",
+  "x": 0,
+  "y": 0,
+  "w": 390.0,
+  "h": 56.0
+ },
+ {
+  "id": "column3",
+  "x": 16,
+  "y": 10,
+  "w": 36.0,
+  "h": 36.0
+ },
+ {
+  "id": "column3Text",
+  "x": 26,
+  "y": 20,
+  "w": 16.5,
+  "h": 17.0,
+  "text": "RL"
+ },
+ {
+  "id": "column4",
+  "x": 64,
+  "y": 13,
+  "w": 310.0,
+  "h": 31.0
+ },
+ {
+  "id": "text1",
+  "x": 64,
+  "y": 13,
+  "w": 310.0,
+  "h": 16.0,
+  "text": "Robin Lee"
+ },
+ {
+  "id": "text2",
+  "x": 64,
+  "y": 31,
+  "w": 310.0,
+  "h": 13.0,
+  "text": "keyboard 0 · insets 0/0 · text 1"
+ },
+ {
+  "id": "thread",
+  "x": 0,
+  "y": 56,
+  "w": 390.0,
+  "h": 744.0
+ },
+ {
+  "id": "listView1",
+  "x": 16,
+  "y": 72,
+  "w": 358.0,
+  "h": 196.0
+ },
+ {
+  "id": "listView1Item",
+  "x": 16,
+  "y": 72,
+  "w": 358.0,
+  "h": 34.0
+ },
+ {
+  "id": "row1",
+  "x": 16,
+  "y": 72,
+  "w": 358.0,
+  "h": 34.0
+ },
+ {
+  "id": "spacer1",
+  "x": 16,
+  "y": 89,
+  "w": 0.0,
+  "h": 0.0
+ },
+ {
+  "id": "column5",
+  "x": 16,
+  "y": 72,
+  "w": 237.0,
+  "h": 34.0
+ },
+ {
+  "id": "text3",
+  "x": 28,
+  "y": 80,
+  "w": 213.0,
+  "h": 18.0,
+  "text": "How did the exposure go today?"
+ },
+ {
+  "id": "spacer2",
+  "x": 253,
+  "y": 89,
+  "w": 121.0,
+  "h": 0.0
+ },
+ {
+  "id": "listView1Item",
+  "instance": "(item, null, listView1, 1)",
+  "x": 16,
+  "y": 114,
+  "w": 358.0,
+  "h": 52.0
+ },
+ {
+  "id": "row1",
+  "instance": "(item, null, listView1, 1)",
+  "x": 16,
+  "y": 114,
+  "w": 358.0,
+  "h": 52.0
+ },
+ {
+  "id": "spacer1",
+  "instance": "(item, null, listView1, 1)",
+  "x": 16,
+  "y": 140,
+  "w": 0.0,
+  "h": 0.0
+ },
+ {
+  "id": "column5",
+  "instance": "(item, null, listView1, 1)",
+  "x": 16,
+  "y": 114,
+  "w": 358.0,
+  "h": 52.0
+ },
+ {
+  "id": "text3",
+  "instance": "(item, null, listView1, 1)",
+  "x": 28,
+  "y": 122,
+  "w": 334.0,
+  "h": 36.0,
+  "text": "Better than yesterday. I stayed with it for ten minutes."
+ },
+ {
+  "id": "spacer2",
+  "instance": "(item, null, listView1, 1)",
+  "x": 374,
+  "y": 140,
+  "w": 0.0,
+  "h": 0.0
+ },
+ {
+  "id": "listView1Item",
+  "instance": "(item, null, listView1, 2)",
+  "x": 16,
+  "y": 174,
+  "w": 358.0,
+  "h": 52.0
+ },
+ {
+  "id": "row1",
+  "instance": "(item, null, listView1, 2)",
+  "x": 16,
+  "y": 174,
+  "w": 358.0,
+  "h": 52.0
+ },
+ {
+  "id": "spacer1",
+  "instance": "(item, null, listView1, 2)",
+  "x": 16,
+  "y": 200,
+  "w": 0.0,
+  "h": 0.0
+ },
+ {
+  "id": "column5",
+  "instance": "(item, null, listView1, 2)",
+  "x": 16,
+  "y": 174,
+  "w": 358.0,
+  "h": 52.0
+ },
+ {
+  "id": "text3",
+  "instance": "(item, null, listView1, 2)",
+  "x": 28,
+  "y": 182,
+  "w": 334.0,
+  "h": 36.0,
+  "text": "That is real progress. What did you notice when the urge peaked?"
+ },
+ {
+  "id": "spacer2",
+  "instance": "(item, null, listView1, 2)",
+  "x": 374,
+  "y": 200,
+  "w": 0.0,
+  "h": 0.0
+ },
+ {
+  "id": "listView1Item",
+  "instance": "(item, null, listView1, 3)",
+  "x": 16,
+  "y": 234,
+  "w": 358.0,
+  "h": 34.0
+ },
+ {
+  "id": "row1",
+  "instance": "(item, null, listView1, 3)",
+  "x": 16,
+  "y": 234,
+  "w": 358.0,
+  "h": 34.0
+ },
+ {
+  "id": "spacer1",
+  "instance": "(item, null, listView1, 3)",
+  "x": 16,
+  "y": 251,
+  "w": 104.5,
+  "h": 0.0
+ },
+ {
+  "id": "column5",
+  "instance": "(item, null, listView1, 3)",
+  "x": 120,
+  "y": 234,
+  "w": 253.5,
+  "h": 34.0
+ },
+ {
+  "id": "text3",
+  "instance": "(item, null, listView1, 3)",
+  "x": 132,
+  "y": 242,
+  "w": 229.5,
+  "h": 18.0,
+  "text": "It dropped on its own after a while."
+ },
+ {
+  "id": "spacer2",
+  "instance": "(item, null, listView1, 3)",
+  "x": 374,
+  "y": 251,
+  "w": 0.0,
+  "h": 0.0
+ },
+ {
+  "id": "composerBar",
+  "x": 0,
+  "y": 800,
+  "w": 390.0,
+  "h": 44.0
+ },
+ {
+  "id": "composer",
+  "x": 12,
+  "y": 808,
+  "w": 330.0,
+  "h": 28.0,
+  "text": "Message Robin"
+ },
+ {
+  "id": "send",
+  "x": 350,
+  "y": 808,
+  "w": 28.0,
+  "h": 28.0
+ },
+ {
+  "id": "keyboardRoom",
+  "x": 0,
+  "y": 844,
+  "w": 390.0,
+  "h": 0.0
+ }
+]

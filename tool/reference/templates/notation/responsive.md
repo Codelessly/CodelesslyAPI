@@ -40,6 +40,23 @@ so the field sits in the bar and not on the page's background.
 A tap that does different things at different widths reads the window in its action: `onTap={screen.width < 700 ?
 open detail : picked=item.id}` opens a sheet on a phone and fills the pane beside the list on a desktop.
 
+What the device covers is read the same way: `screen.insets.top` (and `.bottom`, `.left`, `.right`) is the safe
+area (a status bar, a home indicator), `screen.keyboard` the height the soft keyboard covers (0 while it is closed),
+`screen.textScale` the device's text size setting. A bar pinned to the bottom rides above the keyboard with a box
+under it: the home indicator's inset is 0 while the keyboard covers it, so one sum serves both.
+
+```notation
+state draft=""
+Column h=fill
+  Column h={screen.insets.top}
+  Column scroll h=fill grow
+    Text "The thread"
+  Row gap=8 pad=[12,8,12,8] border-top=#FFE5E7EB
+    Input "" hint=Message grow @draft
+    IconButton "send"
+  Column h={screen.keyboard + screen.insets.bottom}
+```
+
 ## A design at a width
 
 Where a part's lines differ at a width, and not only its values, write `at <width>` under the part, after its own

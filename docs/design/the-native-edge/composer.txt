@@ -1,0 +1,20 @@
+state draft=""
+state messages=[{"me":false,"text":"How did the exposure go today?"},{"me":true,"text":"Better than yesterday. I stayed with it for ten minutes."},{"me":false,"text":"That is real progress. What did you notice when the urge peaked?"},{"me":true,"text":"It dropped on its own after a while."}]
+Column w=fill h=fill fill=#FFF8FAFC
+  Box w=fill h={screen.insets.top} fill=#FFFFFFFF
+  Row#header w=fill h=56 gap=12 middle pad=[16,0,16,0] fill=#FFFFFFFF border-bottom=#FFE5E7EB
+    Avatar "Robin Lee" w=36 h=36
+    Column gap=2 grow
+      Text.strong "Robin Lee"
+      Text.caption "keyboard {screen.keyboard} · insets {screen.insets.top}/{screen.insets.bottom} · text {screen.textScale}"
+  Column#thread scroll w=fill grow gap=8 pad=[16,16,16,16]
+    each m in messages
+      Row w=fill
+        Spacer visible={m.me}
+        Box fill={m.me ? "#FF2563EB" : "#FFFFFFFF"} radius=16 pad=[12,8,12,8] w={"hug":260} border={m.me ? "#FF2563EB" : "#FFE5E7EB"}
+          Text "{m.text}" size=15 color={m.me ? "#FFFFFFFF" : "#FF111827"}
+        Spacer visible={!m.me}
+  Row#composerBar w=fill gap=8 middle pad=[12,8,12,8] fill=#FFFFFFFF border-top=#FFE5E7EB
+    Input#composer "" "Message Robin" @draft w=fill grow
+    IconButton#send "send" onTap={messages=append(messages, {"me": true, "text": draft}); draft=""}
+  Box#keyboardRoom w=fill h={screen.keyboard + screen.insets.bottom} fill=#FFFFFFFF
