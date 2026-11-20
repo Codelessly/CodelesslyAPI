@@ -33,7 +33,7 @@ scrolled to the middle first, and a tap that would land on another node is repor
 `--focus <id>` (any node that takes the keyboard focus: a field, a button, a row or handle with a tap or key
 reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>` (a newline in the text is typed: a
 multi-line field gets every line), `--key <key>`, `--set <variable>=<json>`, `--stage <variable>=<json>`,
-`--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>`
+`--scroll <id or screen>=<px>` (or `=<x>,<y>`; its `scroll` and `scrollEnd` reactions run, as a user's scroll runs them; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node; `,press=<ms>` rests the finger first, so a hold reaction fires before the same pointer moves), `--double-tap <id>`, `--wheel <id>=<dy>`
 (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that
 many times as far apart), `--long-press <id>` (`=<ms>` held that long; `=<ms>,hold` not lifted), `--navigate <screen>`,
 `--wait <ms>`, `--frames <ms>,...`. A step
@@ -48,8 +48,12 @@ screen; with several calls the error names each as `<call>/<id>` (`editorBar2/ed
 position (`--tap tabs@2`, the third, from zero) or, where it has one no node shares, by its own id or value
 (`--tap stay` for the tab `{"id": "stay"}`). A control's parts have names: `quantity@decrement`,
 `quantity@increment` on a NumberInput, `level@thumb` (`@thumb-end` on a range) on a Slider,
-`region@option:Alaska` on a Select (opened first), `stay@2026-11-23` for a calendar's day; `--dump-layout`
-lists each control's `parts`. A component's root may be named after its call (`nav/tabs`). Ids are
+`region@option:Alaska` on a Select (opened first), `stay@2026-11-23` for a calendar's day, `password@suffix` (or
+`@prefix`) for a text field's icon with reactions, pressed in the field so it keeps the focus; `--dump-layout`
+lists each control's `parts`. A toast's button is `toastAction` or its label (`--tap Undo`), its close
+`toastClose`; a confirm's are `confirmOk` and `confirmCancel`. A step names a node, never a point (`150,345`). A
+node covered wherever it shows is an error naming what covers it, which child to put after which when both are in
+one node (the last child is drawn on top and takes the press), and the copies of a list item nothing covers. A component's root may be named after its call (`nav/tabs`). Ids are
 per document, so a page, a component and an open modal may share one: a step naming an id two shown nodes have is
 an error listing how to name each (`page/saved`, the page's own under its canvas id; `footer/saved`, the
 component's). A step on a node hidden at one size (a media rule, a binding, another breakpoint's canvas; a
@@ -60,11 +64,14 @@ reaction that writes the variable afterwards does not change the capture (`set_o
 `--stage` sets the value once and never holds it, so a timer or a reaction after it moves it on (`--stage
 currentIndex=0 --wait 3000` for an auto-advancing indicator); `--now <ISO time>` pins `now()` (with none, a site's `"now"` in
 `site.json` does: the date its seed data is written for; with neither, the run starts at the real time and `--wait`
-moves it). A tap, a drag or a
+moves it); `--clock <ISO time>` starts `now()` there on each screen and lets `--wait` move it, the same in every run
+(a countdown that ticks). A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
 diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
 `--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A
-capture after a navigation is named after the screen it shows. After each step the page settles before the next one and the capture
+capture after a navigation (a push, a replace, a reset) is named after the screen it shows. With `--dump-layout`, a
+node turned or scaled by a `motion`, or cut in part by a clip, also has `painted`: where it is drawn, beside its
+laid-out box (in each frame's layout too). After each step the page settles before the next one and the capture
 (about a second): an animation shorter than that is over when the screenshot is taken. To see one mid-flight,
 `--frames <ms>,<ms>...` right after the step captures what it started at those times with no settle first
 (`<png>-f<n>-<ms>ms.png`, with its layout under `--dump-layout`): `--tap send --frames 120` shows a row pending
