@@ -21,7 +21,7 @@ const Set<String> notationFormulaFunctionNames = {
   'matchReason', 'matchRuns', 'matches', 'max', 'maxBy', 'merge', 'min', 'minBy', 'minute', 'mix', 'money', 'month',
   'move', 'moveItems', 'newId', 'now', 'nowMs', 'number', 'obj', 'object', 'pad', 'padLeft', 'padRight',
   'parseAmount', 'parseDate', 'pi', 'pick', 'plural', 'pluralCategory', 'pow', 'prepend', 'radians', 'random',
-  'range', 'regexReplace', 'removeAt', 'removeWhere', 'replace', 'reverse', 'right', 'round', 'runs', 'second',
+  'range', 'regexMatches', 'regexReplace','removeAt', 'removeWhere', 'replace', 'reverse', 'right', 'round', 'runs', 'second',
   'seconds', 'set', 'setAt', 'sign', 'sin', 'skip', 'slice', 'slug', 'sortBy', 'sortByDesc', 'split', 'sqrt',
   'startsWith', 'substring', 'sum', 'take', 'tan', 'text', 'textDirection', 'textDirectionOf', 'thousands',
   'timeAgo', 'titleCase', 'toMap', 'today', 'trim', 'unique', 'unset', 'updateWhere', 'upper', 'values', 'wallTime',

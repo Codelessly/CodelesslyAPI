@@ -12363,7 +12363,11 @@ class _Parser {
         final inner = _quotedBreaks(s.substring(i + 1, end - 1));
         final around = _quotedBreaks(inner, outside: true);
         final code = around.contains('\n') || around.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
-        if (!code) out.add((i, end));
+        // A count in braces (`{3}`, `{5,}`, `{2,4}`) is a pattern's
+        // repetition (`regexMatches(t, "\d{3}-\d{4}")`), not a value read: it
+        // was read as the number, and the pattern lost it.
+        final count = RegExp(r'^\d+(,\d*)?$').hasMatch(inner);
+        if (!code && !count) out.add((i, end));
         i = end - 1;
       }
     }

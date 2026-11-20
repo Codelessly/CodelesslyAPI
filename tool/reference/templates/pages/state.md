@@ -30,7 +30,7 @@ Types:
 
 `${name}` or `${path}` reads a value: `${count}`, `${user.name}`, `${items[0].price}`, `${pal[item.kind]}`.
 `${= formula}` computes one: arithmetic (`+ - * / %`), comparisons (`== != < <= > >=`), `&&`, `||`, `!`,
-`cond ? a : b`, literals (`'text'`, `3.5`, `true`, `null`, lists `[1, 2]`), and lambdas for list functions
+`cond ? a : b`, `a ?? b` (`b` when `a` is null; `coalesce` also passes over empty text), literals (`'text'`, `3.5`, `true`, `null`, lists `[1, 2]`), and lambdas for list functions
 (`x => x.price`). A text that is exactly one expression gives its value with its type; inside other text a number is
 printed without trailing zeros. Names an expression may start with, besides the variables: {{scopes}}. The
 names a node gives the nodes inside it are read there only: `item`, `index`, `parent` in a list's item; `pageOffset`

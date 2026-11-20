@@ -287,7 +287,9 @@ final class TextRun {
   final int start, end;
   final TextStyle style;
 
-  /// A URL the run opens when tapped.
+  /// What a tap on the run means: a URL it opens (`https:`, `mailto:`,
+  /// `tel:`, an app link), or, on a text with a `linkTap` reaction, the
+  /// value that reaction reads as `result.link` instead.
   final String? link;
 
   static TextRun? fromJson(Object? json) {

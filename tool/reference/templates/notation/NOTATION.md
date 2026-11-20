@@ -161,7 +161,7 @@ Column gap=8
 
 ## Formulas
 
-Inside `{…}`: `+ - * / %`, `== != < <= > >=`, `&& || !`, `cond ? a : b`; text in `"double"` or `'single'`
+Inside `{…}`: `+ - * / %`, `== != < <= > >=`, `&& || !`, `cond ? a : b`, `a ?? b` (`b` when `a` is null); text in `"double"` or `'single'`
 quotes; lists `[1,2]`, fields `a.b`, items `list[0]`; a function of one argument `x => x.price`. Lists never change
 in place: set the variable to a new list (`cart=append(cart,item)`). The functions, by group (each with its
 signature on [state.md](state.md#state-functions)):

@@ -194,6 +194,15 @@ enum TriggerType {
   /// `${result.ascending}` the new direction.
   sort,
 
+  /// A link in a text was tapped: a run of its `runs` with a `link`
+  /// (`TextRun.link`). `${result.link}` is the run's
+  /// link, `${result.text}` its characters, `${result.start}` and
+  /// `${result.end}` where they are in the text. Without this reaction the
+  /// tap opens the link (a web page, `mailto:`, `tel:`, an app link), as
+  /// `openLink` does; with it, its actions run instead (a run whose link
+  /// names something of the app's own: `link="restart"`).
+  linkTap,
+
   /// On the current canvas: a failed action chain or cloud subscription.
   /// `${result.error}` is `{type, message, action, nodeId}` (no stack or
   /// raw service objects). A failure in this reaction reports to the host

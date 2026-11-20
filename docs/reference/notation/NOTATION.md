@@ -260,12 +260,12 @@ Column gap=8
 <a id="notation-formulas"></a>
 ## Formulas
 
-Inside `{…}`: `+ - * / %`, `== != < <= > >=`, `&& || !`, `cond ? a : b`; text in `"double"` or `'single'`
+Inside `{…}`: `+ - * / %`, `== != < <= > >=`, `&& || !`, `cond ? a : b`, `a ?? b` (`b` when `a` is null); text in `"double"` or `'single'`
 quotes; lists `[1,2]`, fields `a.b`, items `list[0]`; a function of one argument `x => x.price`. Lists never change
 in place: set the variable to a new list (`cart=append(cart,item)`). The functions, by group (each with its
 signature on [state.md](state.md#state-functions)):
 
-- **Text:** `left` `right` `upper` `lower` `trim` `contains` `startsWith` `endsWith` `padLeft` `padRight` `substring` `replace` `regexReplace` `titleCase` `split` `matches` `slug` `charCode` `fromCharCode` `codeUnits` `join` `pad` `text` `runs` `interpolate` `textDirection` `textDirectionOf` `plural` `pluralCategory`
+- **Text:** `left` `right` `upper` `lower` `trim` `contains` `startsWith` `endsWith` `padLeft` `padRight` `substring` `replace` `regexReplace` `titleCase` `split` `matches` `regexMatches` `slug` `charCode` `fromCharCode` `codeUnits` `join` `pad` `text` `runs` `interpolate` `textDirection` `textDirectionOf` `plural` `pluralCategory`
 - **Numbers and math:** `round` `floor` `ceil` `abs` `min` `max` `sqrt` `pow` `exp` `ln` `log` `sign` `hypot` `sin` `cos` `tan` `asin` `acos` `atan` `atan2` `pi` `radians` `degrees` `clamp` `distance` `number` `random` `fill` `fixed` `feetInches` `thousands` `seconds` `duration`
 - **Money and number formatting:** `money` `currency` `parseAmount` `formatAmount` `currencySymbol` `currencyDecimals` `formatNumber` `formatCurrency` `formatPercent`
 - **Lists:** `sum` `count` `length` `filter` `where` `find` `any` `all` `map` `sortBy` `sortByDesc` `findIndex` `fuzzy` `fuzzyScore` `matchRanges` `matchRuns` `matchReason` `groupBy` `unique` `without` `concat` `first` `last` `slice` `take` `skip` `reverse` `range` `indexOf` `flatten` `compact` `append` `prepend` `setAt` `insertAt` `removeAt` `move` `moveItems` `updateWhere` `removeWhere` `minBy` `maxBy` `pick` `flatMap` `at` `isEmpty` `isNotEmpty` `toMap`
@@ -292,6 +292,7 @@ where a tap landed). The events of the core and the controls:
 | [`onBlur`](events.md#trigger-focusLost) |  |
 | [`onRowTap`](events.md#trigger-rowTap) | A table view's body row was tapped: `${result.row}` (the row's data), `${result.rowIndex}`, `${result.column}` (the tapped column's key), `${result.columnIndex}`. |
 | [`onSort`](events.md#trigger-sort) | A table header was activated by pointer or keyboard: `${result.column}` is its key, `${result.columnIndex}` its index, and `${result.ascending}` the new direction. |
+| [`onLinkTap`](events.md#trigger-linkTap) | A link in a text was tapped: a run of its `runs` with a `link` (`TextRun.link`). `${result.link}` is the run's link, `${result.text}` its characters, `${result.start}` and `${result.end}` where they are in the text. Without this reaction the tap opens the link (a web page, `mailto:`, `tel:`, an app link), as `openLink` does; with it, its actions run instead (a run whose link names something of the app's own: `link="restart"`). |
 
 Every other trigger is `on` and its name with a capital (`onDragEnd`, `onScroll`, `onEnterViewport`); a trigger's
 fields go in parentheses before the `=`: `onKeyDown(key=Enter)={…}`. All are on [events.md](events.md).
@@ -425,13 +426,13 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | Page | What is in it | Open it when | Words |
 |---|---|---|---|
 | [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 5095 |
-| [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1462 |
+| [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1746 |
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`. | 2684 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 1947 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 13171 |
 | [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 7925 |
-| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3556 |
-| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 5929 |
+| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 3594 |
+| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 6007 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3569 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | a line moves, fades, springs or follows a value over time. | 3568 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 8869 |
@@ -441,11 +442,11 @@ Open a page when the UI needs what it holds. Every name, A to Z, is in [index.md
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 672 |
 | [site.md](site.md) | The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries. | you write or change `site.json`; every page and component of the site reads what it declares by name. | 635 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 907 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17082 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17155 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1660 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | a UI sells something. | 300 |
 | [media.md](media.md) | The media layer: video, embedded video, audio, web views, reading text aloud, sounds, printing, screenshots, downloads, picking a file, sharing and preloading images. | a UI plays or embeds media. | 2435 |
 | [engage.md](engage.md) | The engagement layer: app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `{usage}` counters they read. | a UI fires an app event. | 247 |
-| [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | you are given a level, or a trust profile, to write within. | 546 |
+| [levels.md](levels.md) | The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md). | you are given a level, or a trust profile, to write within. | 547 |
 | [index.md](index.md) | Every word, event, action and function, A to Z, and the page it is on. | you look a name up. |  |
