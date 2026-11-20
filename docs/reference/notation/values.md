@@ -1665,6 +1665,19 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `blend` | `replace` `add` `multiply` | `replace` |  |
 | `interpolation` | `linear` `monotoneCubic` | `linear` | How `keyframes` are joined. |
 
+<a id="type-ClipCut"></a>
+### ClipCut
+
+A shape cut out of a node at a point of its box (`Decoration.clipCuts`), in the node's own pixels whatever its size, so a ticket's notch stays a round 12 px however the ticket grows: a circle of `radius` centered at `center`, or SVG path data `d` with its origin there.
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `center` | [Alignment](#type-Alignment) | `[0,0]` | The point of the box it sits at, an alignment (`"centerLeft"`, `[1, 0]`): a circle's center, a path's origin. |
+| `radius` | number (≥ 0) |  | A circle of this radius in pixels. |
+| `d` | text |  | SVG path data in pixels, its (0, 0) at `center`. |
+
 <a id="type-Flight"></a>
 ### Flight
 

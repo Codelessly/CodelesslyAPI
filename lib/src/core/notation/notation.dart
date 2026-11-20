@@ -6795,8 +6795,10 @@ class _Parser {
           } else if (word == 'clearable' && component && spec.events.any((e) => e.key == 'onClear')) {
             // A block with a clear of its own (a SearchBar's x) is clearable.
             universal.add((word: word, column: col, of: 'flag'));
-          } else if (word == 'clip' && component && spec.prop('clip') == null) {
-            _issue(col, 'A $written has no "clip". ${_callLookWhy(written)}');
+          } else if (word == 'clip' && spec.prop('clip') == null && (component || !(spec.decorated))) {
+            // Every line takes a clip, a call and a text too: what it draws is cut
+            // at its (rounded) edge.
+            decoration['clip'] = 'antiAlias';
           } else if (word == 'resizable' && !component && !standIn) {
             // Round 10, R50 (6 runs): accepted and ignored, or refused as an
             // unknown word. A Splitter says it (once: a pane's line is read
@@ -8293,8 +8295,11 @@ class _Parser {
               '${pads.map((k) => '$k=').join(', ')} on a call of $written is left out: the room inside a component is its definition\'s (pad= on its root line). Give $written a parameter for it, or write a margin (margin=) for room around the call.');
         }
       }
-      decoration.clear();
-      bind.removeWhere((k, _) => k.startsWith('decoration.'));
+      // But a clip, and the shape it cuts to, are any line's: a call is cut
+      // as a box is (docs/design/26).
+      const clips = {'clip', 'radius', 'shape', 'clipPath', 'clipViewBox', 'clipFit', 'clipCuts'};
+      decoration.removeWhere((k, _) => !clips.contains(k));
+      bind.removeWhere((k, _) => k.startsWith('decoration.') && !clips.contains(k.substring('decoration.'.length).split(RegExp(r'[.\[]')).first));
       callSizes = {
         if (layout.containsKey('width') || layout.containsKey('flex')) 'width',
         if (layout.containsKey('height')) 'height',

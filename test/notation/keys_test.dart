@@ -130,8 +130,9 @@ void main() {
       word('Column', 'shape', 'circle', 'decoration.shape', 'circle');
       word('Column', 'strokeSides', 'bottom', 'decoration.strokeSides', 'bottom');
       word('Column', 'blendMode', 'multiply', 'decoration.blendMode', 'multiply');
-      final r = parseNotation('Text#n shape=circle', catalog: catalog);
-      expect(r.issues.single.message, 'A Text has no "shape": left out.');
+      // A text takes the clip keys (its shape among them) but no box paint.
+      final r = parseNotation('Text#n strokeSides=bottom', catalog: catalog);
+      expect(r.issues.single.message, 'A Text has no "strokeSides": left out.');
     });
 
     test('a field of the node and a behavior', () {

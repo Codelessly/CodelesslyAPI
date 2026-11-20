@@ -6,6 +6,7 @@
 //
 // The models keep their own fromJson/toJson; test/document/declared_fields_test.dart
 // proves each declaration matches its model's JSON.
+import 'custom_paint.dart' show CustomPaint;
 import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
@@ -463,16 +464,58 @@ abstract final class DecorationFields {
   /// A rectangle (rounded by radius) or a circle (BoxShape.circle).
   static const shape = PropDef<DecorationShape>('shape', EnumCodec(DecorationShape.values), DecorationShape.rectangle);
 
-  /// The node cut to a path in its own unit square (CSS `clip-path: path(…)`).
+  /// The node cut to a path (CSS `clip-path: path(…)`).
   static const clipPath = PropDef<String?>('clipPath', Codecs.optionalString, null,
-      doc: "The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`: SVG path data in the box's own unit "
-          'square, 0 to 1 across and down whatever its size, so one curve fits every width. Its fills, border, shadows '
-          'and children are cut to it, and a pointer outside it passes through. A header whose foot is a wave: '
+      doc: "The node cut to a path, as CSS `clip-path` and Flutter's `ClipPath`, whatever the node is (a box, a text, an "
+          'icon, a picture, a control): SVG path data in `clipViewBox`\'s units mapped by `clipFit`; with neither, the '
+          "box's unit square, 0 to 1 across and down whatever its size, so one curve fits every width. What it paints "
+          'and its children are cut, its border is drawn along the path (inside) and its shadow takes its shape; a '
+          'pointer outside it passes through. A header whose foot is a wave: '
           '`clipPath="M0 0 H1 V0.8 C0.75 1 0.25 0.6 0 0.85 Z"`.');
+
+  /// The units `clipPath` is written in (a view box, as a customPaint's).
+  static const clipViewBox = PropDef<List<double>?>(
+      'clipViewBox', ValueCodec(CustomPaint.readViewBox, _viewBoxOut, PropType.value('Rect')), null,
+      doc: 'The units `clipPath` is written in, `[width, height]` or `[minX, minY, width, height]`, as a `customPaint`\'s '
+          '`viewBox`, mapped onto the box by `clipFit`. Unset: the unit square, or with `clipFit=none` the box\'s pixels.');
+
+  /// How `clipViewBox` maps onto the box (a customPaint's `fit`).
+  static const clipFit = PropDef<BoxFit>('clipFit', EnumCodec(BoxFit.values), BoxFit.fill,
+      doc: 'How `clipViewBox` maps onto the box, as a `customPaint`\'s `fit`: `fill` stretches it, `contain` keeps its '
+          "aspect, `none` keeps its units pixels (without a view box: the box's own pixels from its top left).");
+
+  /// Shapes cut out of the node in pixels at points of its box.
+  static const clipCuts = PropDef<List<ClipCut>>(
+    'clipCuts',
+    ListCodec(ValueCodec(ClipCut.fromJson, _out, PropType.object('ClipCut', clipCutFields))),
+    [],
+    doc: 'Shapes cut out of the node in its own pixels at points of its box, so they keep their size as it stretches: '
+        '`{"center": "centerLeft", "radius": 12}` (a circle), or `{"center": "topRight", "d": "M-20 0 H0 V20 Z"}` (SVG '
+        'path data, its origin at the point). Cut from `clipPath` when there is one, else from the node\'s own shape '
+        '(its `radius`, a circle). A ticket: `radius=12 clipCuts=[{"center":"centerLeft","radius":12},'
+        '{"center":"centerRight","radius":12}]`.',
+  );
   static const List<PropDef<Object?>> all = [
     fills, strokes, strokeWidth, strokeAlign, strokeSides, strokeCap, dashPattern, radius, effects, clip, //
-    blendMode, foregroundFills, shape, clipPath,
+    blendMode, foregroundFills, shape, clipPath, clipViewBox, clipFit, clipCuts,
   ];
+
+  /// What a node of an undecorated type keeps (a text, an icon, a widget):
+  /// its blurs, and its clip with the shape it cuts to.
+  static const List<PropDef<Object?>> undecorated = [effects, clip, radius, shape, clipPath, clipViewBox, clipFit, clipCuts];
+}
+
+Object? _viewBoxOut(List<double>? v) => v == null ? null : CustomPaint.writeViewBox(v);
+
+List<PropDef<Object?>> clipCutFields() => ClipCutFields.all;
+
+/// [ClipCut]: a shape cut out of a node at a point of its box.
+abstract final class ClipCutFields {
+  static const center = PropDef<Alignment>('center', Codecs.alignment, Alignment.center,
+      doc: 'The point of the box it sits at, an alignment (`"centerLeft"`, `[1, 0]`): a circle\'s center, a path\'s origin.');
+  static const radius = PropDef<double?>('radius', Codecs.optionalPositive, null, doc: 'A circle of this radius in pixels.');
+  static const d = PropDef<String?>('d', Codecs.optionalString, null, doc: 'SVG path data in pixels, its (0, 0) at `center`.');
+  static const List<PropDef<Object?>> all = [center, radius, d];
 }
 
 // --- Node --------------------------------------------------------------------

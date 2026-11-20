@@ -216,7 +216,17 @@ final class Node {
     final bind = readMap(m['bind']);
     final decoration = spec == null || spec.decorated
         ? Decoration.fromJson(m['decoration'])
-        : Decoration(effects: [...Decoration.fromJson(m['decoration']).effects.where((e) => !e.isShadow)]);
+        : Decoration.fromJson(m['decoration']).let((d) => Decoration(
+              effects: [...d.effects.where((e) => !e.isShadow || d.hasClipShape)],
+              // Every node takes a clip, with the shape it cuts to.
+              clip: d.clip,
+              radius: d.radius,
+              shape: d.shape,
+              clipPath: d.clipPath,
+              clipViewBox: d.clipViewBox,
+              clipFit: d.clipFit,
+              clipCuts: d.clipCuts,
+            ));
     return Node(
       id: id ?? readString(m['id']) ?? '',
       type: type,

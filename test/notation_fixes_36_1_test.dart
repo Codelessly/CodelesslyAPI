@@ -156,7 +156,7 @@ Sheet#info "About" stops=[0.5,0.9]
       ],
     });
 
-    test('its size, place and widths are the call\'s; its look (fill, border, radius, clip) is said, not left out silently', () {
+    test('its size, place and widths are the call\'s; its look (fill, border) is said, not left out silently; its clip (radius, clip) is kept', () {
       final r = _with(disc, 'Column\n  Disc#d "MR" maxw=300 margin=4 phone.w=fill opacity=0.5\n');
       expect(r.issues, isEmpty);
       final d = _node(r, 'd');
@@ -164,11 +164,13 @@ Sheet#info "About" stops=[0.5,0.9]
       expect(d['media'], [
         {'maxWidth': 699, 'patch': {'layout': {'width': {'fill': 0}}}},
       ]);
-      final look = _with(disc, 'Column\n  Disc#a "A" fill=#FFFF0000 border=#FF00FF00\n  Disc#b "B" radius=8\n  Disc#c "C" clip\n');
-      expect(look.issues, hasLength(3));
+      final look = _with(disc, 'Column\n  Disc#a "A" fill=#FFFF0000 border=#FF00FF00\n  Disc#b "B" radius=8 clip\n');
+      expect(look.issues, hasLength(1));
       expect(look.issues[0].message, startsWith('fill=, border= on a call of Disc is left out.'));
       expect(look.issues.every((i) => i.message.contains('A component call has no look of its own')), isTrue);
       expect(_node(look, 'a')['decoration'], isNull);
+      // A clip and the corners it cuts to are any line's, a call's too (docs/design/26).
+      expect(_node(look, 'b')['decoration'], {'radius': 8, 'clip': 'antiAlias'});
     });
   });
 

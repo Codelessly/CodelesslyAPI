@@ -84,6 +84,58 @@ void main() {
       final n = _roundTrip('Column#h w=200 h=120 fill=#FF4F46E5 clipPath="M0 0 H1 V0.75 C0.75 1 0.25 0.55 0 0.85 Z"', 'h');
       expect((n['decoration'] as Map)['clipPath'], 'M0 0 H1 V0.75 C0.75 1 0.25 0.55 0 0.85 Z');
     });
+
+    test('a view box and fit for the path, and cuts in pixels: read, written and compared', () {
+      final d = Decoration.fromJson({
+        'clipPath': 'M0 0 H300 V120 H0 Z',
+        'clipViewBox': [300, 120],
+        'clipFit': 'none',
+        'clipCuts': [
+          {'center': 'centerLeft', 'radius': 12},
+          {'center': [1, -1], 'd': 'M-20 0 H0 V20 Z'},
+          {'center': 'center'},
+        ],
+      });
+      expect(d.clipViewBox, [0, 0, 300, 120]);
+      expect(d.clipFit, BoxFit.none);
+      expect(d.clipCuts, const [
+        ClipCut(center: Alignment.centerLeft, radius: 12),
+        ClipCut(center: Alignment.topRight, d: 'M-20 0 H0 V20 Z'),
+        ClipCut(),
+      ], reason: 'a cut with neither a radius nor a path cuts nothing, and is kept as written');
+      expect(d.hasClipShape, isTrue);
+      expect(d.toJson()['clipViewBox'], [300, 120]);
+      expect(Decoration.fromJson(d.toJson()), d);
+      expect(const Decoration(clipCuts: [ClipCut(radius: 4)]).hasClipShape, isTrue);
+      expect(Decoration.none.hasClipShape, isFalse);
+    });
+
+    test('clipCuts=, clipViewBox= and clipFit= on a line, written back the same', () {
+      final n = _roundTrip(
+          'Stack#t w=300 h=120 fill=#FF4F46E5 radius=12 clipCuts=[{"center":"centerLeft","radius":12},{"center":"centerRight","radius":12}]',
+          't');
+      expect((n['decoration'] as Map)['clipCuts'], [
+        {'center': 'centerLeft', 'radius': 12},
+        {'center': 'centerRight', 'radius': 12},
+      ]);
+      final v = _roundTrip('Stack#v w=300 h=120 fill=#FF4F46E5 clipPath="M0 0 H300 V100 L0 120 Z" clipViewBox=[300,120] clipFit=contain', 'v');
+      expect((v['decoration'] as Map)['clipFit'], 'contain');
+    });
+
+    test('a text, an icon and a control take a clip, though they take no fill', () {
+      final t = _roundTrip('Text#x "Half" clipPath="M0 0 H0.5 V1 H0 Z"', 'x');
+      expect((t['decoration'] as Map)['clipPath'], 'M0 0 H0.5 V1 H0 Z');
+      final i = _roundTrip('Icon#i "favorite" clipCuts=[{"center":"topRight","radius":10}] size=48', 'i');
+      expect((i['decoration'] as Map)['clipCuts'], isNotEmpty);
+      final read = Node.fromJson({
+        'type': 'text',
+        'decoration': {'clipPath': 'M0 0 H1 V1 Z', 'clip': 'antiAlias', 'radius': 8, 'fills': [{'color': '#FF000000'}]},
+      })!;
+      expect(read.decoration.clipPath, 'M0 0 H1 V1 Z');
+      expect(read.decoration.clip, Clip.antiAlias);
+      expect(read.decoration.radius, BorderRadius.circular(8));
+      expect(read.decoration.fills, isEmpty, reason: 'a text has no fill of its decoration');
+    });
   });
 
   group('a linear gradient angle', () {
