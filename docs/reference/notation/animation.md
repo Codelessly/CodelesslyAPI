@@ -8,11 +8,21 @@ Open it when a line moves, fades, springs or follows a value over time.
 <a id="animation-the-animate-words"></a>
 ## The animate words
 
-`animate=<word>` on any line plays a preset; `duration`, `delay` (milliseconds) beside it, and under an `each`,
-`stagger` (each copy that much later).
+`animate=<word>` on any line plays a preset; `duration`, `delay` (milliseconds) and `curve` (its easing, a
+[curve](values.md#enum-AnimationCurve) by name) beside it, and under an `each`, `stagger` (each copy that much later).
 
 ```notation
 Column w=40 h=40 fill=#FFE5E7EB animate=fade duration=400
+```
+
+```notation expands
+Text "Sent" animate=fadeIn duration=200 curve=easeIn
+```
+
+It reads as:
+
+```notation
+Text "Sent" animate=fade duration=200 curve=easeIn
 ```
 
 | `animate=` | Preset | Params |

@@ -52,6 +52,25 @@ Column gap=8
   Tag "New"
 ```
 
+A word whose lines are an overlay (`Sheet`, `Dialog`, `Drawer`…) is that overlay: write its use after the page at
+the margin with an id, and `open <id>` shows it. Its own `state` lines, written before the overlay, are the
+overlay's (a search sheet's query, kept apart for each use).
+
+```notation expands
+state country="Chile"
+define PickSheet "title" @value="" items=[]
+  state query=""
+  Sheet "{title}" ...
+    Input "" "Search" @query
+    each option in fuzzy(items, query, o => o)
+      Row h=44 onTap={value=option; close}
+        Text "{option}"
+Column gap=8
+  Button "Country" onTap={open countries}
+  Text "{country}"
+PickSheet#countries "Country" @country items=["Chile","China","Denmark"]
+```
+
 {{reference}}
 
 {{examples}}

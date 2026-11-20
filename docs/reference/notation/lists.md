@@ -242,6 +242,26 @@ ListView h=120 scrollDirection=horizontal
     Text "{item.name}" w=100
 ```
 
+<a id="lists-a-wheel-that-snaps-to-its-middle-row"></a>
+## A wheel that snaps to its middle row
+
+A wheel (an hour, a minute, a number chosen by turning) is a `Pages` that scrolls down, one page a row: `peek=` is a
+row's share of its height (`0.2`: five rows show), `padEnds=true` lets the first and last rows reach the middle, and
+`@hour` is the row resting in the middle, read and written (a drag or a fling settles on a row and sets it; setting
+it turns the wheel, over `animationDuration`). `pageMotion=` is how a row one away from the middle is drawn (turned
+away with `rotateX`, faded, smaller), a row two away twice that: the drum. A band behind the middle row marks the
+choice; the keys of a wheel of your own are `onKeyDown(key=ArrowDown, focused=true)` on its line
+([interaction.md](interaction.md)).
+
+```notation
+state hour:decimal=8
+Stack w=96 h=180
+  Column w=fill h=36 y=72 fill=#FFF1F5F9 radius=8
+  Pages h=fill @hour scrollDirection=vertical peek=0.2 padEnds=true edgeFade=0 animationDuration=200 pageMotion={"rotateX":-28,"perspective":0.003,"opacity":0.55,"scale":0.94}
+    each item in range(24)
+      Text "{item}" size=20 center h=fill
+```
+
 <a id="lists-a-list-that-follows-its-newest-entry"></a>
 ## A list that follows its newest entry
 

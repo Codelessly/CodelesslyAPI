@@ -95,6 +95,35 @@ A field of your own between two buttons looks whole when the border is the Row's
 clip=antiAlias` around `IconButton "remove" border-right=…`, `Input … decoration.border.type=none` and
 `IconButton "add" border-left=…`. A box's border is drawn over what it holds, so the field's fill never covers it.
 
+## A code in boxes, a switch of its own shape
+
+`CodeInput @code length=6 digits` is one field drawn as a row of slots, one per character (one value, one Tab stop,
+paste and Backspace as in any field). Each slot is the field's own box: `fill=`, `border=` and `radius=` are the
+slots', `focused.border=` colors them while the code is typed, and the slot typed into next is drawn in that border
+twice as thick. The slots are as tall as the field and share its width (8 between them): `h=60 w=300` gives five
+slots 53.6 × 60; leave the height off and they hug with the other inputs.
+
+```notation expands
+state code=""
+CodeInput @code length=5 digits w=300 h=60 radius=12 fill=#FFF5F6FD border=#FFD9DCE7 focused.border=#FF545CEA size=24 weight=600
+```
+
+A switch drawn to a design's own measure is a `Toggle` with its track and thumb set: `fillTrack=true` makes the
+track the box, `thumbInset` the gap around the thumb, `thumbWidth` its length along the track (a pill thumb),
+`thumbShadows` its shadow; the colors are `activeTrackColor`, `inactiveTrackColor` and the thumb's. It keeps the
+switch's role, Space and its focus ring.
+
+```notation
+state on=true
+Toggle w=48 h=24 @on fillTrack=true thumbInset=2 thumbWidth=28 activeTrackColor=#FF545CEA inactiveTrackColor=#FFCBD5E1 semanticLabel=Reminders
+```
+
+A wheel of hours or numbers ([lists.md](lists.md)), a sheet that searches a long list to choose one, a list of
+checkboxes that scrolls, and a passcode's keypad are made of the base: a `Pages` that scrolls down with `peek=` and
+`pageMotion=`, a `Sheet` over an `Input` and `fuzzy(…)` ([design-systems.md](design-systems.md): a word that is an
+overlay), a scrolling `Column` with `focusGroup` over rows that are `selected`, and a `Grid` of keys with an
+`onKeyDown` that reads `result.character`. A project keeps them as words of its own.
+
 ## Validation
 
 A column with `form=true` holds fields that check themselves: an Input's `validator={…}` gives the message (empty when

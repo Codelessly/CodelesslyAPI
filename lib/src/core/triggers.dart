@@ -250,7 +250,13 @@ final class Trigger {
     this.event = '',
     this.commitMs = 0,
     this.haptic,
+    this.focused = false,
   });
+
+  /// Key triggers: the node takes the key only while it, or a control
+  /// inside it, has the keyboard focus (a control of one's own: a wheel's Up
+  /// and Down, a grid's arrows), not whatever has the focus on the screen.
+  final bool focused;
 
   /// [TriggerType.longPress] and [TriggerType.hold]: from this many ms
   /// after the press the gesture is the node's: letting go or moving no
@@ -352,6 +358,7 @@ final class Trigger {
       event: readString(m['event']) ?? '',
       commitMs: (readInt(m['commitMs']) ?? 0).clamp(0, 600000),
       haptic: _haptic(m['haptic']),
+      focused: m['focused'] == true,
     );
   }
 
@@ -396,6 +403,7 @@ final class Trigger {
         if (event.isNotEmpty) 'event': event,
         if (commitMs != 0) 'commitMs': commitMs,
         'haptic': ?haptic?.name,
+        if (focused) 'focused': true,
       };
 
   @override

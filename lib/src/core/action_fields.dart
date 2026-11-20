@@ -53,9 +53,12 @@ abstract final class TriggerFields {
       doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
   static const event = PropDef<String>('event', Codecs.string, '',
       doc: 'event: the key of the component event it handles (one of the component\'s widget.events).');
+  static const focused = PropDef<bool>('focused', Codecs.bool, false,
+      doc: 'keyDown and keyUp: only while the node, or a control inside it, has the keyboard focus (a control of '
+          'one\'s own: a wheel\'s arrows), not whatever has the focus.');
   static const List<PropDef<Object?>> all = [
     type, debounceMs, variable, intervalMs, key, when, holdMs, visibleFraction, repeat, //
-    visibleMs, onceKey, event, commitMs, haptic,
+    visibleMs, onceKey, event, commitMs, haptic, focused,
   ];
 }
 

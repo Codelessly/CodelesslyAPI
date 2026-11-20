@@ -309,6 +309,12 @@ abstract final class SwitchProps {
   /// one. With it the switch is a plain toggle.
   static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
 
+  /// The thumb's length along the track: null is as long as it is tall (a
+  /// round thumb); longer is a pill that slides the rest of the track (a
+  /// 28 × 20 thumb on a 48 × 24 track: `thumbInset=2 thumbWidth=28`). Kept
+  /// inside the track.
+  static const thumbWidth = PropDef<double?>('thumbWidth', Codecs.optionalPositive, null);
+
   /// Text beside it (SSUI's label; Flutter has `CheckboxListTile` for
   /// this): tapping it toggles too, and it names the control to a screen
   /// reader. Empty: the bare control.
@@ -322,7 +328,7 @@ abstract final class SwitchProps {
     label, semanticLabel, enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
     fillTrack, thumbShadows, thumbInset, activeThumbBorderColor, inactiveThumbBorderColor, thumbBorderWidth,
-    toggleDurationMs, toggleCurve, trackRadius, thumbRadius,
+    toggleDurationMs, toggleCurve, trackRadius, thumbRadius, thumbWidth,
   ], doc: 'Flutter `Switch`.');
 }
 

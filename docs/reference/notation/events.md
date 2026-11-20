@@ -54,6 +54,7 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | `event` | text | `""` | event: the key of the component event it handles (one of the component's widget.events). |
 | `commitMs` | whole number (≥ 0) | `0` | longPress and hold: from this many ms the press is the node's (letting go, moving or a scroll no longer cancels it; it still fires at holdMs). 0: none. |
 | `haptic` | `selection` `light` `medium` `heavy` `vibrate` |  | A pointer trigger's buzz as the gesture becomes sure: at commitMs when set, else as it fires. |
+| `focused` | `true`/`false` | `false` | keyDown and keyUp: only while the node, or a control inside it, has the keyboard focus (a control of one's own: a wheel's arrows), not whatever has the focus. |
 
 <a id="events-events"></a>
 ### Events

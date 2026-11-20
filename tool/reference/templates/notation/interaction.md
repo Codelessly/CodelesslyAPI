@@ -37,6 +37,9 @@ What a writer from the web expects that is otherwise here:
 - A key reaction is the screen's, wherever it is written: `onKeyDown(key=alt+ArrowRight)` on a card fires on every
   card of the board at once, whatever has the focus. To act on the focused one, keep which one it is (`picked`, set by
   its `onTap`, which Enter also runs) and write one `key alt+ArrowRight when picked != '' onPress={…}` for the screen.
+- A control of your own takes its keys only while it has the focus: `onKeyDown(key=ArrowDown, focused=true)={…}`
+  fires while the line, or a control inside it, is focused (its `onTap` makes it a Tab stop). Two wheels side by
+  side each step their own value; `result.focused` says whether the focus was in the line.
 - Several keys on one line are one `onKeyDown(key=…)` each (`onKeyDown(key=ArrowDown)={…}
   onKeyDown(key=ArrowUp)={…}`), or one `onKeyDown` that reads `result.key` (`result.key == 'Arrow Down'`: a key's name
   as the keyboard gives it, with its space; `result.shift`, `result.alt`, `result.meta`). The same key twice on one
@@ -58,6 +61,16 @@ Column gap=8
     Text "Rename" onTap={emit rename}
   Input#email "Email" onKeyDown(key=Escape)={blur}
 key mod+f onPress={focus email}
+```
+
+```notation
+state hour=8
+state minute=30
+Row gap=8
+  Column#hours pad=8 w=80 onTap={} onKeyDown(key=ArrowDown, focused=true)={hour=min(hour + 1, 23)} onKeyDown(key=ArrowUp, focused=true)={hour=max(hour - 1, 0)}
+    Text "{hour}"
+  Column#minutes pad=8 w=80 onTap={} onKeyDown(key=ArrowDown, focused=true)={minute=min(minute + 1, 59)} onKeyDown(key=ArrowUp, focused=true)={minute=max(minute - 1, 0)}
+    Text "{minute}"
 ```
 
 {{reference}}
