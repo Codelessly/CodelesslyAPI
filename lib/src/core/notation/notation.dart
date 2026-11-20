@@ -22,6 +22,7 @@ import '../props.dart';
 import '../suggest.dart' show didYouMean;
 import '../theme.dart' show ThemeTokens;
 import '../triggers.dart' show KeyCombo;
+import '../values/geometry.dart' show Alignment;
 import 'at_rules.dart';
 import 'bind_form.dart';
 import 'brackets.dart';
@@ -6964,6 +6965,22 @@ class _Parser {
           }
           continue;
         }
+        // A paint written whole: `fill={"type":"linear",…}` (it was kept as
+        // a color, `{"color": {"type": …}}`, and drew nothing), and a
+        // gradient's colors as Flutter's LinearGradient takes them,
+        // `"colors":[…]` with `"stops":[0,0.56,1]` (no stop of the paint's
+        // own shape: it drew nothing). NOCD parts 09, 10, 27.
+        if ((key == 'fill' || key == 'fills') && !raw.startsWith('=') && !component) {
+          final v = _value(raw);
+          bool unshaped(Object? p) => p is Map && (p.containsKey('colors') || (readList(p['stops'])?.any((s) => s is! Map) ?? false));
+          final List<Object?>? paints = key == 'fill'
+              ? (v is Map ? [v] : null)
+              : (v is List && v.any(unshaped) ? v : null);
+          if (paints != null) {
+            decoration['fills'] = [for (final p in paints) p is Map ? _writtenPaint(p.cast<String, Object?>(), col) : p];
+            continue;
+          }
+        }
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
@@ -8483,6 +8500,22 @@ class _Parser {
     // (a bar's segments sized by their amounts).
     if (bind.containsKey('layout.flex')) layout.putIfAbsent('flex', () => 1);
     if (stackAlign != null) _stackAlign[id] = stackAlign;
+    // In a stack, `align=` places the child on both axes, as `x={"align":…}`
+    // `y={"align":…}` do: a stack places by x and y alone, so the `align`
+    // was left unread and the child sat at 0,0 (12 NOCD parts). A place
+    // written on an axis wins.
+    if (parent != null && parent.type == 'stack' && layout['align'] != null) {
+      final a = Alignment.fromJson(layout['align']);
+      if (a != null) {
+        layout.remove('align');
+        if (!layout.containsKey('x') && !bind.containsKey('layout.x')) {
+          layout['x'] = {'align': a.x == a.x.roundToDouble() ? a.x.toInt() : a.x};
+          // As wide as it is, or a filling child stays at the stack's start.
+          if (!bind.containsKey('layout.width')) layout.putIfAbsent('width', () => {'hug': 0});
+        }
+        if (!layout.containsKey('y') && !bind.containsKey('layout.y')) layout['y'] = {'align': a.y == a.y.roundToDouble() ? a.y.toInt() : a.y};
+      }
+    }
     // In a stack that centers, a child with no place of its own is centered.
     if (parent != null && _stackAlign[parent.id] != null) {
       final words = _stackAlign[parent.id]!;
@@ -8497,6 +8530,15 @@ class _Parser {
     }
     // A column starts its children at the leading edge and a row centers
     // them on its line (what a form and a toolbar want), unless written.
+    // A column written to center along itself in the API's own words
+    // (`mainAxisAlignment=center`, Flutter's field, whose cross default is
+    // center) centers across too, as a row does: it stood at the left edge
+    // (NOCD: alert, Retry and loader wrappers). `middle` stays down only.
+    if (type == 'column' &&
+        props['mainAxisAlignment'] == 'center' &&
+        (pre?.parts.any((p) => p.kind == 'pair' && p.key?.toLowerCase() == 'mainaxisalignment') ?? false)) {
+      props.putIfAbsent('crossAxisAlignment', () => 'center');
+    }
     if (type == 'column') props.putIfAbsent('crossAxisAlignment', () => 'start');
     if (type == 'row') props.putIfAbsent('crossAxisAlignment', () => 'center');
     // Progress is written as a share (`Progress 0.4`, `Progress =step/3`):
@@ -11081,12 +11123,22 @@ class _Parser {
     // variable of the document (with no type, a formula is written out where
     // it is read); `state clamp01(v):decimal={min(1, max(0, v))}` a function
     // (docs/design/22 section 4.5).
-    final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([a-z]+)(?:\s*=\s*(.+))?$').firstMatch(rest);
+    // Every variable may hold null: a type written nullable or capitalized
+    // as in Dart (`state payload:Map?=null`, NOCD parts 07, 21, 24) is that
+    // type. It was "State is written: state name=value", which said nothing
+    // of the type.
+    final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([A-Za-z]+)\??(?:\s*=\s*(.+))?$').firstMatch(rest);
+    if (typed == null) {
+      if (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\([^()]*\))?:(\S+?)(?:\s*=.*)?$').firstMatch(rest) case final odd?) {
+        return _issue(column,
+            'A variable\x27s type is one word, one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null: state ${odd[1]}:${odd[2]!.toLowerCase().startsWith('list') ? 'list=[]' : 'map=null'} ("${odd[2]}" is not one).');
+      }
+    }
     if (typed != null) {
-      final name = typed[1]!, type = typed[3]!, value = typed[4]?.trim();
+      final name = typed[1]!, type = typed[3]!.toLowerCase(), value = typed[4]?.trim();
       final params = [for (final p in (typed[2] ?? '').split(',')) if (p.trim().isNotEmpty) p.trim()];
       if (!const {'integer', 'text', 'decimal', 'boolean', 'color', 'list', 'map', 'image', 'choice'}.contains(type)) {
-        return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice: state $name:decimal=0.');
+        return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null: state $name:${type == 'bool' ? 'boolean' : type == 'number' || type == 'double' || type == 'num' ? 'decimal' : type == 'int' ? 'integer' : type == 'string' ? 'text' : 'decimal'}=${value ?? '0'}.');
       }
       final formula = value != null && _bracedExpression(value);
       if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
@@ -11881,6 +11933,14 @@ class _Parser {
               continue;
             }
           }
+          // `if ready {…} else {…}`, `if a < 4 then {…}`, `when(ok){…}`: a
+          // choice written as in a language. It said "Unknown action "if"
+          // … Did you mean "if"?" (NOCD parts 07, 10, 13, 17, 26).
+          if (verb == 'if' || verb.startsWith('if(') || verb == 'when' || verb.startsWith('when(')) {
+            _issue(column,
+                'An action that chooses is written cond ? {actions} : {actions} (onTap={ready ? {a=1; go next} : toast "Fill it in"}), or as the if action with its fields: if condition={ready} then={a=1; go next} else={toast "Fill it in"}.');
+            continue;
+          }
           _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, '
               'any action of the catalog by its type and fields (animate node=hero command=forward), or JSON'
               '${switch (didYouMean(verb, [..._verbs, 'confirm', for (final s in catalog.actions) s.type])) { final String n => '. Did you mean "$n"?', _ => '.' }}');
@@ -12362,7 +12422,14 @@ class _Parser {
         // expression's: it was printed raw with no word (test 9, mail).
         final inner = _quotedBreaks(s.substring(i + 1, end - 1));
         final around = _quotedBreaks(inner, outside: true);
-        final code = around.contains('\n') || around.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+        // A count of a pattern (`'[A-Za-z]{2,}'`, `'[0-9]{10}'`, `{2,5}`) is
+        // the pattern's: it was read as a value, `"…" + (2,) + "…"`, and the
+        // formula did not parse (NOCD parts 07, 21). A number alone shows
+        // as itself, braced or not.
+        final code = around.contains('\n') ||
+            around.contains(r'\n') ||
+            RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner) ||
+            RegExp(r'^(\d+(,\d*)?|,\d+)$').hasMatch(inner);
         if (!code) out.add((i, end));
         i = end - 1;
       }
@@ -12439,6 +12506,30 @@ class _Parser {
       _issue(1, 'Not valid JSON: $s');
       return null;
     }
+  }
+
+  /// A paint record as written in `fill=` or `fills=[…]`, in the paint's own
+  /// shape: `"colors":[…]` (with `"stops"` as numbers, Flutter's
+  /// LinearGradient, or evenly spread) becomes `"stops":[{"position",
+  /// "color"}]`. Stops given as numbers with no colors are said.
+  Json _writtenPaint(Json p, int column) {
+    final out = _copy(p);
+    final colors = readList(p['colors']);
+    final stops = readList(p['stops']);
+    if (colors != null) {
+      final at = stops != null && stops.length == colors.length && stops.every((s) => s is num) ? [for (final s in stops) (s as num).toDouble()] : null;
+      if (stops != null && at == null) {
+        _issue(column, 'A paint\'s "stops" beside its "colors" are their places, one number each from 0 to 1 (${colors.length} here); they were spread evenly instead.');
+      }
+      out.remove('colors');
+      out['type'] ??= 'linear';
+      out['stops'] = [
+        for (var i = 0; i < colors.length; i++) {'position': at?[i] ?? (colors.length == 1 ? 0 : i / (colors.length - 1)), 'color': colors[i]},
+      ];
+    } else if (stops != null && stops.any((s) => s is! Map)) {
+      _issue(column, 'A paint\'s stops are records: "stops":[{"position":0,"color":"#FFE0F2FE"},{"position":1,"color":"#FF0EA5E9"}] (or "colors":[…] with "stops" as numbers). This paint draws nothing.');
+    }
+    return out;
   }
 
   /// A gradient as models write it (a list of colors, or `{"colors": […],

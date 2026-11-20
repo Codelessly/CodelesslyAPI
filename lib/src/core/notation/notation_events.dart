@@ -171,10 +171,22 @@ extension _Events on _Parser {
         continue;
       }
       out[key] = _fieldValue(raw, column, chain: spec.nested.contains(key));
+      // A predicate field (an `if`'s condition, any action's `when`) given
+      // a value worked out (`condition={a || b}`) holds when that value is
+      // true. It was written as the bare text of the formula, which reads
+      // as no predicate: the `else` ran, with no word said (5 NOCD parts).
+      if (_predicateFields.contains(key) && (out[key] is String || out[key] is bool)) {
+        final v = out[key];
+        out[key] = {'left': v is bool ? '\${= $v}' : v, 'op': 'isTrue'};
+      }
     }
     _top._actionLines[out] = _line;
     return out;
   }
+
+  /// The action fields that hold a predicate (`ActionIfFields.condition`,
+  /// `ActionCommonFields.when`): `{"left": …, "op": …}` or a junction.
+  static const _predicateFields = {'condition', 'when'};
 
   /// Whether [a] starts with an action type's name and a field of it (not a
   /// choice to read as `cond ? a : b`).

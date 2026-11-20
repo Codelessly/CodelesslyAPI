@@ -111,7 +111,8 @@ big as its content. Write a size only where the design needs one.
   Row or Column takes the room left (shared by every child with `grow`).
 - `pad`: one number, or `[left,top,right,bottom]`. `gap`: the room between children. `margin` as `pad`.
 - `maxWidth=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
-- On a Row, Column or Stack: `center` is across the page and `middle` down it. Along a Row or Column: `start`,
+- On a Row, Column or Stack: `center` is across the page and `middle` down it; `center middle` is both (a
+  Column starts its children at the left unless a word says otherwise). Along a Row or Column: `start`,
   `end`, `between`, `around`, `evenly`. Across it: `top`, `bottom`, `left`, `right`, `stretch`.
 - `scroll` makes a Column scroll (a Row: sideways).
 - Controls in a Row share a height: leave `h` off them all (an Input, a Select, a Button, an IconButton hug to one

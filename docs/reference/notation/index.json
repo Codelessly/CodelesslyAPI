@@ -2,7 +2,7 @@
   "version": "40.2.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4409
+    "words": 4426
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4409
+      "words": 4426
     },
     {
       "topic": "notation-a-line",
@@ -39,7 +39,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-sizes-and-alignment",
       "title": "Sizes and alignment",
-      "words": 223
+      "words": 240
     },
     {
       "topic": "notation-state",
@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5095
+      "words": 5111
     },
     {
       "topic": "layout-sizes",
@@ -117,7 +117,7 @@
       "file": "layout.md",
       "anchor": "layout-place",
       "title": "Place",
-      "words": 150
+      "words": 166
     },
     {
       "topic": "layout-scrolling",
@@ -875,7 +875,7 @@
       "anchor": "page-document",
       "title": "The document",
       "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
-      "words": 907
+      "words": 906
     },
     {
       "topic": "document-the-order-of-a-document",
@@ -903,7 +903,7 @@
       "file": "document.md",
       "anchor": "document-examples",
       "title": "Examples",
-      "words": 388
+      "words": 387
     },
     {
       "topic": "values",

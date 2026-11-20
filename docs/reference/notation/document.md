@@ -107,7 +107,7 @@ From [`stack.json`](../STARTER.md).
 ```notation width=400
 canvas h=300 decoration=null
 Stack#stage w={"fill":400} h={"fill":300} fill=#FFE5E7EB
-  box#photo w=200 h=120 x={"align":0} y={"align":0} fills=[{"type":"linear","stops":[{"position":0,"color":"#FF6366F1"},{"position":1,"color":"#FFEC4899"}]}] radius=16
+  box#photo w=200 h=120 align=center fills=[{"type":"linear","stops":[{"position":0,"color":"#FF6366F1"},{"position":1,"color":"#FFEC4899"}]}] radius=16
   box#badge w=48 h=48 x={"end":16} y={"start":16} fill=#FFF59E0B shape=circle
   Text#caption "Pinned 16 px from the left, right and bottom" size=14 color=#FF374151 center w={"hug":100} h={"hug":20} x={"start":16,"end":16} y={"end":16}
 ```

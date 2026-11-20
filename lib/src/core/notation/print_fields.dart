@@ -1115,8 +1115,25 @@ final class _NodeLine {
     _sizes();
     final flex = layout['flex'];
     if (flex is num) words.add(flex == 1 ? 'grow' : 'grow=${jsonEncode(flex)}');
+    // In a stack, a place aligned on both axes at a side or the middle is
+    // the `align=` that writes it (`align=center`, `align=bottomRight`).
+    var placed = false;
+    if (c.parentOf(id)?['type'] == 'stack' && !layout.containsKey('align')) {
+      final x = readMap(layout['x']), y = readMap(layout['y']);
+      final ax = x != null && x.length == 1 ? readDouble(x['align']) : null, ay = y != null && y.length == 1 ? readDouble(y['align']) : null;
+      int? side(double? v) => v == -1 ? 0 : v == 0 ? 1 : v == 1 ? 2 : null;
+      const names = [
+        ['topLeft', 'topCenter', 'topRight'],
+        ['centerLeft', 'center', 'centerRight'],
+        ['bottomLeft', 'bottomCenter', 'bottomRight'],
+      ];
+      if (side(ax) != null && side(ay) != null) {
+        words.add('align=${names[side(ay)!][side(ax)!]}');
+        placed = true;
+      }
+    }
     for (final k in const ['margin', 'x', 'y', 'align', 'order', 'basis', 'aspectRatio']) {
-      if (!layout.containsKey(k)) continue;
+      if (!layout.containsKey(k) || placed && (k == 'x' || k == 'y')) continue;
       if (_value(layout[k], _vars) case final String w) words.add('$k=$w');
     }
     if (readMap(layout['constraints']) case final Json box when box.isNotEmpty) {
