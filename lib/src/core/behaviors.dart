@@ -733,6 +733,11 @@ Json mergePatch(Json base, Json patch, {bool keepNulls = false}) {
       out.remove(e.key);
     } else if (v is Map && cur is Map) {
       out[e.key] = mergePatch(readMap(cur)!, readMap(v)!, keepNulls: keepNulls);
+    } else if (v is Map && !keepNulls) {
+      // Over a value that is not a map, a map is merged into an empty one,
+      // as RFC 7386 says: its nulls are not kept (`{"fill": 0, "hug": null}`
+      // over a width of 310 stayed with both keys, a width of nothing).
+      out[e.key] = mergePatch(const {}, readMap(v)!);
     } else {
       out[e.key] = v;
     }

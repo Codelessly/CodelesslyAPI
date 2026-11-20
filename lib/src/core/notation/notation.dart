@@ -22,7 +22,7 @@ import '../props.dart';
 import '../suggest.dart' show didYouMean;
 import '../theme.dart' show ThemeTokens;
 import '../triggers.dart' show KeyCombo;
-import '../values/geometry.dart' show Alignment;
+import '../values/geometry.dart' show Alignment, EdgeInsets;
 import 'at_rules.dart';
 import 'bind_form.dart';
 import 'brackets.dart';
@@ -2922,6 +2922,21 @@ class _Parser {
       // An overlay written inside the page (a Dialog#id indented under a
       // pane): it is still over the page, its lines the ones indented under
       // it, and the page goes on after them.
+      // An overlay with nothing under it, then a node at the margin: what it
+      // shows was most likely meant to be indented under it (it showed
+      // empty, and the body was drawn on the page that opens it).
+      if (!blank &&
+          _block != null &&
+          _blockLines.isEmpty &&
+          _blockFoot.isEmpty &&
+          indent <= _blockIndent &&
+          const {'Dialog', 'Modal', 'Sheet', 'BottomSheet', 'Drawer', 'Popover', 'Popup'}.contains(_blockHead.split('#').first) &&
+          RegExp(r'^[A-Z][A-Za-z0-9]*(?=[#.\s"]|$)').hasMatch(raw.trimLeft()) &&
+          _pages.overlay(raw.trim()) == null) {
+        final first = raw.trim().split(RegExp(r'\s')).first;
+        _issue(indent + 1,
+            '$_blockHead has nothing indented under it, so the $first after it, at the margin, is the page\'s, not what $_blockHead shows. What an overlay shows is written under its line, indented.');
+      }
       if (!blank && (_block != null || _blockSkipped)) _closeBlock();
       // A defined word whose body is an overlay (`define RepDrawer` over
       // `Drawer#repNav`) is that overlay wherever its use is written.
@@ -3261,6 +3276,9 @@ class _Parser {
   /// buttons one under another (then they are put in a row).
   static const num _actionMax = 240;
 
+  /// A node whose line gave it a width in pixels (`w=310`).
+  bool _widthWritten(String id) => readMap(nodes[id]?['layout'])?['width'] is num;
+
   void _endButtons() {
     final kind = _overlay?.kind;
     if (kind != 'dialog' && kind != 'sheet') return;
@@ -3284,6 +3302,10 @@ class _Parser {
       }
       buttons = kids.sublist(from);
       if (buttons.isEmpty) return;
+      // Buttons given their widths, one under another, are a column as
+      // written (two 310 wide buttons were put side by side in a 310 wide
+      // row, each then nothing wide: nocd book a call).
+      if (buttons.any(_widthWritten)) return;
       row = '${_root}Actions';
       if (nodes.containsKey(row)) return;
       nodes[row] = {
@@ -3317,7 +3339,8 @@ class _Parser {
       // A phone's own canvas: equal shares at once.
       patch(row, {'layout': {'width': {'fill': 0}}});
       for (final b in buttons) {
-        patch(b, {'layout': share});
+        // A button given its width keeps it.
+        if (!_widthWritten(b)) patch(b, {'layout': share});
       }
       return;
     }
@@ -3328,11 +3351,10 @@ class _Parser {
     });
     for (final b in buttons) {
       final node = nodes[b]!;
-      if (node['media'] != null) continue;
+      if (node['media'] != null || _widthWritten(b)) continue;
       final layout = readMap(node['layout']) ?? const {};
-      final fixed = layout['width'] is num;
       patch(b, {
-        if (!fixed && readMap(layout['constraints'])?['maxWidth'] == null) 'layout': {'constraints': {'maxWidth': _actionMax}},
+        if (readMap(layout['constraints'])?['maxWidth'] == null) 'layout': {'constraints': {'maxWidth': _actionMax}},
         'media': [
           {
             // An overlay's rules are read at its own width: narrower than
@@ -5317,6 +5339,16 @@ class _Parser {
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'bind': data}});
         _stack.add(_Open(indent, parent.id, parent.type, each: each[1], list: each[2]!.trim()));
         return;
+      }
+      // A list that repeats over its own data= already, with an each right
+      // under it: every item drew the whole list again (a transcript of
+      // two turns showed four). Said; it is read as written.
+      if ((parent.type == 'listView' || parent.type == 'gridView' || parent.type == 'pageView') &&
+          parent.each == null &&
+          readStrings(listNode?['children']).isEmpty &&
+          (readMap(listNode?['bind'])?['data'] != null || readMap(listNode?['props'])?['data'] != null)) {
+        _issue(column,
+            'This ${parent.type == 'listView' ? 'ListView' : parent.type == 'gridView' ? 'GridView' : 'PageView'} repeats the line under it for each item of its data= already, so an each under it repeats the whole list in every item. Write one of them: data= with the item\'s line under it (it reads `item`), or the each with no data=.');
       }
       // A list over the data, its item a column of the lines under it.
       final g = parent.grid;
@@ -7789,6 +7821,21 @@ class _Parser {
           if (v is List && component && spec.props.any((p) => p.key == key && p.type.kind == PropKind.list && p.type.item?.kind == PropKind.string)) {
             v = [for (final e in v) e is num || e is bool ? '$e' : e];
           }
+          // An inset written as a list is two numbers, [horizontal,
+          // vertical], or four, [left, top, right, bottom]. Any other count
+          // (`pad=[16,18,16]`) drew no inset at all, without a word.
+          if (v is List && v.length != 2 && v.length != 4 && (path == 'layout.padding' || path == 'layout.margin' || keyDef?.defaultValue is EdgeInsets)) {
+            _issue(col, 'A $written\'s $key is one number (every side), two, [horizontal, vertical], or four, [left, top, right, bottom]: "$key=$raw" is left out.');
+            continue;
+          }
+          // A list its key cannot read (`viewBox=[0,0,12,12]`, where a
+          // path's view box is [width, height]) was kept and read as
+          // nothing: the path drew unscaled, without a word.
+          if (v is List && !open && keyDef?.decode(v) == null && keyDef != null && keyType != null) {
+            final doc = keyDef!.doc.split('. ').first;
+            _issue(col, 'A $written\'s $key is a ${keyType!.name}${doc.isEmpty ? '' : ' ($doc)'}: "$key=$raw" is not one, and is left out.');
+            continue;
+          }
           // With an open vocabulary a value of another kind than the
           // parameter takes (live=polite where it is true or false,
           // size=large where it is a number) is not ours: left out, recorded.
@@ -7873,6 +7920,18 @@ class _Parser {
                 for (final k in sets.keys)
                   if ((own is Map ? own[k] : null) ?? sets[k] case final Object x) k: x,
             };
+          } else if (notationTextStyleProp(spec)?.key case final styleKey? when v is Map && path == 'props.$styleKey' && props[styleKey] is Map) {
+            // `color=… style={"decoration":"underline"}`: the record joins
+            // what the line already wrote (it replaced it: the color was
+            // lost and a link painted white on white, round 13), the same
+            // as with the record written first.
+            final had = (props[styleKey] as Map).cast<String, Object?>();
+            props[styleKey] = {
+              for (final e in had.entries)
+                if (!seededStyle.contains(e.key) || wroteStyle.contains(e.key)) e.key: e.value,
+              ...v.cast<String, Object?>(),
+            };
+            seededStyle = const {};
           } else {
             put(path, v);
           }
@@ -8554,7 +8613,8 @@ class _Parser {
     // In a stack, `align=` places the child on both axes, as `x={"align":…}`
     // `y={"align":…}` do: a stack places by x and y alone, so the `align`
     // was left unread and the child sat at 0,0 (12 NOCD parts). A place
-    // written on an axis wins.
+    // written on an axis wins. (The word is kept for a text's lines, below.)
+    final stackPlace = parent != null && parent.type == 'stack' ? layout['align'] : null;
     if (parent != null && parent.type == 'stack' && layout['align'] != null) {
       final a = Alignment.fromJson(layout['align']);
       if (a != null) {
@@ -8857,6 +8917,21 @@ class _Parser {
     // (`squeezable=false` on the line keeps the text whole: it was set true
     // again here, so the word was dropped: test 9, kanban 3.)
     if (inRow && type == 'text' && !layout.containsKey('width') && !layout.containsKey('squeezable')) layout['squeezable'] = true;
+    // A text placed at a side of its place (`Text … w=fill align=end`) has
+    // its lines at that side of its box too, unless the line says
+    // `textAlign`: a text as wide as its column stayed where it was, its
+    // lines at the start. (In a row its place across is up and down.) In a
+    // stack the align= became its x and y places above; its lines follow the
+    // word as written, so a wrapped text centred in a stack is centred line
+    // by line too.
+    if (layout['align'] ?? stackPlace case final String a when type == 'text' && !inRow && !props.containsKey('textAlign') && !bind.containsKey('props.textAlign')) {
+      final side = switch (a) {
+        'end' || 'right' || 'topRight' || 'centerRight' || 'bottomRight' => 'end',
+        'center' || 'topCenter' || 'bottomCenter' => 'center',
+        _ => null,
+      };
+      if (side != null) props['textAlign'] = side;
+    }
     // On a page a column beside an icon or a picture gives way too (a name
     // and a note in a narrow tile), where it would push past the row's end.
     if (inRow && type == 'column' && !layout.containsKey('width') && !layout.containsKey('flex') && options.width >= 700 && written != 'Card') {

@@ -27,4 +27,10 @@ void main() {
     });
     expect(mergePatch({'a': 1}, {'a': null}, keepNulls: true), {'a': null});
   });
+
+  test('a map merged over a value that is not one keeps none of its nulls (RFC 7386)', () {
+    expect(mergePatch({'width': 310}, {'width': {'fill': 0, 'hug': null}}), {'width': {'fill': 0}});
+    // Merging two patches keeps them.
+    expect(mergePatch({'width': 310}, {'width': {'fill': 0, 'hug': null}}, keepNulls: true), {'width': {'fill': 0, 'hug': null}});
+  });
 }
