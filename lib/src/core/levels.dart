@@ -114,7 +114,7 @@ const Map<String, Level> behaviorLevels = {
 
 /// The level of each trigger type.
 const Map<String, Level> triggerLevels = {
-  'click': _c,
+  'click': _c, 'linkTap': _c,
   'changed': _w, 'changeEnd': _w, 'submitted': _w, 'deleted': _w, 'editingComplete': _w, 'focusGained': _w, 'focusLost': _w,
   'rowTap': _w, 'sort': _w,
   'load': _s, 'valueChanged': _s, 'backPressed': _s, 'actionError': _s, 'refresh': _s, 'doubleTap': _s,

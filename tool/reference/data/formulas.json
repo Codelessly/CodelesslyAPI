@@ -237,6 +237,11 @@
       "example": "matches(code, \"^\\d{4}$\") → true; JavaScript patterns, with (?i) (?s) (?m) at the start: matches(url, \"(?i)^https?://\")"
     },
     {
+      "name": "regexMatches",
+      "signature": "regexMatches(text, pattern)",
+      "example": "regexMatches(\"call 555-0100 or 555-0199\", \"\\d{3}-\\d{4}\") → [{start: 5, end: 13, text: 555-0100, groups: []}, …]; the runs of a text: map(regexMatches(t, \"#\\w+\"), m => {start: m.start, end: m.end, link: m.text})"
+    },
+    {
       "name": "slug",
       "signature": "slug(text)",
       "example": "slug(\"Kind of Blue!\") → kind-of-blue"

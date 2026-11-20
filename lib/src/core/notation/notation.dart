@@ -12549,15 +12549,14 @@ class _Parser {
         // expression's: it was printed raw with no word (test 9, mail).
         final inner = _quotedBreaks(s.substring(i + 1, end - 1));
         final around = _quotedBreaks(inner, outside: true);
-        // A count of a pattern (`'[A-Za-z]{2,}'`, `'[0-9]{10}'`, `{2,5}`) is
-        // the pattern's: it was read as a value, `"…" + (2,) + "…"`, and the
-        // formula did not parse (NOCD parts 07, 21). A number alone shows
-        // as itself, braced or not.
-        final code = around.contains('\n') ||
-            around.contains(r'\n') ||
-            RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner) ||
-            RegExp(r'^(\d+(,\d*)?|,\d+)$').hasMatch(inner);
-        if (!code) out.add((i, end));
+        final code = around.contains('\n') || around.contains(r'\n') || RegExp(r"^\s*[A-Za-z_]\w*\s*:\s|^\s+[A-Za-z_]\w*\s+$").hasMatch(inner);
+        // A count in braces (`{3}`, `{5,}`, `{2,4}`, `{,5}`) is a pattern's
+        // repetition (`'[A-Za-z]{2,}'`, `regexMatches(t, "\d{3}-\d{4}")`),
+        // not a value read: it was read as a value, `"…" + (2,) + "…"`, and
+        // the formula did not parse or the pattern lost it (NOCD parts 07,
+        // 21). A number alone shows as itself, braced or not.
+        final count = RegExp(r'^(\d+(,\d*)?|,\d+)$').hasMatch(inner);
+        if (!code && !count) out.add((i, end));
         i = end - 1;
       }
     }

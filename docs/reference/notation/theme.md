@@ -20,13 +20,36 @@ Column gap=4
   Text.title "In the theme's primary" color=primary
 ```
 
+<a id="theme-runs-links-and-marks-in-a-text"></a>
+### Runs: links and marks in a text
+
 A part of a text in its own style, or a link, is a run over its characters: `runs=[…]`, each
-[TextRun](#type-TextRun) a range `start` to `end` (the end not included) with its `style` and its `link`. A run
-holds no text of its own; it styles the text that is there.
+[TextRun](#type-TextRun) a range `start` to `end` (the end not included) with its `style` and its `link`, over the
+text's own style. A run holds no text of its own; it styles the text that is there. A run written whole is a record:
 
 ```notation
 Text "Feeling stuck? Find help here." runs=[{"start":15,"end":29,"style":{"color":"#FF545CEA","fontWeight":600},"link":"https://example.com/help"}]
 ```
+
+A run with a `link` takes a tap of its own: the tap opens the link (`https://…`, `mailto:…`, `tel:…`), or, when the text has
+`onLinkTap`, runs it instead with `result.link`, `result.text`, `result.start` and `result.end`, so a link may name
+anything of the app (`link="restart"`). The rest of the text keeps the text's own `onTap`. Runs are usually worked
+out: `regexMatches(text, pattern)` gives each match of a pattern and where it is, `matchRanges(text, query)` the
+parts that match a search; `map` makes each a run, and `concat` puts kinds of run together. A run written later
+wins where two style the same characters (a search mark inside a link keeps both looks).
+
+```notation
+state msg="Write care@nocd.com or call +1 555 010 2233 for help."
+state legal="By continuing you agree to the Terms and the Privacy Policy."
+state q="help"
+state opened=""
+Column gap=8
+  Text "{msg}" runs={concat(map(regexMatches(msg, "[\w.+-]+@[\w-]+(\.[\w-]+)+|\+?\d[\d ]{6,}\d"), m => {start: m.start, end: m.end, link: contains(m.text, "@") ? "mailto:" + m.text : "tel:" + replace(m.text, " ", ""), style: {color: "#FF2563EB", decoration: "underline"}}), map(matchRanges(msg, q), r => {start: r[0], end: r[1], style: {backgroundColor: "#FFFDE68A"}}))}
+  Text "{legal}" runs={map(regexMatches(legal, "Terms|Privacy Policy"), m => {start: m.start, end: m.end, link: m.text, style: {fontWeight: 700}})} onLinkTap={opened=result.link}
+  Text "Opened: {opened}"
+```
+
+A count in braces inside a formula's text (`\d{3}`, `{2,4}`, `{,5}`) is the pattern's, not a value read.
 
 A theme color or text style is written by its name (`color=primary`, `color=onSurface`, `style=title`): the
 document's theme gives it. A key written after a named style changes only that key, at every width:
@@ -125,6 +148,7 @@ Written `defaultTextStyle={…}` on any line ([TextStyle](#type-TextStyle)). Lev
 
 Each is on [events.md](events.md), with its fields.
 
+- Events: [`onLinkTap`](events.md#trigger-linkTap).
 - Actions: [`setThemeMode`](events.md#action-setThemeMode).
 
 <a id="theme-records"></a>
@@ -142,7 +166,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `start` | whole number | `0` |  |
 | `end` | whole number | `0` |  |
 | `style` | [TextStyle](#type-TextStyle) | `{}` |  |
-| `link` | text |  | A URL the run opens when tapped. |
+| `link` | text |  | What a tap on the run means: a URL it opens (`https:`, `mailto:`, `tel:`, an app link), or, on a text with a `linkTap` reaction, the value that reaction reads as `result.link` instead. |
 
 <a id="theme-examples"></a>
 ## Examples

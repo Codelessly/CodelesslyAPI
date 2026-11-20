@@ -116,6 +116,7 @@ Button "Add" onTap={cart=append(cart,"Tea")}
 | <a id="fn-split"></a>`split` | `split(text, separator)` | `split("rock, jazz", ", ") → [rock, jazz]` |
 | `split` | `split(text, separator?)` | `split("2481") → [2, 4, 8, 1]` |
 | <a id="fn-matches"></a>`matches` | `matches(text, pattern)` | `matches(code, "^\d{4}$") → true; JavaScript patterns, with (?i) (?s) (?m) at the start: matches(url, "(?i)^https?://")` |
+| <a id="fn-regexMatches"></a>`regexMatches` | `regexMatches(text, pattern)` | `regexMatches("call 555-0100 or 555-0199", "\d{3}-\d{4}") → [{start: 5, end: 13, text: 555-0100, groups: []}, …]; the runs of a text: map(regexMatches(t, "#\w+"), m => {start: m.start, end: m.end, link: m.text})` |
 | <a id="fn-slug"></a>`slug` | `slug(text)` | `slug("Kind of Blue!") → kind-of-blue` |
 | <a id="fn-charCode"></a>`charCode` | `charCode(text, index)` | `charCode("MX", 1) → 88` |
 | <a id="fn-fromCharCode"></a>`fromCharCode` | `fromCharCode(code, …) or fromCharCode(list)` | `fromCharCode(65 + seat) → B` |

@@ -45,7 +45,8 @@ const List<PageDef> featurePages = [
       behaviors: ['sticky', 'floating', 'measure'],
       triggers: ['scroll', 'scrollEnd', 'enterViewport', 'exitViewport'],
       actions: ['scrollTo']),
-  PageDef('theme', nodes: ['text'], behaviors: ['textDirection', 'defaultTextStyle'], actions: ['setThemeMode'], models: ['TextStyle', 'TextRun']),
+  PageDef('theme',
+      nodes: ['text'], behaviors: ['textDirection', 'defaultTextStyle'], triggers: ['linkTap'], actions: ['setThemeMode'], models: ['TextStyle', 'TextRun']),
   PageDef('decoration',
       nodes: ['icon', 'path'],
       behaviors: ['customPaint'],
@@ -119,7 +120,7 @@ const String valuesPage = 'values';
 const Map<String, List<String>> formulaGroups = {
   'Text': [
     'left', 'right', 'upper', 'lower', 'trim', 'contains', 'startsWith', 'endsWith', 'padLeft', 'padRight', 'substring', //
-    'replace', 'regexReplace', 'titleCase', 'split', 'matches', 'slug', 'charCode', 'fromCharCode', 'codeUnits', 'join',
+    'replace', 'regexReplace', 'titleCase', 'split', 'matches', 'regexMatches', 'slug', 'charCode', 'fromCharCode', 'codeUnits', 'join',
     'pad', 'text', 'runs', 'interpolate', 'textDirection', 'textDirectionOf', 'plural', 'pluralCategory',
   ],
   'Numbers and math': [
