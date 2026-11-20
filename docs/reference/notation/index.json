@@ -638,21 +638,21 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 8025
+      "words": 8475
     },
     {
       "topic": "charts-writing-a-chart",
       "file": "charts.md",
       "anchor": "charts-writing-a-chart",
       "title": "Writing a chart",
-      "words": 155
+      "words": 364
     },
     {
       "topic": "charts-words",
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 6673
+      "words": 6914
     },
     {
       "topic": "charts-records",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 16395
+      "words": 16865
     },
     {
       "topic": "values-writing-a-value",
@@ -946,7 +946,7 @@
       "file": "values.md",
       "anchor": "values-records",
       "title": "Records",
-      "words": 4751
+      "words": 5221
     },
     {
       "topic": "values-examples",
@@ -1433,6 +1433,7 @@
       "GraphCrosshair": "values.md#type-GraphCrosshair",
       "GraphGuide": "values.md#type-GraphGuide",
       "GraphInteractions": "values.md#type-GraphInteractions",
+      "GraphLegend": "values.md#type-GraphLegend",
       "GraphMark": "values.md#type-GraphMark",
       "GraphPane": "values.md#type-GraphPane",
       "GraphSelection": "values.md#type-GraphSelection",

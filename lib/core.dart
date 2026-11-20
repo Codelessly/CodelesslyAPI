@@ -15,6 +15,7 @@ export 'src/core/behaviors.dart';
 export 'src/core/bindings.dart';
 export 'src/core/breakpoints.dart';
 export 'src/core/catalog.dart';
+export 'src/core/chart_palette.dart';
 export 'src/core/child_fits.dart';
 export 'src/core/components.dart';
 export 'src/core/conditions.dart';

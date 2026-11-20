@@ -334,10 +334,10 @@ define Rows
       expect(p['gridLabels'], ['0', '10', '20', '']);
     });
 
-    test('a donut\'s slices in steps of the theme\'s primary', () {
+    test('a donut\'s slices are the theme\'s primary, then hues apart from it', () {
       final r = _parse('Column\n  Donut values=[45,25,20,10] labels=["a","b","c","d"]\n', NotationOptions.fromTheme(theme, width: 1440));
       final colors = [for (final d in (propsOf(r, 'chart')['data'] as List).cast<Map>()) d['color']];
-      expect(colors, ['#FF7C3AED', '#FFAA7FF3', '#FFCBB0F8', '#FFE2D4FB']);
+      expect(colors, ['#FF7C3AED', '#FF007D90', '#FFA89A0D', '#FFDC6024']);
       expect(colors.first, '#FF7C3AED');
     });
 

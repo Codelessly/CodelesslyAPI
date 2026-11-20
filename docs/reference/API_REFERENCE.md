@@ -797,7 +797,7 @@ section's anchor is its topic.
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4742 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3820 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 828 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7716 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7955 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2311 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 470 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -806,7 +806,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 681 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1660 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 16062 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 16524 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -825,7 +825,7 @@ Every declared name and the page that documents it.
 
 **F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusable`](#behavior-focusable) behavior · [`focusGained`](#trigger-focusGained) trigger · [`FocusGroup`](#type-FocusGroup) model · [`focusGroup`](#behavior-focusGroup) behavior · [`FocusGroupAxis`](#enum-FocusGroupAxis) enum · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`form`](#behavior-form) behavior · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormBehavior`](#type-FormBehavior) model · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function · [`fuzzy`](#fn-fuzzy) formula function · [`fuzzyScore`](#fn-fuzzyScore) formula function
 
-**G** · [`GaugeLimitStyle`](#enum-GaugeLimitStyle) enum · [`gaugeMeter`](#node-gaugeMeter) node type · [`GaugeShape`](#enum-GaugeShape) enum · [`GaugeZone`](#type-GaugeZone) model · [`GestureBounds`](#enum-GestureBounds) enum · [`GesturePhysics`](#type-GesturePhysics) model · [`GestureSnap`](#type-GestureSnap) model · [`get`](#fn-get) formula function · [`graph`](#node-graph) node type · [`GraphCrosshair`](#type-GraphCrosshair) model · [`GraphGuide`](#type-GraphGuide) model · [`GraphInteractions`](#type-GraphInteractions) model · [`GraphMark`](#type-GraphMark) model · [`GraphPane`](#type-GraphPane) model · [`GraphSelection`](#type-GraphSelection) model · [`GraphStyle`](#type-GraphStyle) model · [`GraphTransform`](#type-GraphTransform) model · [`GraphXAxis`](#type-GraphXAxis) model · [`GraphYAxis`](#type-GraphYAxis) model · [`gridView`](#node-gridView) node type · [`groupBy`](#fn-groupBy) formula function
+**G** · [`GaugeLimitStyle`](#enum-GaugeLimitStyle) enum · [`gaugeMeter`](#node-gaugeMeter) node type · [`GaugeShape`](#enum-GaugeShape) enum · [`GaugeZone`](#type-GaugeZone) model · [`GestureBounds`](#enum-GestureBounds) enum · [`GesturePhysics`](#type-GesturePhysics) model · [`GestureSnap`](#type-GestureSnap) model · [`get`](#fn-get) formula function · [`graph`](#node-graph) node type · [`GraphCrosshair`](#type-GraphCrosshair) model · [`GraphGuide`](#type-GraphGuide) model · [`GraphInteractions`](#type-GraphInteractions) model · [`GraphLegend`](#type-GraphLegend) model · [`GraphMark`](#type-GraphMark) model · [`GraphPane`](#type-GraphPane) model · [`GraphSelection`](#type-GraphSelection) model · [`GraphStyle`](#type-GraphStyle) model · [`GraphTransform`](#type-GraphTransform) model · [`GraphXAxis`](#type-GraphXAxis) model · [`GraphYAxis`](#type-GraphYAxis) model · [`gridView`](#node-gridView) node type · [`groupBy`](#fn-groupBy) formula function
 
 **H** · [`haptic`](#action-haptic) action · [`HapticKind`](#enum-HapticKind) enum · [`hero`](#behavior-hero) behavior · [`HeroFlies`](#enum-HeroFlies) enum · [`HeroFlightShuttle`](#enum-HeroFlightShuttle) enum · [`HeroPlaceholder`](#enum-HeroPlaceholder) enum · [`HeroTag`](#type-HeroTag) model · [`hold`](#trigger-hold) trigger · [`hour`](#fn-hour) formula function · [`hover`](#trigger-hover) trigger · [`hypot`](#fn-hypot) formula function
 
@@ -9150,13 +9150,13 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `showXAxis` | bool | `true` |  |  |
 | `xLabelEvery` | int | `1` |  |  |
 | `axisLabelColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
-| `axisFontSize` | double | `10` | ≥ 0 |  |
+| `axisFontSize` | double | `11` | ≥ 0 |  |
 | `axisFontFamily` | String | unset |  |  |
 | `referenceLines` | List<[ChartReferenceLine](#type-ChartReferenceLine)> | `[]` |  |  |
 | `barWidthFraction` | double | `0.62` |  |  |
 | `maxBarWidth` | double | `36` |  |  |
 | `barGap` | double | `2` |  |  |
-| `barRadius` | double | `0` |  |  |
+| `barRadius` | double | `4` |  |  |
 | `dashEmpty` | bool | `true` |  |  |
 | `selectionColor` | [Color](#type-Color) | unset |  | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `xSlots` | int | `0` |  |  |
@@ -9172,7 +9172,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `donutThickness` | double | `0.15` |  |  |
 | `sliceGap` | double | `1.5` |  |  |
 | `startAngle` | double | `0` |  |  |
-| `selectOnHover` | bool | `false` |  |  |
+| `selectOnHover` | bool | `true` |  | The category (a donut's slice) under the pointer, or under a finger while it is down, is the selected one. |
 | `plotInset` | double | unset |  |  |
 | `fitMinY` | bool | `false` |  |  |
 | `yLabelPrefix` | String | `""` |  |  |
@@ -9180,7 +9180,9 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `yLabelAffixTopOnly` | bool | `false` |  | The prefix and suffix go on the top y label only (`50%` over plain `40`, `30` …), as a newspaper chart marks its unit once. |
 | `yAxisFontFamily` | String | unset |  |  |
 | `dimUnselected` | bool | `false` |  | Bars of other categories fade while one is selected (or hovered). |
-| `tooltip` | bool | `false` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
+| `tooltip` | bool | `true` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
+| `legend` | bool | unset |  | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it). |
+| `centerLabel` | String | unset |  | A donut: the sum of its values is written in its hole with this text under it (while a slice is selected, that slice's value and label). Null: nothing is written there. |
 | `tooltipColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTextColor` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTitleField` | String | `""` |  | The tooltip's first line: this row field, else the category label. |
@@ -9260,6 +9262,7 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `gridLabelColor` | [Color](#type-Color) | unset |  | The grid labels' own color, size and weight (null: the labels'). |
 | `gridLabelFontSize` | double | unset | ≥ 0 |  |
 | `gridLabelFontWeight` | int | unset |  |  |
+| `gridValues` | bool | `false` |  | With no `gridLabels` and no `max`: the chart's top is a round value over its largest, its grid lines stand at round values and each is labeled with its own (as the values change, so do they). |
 
 <a id="node-lineChart"></a>
 ### `lineChart`
@@ -9304,7 +9307,7 @@ A line chart of data rows (`xField`, `yField`; dates or numbers on x), with band
 | `tooltipValueStyle` | [TextStyle](#type-TextStyle) | `{}` |  |  |
 | `tooltipLabelField` | String | `""` |  | The tooltip's first line: this row field, else the x (`tooltipXFormat` for dates). |
 | `selectedX` | double | unset |  | The point (nearest x) with the cursor and tooltip; null for none. |
-| `scrubEnabled` | bool | `false` |  | Hovering or dragging selects the nearest point in a running app. |
+| `scrubEnabled` | bool | `true` |  | Hovering or dragging selects the nearest point in a running app. |
 | `scrubStep` | double | `1` |  |  |
 | `tooltipXFormat` | String | `"h:mm a"` |  |  |
 | `tooltipYScale` | double | `1` |  |  |
@@ -9433,7 +9436,8 @@ Its parts are records: their fields are dotted keys on the node's line (`xAxis.l
 | `selection` | [GraphSelection](#type-GraphSelection) | `{}` |  | The selection (hover, tap); off unless its `on` says. |
 | `crosshair` | [GraphCrosshair](#type-GraphCrosshair) | `{}` |  | The crosshair; off unless `enabled`. |
 | `interactions` | [GraphInteractions](#type-GraphInteractions) | `{}` |  | What each gesture does. |
-| `style` | [GraphStyle](#type-GraphStyle) | `{}` |  | Its colors and text. |
+| `style` | [GraphStyle](#type-GraphStyle) | `{}` |  | Its colors and text. What it leaves out is the theme's: the grid and the labels in its quiet colors, a tooltip as an inverted surface, the marks in its series colors. |
+| `legend` | [GraphLegend](#type-GraphLegend) | `{}` |  | The legend: drawn when there is more than one named mark (or labeled slices in a graph wide enough for it beside them), unless its `show` says. |
 | `animationDuration` | int | `300` | ≥ 0 | Milliseconds the marks take to move to new values when the rows change in a running app (0: at once). |
 | `animateIn` | bool | `false` |  | The marks grow from zero when the graph first shows. |
 | `view` | Object | unset |  | The view, set from state: on rows `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from, to}`. Usually bound. |
@@ -11343,6 +11347,17 @@ What each gesture does to a graph whose view is the user's (an x scale with no f
 | `doubleTapReset` | bool | `true` |  | A double tap on an axis fits it again. |
 | `fling` | bool | `true` |  |  |
 
+<a id="type-GraphLegend"></a>
+### GraphLegend
+
+A graph's legend: a key for each named mark (a dot in its color and its name), or in a polar pane for each slice (its color, its label and its share of the whole).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `show` | String | `"auto"` |  | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that they keep its whole height (slices in a narrower graph have none). `always`, or `none`. |
+| `position` | String | `"auto"` |  | `bottom` or `top` (a line of keys in the middle, wrapped) or `right` (a list). `auto`: under a plot; beside slices where the list fits there, else under them. |
+| `values` | bool | `true` |  | Each slice's share is written after its label. |
+
 <a id="type-GraphMark"></a>
 ### GraphMark
 
@@ -11359,7 +11374,7 @@ What a graph draws of its rows: one mark.
 | `name` | String | `""` |  |  |
 | `color` | [Color](#type-Color) | unset |  |  |
 | `colorField` | String | `""` |  | A row field holding the row's own color. |
-| `colors` | List<String> | `[]` |  | Colors row by row (a slice's, a bar's), where the row gives none. |
+| `colors` | List<String> | `[]` |  | Colors row by row (a slice's, a bar's), where the row gives none. An arc that gives neither these nor a `color` takes the style's `palette`. |
 | `upColor` | [Color](#type-Color) | unset |  |  |
 | `downColor` | [Color](#type-Color) | unset |  |  |
 | `stack` | String | unset |  |  |
@@ -11379,6 +11394,9 @@ What a graph draws of its rows: one mark.
 | `inner` | double | `0` | ≥ 0, ≤ 1 | An arc: the hole's share of the radius (0: a pie), the room between slices and where the first starts (degrees, clockwise from the top). |
 | `gap` | double | `0` | ≥ 0 |  |
 | `startAngle` | double | `0` |  |  |
+| `dots` | double | `0` | ≥ 0 | A line: a dot of this radius on every row (0: none). |
+| `center` | String | `""` |  | An arc with a hole: what is written in it. `total`: the sum of its values, and while a slice is selected that slice's value. Empty: nothing. `centerLabel` is written small under the figure (while a slice is selected, its label). |
+| `centerLabel` | String | `""` |  |  |
 
 <a id="type-GraphPane"></a>
 ### GraphPane
@@ -11410,7 +11428,7 @@ The selection: the row (or the one bar or slice) under the pointer or a finger, 
 | `dot` | double | `4` | ≥ 0 | A dot of this radius on each line at the selected row (0: none). |
 | `tooltip` | bool | `true` |  |  |
 | `title` | String | `""` |  |  |
-| `tooltipFill` | [Color](#type-Color) | unset |  |  |
+| `tooltipFill` | [Color](#type-Color) | unset |  | The tooltip's ground and text; the style's `tag` and `tagText` when not given. |
 | `tooltipText` | [Color](#type-Color) | unset |  |  |
 | `total` | bool | `false` |  | A last tooltip row with the sum of the row's marks. |
 
@@ -11431,6 +11449,8 @@ A graph's colors and text.
 | `fontSize` | double | `11` | ≥ 0 |  |
 | `fontFamily` | String | unset |  |  |
 | `topInset` | double | `0` | ≥ 0 | Room above the panes. |
+| `ink` | [Color](#type-Color) | unset |  | A figure written large (the one in a donut's hole). |
+| `palette` | List<String> | `[]` |  | The colors of the marks that give none, in turn, and of an arc's slices. When not given: the theme's series colors (`chart1`, `chart2`…) where it names them, else its primary followed by colors of other hues as light and as strong as it. |
 
 <a id="type-GraphTransform"></a>
 ### GraphTransform
@@ -11477,6 +11497,8 @@ A graph's x scale: where each row stands, what is written under it, and the view
 | `historyThreshold` | double | `10` | ≥ 0 |  |
 | `morph` | double | `0` | ≥ 0 | Milliseconds a line takes to change its shape to new rows' (0: at once). |
 | `bands` | List<Object> | `[]` |  |  |
+| `inset` | double | `0` | ≥ 0 | Pixels kept clear at each end of a fitted view (`fit`): the first and the last row stand this far inside the plot, so a dot or a line's end there is whole. |
+| `maxBarWidth` | double | unset |  | The widest a bar or a candle is drawn, in the middle of its place (bars side by side: each of them); its share of the place when not given, however wide. |
 
 <a id="type-GraphYAxis"></a>
 ### GraphYAxis
@@ -11499,6 +11521,7 @@ A pane's y scale.
 | `suffix` | String | `""` |  |  |
 | `ticks` | int | `5` | ≥ 0 | About how many round ticks the axis has. |
 | `tickValues` | Object | unset |  |  |
+| `nice` | bool | `false` |  | A fitted domain is rounded out to the ticks, so the plot starts and ends on a labeled line (`margins` are then not added). |
 
 <a id="type-Keyframe"></a>
 ### Keyframe

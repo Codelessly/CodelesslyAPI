@@ -254,6 +254,17 @@ What each gesture does to a graph whose view is the user's (an x scale with no f
 | `doubleTapReset` | bool | `true` |  | A double tap on an axis fits it again. |
 | `fling` | bool | `true` |  |  |
 
+<a id="type-GraphLegend"></a>
+### GraphLegend
+
+A graph's legend: a key for each named mark (a dot in its color and its name), or in a polar pane for each slice (its color, its label and its share of the whole).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `show` | String | `"auto"` |  | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that they keep its whole height (slices in a narrower graph have none). `always`, or `none`. |
+| `position` | String | `"auto"` |  | `bottom` or `top` (a line of keys in the middle, wrapped) or `right` (a list). `auto`: under a plot; beside slices where the list fits there, else under them. |
+| `values` | bool | `true` |  | Each slice's share is written after its label. |
+
 <a id="type-GraphMark"></a>
 ### GraphMark
 
@@ -270,7 +281,7 @@ What a graph draws of its rows: one mark.
 | `name` | String | `""` |  |  |
 | `color` | [Color](values.md#type-Color) | unset |  |  |
 | `colorField` | String | `""` |  | A row field holding the row's own color. |
-| `colors` | List<String> | `[]` |  | Colors row by row (a slice's, a bar's), where the row gives none. |
+| `colors` | List<String> | `[]` |  | Colors row by row (a slice's, a bar's), where the row gives none. An arc that gives neither these nor a `color` takes the style's `palette`. |
 | `upColor` | [Color](values.md#type-Color) | unset |  |  |
 | `downColor` | [Color](values.md#type-Color) | unset |  |  |
 | `stack` | String | unset |  |  |
@@ -290,6 +301,9 @@ What a graph draws of its rows: one mark.
 | `inner` | double | `0` | ≥ 0, ≤ 1 | An arc: the hole's share of the radius (0: a pie), the room between slices and where the first starts (degrees, clockwise from the top). |
 | `gap` | double | `0` | ≥ 0 |  |
 | `startAngle` | double | `0` |  |  |
+| `dots` | double | `0` | ≥ 0 | A line: a dot of this radius on every row (0: none). |
+| `center` | String | `""` |  | An arc with a hole: what is written in it. `total`: the sum of its values, and while a slice is selected that slice's value. Empty: nothing. `centerLabel` is written small under the figure (while a slice is selected, its label). |
+| `centerLabel` | String | `""` |  |  |
 
 <a id="type-GraphPane"></a>
 ### GraphPane
@@ -321,7 +335,7 @@ The selection: the row (or the one bar or slice) under the pointer or a finger, 
 | `dot` | double | `4` | ≥ 0 | A dot of this radius on each line at the selected row (0: none). |
 | `tooltip` | bool | `true` |  |  |
 | `title` | String | `""` |  |  |
-| `tooltipFill` | [Color](values.md#type-Color) | unset |  |  |
+| `tooltipFill` | [Color](values.md#type-Color) | unset |  | The tooltip's ground and text; the style's `tag` and `tagText` when not given. |
 | `tooltipText` | [Color](values.md#type-Color) | unset |  |  |
 | `total` | bool | `false` |  | A last tooltip row with the sum of the row's marks. |
 
@@ -342,6 +356,8 @@ A graph's colors and text.
 | `fontSize` | double | `11` | ≥ 0 |  |
 | `fontFamily` | String | unset |  |  |
 | `topInset` | double | `0` | ≥ 0 | Room above the panes. |
+| `ink` | [Color](values.md#type-Color) | unset |  | A figure written large (the one in a donut's hole). |
+| `palette` | List<String> | `[]` |  | The colors of the marks that give none, in turn, and of an arc's slices. When not given: the theme's series colors (`chart1`, `chart2`…) where it names them, else its primary followed by colors of other hues as light and as strong as it. |
 
 <a id="type-GraphTransform"></a>
 ### GraphTransform
@@ -388,6 +404,8 @@ A graph's x scale: where each row stands, what is written under it, and the view
 | `historyThreshold` | double | `10` | ≥ 0 |  |
 | `morph` | double | `0` | ≥ 0 | Milliseconds a line takes to change its shape to new rows' (0: at once). |
 | `bands` | List<Object> | `[]` |  |  |
+| `inset` | double | `0` | ≥ 0 | Pixels kept clear at each end of a fitted view (`fit`): the first and the last row stand this far inside the plot, so a dot or a line's end there is whole. |
+| `maxBarWidth` | double | unset |  | The widest a bar or a candle is drawn, in the middle of its place (bars side by side: each of them); its share of the place when not given, however wide. |
 
 <a id="type-GraphYAxis"></a>
 ### GraphYAxis
@@ -410,6 +428,7 @@ A pane's y scale.
 | `suffix` | String | `""` |  |  |
 | `ticks` | int | `5` | ≥ 0 | About how many round ticks the axis has. |
 | `tickValues` | Object | unset |  |  |
+| `nice` | bool | `false` |  | A fitted domain is rounded out to the ticks, so the plot starts and ends on a labeled line (`margins` are then not added). |
 
 <a id="type-Keyframe"></a>
 ### Keyframe

@@ -314,7 +314,7 @@ const List<DocPage> docPages = [
     when: 'Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series\ncharts, scatter plots and barcodes.',
     example: 'A goal\'s progress as a bar bound to a variable, and a week as a bar chart:\n\n```json\n{\n  "schema": 3,\n  "roots": ["stats"],\n  "nodes": {\n    "stats": {\n      "type": "canvas",\n      "slots": {"body": "col"},\n      "layout": {"width": 390, "height": 300},\n      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}\n    },\n    "col": {\n      "type": "column",\n      "children": ["goal", "bar", "week"],\n      "layout": {"width": {"fill": 390}, "height": {"fill": 300}, "padding": 24},\n      "props": {"crossAxisAlignment": "start", "spacing": 12}\n    },\n    "goal": {\n      "type": "text",\n      "layout": {"width": {"fill": 342}, "height": {"hug": 20}},\n      "props": {"text": "\${done} of 7 days", "style": {"fontSize": 15, "color": "#FF111827"}}\n    },\n    "bar": {\n      "type": "progressBar",\n      "layout": {"width": {"fill": 342}, "height": 10},\n      "props": {"max": 7, "color": "#FF16A34A", "backgroundColor": "#FFE5E7EB", "borderRadius": 5},\n      "bind": {"props.value": "\${done}"}\n    },\n    "week": {\n      "type": "barChart",\n      "layout": {"width": {"fill": 342}, "height": 160},\n      "props": {\n        "values": [1, 1, 0, 1, 1, 0, 0],\n        "labels": ["M", "T", "W", "T", "F", "S", "S"],\n        "color": "#FF16A34A",\n        "labelFontFamily": "Roboto"\n      }\n    }\n  },\n  "variables": {"stats": [{"name": "done", "type": "integer", "value": 4}]}\n}\n```',
     pitfalls: '- Chart colors default to a dark theme\'s; set `color`, `gridColor` and the label colors on a light page.\n- A `barChart`\'s labels default to JetBrains Mono: set `labelFontFamily` to a font you have (`font_fallback`).\n- A chart\'s size is its node\'s layout: give it a fixed height.\n- `value` above `max` is clamped.',
-    words: 7716,
+    words: 7955,
     items: ['progressBar', 'circularProgressIndicator', 'activityIndicator', 'badge', 'radialGauge', 'gaugeMeter', 'chart', 'barChart', 'lineChart', 'plotChart', 'graph', 'barcode'],
     sections: [
       DocSection('charts-progress-from-state', 'Progress from state', 'Bind the value (`"bind": {"props.value": "\${done}"}`) with `max` the goal; `"animate": true` eases changes. A ring:\n`progressBar` with `"shape": "arc"` (`arcSweepAngle` 360 for a full circle) or `circularProgressIndicator`.'),
@@ -454,7 +454,7 @@ const List<DocPage> docPages = [
     when: 'Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows\n(its fields) or an enum (its names). Link to one with `values.md#type-<Name>` or `values.md#enum-<Name>`. Models\nthat belong to a feature are on that feature\'s page (TextStyle on the theme page, InputDecoration on the forms\npage...); the [A–Z](index.md#index-a-z) finds any of them.',
     example: 'Value types are written in a compact form of their own; models are objects; enums are names:\n\n```json\n{"color": "#FF2563EB", "padding": [16, 8, 16, 8], "alignment": [0, -1], "fit": "cover"}\n```',
     pitfalls: '- Padding and margin are a number or four numbers; a list of two is not read.\n- An enum value is case sensitive.',
-    words: 16062,
+    words: 16524,
     items: [],
     sections: [
       DocSection('values-value-types', 'Value types', ''),

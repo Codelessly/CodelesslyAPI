@@ -281,13 +281,13 @@ abstract final class ChartProps {
   static const xLabelEvery = PropDef<int>('xLabelEvery', Codecs.int, 1);
   /// Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark.
   static const axisLabelColor = PropDef<Color?>('axisLabelColor', Codecs.optionalColor, null);
-  static const axisFontSize = PropDef<double>('axisFontSize', Codecs.positive, 10);
+  static const axisFontSize = PropDef<double>('axisFontSize', Codecs.positive, 11);
   static const axisFontFamily = PropDef<String?>('axisFontFamily', IndicatorCodecs.optionalString, null);
   static const referenceLines = PropDef<List<ChartReferenceLine>>('referenceLines', ChartReferenceLine.codec, []);
   static const barWidthFraction = PropDef<double>('barWidthFraction', Codecs.double, 0.62);
   static const maxBarWidth = PropDef<double>('maxBarWidth', Codecs.double, 36);
   static const barGap = PropDef<double>('barGap', Codecs.double, 2);
-  static const barRadius = PropDef<double>('barRadius', Codecs.double, 0);
+  static const barRadius = PropDef<double>('barRadius', Codecs.double, 4);
   static const dashEmpty = PropDef<bool>('dashEmpty', Codecs.bool, true);
   /// Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark.
   static const selectionColor = PropDef<Color?>('selectionColor', Codecs.optionalColor, null);
@@ -305,7 +305,10 @@ abstract final class ChartProps {
   static const donutThickness = PropDef<double>('donutThickness', Codecs.double, 0.15);
   static const sliceGap = PropDef<double>('sliceGap', Codecs.double, 1.5);
   static const startAngle = PropDef<double>('startAngle', Codecs.double, 0);
-  static const selectOnHover = PropDef<bool>('selectOnHover', Codecs.bool, false);
+
+  /// The category (a donut's slice) under the pointer, or under a finger
+  /// while it is down, is the selected one.
+  static const selectOnHover = PropDef<bool>('selectOnHover', Codecs.bool, true);
   static const plotInset = PropDef<double?>('plotInset', IndicatorCodecs.optionalDouble, null);
   static const fitMinY = PropDef<bool>('fitMinY', Codecs.bool, false);
   static const yLabelPrefix = PropDef<String>('yLabelPrefix', Codecs.string, '');
@@ -321,7 +324,19 @@ abstract final class ChartProps {
 
   /// A box over the selected (or hovered) category: its label, then each
   /// series' name and value there.
-  static const tooltip = PropDef<bool>('tooltip', Codecs.bool, false);
+  static const tooltip = PropDef<bool>('tooltip', Codecs.bool, true);
+
+  /// A key for each named series (a donut: for each labeled slice, with
+  /// its share). Null: drawn when there is more than one to tell apart and
+  /// the chart has room (under a plot; beside a donut in a box wide enough
+  /// that the ring keeps its whole height). True: always (a donut in a
+  /// narrower box: under it).
+  static const legend = PropDef<bool?>('legend', Codecs.optionalBool, null);
+
+  /// A donut: the sum of its values is written in its hole with this text
+  /// under it (while a slice is selected, that slice's value and label).
+  /// Null: nothing is written there.
+  static const centerLabel = PropDef<String?>('centerLabel', IndicatorCodecs.optionalString, null);
   /// Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark.
   static const tooltipColor = PropDef<Color?>('tooltipColor', Codecs.optionalColor, null);
   /// Null: the theme's surface (`ControlTheme`), so it reads in light and dark.
@@ -408,7 +423,7 @@ abstract final class ChartProps {
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily, dimUnselected, tooltip,
-    tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
+    legend, centerLabel, tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
     showTotals, totalsColor, totalsSelectedColor, totalsGap, stackGap, stackGapEdge, baselineColor,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     xField, xLabels, endLabelWidth, endLabelDecimals, yLabelAlign, xAxisHeight, xLabelGap, gridLineMode,
@@ -635,6 +650,11 @@ abstract final class BarChartProps {
   /// The grid labels on the left of the chart instead of its right.
   static const gridLabelsLeft = PropDef<bool>('gridLabelsLeft', Codecs.bool, false);
 
+  /// With no `gridLabels` and no `max`: the chart's top is a round value
+  /// over its largest, its grid lines stand at round values and each is
+  /// labeled with its own (as the values change, so do they).
+  static const gridValues = PropDef<bool>('gridValues', Codecs.bool, false);
+
   /// The widest a bar gets, centered in its column (null: the column).
   static const maxBarWidth = PropDef<double?>('maxBarWidth', Codecs.optionalPositive, null);
 
@@ -680,7 +700,7 @@ abstract final class BarChartProps {
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
     highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight, valueDecimals, valueSuffix, labelLetterSpacing, labelAreaHeight, plotTopInset, barHeadroom, valueFontSize, valueGap,
-    highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
+    highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight, gridValues,
   ], doc: 'Bar chart.');
 }
 
@@ -746,7 +766,7 @@ abstract final class LineChartProps {
   static const selectedX = PropDef<double?>('selectedX', IndicatorCodecs.optionalDouble, null);
 
   /// Hovering or dragging selects the nearest point in a running app.
-  static const scrubEnabled = PropDef<bool>('scrubEnabled', Codecs.bool, false);
+  static const scrubEnabled = PropDef<bool>('scrubEnabled', Codecs.bool, true);
   static const scrubStep = PropDef<double>('scrubStep', Codecs.double, 1);
   static const tooltipXFormat = PropDef<String>('tooltipXFormat', Codecs.string, 'h:mm a');
   static const tooltipYScale = PropDef<double>('tooltipYScale', Codecs.double, 1);
@@ -910,8 +930,15 @@ abstract final class GraphProps {
   static const interactions =
       PropDef<GraphInteractions>('interactions', GraphInteractions.codec, GraphInteractions.empty);
 
-  /// Its colors and text.
+  /// Its colors and text. What it leaves out is the theme's: the grid and
+  /// the labels in its quiet colors, a tooltip as an inverted surface, the
+  /// marks in its series colors.
   static const style = PropDef<GraphStyle>('style', GraphStyle.codec, GraphStyle.empty);
+
+  /// The legend: drawn when there is more than one named mark (or labeled
+  /// slices in a graph wide enough for it beside them), unless its `show`
+  /// says.
+  static const legend = PropDef<GraphLegend>('legend', GraphLegend.codec, GraphLegend.empty);
 
   /// Milliseconds the marks take to move to new values when the rows
   /// change in a running app (0: at once).
@@ -931,7 +958,7 @@ abstract final class GraphProps {
 
   static const spec = WidgetSpec('graph', props: [
     data, rowKey, xAxis, marks, yAxis, coord, guides, panes, transforms, selection, crosshair, interactions, style, //
-    animationDuration, animateIn, view, selected,
+    legend, animationDuration, animateIn, view, selected,
   ], doc: 'Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. '
       'Fires `changed` with `\${result.view}`, `\${result.cursor}` and `\${result.selection}` (`index`, `key`, `label`, '
       '`row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves '

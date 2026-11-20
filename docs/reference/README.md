@@ -18,7 +18,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 |---|---|---|---|
 | [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6193 | 12784 |
 | [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 6174 | 11797 |
-| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4630 | 14230 |
+| [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4633 | 14243 |
 | [layout.md](layout.md) | Feature page. | 10392 | 18932 |
 | [theme.md](theme.md) | Feature page. | 2963 | 5099 |
 | [decoration.md](decoration.md) | Feature page. | 4121 | 7242 |
@@ -29,7 +29,7 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [interaction.md](interaction.md) | Feature page. | 6342 | 10264 |
 | [animation.md](animation.md) | Feature page. | 4742 | 7746 |
 | [components.md](components.md) | Feature page. | 3820 | 7627 |
-| [charts.md](charts.md) | Feature page. | 7716 | 11446 |
+| [charts.md](charts.md) | Feature page. | 7955 | 11755 |
 | [data.md](data.md) | Feature library page. | 2311 | 3762 |
 | [auth.md](auth.md) | Feature library page. | 470 | 998 |
 | [commerce.md](commerce.md) | Feature library page. | 439 | 911 |
@@ -38,14 +38,14 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [publish.md](publish.md) | Feature page. | 681 | 1254 |
 | [edit-ops.md](edit-ops.md) | Feature page. | 3587 | 5860 |
 | [render.md](render.md) | Feature page. | 1660 | 2838 |
-| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 16062 | 24284 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 113613 | 195679 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 79841 | 207601 |
-| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10667 | 29561 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27076 | 112764 |
+| [values.md](values.md) | Appendix: value types, models no page claims, enums. | 16524 | 24867 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 114317 | 196577 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 80598 | 209035 |
+| [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10669 | 29573 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27219 | 113321 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1276 | 3856 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
-| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2792 | 11733 |
+| [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2790 | 11718 |
 
 The old per-kind pages (`nodes.md`, `behaviors.md`, `triggers.md`, `actions.md`, `bindings.md`, `formulas.md`,
 `variables-conditions-scripts.md`) are stubs that say where each item went, so old links keep working. Old guide

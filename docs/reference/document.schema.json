@@ -4191,6 +4191,21 @@
       },
       "additionalProperties": false
     },
+    "model.GraphLegend": {
+      "type": "object",
+      "properties": {
+        "show": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string"
+        },
+        "values": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
     "model.GraphMark": {
       "type": "object",
       "properties": {
@@ -4342,6 +4357,16 @@
         },
         "startAngle": {
           "type": "number"
+        },
+        "dots": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "center": {
+          "type": "string"
+        },
+        "centerLabel": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -4547,6 +4572,22 @@
         "topInset": {
           "type": "number",
           "minimum": 0.0
+        },
+        "ink": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Color"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "palette": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false
@@ -4683,6 +4724,20 @@
         "bands": {
           "type": "array",
           "items": {}
+        },
+        "inset": {
+          "type": "number",
+          "minimum": 0.0
+        },
+        "maxBarWidth": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -4752,7 +4807,10 @@
           "type": "integer",
           "minimum": 0
         },
-        "tickValues": {}
+        "tickValues": {},
+        "nice": {
+          "type": "boolean"
+        }
       },
       "additionalProperties": false
     },
@@ -15466,6 +15524,26 @@
                   "tooltip": {
                     "type": "boolean"
                   },
+                  "legend": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "centerLabel": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "tooltipColor": {
                     "anyOf": [
                       {
@@ -16393,6 +16471,9 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "gridValues": {
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -16894,6 +16975,20 @@
                     "anyOf": [
                       {
                         "$ref": "#/$defs/model.GraphStyle"
+                      },
+                      {
+                        "type": [
+                          "string",
+                          "boolean",
+                          "number"
+                        ]
+                      }
+                    ]
+                  },
+                  "legend": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/model.GraphLegend"
                       },
                       {
                         "type": [

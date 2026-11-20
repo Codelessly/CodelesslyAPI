@@ -1770,6 +1770,19 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `doubleTapReset` | `true`/`false` | `true` | A double tap on an axis fits it again. |
 | `fling` | `true`/`false` | `true` |  |
 
+<a id="type-GraphLegend"></a>
+### GraphLegend
+
+A graph's legend: a key for each named mark (a dot in its color and its name), or in a polar pane for each slice (its color, its label and its share of the whole).
+
+A record: written whole as JSON (`key={…}`), or field by field as dotted keys under the key that holds it (`key.field=…`).
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `show` | text | `"auto"` | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that they keep its whole height (slices in a narrower graph have none). `always`, or `none`. |
+| `position` | text | `"auto"` | `bottom` or `top` (a line of keys in the middle, wrapped) or `right` (a list). `auto`: under a plot; beside slices where the list fits there, else under them. |
+| `values` | `true`/`false` | `true` | Each slice's share is written after its label. |
+
 <a id="type-GraphMark"></a>
 ### GraphMark
 
@@ -1788,7 +1801,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `name` | text | `""` |  |
 | `color` | [Color](#type-Color) |  |  |
 | `colorField` | text | `""` | A row field holding the row's own color. |
-| `colors` | list of text | `[]` | Colors row by row (a slice's, a bar's), where the row gives none. |
+| `colors` | list of text | `[]` | Colors row by row (a slice's, a bar's), where the row gives none. An arc that gives neither these nor a `color` takes the style's `palette`. |
 | `upColor` | [Color](#type-Color) |  |  |
 | `downColor` | [Color](#type-Color) |  |  |
 | `stack` | text |  |  |
@@ -1808,6 +1821,9 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `inner` | number (≥ 0, ≤ 1) | `0` | An arc: the hole's share of the radius (0: a pie), the room between slices and where the first starts (degrees, clockwise from the top). |
 | `gap` | number (≥ 0) | `0` |  |
 | `startAngle` | number | `0` |  |
+| `dots` | number (≥ 0) | `0` | A line: a dot of this radius on every row (0: none). |
+| `center` | text | `""` | An arc with a hole: what is written in it. `total`: the sum of its values, and while a slice is selected that slice's value. Empty: nothing. `centerLabel` is written small under the figure (while a slice is selected, its label). |
+| `centerLabel` | text | `""` |  |
 
 <a id="type-GraphPane"></a>
 ### GraphPane
@@ -1843,7 +1859,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `dot` | number (≥ 0) | `4` | A dot of this radius on each line at the selected row (0: none). |
 | `tooltip` | `true`/`false` | `true` |  |
 | `title` | text | `""` |  |
-| `tooltipFill` | [Color](#type-Color) |  |  |
+| `tooltipFill` | [Color](#type-Color) |  | The tooltip's ground and text; the style's `tag` and `tagText` when not given. |
 | `tooltipText` | [Color](#type-Color) |  |  |
 | `total` | `true`/`false` | `false` | A last tooltip row with the sum of the row's marks. |
 
@@ -1866,6 +1882,8 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `fontSize` | number (≥ 0) | `11` |  |
 | `fontFamily` | text |  |  |
 | `topInset` | number (≥ 0) | `0` | Room above the panes. |
+| `ink` | [Color](#type-Color) |  | A figure written large (the one in a donut's hole). |
+| `palette` | list of text | `[]` | The colors of the marks that give none, in turn, and of an arc's slices. When not given: the theme's series colors (`chart1`, `chart2`…) where it names them, else its primary followed by colors of other hues as light and as strong as it. |
 
 <a id="type-GraphTransform"></a>
 ### GraphTransform
@@ -1916,6 +1934,8 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `historyThreshold` | number (≥ 0) | `10` |  |
 | `morph` | number (≥ 0) | `0` | Milliseconds a line takes to change its shape to new rows' (0: at once). |
 | `bands` | list of JSON | `[]` |  |
+| `inset` | number (≥ 0) | `0` | Pixels kept clear at each end of a fitted view (`fit`): the first and the last row stand this far inside the plot, so a dot or a line's end there is whole. |
+| `maxBarWidth` | number |  | The widest a bar or a candle is drawn, in the middle of its place (bars side by side: each of them); its share of the place when not given, however wide. |
 
 <a id="type-GraphYAxis"></a>
 ### GraphYAxis
@@ -1940,6 +1960,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `suffix` | text | `""` |  |
 | `ticks` | whole number (≥ 0) | `5` | About how many round ticks the axis has. |
 | `tickValues` | JSON |  |  |
+| `nice` | `true`/`false` | `false` | A fitted domain is rounded out to the ticks, so the plot starts and ends on a labeled line (`margins` are then not added). |
 
 <a id="type-Keyframe"></a>
 ### Keyframe

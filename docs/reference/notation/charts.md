@@ -16,6 +16,8 @@ Column gap=12
   Progress 0.6
   BarChart values=[3,5,4] labels=["Mon","Tue","Wed"] h=160
   LineChart values=[10,12,11,14] h=120
+  LineChart labels=["W1","W2","W3"] series=[{"name":"Signups","values":[40,52,48]},{"name":"Churn","values":[8,6,9]}] h=160
+  BarChart stacked labels=["Q1","Q2"] series=[{"name":"Direct","values":[30,42]},{"name":"Organic","values":[16,15]}] h=160
   Donut values=[60,25,15] labels=["Rent","Food","Other"]
   Gauge 72 min=0 max=180 limit=100 unit="km/h"
 ```
@@ -26,16 +28,33 @@ It reads as:
 Column gap=12
   Progress value=0.6
   barChart h=160 color=#FF2563EB barRadius=4 maxBarWidth=40 barGap=8 gridColor=#FFE5E7EB baselineColor=#FFE5E7EB max=6.0 gridLabelsLeft=true values=[3,5,4] labels=["Mon","Tue","Wed"] gridLabels=["0","2","4",""]
-  lineChart h=120 lineColor=#FF2563EB yMin=9.0 values=[10,12,11,14]
-  Chart w=160 h=160 chartType=donut donutThickness=0.22 showYAxis=false showXAxis=false gridLines=0 series=[{"field":"value","colorField":"color"}] data=[{"label":"Rent","value":60,"color":"#FF2563EB"},{"label":"Food","value":25,"color":"#FF719AF2"},{"label":"Other","value":15,"color":"#FFA8C1F7"}]
+  lineChart h=120 lineColor=#FF2563EB smooth=true areaTopColor=#00000000 yMin=9.0 values=[10,12,11,14]
+  Chart#lineChart2 h=160 fitMinY=true chartType=line series=[{"field":"s0","name":"Signups","kind":"line","curved":true},{"field":"s1","name":"Churn","kind":"line","curved":true}] data=[{"label":"W1","s0":40,"s1":8},{"label":"W2","s0":52,"s1":6},{"label":"W3","s0":48,"s1":9}]
+  Chart#barChart2 h=160 chartType=bar series=[{"field":"s0","name":"Direct","kind":"bar","stack":"s"},{"field":"s1","name":"Organic","kind":"bar","stack":"s"}] data=[{"label":"Q1","s0":30,"s1":16},{"label":"Q2","s0":42,"s1":15}]
+  Chart h=160 chartType=donut donutThickness=0.22 centerLabel=Total showYAxis=false showXAxis=false gridLines=0 series=[{"field":"value","colorField":"color"}] data=[{"label":"Rent","value":60,"color":"#FF2563EB"},{"label":"Food","value":25,"color":"#FF0C8275"},{"label":"Other","value":15,"color":"#FFCD8700"}]
   Stack#radialGauge1 h=164
     RadialGauge#radialGauge1Arc h=fill x=0 y=0 value=72 min=0 max=180 target=100 colorByZone=false segments=0 roundCaps=true thickness=16 majorTicks=0 minorTicks=0 showNeedle=false labels=[]
     Text.heading2#radialGauge1Value "72" size=27 x={"align":0} y={"align":0.05}
     Text.muted#radialGauge1Unit "km/h" x={"align":0} y={"align":0.5}
 ```
 
-Give a chart a height; its colors default to the accent and a set after it. A bar chart's bars are at most 56
-wide each in the middle of their columns unless the line says `maxBarWidth=`.
+Give a chart a height. What its line does not say, the chart supplies:
+
+- round grid lines with their figures, and under the plot the labels that fit: where they would touch, every
+  second, third… is written, the first and the last always;
+- its colors: the theme's series colors (`chart1`, `chart2`… where the theme names them), else its accent and then
+  colors of other hues as light and as strong as it, so two series are never two shades of one color;
+- a legend under a chart with two or more named series, and for a `Donut` its labels with their shares, beside it
+  where it has the room (on a page, under it where it has not);
+- a `Donut`'s total in its hole (`total="Visitors"` names it, `total=false` leaves the hole empty; a `Pie` has no
+  hole);
+- a smooth line that never rises above or dips below its values, with a dot on each of up to 12 points, and under an
+  `AreaChart`'s line a fill that fades to the foot of the plot;
+- rounded bars no wider than 40 (`maxBarWidth=`), bars of several `series` side by side (`stacked`: one on
+  another);
+- a tooltip for what is under the pointer or a finger.
+
+A key written on the line wins: `legend=false`, `tooltip=false`, `barRadius=0`, a series' own `"color"`.
 
 <a id="charts-words"></a>
 ## Words
@@ -253,13 +272,13 @@ Series chart (bar, line, timeline, donut).
 | `showXAxis` | `true`/`false` | `true` | 4 |  |
 | `xLabelEvery` | whole number | `1` | 4 |  |
 | `axisLabelColor` | [Color](values.md#type-Color) |  | 4 | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
-| `axisFontSize` | number (≥ 0) | `10` | 4 |  |
+| `axisFontSize` | number (≥ 0) | `11` | 4 |  |
 | `axisFontFamily` | text |  | 4 |  |
 | `referenceLines` | list of [ChartReferenceLine](#type-ChartReferenceLine) | `[]` | 4 |  |
 | `barWidthFraction` | number | `0.62` | 4 |  |
 | `maxBarWidth` | number | `36` | 4 |  |
 | `barGap` | number | `2` | 4 |  |
-| `barRadius` | number | `0` | 4 |  |
+| `barRadius` | number | `4` | 4 |  |
 | `dashEmpty` | `true`/`false` | `true` | 4 |  |
 | `selectionColor` | [Color](values.md#type-Color) |  | 4 | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `xSlots` | whole number | `0` | 4 |  |
@@ -275,7 +294,7 @@ Series chart (bar, line, timeline, donut).
 | `donutThickness` | number | `0.15` | 4 |  |
 | `sliceGap` | number | `1.5` | 4 |  |
 | `startAngle` | number | `0` | 4 |  |
-| `selectOnHover` | `true`/`false` | `false` | 4 |  |
+| `selectOnHover` | `true`/`false` | `true` | 4 | The category (a donut's slice) under the pointer, or under a finger while it is down, is the selected one. |
 | `plotInset` | number |  | 4 |  |
 | `fitMinY` | `true`/`false` | `false` | 4 |  |
 | `yLabelPrefix` | text | `""` | 4 |  |
@@ -283,7 +302,9 @@ Series chart (bar, line, timeline, donut).
 | `yLabelAffixTopOnly` | `true`/`false` | `false` | 4 | The prefix and suffix go on the top y label only (`50%` over plain `40`, `30` …), as a newspaper chart marks its unit once. |
 | `yAxisFontFamily` | text |  | 4 |  |
 | `dimUnselected` | `true`/`false` | `false` | 4 | Bars of other categories fade while one is selected (or hovered). |
-| `tooltip` | `true`/`false` | `false` | 4 | A box over the selected (or hovered) category: its label, then each series' name and value there. |
+| `tooltip` | `true`/`false` | `true` | 4 | A box over the selected (or hovered) category: its label, then each series' name and value there. |
+| `legend` | `true`/`false` |  | 4 | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it). |
+| `centerLabel` | text |  | 4 | A donut: the sum of its values is written in its hole with this text under it (while a slice is selected, that slice's value and label). Null: nothing is written there. |
 | `tooltipColor` | [Color](values.md#type-Color) |  | 4 | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTextColor` | [Color](values.md#type-Color) |  | 4 | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTitleField` | text | `""` | 4 | The tooltip's first line: this row field, else the category label. |
@@ -363,6 +384,7 @@ Bar chart.
 | `gridLabelColor` | [Color](values.md#type-Color) |  | 1 | The grid labels' own color, size and weight (null: the labels'). |
 | `gridLabelFontSize` | number (≥ 0) |  | 1 |  |
 | `gridLabelFontWeight` | whole number |  | 1 |  |
+| `gridValues` | `true`/`false` | `false` | 1 | With no `gridLabels` and no `max`: the chart's top is a round value over its largest, its grid lines stand at round values and each is labeled with its own (as the values change, so do they). |
 
 <a id="node-lineChart"></a>
 ### `lineChart` (`lineChart`)
@@ -407,7 +429,7 @@ Line chart.
 | `tooltipValueStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` | 1 |  |
 | `tooltipLabelField` | text | `""` | 1 | The tooltip's first line: this row field, else the x (`tooltipXFormat` for dates). |
 | `selectedX` | number |  | 1 | The point (nearest x) with the cursor and tooltip; null for none. |
-| `scrubEnabled` | `true`/`false` | `false` | 1 | Hovering or dragging selects the nearest point in a running app. |
+| `scrubEnabled` | `true`/`false` | `true` | 1 | Hovering or dragging selects the nearest point in a running app. |
 | `scrubStep` | number | `1` | 1 |  |
 | `tooltipXFormat` | text | `"h:mm a"` | 1 |  |
 | `tooltipYScale` | number | `1` | 1 |  |
@@ -534,7 +556,8 @@ Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view,
 | `selection` | [GraphSelection](values.md#type-GraphSelection) | `{}` | 4 | The selection (hover, tap); off unless its `on` says. |
 | `crosshair` | [GraphCrosshair](values.md#type-GraphCrosshair) | `{}` | 4 | The crosshair; off unless `enabled`. |
 | `interactions` | [GraphInteractions](values.md#type-GraphInteractions) | `{}` | 4 | What each gesture does. |
-| `style` | [GraphStyle](values.md#type-GraphStyle) | `{}` | 4 | Its colors and text. |
+| `style` | [GraphStyle](values.md#type-GraphStyle) | `{}` | 4 | Its colors and text. What it leaves out is the theme's: the grid and the labels in its quiet colors, a tooltip as an inverted surface, the marks in its series colors. |
+| `legend` | [GraphLegend](values.md#type-GraphLegend) | `{}` | 4 | The legend: drawn when there is more than one named mark (or labeled slices in a graph wide enough for it beside them), unless its `show` says. |
 | `animationDuration` | whole number (≥ 0) | `300` | 4 | Milliseconds the marks take to move to new values when the rows change in a running app (0: at once). |
 | `animateIn` | `true`/`false` | `false` | 4 | The marks grow from zero when the graph first shows. |
 | `view` | JSON |  | 4 | The view, set from state: on rows `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from, to}`. Usually bound. |

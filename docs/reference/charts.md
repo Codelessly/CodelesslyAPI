@@ -271,13 +271,13 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `showXAxis` | bool | `true` |  |  |
 | `xLabelEvery` | int | `1` |  |  |
 | `axisLabelColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurfaceVariant (`ControlTheme`), so it reads in light and dark. |
-| `axisFontSize` | double | `10` | ≥ 0 |  |
+| `axisFontSize` | double | `11` | ≥ 0 |  |
 | `axisFontFamily` | String | unset |  |  |
 | `referenceLines` | List<[ChartReferenceLine](charts.md#type-ChartReferenceLine)> | `[]` |  |  |
 | `barWidthFraction` | double | `0.62` |  |  |
 | `maxBarWidth` | double | `36` |  |  |
 | `barGap` | double | `2` |  |  |
-| `barRadius` | double | `0` |  |  |
+| `barRadius` | double | `4` |  |  |
 | `dashEmpty` | bool | `true` |  |  |
 | `selectionColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's primary at 10 % (`ControlTheme`), so it reads in light and dark. |
 | `xSlots` | int | `0` |  |  |
@@ -293,7 +293,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `donutThickness` | double | `0.15` |  |  |
 | `sliceGap` | double | `1.5` |  |  |
 | `startAngle` | double | `0` |  |  |
-| `selectOnHover` | bool | `false` |  |  |
+| `selectOnHover` | bool | `true` |  | The category (a donut's slice) under the pointer, or under a finger while it is down, is the selected one. |
 | `plotInset` | double | unset |  |  |
 | `fitMinY` | bool | `false` |  |  |
 | `yLabelPrefix` | String | `""` |  |  |
@@ -301,7 +301,9 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `yLabelAffixTopOnly` | bool | `false` |  | The prefix and suffix go on the top y label only (`50%` over plain `40`, `30` …), as a newspaper chart marks its unit once. |
 | `yAxisFontFamily` | String | unset |  |  |
 | `dimUnselected` | bool | `false` |  | Bars of other categories fade while one is selected (or hovered). |
-| `tooltip` | bool | `false` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
+| `tooltip` | bool | `true` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
+| `legend` | bool | unset |  | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it). |
+| `centerLabel` | String | unset |  | A donut: the sum of its values is written in its hole with this text under it (while a slice is selected, that slice's value and label). Null: nothing is written there. |
 | `tooltipColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTextColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTitleField` | String | `""` |  | The tooltip's first line: this row field, else the category label. |
@@ -381,6 +383,7 @@ A bar chart of `values` with optional labels, grid and a highlighted bar.
 | `gridLabelColor` | [Color](values.md#type-Color) | unset |  | The grid labels' own color, size and weight (null: the labels'). |
 | `gridLabelFontSize` | double | unset | ≥ 0 |  |
 | `gridLabelFontWeight` | int | unset |  |  |
+| `gridValues` | bool | `false` |  | With no `gridLabels` and no `max`: the chart's top is a round value over its largest, its grid lines stand at round values and each is labeled with its own (as the values change, so do they). |
 
 <a id="node-lineChart"></a>
 ### `lineChart`
@@ -425,7 +428,7 @@ A line chart of data rows (`xField`, `yField`; dates or numbers on x), with band
 | `tooltipValueStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `tooltipLabelField` | String | `""` |  | The tooltip's first line: this row field, else the x (`tooltipXFormat` for dates). |
 | `selectedX` | double | unset |  | The point (nearest x) with the cursor and tooltip; null for none. |
-| `scrubEnabled` | bool | `false` |  | Hovering or dragging selects the nearest point in a running app. |
+| `scrubEnabled` | bool | `true` |  | Hovering or dragging selects the nearest point in a running app. |
 | `scrubStep` | double | `1` |  |  |
 | `tooltipXFormat` | String | `"h:mm a"` |  |  |
 | `tooltipYScale` | double | `1` |  |  |
@@ -554,7 +557,8 @@ Its parts are records: their fields are dotted keys on the node's line (`xAxis.l
 | `selection` | [GraphSelection](values.md#type-GraphSelection) | `{}` |  | The selection (hover, tap); off unless its `on` says. |
 | `crosshair` | [GraphCrosshair](values.md#type-GraphCrosshair) | `{}` |  | The crosshair; off unless `enabled`. |
 | `interactions` | [GraphInteractions](values.md#type-GraphInteractions) | `{}` |  | What each gesture does. |
-| `style` | [GraphStyle](values.md#type-GraphStyle) | `{}` |  | Its colors and text. |
+| `style` | [GraphStyle](values.md#type-GraphStyle) | `{}` |  | Its colors and text. What it leaves out is the theme's: the grid and the labels in its quiet colors, a tooltip as an inverted surface, the marks in its series colors. |
+| `legend` | [GraphLegend](values.md#type-GraphLegend) | `{}` |  | The legend: drawn when there is more than one named mark (or labeled slices in a graph wide enough for it beside them), unless its `show` says. |
 | `animationDuration` | int | `300` | ≥ 0 | Milliseconds the marks take to move to new values when the rows change in a running app (0: at once). |
 | `animateIn` | bool | `false` |  | The marks grow from zero when the graph first shows. |
 | `view` | Object | unset |  | The view, set from state: on rows `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from, to}`. Usually bound. |

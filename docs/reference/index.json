@@ -1145,7 +1145,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 7716
+      "words": 7955
     },
     {
       "topic": "charts-progress-from-state",
@@ -1473,7 +1473,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 16062
+      "words": 16524
     },
     {
       "topic": "values-value-types",
@@ -2261,6 +2261,7 @@
       "GraphCrosshair": "values.md#type-GraphCrosshair",
       "GraphGuide": "values.md#type-GraphGuide",
       "GraphInteractions": "values.md#type-GraphInteractions",
+      "GraphLegend": "values.md#type-GraphLegend",
       "GraphMark": "values.md#type-GraphMark",
       "GraphPane": "values.md#type-GraphPane",
       "GraphSelection": "values.md#type-GraphSelection",

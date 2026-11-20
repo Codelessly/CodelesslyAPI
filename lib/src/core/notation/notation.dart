@@ -14,6 +14,7 @@ import 'dart:math' as math;
 
 import '../behaviors.dart' show WidgetState, diffPatch, mergePatch;
 import '../catalog.dart';
+import '../chart_palette.dart';
 import '../design_system.dart';
 import '../layout.dart' show SizeFit;
 import '../json.dart';
@@ -1452,15 +1453,13 @@ const _resizable = 'A pane is resized by a Splitter beside it, which keeps its w
 const _chartColors = ['#FF0891B2', '#FF9333EA', '#FF16A34A', '#FFEA580C', '#FF9CA3AF', '#FFDB2777'];
 
 /// The colors of a chart's slices or series from the theme's [accent]: the
-/// accent, then lighter steps of it toward white, then darker ones (round 11:
-/// a donut drew in colors no theme had). A name that is no color value
-/// gives the fixed palette after it.
+/// accent, then colors of other hues as light and as strong as it
+/// ([chartPalette]), so two series are told apart and all of them belong to
+/// the theme. A name that is no color value gives the fixed palette after
+/// it.
 List<String> notationChartShades(String accent) {
-  final m = RegExp(r'^#([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$').firstMatch(accent);
-  if (m == null) return [accent, ..._chartColors];
-  final rgb = [for (var i = 2; i <= 4; i++) int.parse(m[i]!, radix: 16)];
-  String mix(double t, int to) => '#FF${[for (final c in rgb) (c + (to - c) * t).round().clamp(0, 255).toRadixString(16).padLeft(2, '0')].join().toUpperCase()}';
-  return [accent, mix(0.35, 255), mix(0.6, 255), mix(0.78, 255), mix(0.3, 0), mix(0.5, 0), mix(0.88, 255)];
+  if (!RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(accent)) return [accent, ..._chartColors];
+  return chartPalette(accent)!;
 }
 
 /// A step of a chart's axis for values up to [max] in [lines] steps: 1, 2,
@@ -1481,7 +1480,15 @@ num _axisStep(num max, int lines) {
   return p * 10;
 }
 
-String _axisLabel(num v) => v == v.roundToDouble() ? '${v.round()}' : v.toStringAsFixed(1);
+String _axisLabel(num v) {
+  String plain(num n) => n == n.roundToDouble() ? '${n.round()}' : n.toStringAsFixed(1);
+  // Ten thousand and more in thousands (20K), a million and more in
+  // millions: a figure, not a row of zeros.
+  final a = v.abs();
+  if (a >= 1e6) return '${plain(v / 1e6)}M';
+  if (a >= 1e4) return '${plain(v / 1e3)}K';
+  return plain(v);
+}
 
 /// The verbs an action is written with (design 13 section 3), beside
 /// `name=value` and `cond ? a : b`; every other action is its type and its
@@ -6476,6 +6483,10 @@ class _Parser {
             props['reorder'] = {...before, 'keyboard': true, 'start': word == 'handle' ? 'handle' : before['start'] ?? 'longPress'};
           } else if (spec.props.any((p) => p.key == word)) {
             props[word] = true;
+          } else if (word == 'stacked' && type == 'barChart' && !component && written != type) {
+            // `BarChart stacked series=[…]`: its series stand on one another
+            // (read with its series, below).
+            props['stacked'] = true;
           } else if (!component && universalFlag(word, col)) {
             // A universal word (docs/design/21), or an Input's own (section 7).
           } else if (type == 'icon' && !component && !standIn && given == 0 && textPosition && RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(word)) {
@@ -7889,18 +7900,21 @@ class _Parser {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
       final palette = notationChartShades(_accentValue);
       props['chartType'] = 'donut';
+      // Whether its slices have labels (a legend's keys).
+      var labeled = labels is List && labels.any((l) => '$l'.isNotEmpty);
       // Lists that follow the state (values={…}, labels={…}, colors={…}):
       // its rows are worked out from them, one for each value.
       final valuesOf = chartList('values', values);
       if (valuesOf != null && (values is! List || bind['props.labels'] is String || bind['props.colors'] is String)) {
         final labelsOf = chartList('labels', labels);
+        labeled = labelsOf != null;
         final colorsOf = chartList('colors', colors is List ? [for (final c in colors) _named(c, 'fill')] : colors);
         final shade = '(${jsonEncode(palette)})[i % ${palette.length}]';
         for (final k in const ['values', 'labels', 'colors']) {
           bind.remove('props.$k');
         }
         bind['props.data'] = '\${= map(range(length($valuesOf)), i => {"label": ${labelsOf == null ? '""' : 'text(coalesce(get($labelsOf, i), ""))'}, '
-            '"value": get($valuesOf, i), "color": ${colorsOf == null ? shade : 'coalesce(get($colorsOf, i), $shade)'}})}';
+            '"value": get($valuesOf, i)${colorsOf == null ? '' : ', "color": coalesce(get($colorsOf, i), $shade)'}})}';
       }
       if (values is List) {
         props['data'] = [
@@ -7923,10 +7937,23 @@ class _Parser {
           for (final d in data) (label: '${d['label']}', value: d['value'], color: d['color']),
         ];
       }
-      props.putIfAbsent('donutThickness', () => written.startsWith('Pie') && props['donut'] != true ? 0.5 : 0.22);
+      // The chart draws no legend of its own beside the one written out
+      // here, nor where the line says none.
+      if (donutKeys != null || legend == false) props['legend'] = false;
+      final pie = written.startsWith('Pie') && props['donut'] != true;
+      props.putIfAbsent('donutThickness', () => pie ? 0.5 : 0.22);
       props.remove('donut');
+      // The whole in a donut's hole, under it what it is a total of
+      // (`total="Visitors"`; `total=false` leaves the hole empty). A donut
+      // in a Stack has the page's own text over it.
+      final total = props.remove('total');
+      if (!pie && total != false && parent?.type != 'stack') props.putIfAbsent('centerLabel', () => total is String ? total : 'Total');
       props.addAll({'showYAxis': false, 'showXAxis': false, 'gridLines': 0});
-      layout.putIfAbsent('width', () => layout['height'] is num ? layout['height'] : 160);
+      // A donut that draws its own legend (its lists follow the state, or
+      // it is on a narrow canvas) is as wide as what it is in, so the
+      // legend has room beside the ring.
+      final beside = donutKeys == null && legend != false && labeled && parent?.type != 'row' && parent?.type != 'stack';
+      layout.putIfAbsent('width', () => beside ? <String, Object?>{'fill': 0} : (layout['height'] is num ? layout['height'] : 160));
       layout.putIfAbsent('height', () => layout['width'] is num ? layout['width'] : 160);
     }
     // A line chart with named series, labels under it or a filled area is
@@ -7935,9 +7962,23 @@ class _Parser {
     if (type == 'lineChart') props.remove('fill');
     // Its lists that follow the state (labels={…}, series={[…]}, values={…}
     // with labels or an area): the same chart, its rows worked out.
+    // A bar chart with series (bars side by side; `stacked`: one on
+    // another) is the series chart too.
+    final bars = type == 'barChart' && written != type;
+    final stacked = bars && props.remove('stacked') == true;
     final worked = type == 'lineChart' &&
-        written != 'Sparkline' &&
-        (bind['props.series'] is String || bind['props.labels'] is String || bind['props.values'] is String && (area || props['labels'] is List));
+            written != 'Sparkline' &&
+            (bind['props.series'] is String || bind['props.labels'] is String || bind['props.values'] is String && (area || props['labels'] is List)) ||
+        bars && bind['props.series'] is String;
+    // What a series of the chart is drawn as, and the theme's look for bars.
+    Json seriesKind(int k) => bars ? {'kind': 'bar', if (stacked) 'stack': 's'} : {'kind': area ? 'area' : 'line', 'curved': true};
+    void barLook() {
+      if (!bars) return;
+      for (final e in options.barChart.entries) {
+        if (const {'barRadius', 'maxBarWidth', 'barGap', 'gridColor', 'baselineColor'}.contains(e.key)) props.putIfAbsent(e.key, () => e.value);
+      }
+    }
+
     if (worked) {
       final labelsOf = chartList('labels', props.remove('labels'));
       final plainOf = chartList('values', props.remove('values'));
@@ -7959,37 +8000,39 @@ class _Parser {
           if (s['values'] ?? s['data'] case final List v) lines.add((name: jsonEncode('${s['name'] ?? s['label'] ?? ''}'), values: jsonEncode(v), color: s['color']));
         }
       } else if (plainOf != null) {
-        lines.add((name: '""', values: plainOf, color: props.remove('lineColor')));
+        lines.add((name: '""', values: plainOf, color: props.remove(bars ? 'color' : 'lineColor')));
       }
       for (final k in const ['values', 'labels', 'series']) {
         bind.remove('props.$k');
       }
       props.remove('series');
       if (read && lines.isNotEmpty) {
-        final palette = notationChartShades(_accentValue);
-        props.putIfAbsent('fitMinY', () => true);
+        if (!bars) props.putIfAbsent('fitMinY', () => true);
         type = 'chart';
+        barLook();
         bind['props.data'] = '\${= map(range(length(${labelsOf ?? lines.first.values})), i => {"label": ${labelsOf == null ? '""' : 'text(coalesce(get($labelsOf, i), ""))'}, '
             '${[for (var k = 0; k < lines.length; k++) '"s$k": get(${lines[k].values}, i)'].join(', ')}})}';
         props
           ..remove('lineColor')
           ..addAll({
-            'chartType': 'line',
+            'chartType': bars ? 'bar' : 'line',
             'series': [
               for (var k = 0; k < lines.length; k++)
                 {
                   'field': 's$k',
                   if (_literal(lines[k].name) case (true, final String name)) ...{if (name.isNotEmpty) 'name': name} else 'name': '\${= ${lines[k].name}}',
-                  'kind': area ? 'area' : 'line',
-                  'color': lines[k].color is String ? _named(lines[k].color, 'fill') : palette[k % palette.length],
-                  'curved': true,
+                  ...seriesKind(k),
+                  // A series that writes no color takes the theme's next
+                  // series color where it is drawn (in light and in dark).
+                  if (lines[k].color is String) 'color': _named(lines[k].color, 'fill'),
                 },
             ],
           });
         layout.putIfAbsent('height', () => 160);
       }
     }
-    if (type == 'lineChart' && written != 'Sparkline' && (props['series'] is List || area || props['labels'] is List && props['values'] is List)) {
+    if (type == 'lineChart' && written != 'Sparkline' && (props['series'] is List || area || props['labels'] is List && props['values'] is List) ||
+        bars && type == 'barChart' && props['series'] is List) {
       final labels = props.remove('labels');
       final written0 = props.remove('series'), plain = props.remove('values');
       final all = [
@@ -7997,8 +8040,8 @@ class _Parser {
           for (final s in written0.map(readMap).nonNulls)
             if (s['values'] ?? s['data'] case final List v) (name: '${s['name'] ?? s['label'] ?? ''}', values: v, color: s['color']),
         // `series=[3,5,4]`: one line's values, as `values=` is.
-        if (written0 is List && written0.isNotEmpty && written0.every((v) => v is num)) (name: '', values: written0, color: props.remove('lineColor')),
-        if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
+        if (written0 is List && written0.isNotEmpty && written0.every((v) => v is num)) (name: '', values: written0, color: props.remove(bars ? 'color' : 'lineColor')),
+        if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove(bars ? 'color' : 'lineColor')),
       ];
       // A series that gives no values draws no line: said, not dropped.
       if (all.isEmpty && written0 is List && !_quiet && !_mediaLine) {
@@ -8006,15 +8049,15 @@ class _Parser {
             'A $written\x27s series give its lines\x27 values: series=[{"name":"Visits","values":[3,5,4]}] (one for each line), or values=[3,5,4] for one line, with labels=[â€¦] under them. This series= gives none, so the chart draws no line.');
       }
       if (all.isNotEmpty) {
-        final palette = notationChartShades(_accentValue);
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
         // Its axis fitted to the data (from 0, a line of 812 to 851 was flat).
-        props.putIfAbsent('fitMinY', () => true);
+        if (!bars) props.putIfAbsent('fitMinY', () => true);
         type = 'chart';
+        barLook();
         props
           ..remove('lineColor')
           ..addAll({
-            'chartType': 'line',
+            'chartType': bars ? 'bar' : 'line',
             'data': [
               for (var i = 0; i < rows; i++)
                 {
@@ -8028,9 +8071,8 @@ class _Parser {
                 {
                   'field': 's$k',
                   if (all[k].name.isNotEmpty) 'name': all[k].name,
-                  'kind': area ? 'area' : 'line',
-                  'color': all[k].color is String ? _named(all[k].color, 'fill') : palette[k % palette.length],
-                  'curved': true,
+                  ...seriesKind(k),
+                  if (all[k].color is String) 'color': _named(all[k].color, 'fill'),
                 },
             ],
           });
@@ -8089,8 +8131,20 @@ class _Parser {
                 ..['gridLabels'] = [for (var i = 0; i <= lines; i++) i == lines ? '' : _axisLabel(step * i)]
                 ..putIfAbsent('gridLabelsLeft', () => true);
             }
+          } else if (bind['props.values'] is String && !props.containsKey('max') && !props.containsKey('gridLabels')) {
+            // Values that follow the state: the chart chooses its round
+            // lines and their figures as the values come.
+            props
+              ..putIfAbsent('gridValues', () => true)
+              ..putIfAbsent('gridLabelsLeft', () => true);
           }
         }
+      }
+      // The notation's line is smooth, and has a fill under it only as an
+      // AreaChart (the node's own soft fill is left out).
+      if (type == 'lineChart' && !asWritten && written != 'Sparkline') {
+        props.putIfAbsent('smooth', () => true);
+        if (!area) props.putIfAbsent('areaTopColor', () => '#00000000');
       }
       if (type == 'lineChart' && props['values'] is List) {
         final values = props.remove('values')! as List;
