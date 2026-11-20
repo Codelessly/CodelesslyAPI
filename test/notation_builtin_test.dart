@@ -23,7 +23,11 @@ define Rating2 "label"
 
 void main() {
   test('what the notation has, in one line', () {
-    expect(notationBuiltInWord('MiniCalendar'), "MiniCalendar, read as the notation's Calendar");
+    // A name the notation reads as another of its words (an alias) is the
+    // notation's over a primitive of the name, which has no lines to read
+    // in its place; a define of the name is the one read.
+    expect(notationBuiltInWord('MiniCalendar', primitive: true), "MiniCalendar, read as the notation's Calendar");
+    expect(notationBuiltInWord('MiniCalendar'), isNull);
     expect(notationBuiltInWord('Rail'), startsWith('Rail, a word of the page'));
     expect(notationBuiltInWord('Text', catalog: standardCatalog), startsWith('Text, a word of the notation'));
     expect(notationBuiltInWord('Rating2'), isNull);

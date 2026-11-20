@@ -23,8 +23,11 @@ so; write `Footer type=Footer`, or give the component a name of its own (`SiteFo
 whose first line is `define Name …` (or `primitive`) is the site's definitions instead: every page and component
 reads them, as a page reads a `define` after its last line; a file that is neither fails the expand, `--open` too,
 saying what to write. A word the notation already has is the notation's, whoever defines it: a page's or a site's
-`define`, `primitive` or component named like a core word, a page word or a name the notation reads as one of its
-own (`Card`, `Rail`, `MiniCalendar`) is not used, and the expand says so at the definition. Every
+`define`, `primitive` or component named like a core word or a page word (`Card`, `Rail`) is not used, and the
+expand says so at the definition. A name the notation only reads as another of its words (`MonthGrid` as
+`Calendar`, `DataTable` as `Table`) is yours to define: a `define` of it is the one read (a `primitive` of it,
+which has no lines to draw, is not). A defined word whose lines are an overlay (`define SideMenu` over
+`Drawer#menu â€¦`) is that overlay wherever its use is written, opened by the id its lines give (`open menu`). Every
 expand saves the site's vocabulary record (`vocabulary.json` and `VOCABULARY.md` in the site's folder) and says
 each word that stood in as a placeholder.
 

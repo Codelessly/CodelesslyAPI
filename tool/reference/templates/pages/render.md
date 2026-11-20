@@ -51,7 +51,9 @@ component's). A step on a node hidden at one size (a media rule, a binding, anot
 component's node by its path too) is skipped there with a `step_skipped` note, not a failure; the others run. `--navigate` takes a canvas id, a screen name or a URL path, with a query string for the
 params the screen reads as `${route.<name>}` (`--navigate speaker?id=ada`, `--navigate /project?id=7`); later steps
 act on the screen navigated to. A `--set` holds: a timer or `load` reaction that writes the variable afterwards does
-not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()`. A tap, a drag or a
+not change the capture (`set_overwritten` says it happened); `--now <ISO time>` pins `now()` (with none, a site's `"now"` in
+`site.json` does: the date its seed data is written for; with neither, the run starts at the real time and `--wait`
+moves it). A tap, a drag or a
 navigation first unfocuses a focused text field elsewhere, as a click outside it does. `--label <name>` keeps the screenshots and
 diagnostics of each state apart: `diagnostics[-<screens>][@<sizes>][-<label>].json`, with the `--screen` and
 `--sizes` in the name when they are given, so a state driven per screen or per size is not overwritten. A
@@ -75,7 +77,10 @@ The render step reports what rendering shows: `render_exception` (naming the nod
 `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
 `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`,
-`component_missing`, `set_overwritten`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
+`component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have),
+`paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran:
+the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout`
+(a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's
 notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it). Links to a screen that is missing are one
 `unknown_screen` per screen, with how many links name it; a page `site.json` lists whose file is not written yet is
 one `page_not_written` warning per file instead (its links are checked once it is written). Formulas are

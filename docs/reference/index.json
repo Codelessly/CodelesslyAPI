@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 6191
+      "words": 6193
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 6172
+      "words": 6174
     }
   },
   "topics": [
@@ -1145,7 +1145,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 7160
+      "words": 7716
     },
     {
       "topic": "charts-progress-from-state",
@@ -1409,7 +1409,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 1564
+      "words": 1660
     },
     {
       "topic": "render-what-it-does",
@@ -1425,15 +1425,15 @@
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
       "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>` (any node that takes the keyboard focus: a field, a button, a row or handle with a tap or key reaction; the next `--key` goes to it), `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>` (or `=<x>,<y>`; a page that does not scroll is a `scroll_nothing` warning), `--drag <id>=<dx>,<dy>` (or `=<other id>`: onto a node), `--double-tap <id>`, `--wheel <id>=<dy>` (a mouse wheel over the node; `=ctrl+<dy>` with Control held), `--pinch <id>=<scale>` (two fingers spread to that many times as far apart), `--navigate <screen>`, `--wait <ms>`.",
-      "words": 507
+      "words": 515
     },
     {
       "topic": "render-render-codes",
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `page_not_written`, `placeholder_word` (a word that stood in when the site's notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it).",
-      "words": 124
+      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have), `paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran: the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout` (a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it).",
+      "words": 191
     },
     {
       "topic": "render-a-loop-that-converges",
@@ -1473,7 +1473,7 @@
       "anchor": "page-values",
       "title": "Value types, models and enums",
       "summary": "",
-      "words": 13652
+      "words": 16062
     },
     {
       "topic": "values-value-types",
@@ -2032,6 +2032,7 @@
       "barChart": "charts.md#node-barChart",
       "lineChart": "charts.md#node-lineChart",
       "plotChart": "charts.md#node-plotChart",
+      "graph": "charts.md#node-graph",
       "barcode": "charts.md#node-barcode",
       "video": "media.md#node-video",
       "embeddedVideo": "media.md#node-embeddedVideo",
@@ -2257,6 +2258,16 @@
       "Flight": "values.md#type-Flight",
       "GesturePhysics": "values.md#type-GesturePhysics",
       "GestureSnap": "values.md#type-GestureSnap",
+      "GraphCrosshair": "values.md#type-GraphCrosshair",
+      "GraphGuide": "values.md#type-GraphGuide",
+      "GraphInteractions": "values.md#type-GraphInteractions",
+      "GraphMark": "values.md#type-GraphMark",
+      "GraphPane": "values.md#type-GraphPane",
+      "GraphSelection": "values.md#type-GraphSelection",
+      "GraphStyle": "values.md#type-GraphStyle",
+      "GraphTransform": "values.md#type-GraphTransform",
+      "GraphXAxis": "values.md#type-GraphXAxis",
+      "GraphYAxis": "values.md#type-GraphYAxis",
       "Keyframe": "values.md#type-Keyframe",
       "PathFollow": "values.md#type-PathFollow",
       "Pose": "values.md#type-Pose",

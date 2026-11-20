@@ -1,11 +1,58 @@
 ## 40.0.0
 
+Lines of the notation that looked right and drew wrongly now draw what they say, and what a page names wrongly is
+said. With CodelesslySDK 40.0.0.
+
 What a page written once draws on a phone and a tablet, and what a plain line draws by default: rows that stack
 where they have no room, one rule for a bar on a phone, a table's and a grid's columns, a website's type scale, and
 words the notation refused. With CodelesslySDK 40.0.0. Most of this changes how an existing document draws: read
 the first section before upgrading.
 
 ### Behaviour changes (read before upgrading)
+
+- **A `define` of a name the notation reads as another of its words is the one read.** `define MonthGrid …`,
+  `define DataTable …` (names that were read as `Calendar`, `Table`) are the page's or the site's own word, as a
+  definition already is over a dictionary's; the definition was left unused and said. A `primitive` of such a name
+  is still not used (it has no lines to draw in the word's place), and a definition of a word the notation has
+  itself (`Card`, `Rail`, `Footer`) is still not used and said. `notationBuiltInWord` takes `primitive:` and no
+  longer names an alias for a definition.
+- **A state whose value reads an element by a key is a formula.** `state piece=stories[story]`,
+  `state first={rows[0]}`, `computed current=rows[at].name` were kept as a text holding the expression; they are
+  the value now, as `state n={length(rows)}` is.
+- **A component's parameter read by its bare name in braces is the component's.** Under `param edge=180`,
+  `w={edge}`, `"{edge}"`, `if fluid` and `each row in rows` read `props.edge`, `props.fluid`, `props.rows` where
+  no state of the text and no `each` around the line has the name; they read nothing. `props.edge` reads as
+  before.
+- **`clip=true` clips** (it is `clip`, an anti-aliased clip; `clip=false` is none). It was kept as written, which
+  clipped nothing.
+- **Two sides of a border on one line are both drawn** (`border-right=rule border-bottom=rule`): the second
+  replaced the first. A second side of another colour is drawn in the first's and said.
+- **A box pinned to both edges of its Stack along an axis with no size there fills between them**
+  (`y={"start":12,"end":2}` with no `h`): it hugged its content, and a box with only a paint under it had none.
+- **`fill=` on an `IconButton` is the button's own ground** (`style.backgroundColor`), which it draws; it was
+  written on the node, where a button draws nothing.
+- **A `Select` whose `items` have a value and a label** (`items=[{"value":"system","label":"Match device"}]`)
+  lists the labels, shows the label of its value and gives the value when one is chosen; it showed nothing. A
+  `SegmentedButton`'s such items are its segments (it showed the records as text).
+- **`Select … selected={x}` is read as `value={x}`**, and says so: `selected` is a node's selected state, which a
+  Select does not show.
+- **`LineChart series=[3,5,4]` is one line's values**, as `values=` is.
+- **`phone.gap=`, `phone.mainAxisExtent=` and `phone.childAspectRatio=` on a `Grid`** are the cells of the grid
+  its `each` makes at that width; they were left out.
+- **A bare word after `go` that is a page of the site is that page** also under an `each` whose item has the name
+  (`each album in albums` / `go album`) and in an overlay; the item, or a variable of the name, was gone to
+  instead. The item is `go {album}`.
+- **A bare word given to a parameter that names an icon or a page** (`Brand "Postbox" icon=mail` where the page
+  has a state called `mail`) is the name, as it is on a line of the notation's own; it was bound to the state. A
+  text state of the name could be meant, so that is said with what to write (`icon={mail}`). An `each`'s item of
+  the name is read as before, and a parameter that is no name reads a variable as before (`bpm=bpm`).
+- **`theme.<name>` in a page's expression is the theme's color of that name** (`fill={on ? theme.ember : theme.line}`
+  reads `theme.colors.ember`), or, where the theme has no such color, the look the notation's own words take
+  (`theme.accent`, `theme.line`, `theme.mutedInk`: what a defined word's lines read). It read nothing: a theme's
+  colors are under `theme.colors`. The theme's own values (`theme.primary`, `theme.isDark`, `theme.text…`) read
+  as before.
+- **A place or a size read from a text that is one value is the number** (`x={"align":"{p.mapX}"}`, also written
+  `"${p.mapX}"`): it was the text `"$0.6"`, which is no place.
 
 **Rows on a phone and a tablet**
 
@@ -80,15 +127,49 @@ the first section before upgrading.
 
 ### Added
 
+- **`SiteManifest.now`** (`"now": "2026-11-16T09:00:00"` in `site.json`): the time a site's seed data is written
+  for. The render and states commands read it as their `--now` when none is passed, so a calendar, a countdown or
+  a "due today" is drawn on the day its data means. A running app does not read it.
+- **`unknownThemeColors(document, theme)`**: the color names a document's nodes use that a theme does not have,
+  each with the nodes that name it.
+- **A bound size takes its fit as a word**: a binding of `layout.width` or `layout.height` that gives `"fill"` or
+  `"hug"` is that fit (`w={fluid ? 'fill' : edge}`); it read as no size.
+
 - **`radius` on `Button` and `IconButton`**: the corners of the button's shape (`Button "Donate" h=44 radius=22`).
   It was refused.
 - **`phone.axis=vertical` and `phone.direction=column`** on a Row or Column read as `phone.direction=vertical`.
   `axis` was refused.
 
+### Fixed
+
+- **A defined word whose body is an overlay is that overlay wherever its use is written.** `define SideMenu` over
+  `Drawer#menu …`, called in the page's tree or after it, with or without an id, is the drawer `open menu` shows
+  (the body's id, or the use's when it has one); its lines were drawn in the page. Ids of defined words inside it
+  no longer repeat the page's.
+- **An overlay's word with no id inside an overlay** (a dictionary's `ConfirmDialog "…" "…"` written under
+  `Dialog#sure`) is that overlay's content: its title, its note and its buttons. It was "No node type Dialog".
+- **A `Table row in rows` in a definition reads the use's list** when `rows` is a parameter; it kept the
+  parameter's name, which nothing has, and drew its header only.
+- **A `Footer` among a defined word's lines under a `Sidebar`** is the sidebar's foot, as it is written there
+  directly; it was "No node type Footer".
+- **A state's words that make a Text another kind of node** (`Text … selected={…} selected.fill=tint`) no longer
+  take the text away while the state holds; the look is kept, and what to write is said (the box, with the state
+  on it).
+- **An overlay's `go page`** names a page of the site as the page's own lines do.
+- The reference's example for `regexReplace` shows a group as `$1` (it showed `\$1`).
+
+### Said where it was silent
+
+- **A state written twice**, or a state and a `computed` of one name: said at the second, with the line of the
+  first.
+- **A `LineChart`'s `series=` that gives no values, and its `labels=` with no values to go under**: said, with
+  what to write (`series=[{"name":…,"values":[…]}]`, `values=` with `labels=`, `xField=` with `data=`).
+
 ### Documentation
 
 - The reference's responsive page states each rule above; its pages for navigation, forms and charts state the
   website's type scale, a bar's links, the label rules and a bar chart's widest bar.
+
 
 ## 39.0.0
 

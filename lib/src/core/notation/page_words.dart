@@ -953,6 +953,14 @@ final class PageWords {
       return l;
     }
 
+    // The lines a defined word stands for, written where its use is
+    // (`Column~splice`): among a frame's lines they are that frame's own
+    // (a Footer among a word's lines under a Sidebar is the sidebar's foot,
+    // as it is written there directly; it was "No node type Footer").
+    if (text == 'Column~splice' && parent != null && const {'Sidebar', 'Main', 'Pane'}.contains(parent.frame)) {
+      open(frame: parent.frame);
+      return out..add((indent: at, text: text));
+    }
     // A line under a Table is its next cell (table_words.dart); an `else`
     // goes on the cell of the `if` before it (round 11b, kanban-board: "An
     // else follows an if at the same depth" was said of one that did).

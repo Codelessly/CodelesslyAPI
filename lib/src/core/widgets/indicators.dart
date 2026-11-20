@@ -857,6 +857,87 @@ abstract final class BarcodeProps {
       props: [data, symbology, color, backgroundColor, errorCorrection, drawText, overlap], doc: 'Barcode / QR code.');
 }
 
+/// A graph: rows of data drawn as marks (bars, lines, areas, candles over a
+/// shared x scale; slices round a center), with what the user does to it
+/// (the view, the cursor, the selection) published as state. Every chart
+/// is a graph written out: a bar chart is bar marks over rows that fill the
+/// plot, a donut one arc mark in a polar pane.
+///
+/// Its parts are records: their fields are dotted keys on the node's line
+/// (`xAxis.label=month`, `selection.on=both`, `marks[0].y=web`). A graph
+/// with one pane writes it as [marks], [yAxis], [coord] and [guides];
+/// several panes are [panes].
+abstract final class GraphProps {
+  /// The rows: one per place on the x scale (a month, a day, a slice).
+  static const data = PropDef<List<Json>>('data', Codecs.jsonList, []);
+
+  /// The row field that names a row across updates (its time, its label):
+  /// how an update is told from a new row and from older rows put before,
+  /// and how marks find where they were when they move to new values.
+  static const rowKey = PropDef<String>('rowKey', Codecs.string, 't');
+
+  /// The x scale.
+  static const xAxis = PropDef<GraphXAxis>('xAxis', GraphXAxis.codec, GraphXAxis.empty);
+
+  /// The marks of a graph with one pane, drawn in order.
+  static const marks = PropDef<List<GraphMark>>('marks', GraphMark.codec, []);
+
+  /// The y scale of a graph with one pane.
+  static const yAxis = PropDef<GraphYAxis>('yAxis', GraphYAxis.codec, GraphYAxis.empty);
+
+  /// `rect` (marks over the x scale) or `polar` (the rows round a center:
+  /// `arc` marks, no axes) for a graph with one pane.
+  static const coord = PropDef<String>('coord', Codecs.string, 'rect');
+
+  /// What is drawn at places of the scales, over the marks of a graph with
+  /// one pane.
+  static const guides = PropDef<List<GraphGuide>>('guides', GraphGuide.codec, []);
+
+  /// Several panes over the one x scale. With panes, [marks], [yAxis],
+  /// [coord] and [guides] are not read.
+  static const panes = PropDef<List<GraphPane>>('panes', GraphPane.codec, []);
+
+  /// Fields worked out from the rows.
+  static const transforms = PropDef<List<GraphTransform>>('transforms', GraphTransform.codec, []);
+
+  /// The selection (hover, tap); off unless its `on` says.
+  static const selection = PropDef<GraphSelection>('selection', GraphSelection.codec, GraphSelection.empty);
+
+  /// The crosshair; off unless `enabled`.
+  static const crosshair = PropDef<GraphCrosshair>('crosshair', GraphCrosshair.codec, GraphCrosshair.empty);
+
+  /// What each gesture does.
+  static const interactions =
+      PropDef<GraphInteractions>('interactions', GraphInteractions.codec, GraphInteractions.empty);
+
+  /// Its colors and text.
+  static const style = PropDef<GraphStyle>('style', GraphStyle.codec, GraphStyle.empty);
+
+  /// Milliseconds the marks take to move to new values when the rows
+  /// change in a running app (0: at once).
+  static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 300);
+
+  /// The marks grow from zero when the graph first shows.
+  static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
+
+  /// The view, set from state: on rows `{last: n}` (the last n rows across
+  /// the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from,
+  /// to}`. Usually bound.
+  static const view = PropDef<Object?>('view', Codecs.any, null);
+
+  /// The pinned selection, set from state: `{index}` or `{index, mark}`;
+  /// null for none. Usually bound.
+  static const selected = PropDef<Object?>('selected', Codecs.any, null);
+
+  static const spec = WidgetSpec('graph', props: [
+    data, rowKey, xAxis, marks, yAxis, coord, guides, panes, transforms, selection, crosshair, interactions, style, //
+    animationDuration, animateIn, view, selected,
+  ], doc: 'Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. '
+      'Fires `changed` with `\${result.view}`, `\${result.cursor}` and `\${result.selection}` (`index`, `key`, `label`, '
+      '`row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves '
+      '(`\${result.nearStart}`: older rows are wanted).');
+}
+
 const List<WidgetSpec> indicatorsSpecs = [
   CircularProgressIndicatorProps.spec,
   ActivityIndicatorProps.spec,
@@ -867,5 +948,6 @@ const List<WidgetSpec> indicatorsSpecs = [
   PlotChartProps.spec,
   BarChartProps.spec,
   LineChartProps.spec,
+  GraphProps.spec,
   BarcodeProps.spec,
 ];

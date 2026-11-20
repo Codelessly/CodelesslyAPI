@@ -76,7 +76,7 @@ const Map<String, Level> widgetLevels = {
   // Design systems: a component's variants and the place its caller fills.
   'variance': _d, 'slot': _d,
   // Full vocabulary: drawing, data pictures, media, embeds.
-  'path': _f, 'signature': _f, 'radialGauge': _f, 'gaugeMeter': _f, 'chart': _f, 'plotChart': _f, 'barcode': _f, 'external': _f, 'video': _f, 'embeddedVideo': _f, 'audioPlayer': _f,
+  'path': _f, 'signature': _f, 'radialGauge': _f, 'gaugeMeter': _f, 'chart': _f, 'plotChart': _f, 'graph': _f, 'barcode': _f, 'external': _f, 'video': _f, 'embeddedVideo': _f, 'audioPlayer': _f,
   'webView': _f,
 };
 

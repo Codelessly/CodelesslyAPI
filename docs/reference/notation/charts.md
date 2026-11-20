@@ -510,6 +510,36 @@ Plot chart (line/area over an x domain; with series, origin axes and a zero-anch
 | `props.animate` | `true`/`false` | `true` | 4 | Animates numeric data changes; initial and design-canvas values rest. |
 | `animationDuration` | whole number (≥ 0) | `700` | 4 | Milliseconds. Zero applies data changes immediately. |
 
+<a id="node-graph"></a>
+### `Graph` (`graph`)
+
+Graph: rows drawn as marks (bars, lines, areas, candles, slices), with its view, cursor and selection as state. Fires `changed` with `${result.view}`, `${result.cursor}` and `${result.selection}` (`index`, `key`, `label`, `row`, and for one bar or slice `name`, `field`, `value`), and `scroll` with the view when it moves (`${result.nearStart}`: older rows are wanted).
+
+- Written `Graph`. Level 4 (Full vocabulary).
+- Takes no quoted string.
+- Takes no lines under it.
+- Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
+
+| Key | Type | Default | Level | Description |
+|---|---|---|---|---|
+| `data` | list of JSON | `[]` | 4 | The rows: one per place on the x scale (a month, a day, a slice). |
+| `rowKey` | text | `"t"` | 4 | The row field that names a row across updates (its time, its label): how an update is told from a new row and from older rows put before, and how marks find where they were when they move to new values. |
+| `xAxis` | [GraphXAxis](values.md#type-GraphXAxis) | `{}` | 4 | The x scale. |
+| `marks` | list of [GraphMark](values.md#type-GraphMark) | `[]` | 4 | The marks of a graph with one pane, drawn in order. |
+| `yAxis` | [GraphYAxis](values.md#type-GraphYAxis) | `{}` | 4 | The y scale of a graph with one pane. |
+| `coord` | text | `"rect"` | 4 | `rect` (marks over the x scale) or `polar` (the rows round a center: `arc` marks, no axes) for a graph with one pane. |
+| `guides` | list of [GraphGuide](values.md#type-GraphGuide) | `[]` | 4 | What is drawn at places of the scales, over the marks of a graph with one pane. |
+| `panes` | list of [GraphPane](values.md#type-GraphPane) | `[]` | 4 | Several panes over the one x scale. With panes, `marks`, `yAxis`, `coord` and `guides` are not read. |
+| `transforms` | list of [GraphTransform](values.md#type-GraphTransform) | `[]` | 4 | Fields worked out from the rows. |
+| `selection` | [GraphSelection](values.md#type-GraphSelection) | `{}` | 4 | The selection (hover, tap); off unless its `on` says. |
+| `crosshair` | [GraphCrosshair](values.md#type-GraphCrosshair) | `{}` | 4 | The crosshair; off unless `enabled`. |
+| `interactions` | [GraphInteractions](values.md#type-GraphInteractions) | `{}` | 4 | What each gesture does. |
+| `style` | [GraphStyle](values.md#type-GraphStyle) | `{}` | 4 | Its colors and text. |
+| `animationDuration` | whole number (≥ 0) | `300` | 4 | Milliseconds the marks take to move to new values when the rows change in a running app (0: at once). |
+| `animateIn` | `true`/`false` | `false` | 4 | The marks grow from zero when the graph first shows. |
+| `view` | JSON |  | 4 | The view, set from state: on rows `{last: n}` (the last n rows across the plot) or `{barSpacing, rightOffset}`; on a linear scale `{from, to}`. Usually bound. |
+| `selected` | JSON |  | 4 | The pinned selection, set from state: `{index}` or `{index, mark}`; null for none. Usually bound. |
+
 <a id="node-barcode"></a>
 ### `barcode` (`barcode`)
 
@@ -547,7 +577,7 @@ A record: written whole as JSON (`key={…}`), or field by field as dotted keys 
 | `kind` | `bar` `line` `area` `tick` | `bar` |  |
 | `color` | [Color](values.md#type-Color) | `#FF2ED17A` |  |
 | `colorField` | text |  | A row field holding a per-row color (hex), overriding `color`. |
-| `stack` | text |  | Bar series with the same stack id are stacked into one bar. |
+| `stack` | text |  |  |
 | `dashed` | `true`/`false` | `false` |  |
 | `strokeWidth` | number (≥ 0) | `2` |  |
 | `endDot` | `true`/`false` | `false` |  |

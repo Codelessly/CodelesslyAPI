@@ -203,6 +203,13 @@ abstract final class BindPaths {
   static AxisSize? _axisSize(AxisSize current, Object value) {
     if (BindValue.number(value) case final double v) return current.withValue(v < 0 ? 0 : v);
     if (readMap(value) != null) return AxisSize.fromJson(value, fallback: current.value);
+    // A fit named as a word (`${= fluid ? 'fill' : edge}`): that fit, as
+    // `{"fill": 0}` is. (It read as no size: the node measured 0.)
+    if (value is String) {
+      for (final fit in const [SizeFit.fill, SizeFit.hug]) {
+        if (value.trim() == fit.name) return AxisSize(fit, current.isFixed ? 0 : current.value);
+      }
+    }
     return null;
   }
 

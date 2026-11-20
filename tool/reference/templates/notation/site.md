@@ -63,6 +63,9 @@ text styles, spacing, radii, dark colors), its fonts, its design system and its 
 - **`dictionary`**: folders of definitions (a `<Word>.txt` each, a `define`), relative to `site.json`, or one as a
   string: a word the page, the site and its design system do not define is read from the first of them that does
   ([components.md](components.md#components-calling-one)).
+- **`now`**: the time the site's seed data is written for (`"now": "2026-11-16T09:00:00"`): what `now()` and
+  `today()` give in a render of the site when no `--now` is passed, so a calendar, a countdown or a "due today"
+  is drawn on the day its data means. A running app does not read it.
 - **`components`**: the expanded components' JSON, when not `components/<Name>.json`; components written in the
   notation are `components/<Name>.txt` ([components.md](components.md)).
 - **`breakpoints`**: the widths that are a phone, a tablet and a desktop, when not the defaults

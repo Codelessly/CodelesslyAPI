@@ -146,7 +146,7 @@ Which types take children, which take named slots, which take neither:
 |---|---|
 | `children` (a list of ids) | `stack`, `row`, `column`, `flex`, `variance`, `listView` (and slots loading, error, end, sectionHeader, reorderPlaceholder), `gridView` (and slots loading, error, end, reorderPlaceholder), `pageView`, `tabs`, `accordion`, `expansionTile` (and slots tile), `singlePlaceholder`, `slot` |
 | `slots` (name → id) | `canvas` (body, appBar, floatingActionButton, bottomNavigationBar), `tableView` (cell, columnHeader, rowHeader, corner), `badge` (child), `listTile` (leading, title, subtitle, trailing), `modal` (trigger, content) |
-| nothing | `box`, `text`, `icon`, `spacer`, `tabBar`, `pagination`, `textField`, `checkbox`, `switch`, `radio`, `slider`, `splitter`, `dropdown`, `datePicker`, `calendar`, `timePicker`, `dateTimeInput`, `segmentedButton`, `signature`, `elevatedButton`, `filledButton`, `textButton`, `outlinedButton`, `iconButton`, `floatingActionButton`, `chip`, `actionChip`, `choiceChip`, `filterChip`, `inputChip`, `appBar`, `navigationBar`, `bottomNavigationBar`, `divider`, `verticalDivider`, `circularProgressIndicator`, `activityIndicator`, `progressBar`, `radialGauge`, `gaugeMeter`, `chart`, `plotChart`, `barChart`, `lineChart`, `barcode`, `path`, `external`, `placeholder` |
+| nothing | `box`, `text`, `icon`, `spacer`, `tabBar`, `pagination`, `textField`, `checkbox`, `switch`, `radio`, `slider`, `splitter`, `dropdown`, `datePicker`, `calendar`, `timePicker`, `dateTimeInput`, `segmentedButton`, `signature`, `elevatedButton`, `filledButton`, `textButton`, `outlinedButton`, `iconButton`, `floatingActionButton`, `chip`, `actionChip`, `choiceChip`, `filterChip`, `inputChip`, `appBar`, `navigationBar`, `bottomNavigationBar`, `divider`, `verticalDivider`, `circularProgressIndicator`, `activityIndicator`, `progressBar`, `radialGauge`, `gaugeMeter`, `chart`, `plotChart`, `barChart`, `lineChart`, `graph`, `barcode`, `path`, `external`, `placeholder` |
 
 A type with "no decoration" draws no box: put it inside a `box`, `row`, `column` or `stack` that has the fill or
 border.
@@ -618,7 +618,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 - "animation": Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - "components": Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
 - "design-systems": Design systems.
-- "charts": Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, barcode.
+- "charts": Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, graph, barcode.
 - "data": Data: APIs, cloud data, storage and form submission.
 - "auth": Auth: signing users in.
 - "commerce": Commerce: paywalls.

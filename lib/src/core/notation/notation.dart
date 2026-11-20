@@ -819,6 +819,8 @@ final class NotationOptions {
         quietInks: quietInks,
         openVocabulary: openVocabulary,
         vocabulary: vocabulary,
+        // An overlay's `go library` names the page as the page's own does.
+        screens: screens,
         ownComponents: ownComponents,
         themeColors: themeColors,
         roles: roles,
@@ -1614,6 +1616,25 @@ const _borderSides = {
   'border-bottom': 'bottom', 'border-top': 'top', 'border-left': 'left', 'border-right': 'right', //
   'borderBottom': 'bottom', 'borderTop': 'top', 'borderLeft': 'left', 'borderRight': 'right', 'border-b': 'bottom', 'border-t': 'top', 'border-l': 'left', 'border-r': 'right',
 };
+/// The name of the stroke sides [sides] (of left, top, right, bottom).
+String _sidesName(Set<String> sides) {
+  const order = ['left', 'top', 'right', 'bottom'];
+  final s = [for (final o in order) if (sides.contains(o)) o];
+  return switch (s.length) {
+    1 => s.single,
+    2 => switch (s.join('+')) {
+        'top+bottom' => 'topBottom',
+        'left+right' => 'leftRight',
+        'top+right' => 'topRight',
+        'right+bottom' => 'bottomRight',
+        'left+bottom' => 'bottomLeft',
+        _ => 'topLeft',
+      },
+    3 => 'no${order.firstWhere((o) => !sides.contains(o)).replaceFirstMapped(RegExp('^.'), (m) => m[0]!.toUpperCase())}',
+    _ => 'all',
+  };
+}
+
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
 /// A flag word written with `=true` or `=false` (after a size's condition or
 /// not): the condition, the word, the value.
@@ -1633,15 +1654,24 @@ const _crossWords = {'top': 'start', 'left': 'start', 'middle': 'center', 'botto
 /// site's `define`, `primitive` or component of such a name is not used,
 /// and is said at the definition (before, `define Card` was not used, with
 /// no word).
-String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core}) {
+String? notationBuiltInWord(String word, {Catalog? catalog, NotationVocabulary vocabulary = NotationVocabulary.core, bool primitive = false}) {
   if (word.isEmpty) return null;
   final c = catalog ?? Catalog.current;
   if (PageWords.words.contains(word)) return '$word, a word of the page (its frames and their lines: App, Sidebar, Rail, Main, Nav, Section, Footer, Dialog…): $word …';
   final lower = '${word[0].toLowerCase()}${word.substring(1)}';
   final type = notationTypes[word]?.type ?? (c.widget(lower) != null ? lower : null);
   if (type != null) return '$word, a word of the notation (a $type): $word "text" key=value …';
-  if (vocabulary.types[word] case final a? when !vocabulary.definitions.containsKey(word)) {
-    return '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}';
+  // A name the notation reads as another of its words (an alias: MonthGrid
+  // as Calendar, DataTable as Table) is not a word it has: a page's or a
+  // site's own definition of the name is the one read, as it is over a
+  // dictionary's. (The alias won, and the writer's month grid was a bare
+  // date picker with its parameters left out.) A `primitive` of the name
+  // has no lines to read in its place (a labelled box would stand in for
+  // what the notation draws): there the alias is the notation's word still.
+  if (primitive) {
+    if (vocabulary.types[word] case final a? when !vocabulary.definitions.containsKey(word)) {
+      return '$word, read as the notation\'s ${a.to}${a.variant == null ? '' : '.${a.variant}'}';
+    }
   }
   return null;
 }
@@ -1873,6 +1903,10 @@ class _Grid {
   /// grid of an `each` (docs/design/22, 2.4), with the line and column they
   /// were written at (cells written one by one stay in their rows: said).
   final mediaCols = <Json>[];
+
+  /// `phone.gap=4`, `phone.mainAxisExtent=226`: its cells at other widths,
+  /// rules of the grid of an `each`.
+  final mediaCells = <Json>[];
   int mediaLine = 0, mediaColumn = 0;
   bool mediaSaid = false;
 }
@@ -2312,8 +2346,13 @@ class _Parser {
     // The page's own words hold in its overlays too.
     page: identical(_top, this) ? null : _top._defined.page,
     variable: (name) => variables.containsKey(name) || _stack.any((o) => o.each == name),
+    textVariable: (name) => variables[name]?['type'] == 'text',
+    eachItem: (name) => _stack.any((o) => o.each == name),
     internal: (name) => _top._internal.add(name),
-    builtIn: (word) => switch (_builtIn(word)) { final what? => notationBuiltInDefinition(word, what), _ => null },
+    builtIn: (word, primitive) => switch (_builtIn(word, primitive: primitive)) {
+      final what? => notationBuiltInDefinition(word, what, kind: primitive ? 'primitive' : 'definition'),
+      _ => null,
+    },
     bindsVariable: (name, column, start) => _bindsVariable(name, column, () {
       if (start == null) return '';
       final v = _value(start.trim());
@@ -2343,6 +2382,20 @@ class _Parser {
   /// written out, each with where it is written.
   Iterable<(PageLine, String?)> _definedLines(int indent, String text) sync* {
     for (final d in _defined.rewrite(indent, text, line: _line)) {
+      // An overlay's word with no id, in an overlay: there is nothing to
+      // open, so it is the open overlay's content (its title, its note and
+      // the lines under it), without a second close button.
+      if (_overlay != null && d.indent == indent && _overlayWord.hasMatch(d.text) && !text.startsWith(RegExp(r'[A-Za-z0-9.]+#'))) {
+        final word = RegExp(r'^[A-Za-z]+').stringMatch(d.text)!;
+        final o = _pages.overlay('$word#${_overlay.id}Inner${d.text.substring(word.length).replaceFirst(RegExp(r'^#\S+'), '')}');
+        if (o != null && o.shift == 0 && o.foot.isEmpty && o.head.isNotEmpty && o.head.first.text.startsWith('Column ')) {
+          yield ((indent: d.indent, text: o.head.first.text.replaceFirst(RegExp(r' pad=\S+'), '')), d.from);
+          for (final l in o.head.skip(1)) {
+            if (!l.text.startsWith('IconButton "close"')) yield ((indent: d.indent + l.indent, text: l.text), d.from);
+          }
+          continue;
+        }
+      }
       final lines = _pages.rewrite(d.indent, d.text);
       _shadowed(d.text, lines);
       for (final l in lines) {
@@ -2446,8 +2499,8 @@ class _Parser {
   /// What the notation has under [word] that a writer's definition does not
   /// replace ([notationBuiltInWord]); null for a design system's component,
   /// which a page's own definition may replace.
-  String? _builtIn(String word) =>
-      _componentNames(word) != null ? null : notationBuiltInWord(word, catalog: catalog, vocabulary: options.vocabulary);
+  String? _builtIn(String word, {bool primitive = false}) =>
+      _componentNames(word) != null ? null : notationBuiltInWord(word, catalog: catalog, vocabulary: options.vocabulary, primitive: primitive);
 
   bool _ownType(String word) =>
       notationTypes.containsKey(word) ||
@@ -2716,14 +2769,32 @@ class _Parser {
   /// them, as an overlay's do). Null for any other line.
   List<String>? _overlayDefined(String head) {
     final parts = LineParts.of(head);
-    if (parts == null || parts.id.isEmpty || !_defined.has(parts.word)) return null;
+    if (parts == null || !_defined.has(parts.word) || !_definesOverlay(parts.word)) return null;
     NotationDefinition? read;
     final words = DefinedWords({...options.vocabulary.dictionary, ...options.vocabulary.definitions, ..._defined.page},
-        open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), used: (d, p, node, column) => read = d);
+        open: options.openVocabulary, ours: _ownType, theme: notationThemeReads(options), counts: _top._defined.counts, used: (d, p, node, column) => read ??= d);
     final out = [...words.rewrite(0, head), ...words.finish()];
-    if (out.isEmpty || !RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#').hasMatch(out.first.text)) return null;
-    if (read case final d?) _use(d.primitive ? 'primitive' : 'definition', parts.word, 1, to: d.label, node: parts.id.substring(1), parts: parts, of: d.dictionary);
+    final id = out.isEmpty ? null : RegExp('^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#($notationId)').firstMatch(out.first.text)?[1];
+    if (id == null) return null;
+    if (read case final d?) _use(d.primitive ? 'primitive' : 'definition', parts.word, 1, to: d.label, node: id, parts: parts, of: d.dictionary);
     return [for (final l in out) '${' ' * l.indent}${l.text}'];
+  }
+
+  static final _overlayWord = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)(?=[#.\s]|$)');
+
+  /// Whether a meaning of the defined word [word] has an overlay for its
+  /// body (`define RepDrawer` over `Drawer#repNav …`), itself or through
+  /// another defined word.
+  bool _definesOverlay(String word, [int depth = 0]) {
+    if (depth > 4) return false;
+    for (final d in _defined.meanings(word)) {
+      final first = d.body.firstOrNull?.text;
+      if (first == null) continue;
+      if (_overlayWord.hasMatch(first)) return true;
+      final inner = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(first);
+      if (inner != null && inner != word && _defined.has(inner) && _definesOverlay(inner, depth + 1)) return true;
+    }
+    return false;
   }
 
   /// Whether [text] (indented, with an id) is the head of an overlay: a
@@ -2756,8 +2827,68 @@ class _Parser {
   /// under one.
   bool _inDeclaration = false;
 
+  /// [raw], a line of a component's tree, with each parameter its
+  /// expressions read by its bare name (`w={edge}` under `param edge=180`)
+  /// read as the component's (`props.edge`): a name no state of the text and
+  /// no `each` around the line has is that parameter, not nothing. Only what
+  /// is in braces is read (`w=fill` under `param fill` is the word).
+  String _paramsRead(String raw) {
+    final top = _top;
+    if (top._widget?['props'] case final List<Object?> params when params.isNotEmpty) {
+      final names = [
+        for (final p in params)
+          if (p is Map && p['key'] is String && !variables.containsKey(p['key']) && !top._derived.containsKey(p['key']) && !_stack.any((o) => o.each == p['key']))
+            p['key'] as String,
+      ];
+      if (names.isEmpty || !names.any(raw.contains)) return raw;
+      String named(String code) {
+        for (final n in names) {
+          if (code.contains(n)) code = _rename(code, n, 'props.$n');
+        }
+        return code;
+      }
+
+      // A condition and the list of an `each` (or of a `Table row in rows`)
+      // are expressions as they stand.
+      final t = raw.trimLeft(), pad = raw.substring(0, raw.length - t.length);
+      if (RegExp(r'^(if|else if|elif)\s+').firstMatch(t) case final m?) return '$pad${m[0]}${named(t.substring(m.end))}';
+      if (RegExp(r'^(?:each|[A-Z][A-Za-z0-9]*(?:#[A-Za-z0-9_-]+)?)\s+[A-Za-z_][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z_][A-Za-z0-9_]*)?\s+in\s+').firstMatch(t) case final m?) {
+        final rest = t.substring(m.end);
+        // (A list worked out with a call has spaces in it: all of it.)
+        final end = rest.startsWith('{') || rest.startsWith('[') ? 0 : rest.startsWith(RegExp(r'[A-Za-z_][A-Za-z0-9_.]*\(')) ? rest.length : rest.indexOf(RegExp(r'\s|$'));
+        raw = '$pad${m[0]}${named(rest.substring(0, end))}${rest.substring(end)}';
+      }
+      if (!raw.contains('{')) return raw;
+      final out = StringBuffer();
+      var at = 0;
+      while (at < raw.length) {
+        final open = raw.indexOf('{', at);
+        if (open < 0) break;
+        final braced = (_Tokens(raw)..at = open).balanced();
+        if (!braced.endsWith('}') || braced.length < 3) {
+          out.write(raw.substring(at, open + 1));
+          at = open + 1;
+          continue;
+        }
+        var inner = braced;
+        for (final n in names) {
+          if (inner.contains(n)) inner = _rename(inner, n, 'props.$n');
+        }
+        out
+          ..write(raw.substring(at, open))
+          ..write(inner);
+        at = open + braced.length;
+      }
+      out.write(raw.substring(at));
+      return out.toString();
+    }
+    return raw;
+  }
+
   /// Reads one line (without its newline).
   void line(String raw) {
+    // A component's tree has started: its overlays' lines read its parameters too.
+    if (_host == null && _root != null && _widget != null) raw = _paramsRead(raw);
     // An `at` block ends at the next line not indented past it (at_width.dart).
     if (_at.open != null && !_continues && !_at.feeding) _atBefore(raw);
     // The lines under an overlay's head are its canvas's; the next line at
@@ -2800,14 +2931,20 @@ class _Parser {
       // pane): it is still over the page, its lines the ones indented under
       // it, and the page goes on after them.
       if (!blank && (_block != null || _blockSkipped)) _closeBlock();
-      final inside = !blank && indent > 0 && _root != null && RegExp(r'^[A-Za-z][A-Za-z0-9]*#[A-Za-z_]').hasMatch(raw.trimLeft()) && _overlayInside(raw.trim());
+      // A defined word whose body is an overlay (`define RepDrawer` over
+      // `Drawer#repNav`) is that overlay wherever its use is written.
+      final defined = blank || _inDeclaration && indent > 0 ? null : _overlayDefined(raw.trim());
+      final inside = !blank &&
+          indent > 0 &&
+          _root != null &&
+          (defined != null || (RegExp(r'^[A-Za-z][A-Za-z0-9]*#[A-Za-z_]').hasMatch(raw.trimLeft()) && _overlayInside(raw.trim())));
       if (!blank && (indent == 0 || inside)) {
         _closeBlock();
         _line++;
         final above = [..._srcStack];
         _track(indent, raw.trim());
         var head = raw.trim();
-        final lines = _overlayDefined(head) ?? _aliased(head, indent + 1);
+        final lines = defined ?? _aliased(head, indent + 1);
         // An unknown word at the margin with an id, after the page: what is
         // written there is over the page, so it stands in as a dialog.
         VocabularyUse? standIn;
@@ -2878,6 +3015,7 @@ class _Parser {
     if (raw.trimLeft().startsWith('```')) return;
     if (_atLine(raw)) return; // `at phone` and the lines of its block (at_width.dart)
     if (_componentLine(raw)) return;
+    raw = _paramsRead(raw);
     final indent = raw.length - raw.trimLeft().length;
     // (At the indent the page words move the node lines to: a box in a Nav
     // or a Section is two deeper than written.)
@@ -4505,14 +4643,14 @@ class _Parser {
       final more = readPageDefinitions(definitions, others: others);
       // A word the notation has is the notation's (said where the more text
       // is read: a site's definition file).
-      more.words.removeWhere((w, _) => _builtIn(w) != null);
+      more.words.removeWhere((w, defs) => _builtIn(w, primitive: defs.every((d) => d.primitive)) != null);
       _defined.preread(more.words);
     }
     final own = readPageDefinitions(text, others: others);
     // A word the notation has is the notation's: the text's definition of it
     // is not used, and said where it is written.
     for (final w in own.words.keys.toList()) {
-      if (_builtIn(w) case final what?) {
+      if (_builtIn(w, primitive: own.words[w]!.every((d) => d.primitive)) case final what?) {
         for (final d in own.words.remove(w)!) {
           issues.add(NotationIssue(d.line, 1, notationBuiltInDefinition(w, what, kind: d.primitive ? 'primitive' : 'definition')));
         }
@@ -5219,7 +5357,12 @@ class _Parser {
           if (g?.colsFormula case final String cols) 'props.crossAxisCount': cols,
         },
         // `tablet.cols=2` on the Grid: its column count at that width.
-        if (g != null && g.mediaCols.isNotEmpty) 'media': [for (final r in g.mediaCols) _copy(r)],
+        if (g != null && (g.mediaCols.isNotEmpty || g.mediaCells.isNotEmpty))
+          'media': [
+            // The narrower width's rule after the wider's, so it wins where both hold.
+            for (final r in [...g.mediaCols, ...g.mediaCells]..sort((a, b) => ((b['maxWidth'] as num?) ?? double.infinity).compareTo((a['maxWidth'] as num?) ?? double.infinity)))
+              _copy(r),
+          ],
         'children': <Object?>[itemId],
       };
       if (g != null) g.mediaSaid = true;
@@ -5416,6 +5559,8 @@ class _Parser {
     final positional = <String>[];
     final node = <String, Object?>{};
     final props = <String, Object?>{}, layout = <String, Object?>{}, decoration = <String, Object?>{}, bind = <String, Object?>{};
+    // The sides the line's border-<side> words name, so far.
+    final sidesWritten = <String>{};
     final reactions = <Json>[];
     // The reactions `menu=` gave the line, by trigger: what the line's own
     // onRightClick or onLongPress does runs in the same reaction before the
@@ -6187,6 +6332,22 @@ class _Parser {
                 ..clear()
                 ..addAll([for (final e in order) e.$2]);
             }
+          } else if (grid != null && RegExp(r'^(gap|mainAxisExtent|childAspectRatio)=(\d+(?:\.\d+)?)$').firstMatch(ruleWord) != null) {
+            // `phone.gap=4`, `phone.mainAxisExtent=226`: the cells of the grid
+            // its `each` makes, at that width (they were left out, and a
+            // phone drew the desktop's cells).
+            final gm = RegExp(r'^(gap|mainAxisExtent|childAspectRatio)=(\d+(?:\.\d+)?)$').firstMatch(ruleWord)!;
+            final n = num.parse(gm[2]!);
+            if (!_mediaLine) {
+              grid.mediaCells.add({
+                ...m.condition,
+                'patch': {
+                  'props': gm[1] == 'gap' ? {'mainAxisSpacing': n, 'crossAxisSpacing': n} : {gm[1]!: n},
+                },
+              });
+              // The rows of cells written one by one take a gap as a Column does.
+              if (gm[1] == 'gap') mediaWords.add((condition: m.condition, word: ruleWord, column: col));
+            }
           } else if (!_mediaLine) {
             mediaWords.add((condition: m.condition, word: ruleWord, column: col));
           }
@@ -6580,7 +6741,7 @@ class _Parser {
             // A list whose texts read values (items=["Lemons, {2 * n}"]):
             // each such text is its parts joined.
             final decoded = jsonDecode(raw);
-            if (_readsValues(decoded)) raw = '=${_formulaSource(decoded)}';
+            if (_readsValues(decoded)) raw = '=${_formulaSource(decoded, numbers: const {'x', 'y', 'w', 'h'}.contains(key))}';
           } catch (_) {
             _issue(col, 'Not a list of values. One that is worked out is written in braces: $key={$raw}.');
             continue;
@@ -6624,6 +6785,13 @@ class _Parser {
         // edge; round 11b, clip-editor's timeline).
         if (type == 'stack' && !component && key == 'clipBehavior' && const {'hardEdge', 'antiAlias', 'antiAliasWithSaveLayer'}.contains(raw)) {
           decoration['clip'] = raw;
+          continue;
+        }
+        // `clip=true`: as the bare word clip, what is in it is cut at its
+        // edge (round corners too); `clip=false`: not. (`true` is no way
+        // of clipping the document has: it was kept and nothing was cut.)
+        if (key == 'clip' && (raw == 'true' || raw == 'false') && spec.prop('clip') == null) {
+          decoration['clip'] = raw == 'true' ? 'antiAlias' : 'none';
           continue;
         }
         if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
@@ -6707,6 +6875,18 @@ class _Parser {
           if (v != 'none' && v != 'transparent' && v != false && v != 0) _framedSelects.add(id);
         }
         if (type == 'dropdown' && !component && key == 'underline') _ownFrameSaid.add(id);
+        // `IconButton "play_arrow" fill=accent`: the button's own ground
+        // (its style's), which it draws under its icon; a fill on the node
+        // is not drawn by a button.
+        if (key == 'fill' && type == 'iconButton' && !component) {
+          if (raw.startsWith('=')) {
+            bind['props.style.backgroundColor'] = _namedIn(_read(raw.substring(1)), 'fill');
+            buttonLook ??= <String, Object?>{};
+          } else {
+            (buttonLook ??= <String, Object?>{})['backgroundColor'] = _named(_value(raw), 'fill');
+          }
+          continue;
+        }
         if (key == 'fill') {
           if (raw.startsWith('=')) {
             bind['decoration.fills[0].color'] = _namedIn(_read(raw.substring(1)), 'fill');
@@ -6954,10 +7134,18 @@ class _Parser {
         // A hairline round it: `border=#FFE5E7EB`, or one that follows data: `border={on?"#FF2563EB":"#FFE5E7EB"}`.
         // A hairline on one side: border-bottom=#FFE5E7EB (a bar's rule, a pane's edge).
         if (_borderSides[key] case final String side when !raw.startsWith('=')) {
-          decoration['strokes'] = [
-            {'color': _named(_value(raw), 'stroke')},
-          ];
-          decoration['strokeSides'] = side;
+          final stroke = {'color': _named(_value(raw), 'stroke')};
+          // A second side on the line (`border-right=rule border-bottom=rule`)
+          // is drawn with the first (it replaced it: one stroke of two).
+          // A node's sides are one colour: another's is said.
+          final before = sidesWritten.isEmpty ? null : readList(decoration['strokes'])?.firstOrNull;
+          if (before != null && jsonEncode(before) != jsonEncode(stroke)) {
+            _issue(col, 'The sides of one border are one colour: $key=$raw is drawn in the colour of the side before it. A side of another colour is a line of its own (a Box w=fill h=1 fill=â€¦ at that edge).');
+          } else {
+            decoration['strokes'] = [stroke];
+          }
+          sidesWritten.add(side);
+          decoration['strokeSides'] = _sidesName(sidesWritten);
           continue;
         }
         // …one that follows data: border-bottom={active ? accent : transparent}.
@@ -6965,7 +7153,8 @@ class _Parser {
           decoration['strokes'] = [
             {'color': '#00000000'},
           ];
-          decoration['strokeSides'] = side;
+          sidesWritten.add(side);
+          decoration['strokeSides'] = _sidesName(sidesWritten);
           bind['decoration.strokes[0].color'] = _namedIn(_read(raw.substring(1)), 'stroke');
           continue;
         }
@@ -7292,7 +7481,19 @@ class _Parser {
         if (type == 'segmentedButton' && key == 'items') {
           final items = _value(raw);
           if (items is List) {
-            props['segments'] = [for (final i in items) {'value': '$i', 'label': '$i'}];
+            // `items=[{"value":"kg","label":"Kilograms"}]`: each a segment
+            // with its value and what it shows (the record itself was shown).
+            props['segments'] = [
+              for (final i in items)
+                if (i is Map && (i.containsKey('value') || i.containsKey('label')))
+                  {
+                    'value': '${i['value'] ?? i['label']}',
+                    'label': '${i['label'] ?? i['value']}',
+                    if (i['icon'] != null) 'icon': i['icon'],
+                  }
+                else
+                  {'value': '$i', 'label': '$i'},
+            ];
             continue;
           }
         }
@@ -7712,8 +7913,15 @@ class _Parser {
         if (written0 is List)
           for (final s in written0.map(readMap).nonNulls)
             if (s['values'] ?? s['data'] case final List v) (name: '${s['name'] ?? s['label'] ?? ''}', values: v, color: s['color']),
+        // `series=[3,5,4]`: one line's values, as `values=` is.
+        if (written0 is List && written0.isNotEmpty && written0.every((v) => v is num)) (name: '', values: written0, color: props.remove('lineColor')),
         if (written0 is! List && plain is List) (name: '', values: plain, color: props.remove('lineColor')),
       ];
+      // A series that gives no values draws no line: said, not dropped.
+      if (all.isEmpty && written0 is List && !_quiet && !_mediaLine) {
+        _issue(column,
+            'A $written\x27s series give its lines\x27 values: series=[{"name":"Visits","values":[3,5,4]}] (one for each line), or values=[3,5,4] for one line, with labels=[â€¦] under them. This series= gives none, so the chart draws no line.');
+      }
       if (all.isNotEmpty) {
         final palette = notationChartShades(_accentValue);
         final rows = all.map((s) => s.values.length).reduce((a, b) => a > b ? a : b);
@@ -7797,6 +8005,15 @@ class _Parser {
         props['data'] = [for (var i = 0; i < values.length; i++) {'x': i, 'y': values[i]}];
         props['xField'] = 'x';
         props['yField'] = 'y';
+      }
+      // `labels=[â€¦]` with no values to put them under (the chart's rows
+      // come from data=): left out, and the key that does it said.
+      if (type == 'lineChart' && props['labels'] is List && !asWritten) {
+        props.remove('labels');
+        if (!_quiet && !_mediaLine) {
+          _issue(column,
+              'A $written\x27s labels go under values written with them (labels=["Mon","Tue"] values=[3,5]). With data={rows} the label of each point is a field of its row: xField="day" (and yField="count"). labels= is left out.');
+        }
       }
     }
     // Universal words read once the line is (docs/design/21): a chip's
@@ -8084,6 +8301,13 @@ class _Parser {
           props['style'] = style..['color'] = _named(_value(ink), 'text');
         }
       }
+    }
+    // A node pinned to both edges of its Stack along an axis
+    // (`y={"start":12,"end":2}`) with no size written there is as long as
+    // the room between them: a fill, not its content's length (a box with
+    // only a paint under it has none: it collapsed to nothing).
+    for (final (pos, size) in const [('x', 'width'), ('y', 'height')]) {
+      if (layout[pos] case {'start': num _, 'end': num _} when !layout.containsKey(size)) layout[size] = {'fill': 0};
     }
     // In a grid a child is as wide as its cell and as tall as it says (its
     // row is as tall as its tallest child).
@@ -8733,6 +8957,25 @@ class _Parser {
         },
       };
     }
+    // `Select items=[â€¦] selected={pick}`: the choice a Select shows is its
+    // value; selected is a node's selected state, which shows nothing in a
+    // Select (it drew blank). Read as the value, and the key that does it said.
+    if (type == 'dropdown' && !component) {
+      final bound = readMap(out['bind']);
+      final held = readMap(out['props']);
+      if (bound != null && bound['selected'] is String && !bound.containsKey('props.value') && held?['value'] == null) {
+        final choice = bound['selected'];
+        out['bind'] = {
+          for (final e in bound.entries)
+            if (e.key != 'selected') e.key: e.value,
+          'props.value': choice,
+        };
+        if (!_quiet && !_mediaLine) {
+          _issue(column, 'A Select\x27s choice is written value={â€¦} (or @name, which keeps it too): selected= is a node\x27s selected state, which a Select does not show. It is read as value= here.');
+        }
+      }
+    }
+    if (type == 'dropdown' && !component) _valueLabelItems(out);
     _readStates(stateWords, t.s.substring(0, math.min(t.at, t.s.length)).trimRight(), id, parent?.id, parent?.type, type, out, node);
     // Its media rules, unless its {…} tail gave them (t.at: where the words end).
     if (mediaWords.isNotEmpty && !node.containsKey('media') && !t.rest.contains('"media"')) {
@@ -9401,6 +9644,8 @@ class _Parser {
 
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
+  static final _goes = RegExp(r'(?:^|[{;?:(]|\bthen)\s*go$');
+
   String _rename(String line, String name, [String to = 'item']) {
     // A short loop name may also be a layout key (`each h ... Text ... h=120`).
     // A key followed by ':' is notation, not a reference to the item.
@@ -9415,6 +9660,9 @@ class _Parser {
           final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
               (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
               !before.endsWith('?');
+          // `go album` under `each album in â€¦` with a page called album: a
+          // bare word after go is the page's id (the item is `go {album}`).
+          if (_goes.hasMatch(before) && notationScreen(name, options.screens) != null) return m[0]!;
           return key ? m[0]! : to;
         });
     void flush(int end, bool isCode) {
@@ -10579,6 +10827,24 @@ class _Parser {
   /// (of the validator's runtimeScopes, those no node gives).
   static const _screenScopes = {'data', 'route', 'storage', 'screen', 'theme', 'auth', 'drag', 'perf', 'script', 'speech'};
 
+  /// The line each state of the text was written on.
+  final _stateLines = <String, int>{};
+
+  /// Says a second `state` (or a word that stands for one: `computed`) of
+  /// the name [name]: one name is one value, and what reads it gets one of
+  /// the two with nothing said (a list and a computed of one name: the
+  /// list was read, the page drew empty).
+  void _statedTwice(String name, int column) {
+    final lines = _top._stateLines;
+    name = '$_scope $name';
+    if (lines[name] case final int before when before != _line) {
+      name = name.substring(name.indexOf(' ') + 1);
+      _issue(column, 'The state $name is written twice (line $before has it too): one name is one value, and what reads $name gets only one of the two. Give one of them another name, or leave one out.');
+    } else {
+      lines[name] = _line;
+    }
+  }
+
   void _state(String rest, int column) {
     // `state draft="" saved`: its value is kept on the device and is there
     // again after a reload (Variable.persist).
@@ -10607,6 +10873,7 @@ class _Parser {
         _issue(column, 'state $name(${typed[2]}): $name is one of the formula functions ($name(…) calls that one, never this): name it otherwise, as state $other(${typed[2]}):$type={…}, and call $other(…).');
       }
       // Declared: what binds it (`@name`) needs no other line.
+      _statedTwice(name, column);
       _top._stated.add(name);
       _top._typedStates.add(name);
       _top._unstated.remove(name);
@@ -10627,6 +10894,7 @@ class _Parser {
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
     // Declared, even where it is refused below: what binds it is said once.
+    _statedTwice(m[1]!, column);
     _top._stated.add(m[1]!);
     _top._unstated.remove(m[1]);
     if (m[1] == 'device') return _issue(column, 'device is read-only input capability; use device.hover or device.pointer in an if or binding.');
@@ -10641,14 +10909,22 @@ class _Parser {
     // `state shown={filter(rows,r=>r.open)}`: a formula in braces, as an
     // expression is written everywhere else, is that formula (a map names
     // a key first: {"a": 1}).
-    if (_bracedExpression(written)) written = written.substring(1, written.length - 1).trim();
+    final braced = _bracedExpression(written);
+    if (braced) written = written.substring(1, written.length - 1).trim();
     // One formula may read another (`state total=subtotal-discount`).
     for (final d in _derived.entries) {
       if (written.contains(d.key)) written = _rename(' $written', d.key, '(${d.value})').substring(1);
     }
     // Text in quotes is not an operator: `"a + b"` is a value, `"Total " + n` a formula.
     final code = written.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
-    if (!_literal(written).$1 && RegExp(r'[(+*/?<>&|]').hasMatch(code)) {
+    // An element or a field read by a key that is worked out
+    // (`stories[story]`, `rows[at].name`) of state already declared is a
+    // formula too, as is whatever is written in braces that is no value
+    // (`{list[0]}`): each was kept as the text of the expression, and what
+    // read it drew nothing.
+    final indexed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\.[A-Za-z_][A-Za-z0-9_]*)*\[[^\[\]"]+\](?:\.[A-Za-z_][A-Za-z0-9_]*|\[[^\[\]]+\])*$').firstMatch(code);
+    final reads = indexed != null && (variables.containsKey(indexed[1]) || _derived.containsKey(indexed[1]));
+    if (!_literal(written).$1 && (RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads || (braced && code.contains('[')))) {
       _derived[m[1]!] = written;
       return;
     }
@@ -10669,6 +10945,42 @@ class _Parser {
       'value': value,
       if (saved) 'persist': true,
     };
+  }
+
+  /// A Select whose items are written with a value and what each shows
+  /// (`items=[{"value":"system","label":"Match device"}]`): [node] lists the
+  /// labels (a Select's items are its texts), shows the label of the value
+  /// it is given, and its change gives the value of the label chosen, so the
+  /// variable keeps values. (It showed nothing: no item was "system".)
+  void _valueLabelItems(Json node) {
+    final props = readMap(node['props']);
+    final items = readList(props?['items']);
+    if (props == null || items == null || items.isEmpty || !items.every((i) => i is Map && (i.containsKey('label') || i.containsKey('value')))) return;
+    final labels = [for (final i in items.cast<Map<Object?, Object?>>()) '${i['label'] ?? i['value']}'];
+    final values = [for (final i in items.cast<Map<Object?, Object?>>()) i['value'] ?? i['label']];
+    props['items'] = labels;
+    final l = jsonEncode(labels), v = jsonEncode(values);
+    String inner(String bound) => bound.startsWith(r'${=') ? bound.substring(3, bound.length - 1).trim() : bound.substring(2, bound.length - 1).trim();
+    if (props['value'] case final Object value when values.contains(value)) props['value'] = labels[values.indexOf(value)];
+    final bind = readMap(node['bind']);
+    if (bind?['props.value'] case final String bound when bound.startsWith(r'${') && bound.endsWith('}')) {
+      bind!['props.value'] = '\${= get($l, indexOf($v, ${inner(bound)}))}';
+    }
+    // What a change gives (result) is the label: read as its value.
+    final chosen = '(get($v, indexOf($l, result)))';
+    Object? read(Object? json) => switch (json) {
+          final String s when s == r'${result}' => '\${= $chosen}',
+          final String s when s.startsWith(r'${=') && s.contains('result') => _rename(s, 'result', chosen),
+          final List<Object?> list => [for (final e in list) read(e)],
+          final Map<Object?, Object?> m => {for (final e in m.entries) e.key: read(e.value)},
+          _ => json,
+        };
+    if (readList(node['actions']) case final List<Object?> reactions) {
+      node['actions'] = [
+        for (final r in reactions)
+          if (r is Map && readMap(r['trigger'])?['type'] == 'changed') {...r.cast<String, Object?>(), 'actions': read(r['actions'])} else r,
+      ];
+    }
   }
 
   static final _handlerKey = RegExp(r'^on[A-Z][A-Za-z]*$');
@@ -11492,8 +11804,15 @@ class _Parser {
 
   /// [json] as a formula, each text that reads values (`"{n} left"`) as its
   /// parts joined (`(n) + " left"`).
-  String _formulaSource(Object? json) {
+  String _formulaSource(Object? json, {bool numbers = false}) {
     switch (json) {
+      // Where a number is read (a place, a size: `x={"align":"{p.mapX}"}`),
+      // a text that is one value is that value, also written as a document
+      // writes a read (`"${p.mapX}"`: the `$` is no part of a number; it
+      // was kept, the place read "$0.6" and the pin went to a corner).
+      case final String s when numbers && RegExp(r'^\$?\{[^{}]+\}$').hasMatch(s.trim()):
+        final t = s.trim();
+        return '(${_natural(t.substring(t.indexOf('{') + 1, t.length - 1).trim())})';
       case final String s when _spans(s).isNotEmpty:
         final parts = <String>[];
         var at = 0;
@@ -11507,9 +11826,9 @@ class _Parser {
         if (!parts.first.startsWith('"')) parts.insert(0, '""');
         return '(${parts.join(' + ')})';
       case final List l:
-        return '[${l.map(_formulaSource).join(', ')}]';
+        return '[${l.map((e) => _formulaSource(e, numbers: numbers)).join(', ')}]';
       case final Map m:
-        return '{${m.entries.map((e) => '${jsonEncode(e.key)}: ${_formulaSource(e.value)}').join(', ')}}';
+        return '{${m.entries.map((e) => '${jsonEncode(e.key)}: ${_formulaSource(e.value, numbers: numbers)}').join(', ')}}';
       default:
         return jsonEncode(json);
     }
@@ -11615,7 +11934,31 @@ class _Parser {
   /// `and`, `or`, `not`; a call on a value (`rows.filter(…)`, `n.toFixed(2)`,
   /// `name.trim()`, `rows.length`) as the function of that name. Text in
   /// quotes is left as it is.
+  static final _themeRead = RegExp(r'(?<![A-Za-z0-9_.])theme\.([A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_(])');
+
+  /// What an expression reads of the theme by a name alone that is not one
+  /// of its own values: the theme's color of that name.
+  static const _themeOwn = {'colors', 'text', 'isDark', 'brightness', 'mode', 'hasDark', 'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'};
+
+  late final Map<String, Object?> _themeLooks = notationThemeReads(options);
+
   String _natural(String expr) {
+    // `theme.accent` in an expression of the page, where the theme has a
+    // color called accent: that color (`theme.colors.accent`), as the name
+    // alone is after a color key. (It read nothing: the theme's colors are
+    // under `colors`, so a fill worked out from one drew none.)
+    if (expr.contains('theme.') && (options.themeColors.isNotEmpty || options.palette.isNotEmpty)) {
+      expr = expr.replaceAllMapped(_themeRead, (m) {
+        final name = m[1]!;
+        if (_themeOwn.contains(name)) return m[0]!;
+        if (options.palette.containsKey(name) || (options.themeColors.contains(name) && !ThemeTokens.notationRoles.containsKey(name))) return 'theme.colors.$name';
+        // A look the theme gives the notation's own words (`theme.accent`,
+        // `theme.line`, `theme.mutedInk`), as a defined word's lines read it.
+        return switch (_themeLooks[name]) { final String look => jsonEncode(look), _ => m[0]! };
+      });
+    } else if (expr.contains('theme.')) {
+      expr = expr.replaceAllMapped(_themeRead, (m) => switch (_themeOwn.contains(m[1]) ? null : _themeLooks[m[1]]) { final String look => jsonEncode(look), _ => m[0]! });
+    }
     // Minutes and seconds from seconds, under the names models reach for.
     if (expr.contains('formatTime(') || expr.contains('formatSeconds(')) {
       expr = expr.replaceAll(RegExp(r'\bformat(Time|Seconds)\('), 'duration(');

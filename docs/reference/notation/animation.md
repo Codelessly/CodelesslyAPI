@@ -87,8 +87,8 @@ The `animate` action plays, reverses or sets one: `onTap={animate node=card comm
 | `path` | text | `""` |  |
 | `node` | text | `""` |  |
 | `variable` | text | `""` |  |
-| `from` | JSON |  | A number, a color or an expression; empty: the property's own value. |
-| `to` | JSON |  | `Tween(begin:, end:)`: numbers, colors, or `${...}` expressions read when a play starts. |
+| `from` | JSON |  |  |
+| `to` | JSON |  |  |
 | `keyframes` | list of [Keyframe](values.md#type-Keyframe) | `[]` |  |
 | `wave` | list of [Wave](values.md#type-Wave) | `[]` |  |
 | `interval` | list of number | `[0,1]` | `Interval(begin, end)`. |

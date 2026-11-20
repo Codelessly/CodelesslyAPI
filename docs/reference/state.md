@@ -270,7 +270,7 @@ change), or have the host app pass the offset in (a variable it sets).
 | `substring` | `substring(text, start, end?)` | `substring("EX-102", 3) → 102` |
 | <a id="fn-replace"></a>`replace` | `replace(text, from, to)` | `replace("a-b-c", "-", " ") → a b c` |
 | `replace` | `replace(text, from, to)` | `replace("1,402", ",", "") → 1402` |
-| <a id="fn-regexReplace"></a>`regexReplace` | `regexReplace(text, pattern, to)` | `regexReplace("WILLOW PHARMACY 044", " [0-9]+$", "") → WILLOW PHARMACY; \$1 in to inserts a group` |
+| <a id="fn-regexReplace"></a>`regexReplace` | `regexReplace(text, pattern, to)` | `regexReplace("WILLOW PHARMACY 044", " [0-9]+$", "") → WILLOW PHARMACY; $1 in to inserts a group` |
 | <a id="fn-titleCase"></a>`titleCase` | `titleCase(text)` | `titleCase("SQ *KESTREL FLOWERS") → Sq *Kestrel Flowers` |
 | <a id="fn-split"></a>`split` | `split(text, separator)` | `split("rock, jazz", ", ") → [rock, jazz]` |
 | `split` | `split(text, separator?)` | `split("2481") → [2, 4, 8, 1]` |
