@@ -576,6 +576,37 @@ String _gist(String text) {
 
 String _lowerFirst(String s) => s.isEmpty ? s : '${s[0].toLowerCase()}${s.substring(1)}';
 
+/// How the open prompt teaches drawing (a page's prompt, after its types):
+/// a `customPaint` line under a Box and a line per shape. The indented
+/// example expands with no issue and draws (a test reads it from here).
+const String notationPaintLines = '''
+  A picture (an illustration, a diagram, a dial) is drawn, never stacked from boxes: under a Box a customPaint line, under it a line per shape in the viewBox's units, the later over the earlier:
+    Box w=240 h=160
+      customPaint viewBox=[240,160] fit=contain
+        rect rect=[0,0,240,160] fill=#FFE8F1F8
+        circle c=[180,50] radius=24 fill=#FFF4B740
+        path d="M0 160 L70 60 L120 120 L160 80 L240 160 Z" fill=#FF2563EB
+        line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2
+  Also rrect (rect= radius=), oval rect=, arc rect= startAngle=0 sweepAngle=3.14, paragraph "Peak" offset=[8,8] style.color=#FF…; each takes fill= or stroke= strokeWidth=. A number may be {an expression}; repeat count={length(list)} draws its lines for each index (rect=[{index*10},0,6,{list[index]}]). viewBox is plain numbers; fit=contain keeps its shape.''';
+
+/// How the open prompt teaches a part whose lines differ on a phone (where
+/// rows and columns side by side are taught): an `at phone` block, its
+/// `...#id` lines placing the part's own again. The indented example expands
+/// with no issue (a test reads it from here).
+const String notationAtPhoneLines = '''
+  Where a part's lines differ on a phone, write at phone after its own lines and under it the lines it has there; ...#id places its line with that id again. Reach for this before a second copy with show=phone; one value that differs is a prefix on its key (phone.gap=8).
+    Row gap=12 middle
+      Text.heading2#title "Dishes"
+      Select#kind @kind items=["All","Veg"]
+      Input#find "Search" @q
+      at phone
+        Column grow gap=8
+          ...#title
+          Row gap=8
+            ...#kind
+            ...#find
+  at tablet too (the wider first); never directly under each, if, Grid or App, nor in a definition.''';
+
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
 /// reference pages (an unknown word is written, not escaped to JSON), and
 /// the behaviour words of a page (a shortcut, a range, a calendar, a table,
@@ -583,6 +614,8 @@ String _lowerFirst(String s) => s.isEmpty ? s : '${s[0].toLowerCase()}${s.substr
 /// some name, which the alias table maps).
 String _openPrompt(String taught, {bool define = true}) {
   final out = <String>[];
+  // A window, not a card: the card's prompt has no room for drawing.
+  final page = taught.contains('\nPAGES (');
   var behaviours = false, beyond = false;
   for (final line in taught.split('\n')) {
     final l = line.trimRight();
@@ -602,23 +635,39 @@ String _openPrompt(String taught, {bool define = true}) {
       beyond = l.isNotEmpty;
       continue;
     }
-    // What the notation has for what round 11's writers invented words for
-    // (a KeyboardShortcut, a LiveStatus, a Clock, a search field): said in a line each, where the lines it belongs with are.
+    // What the notation has for what writers invent words for (a
+    // KeyboardShortcut, a LiveStatus, a Clock, a search field): said in a
+    // line each, where the lines it belongs with are.
     if (l.startsWith('- every 1000 onTick=')) {
       out
         ..add(line)
         ..add('- key mod+k onPress={focus search} on its own line (top level) is a shortcut of the whole screen (mod: Ctrl, ⌘ on a Mac).');
       continue;
     }
+    // A value worked out, and a formula of the writer's own (a `primitive`
+    // is a part, not a function: one written as a function is refused).
+    if (l.startsWith('- state name=value on its own line (top level) declares')) {
+      out.add(
+          '$l state total:decimal={price*qty} is worked out and kept up to date, always with its type (:integer, :text, :boolean, :list); with parameters it is your own function, not named as a listed one: state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).');
+      continue;
+    }
     if (l.startsWith('- Beyond these words:') ||
         l.startsWith('  key mod+k onPress=') ||
         l.startsWith('  device.hover is true') ||
         l.startsWith('    Dialog#edit "Edit" guard=') ||
-        l.startsWith('    Text "About Mara" preview=')) {
+        l.startsWith('    Text "About Mara" preview=') ||
+        // The events of a design system's block: its line in the list of
+        // words that already exist names them.
+        l.startsWith("  A block's events are on its line") ||
+        // Said by the at phone lines, where rows are taught.
+        l.startsWith("    A part's lines on a phone go in a block") ||
+        // What reflow does, said above it already.
+        l.startsWith('    A Row of two Columns that grow') ||
+        // Shown by the examples.
+        l.startsWith('  Inside a frame everything is written as on a card')) {
       continue;
     }
-    // What the standalone runs lost rounds to (the vocabulary loop, Review
-    // 7): an id written again on a copy for another size, and state and
+    // An id written again on a copy for another size, and state and
     // overlays outside their screen's ### line.
     if (l == '- #id only when something else names the node.') {
       out
@@ -635,7 +684,39 @@ String _openPrompt(String taught, {bool define = true}) {
         // A one-time code is one field (six one-digit Inputs were written).
         .replaceFirst('Input "Note" multiline is a text area.', 'Input "Note" multiline is a text area; CodeInput "Code" @code length=6 digits is a one-time code, one field drawn as boxes.')
         .replaceFirst('; Popover#bio arrow points at it', '')
-        .replaceFirst(', ${notationPageFunctions.join(', ')}', ''));
+        .replaceFirst(', ${notationPageFunctions.join(', ')}', '')
+        // A main string from a variable, and a text with braces of its own.
+        .replaceFirst('{name} inside a string shows a variable: "Total: {total}".',
+            '{name} inside a string shows a variable ("Total: {total}"), also as the whole string (Icon "{c.icon}", never Icon c.icon); a text with braces of its own is a formula\'s string: Text "{\'if (x) { y }\'}".')
+        // The keys writers guess: a Select's value, a chart's lists.
+        .replaceFirst('Select and SegmentedButton take items=["A","B"] (', 'Select and SegmentedButton take items=["A","B"] and keep the chosen one in @name (')
+        .replaceFirst(' On a page a Donut draws its labels as a legend beside it (under it where there is no room), each with its share: write no legend of your own (legend=false leaves it out).',
+            ' A Donut draws its own legend: write none (legend=false leaves it out). A chart follows the state through values={map(rows,r=>r.n)} (a BarChart\'s labels={…} too); a LineChart\'s labels and series and a Donut\'s lists are written out.')
+        // Said twice, or what a writer works out.
+        .replaceFirst(' "{page+1} of {length(items)}" says which page it is.', '')
+        .replaceFirst(' (Gauge {speed} follows a variable)', '')
+        .replaceFirst(' onSwipeLeft={…} runs on that swipe.', '')
+        .replaceFirst(' (go case-study: an id may have hyphens; go {replace(lower(result)," ","_")} works the page out, in braces, as from a SiteNav\'s link)', ' (go {expression} works the page out)')
+        .replaceFirst(' A sidebar\'s item: Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}, an Icon and a Text grow under it. A link:', ' A link:')
+        .replaceFirst(' ("variables": {"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}})', '')
+        // A table is a word a writer writes, not rows of boxes.
+        .replaceFirst(' A table\'s row is a Row whose cells have widths (Text "Status" w=90) and one cell that grows, its header written the same way.', '')
+        .replaceFirst(' (shown on hover, focus or a touch hold)', '')
+        .replaceFirst(' It reads and sets the page\'s values: a form in a dialog sets them and closes (onTap={saved=true; close}).', '')
+        .replaceFirst(': swiped or stepped with its arrows, with a count and thumbnails, opened at the one tapped', ', swiped or stepped, opened at the one tapped')
+        .replaceFirst(' (a wide picture, a map)', '')
+        .replaceFirst(' is declared once, in site.json\'s variables, a name and its starting value; a page expanded beside that site.json reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select @cart, onTap={cart=append(cart,item)}) and keeps its value from page to page.',
+            ' is declared once in site.json\'s variables, or by project cart=[] before the page: read and set like any other, it keeps its value from page to page.')
+        .replaceFirst(' (project cart=[] saved, with "persist": true in site.json)', ' (project cart=[] saved)')
+        .replaceFirst('hide=phone leaves a node out on a phone, hide=tablet on a tablet and a phone; show=phone shows it on a phone only, show=tablet on a tablet and a phone only.', 'hide=phone leaves a node out on a phone (hide=tablet: on a tablet too); show=phone shows it on a phone only (show=tablet: a tablet too).')
+        .replaceFirst(' keeps an enrol panel or a table of contents in view while the page scrolls.', ' keeps it in view.')
+        .replaceFirst(' (Section#pricing, or id=pricing on a line)', ' (Section#pricing)')
+        .replaceFirst(' Row between spreads its children end to end.', '')
+        .replaceFirst(' (w=240): the name, a Row per item, Spacer grow, then what sits at its foot', ' (w=240)')
+        .replaceFirst(' a details panel): Pane w=320 pad=16 gap=12', ' a details panel; pad=16 gap=12)')
+        .replaceFirst(' They hold on a line under an if too: the condition counts only where the size shows the line.', ''));
+    if (page && l.startsWith('  Only Row, Column, Stack, Box, Card, Grid, Pages')) out.add(notationPaintLines);
+    if (l.startsWith('  Side by side: Row gap=32')) out.add(notationAtPhoneLines);
   }
   return '$notationOpenPreface${define ? notationDefinePreface : ''}${out.join('\n')}';
 }

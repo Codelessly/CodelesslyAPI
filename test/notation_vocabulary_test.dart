@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/notation/prompt.dart' show notationDefinePreface, notationOpenPreface, notationPrompt;
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationAtPhoneLines, notationDefinePreface, notationOpenPreface, notationPaintLines, notationPrompt;
 import 'package:test/test.dart';
 
 import 'notation_words.dart';
@@ -735,6 +735,81 @@ ${blocks.join('\n')}
         expect(r.issues, isEmpty);
         expect(r.vocabulary.where((u) => u.kind != 'definition'), isEmpty);
       }
+    });
+
+    test('teaches drawing, a function of the writer\'s own, the keys a writer guesses and at phone, each as it expands', () {
+      final page = open(1280);
+      for (final said in [
+        notationPaintLines,
+        notationAtPhoneLines,
+        'state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c))',
+        'Icon "{c.icon}", never Icon c.icon',
+        'Text "{\'if (x) { y }\'}"',
+        'take items=["A","B"] and keep the chosen one in @name',
+        'A chart follows the state through values={map(rows,r=>r.n)}',
+      ]) {
+        expect(page, contains(said), reason: said);
+        expect(taught(1280), isNot(contains(said)), reason: said);
+      }
+      // The at phone lines are where rows side by side are taught.
+      expect(page.indexOf(notationAtPhoneLines), greaterThan(page.indexOf('  Side by side: Row gap=32')));
+      expect(page.indexOf(notationAtPhoneLines), lessThan(page.indexOf('  Tablets and phones:')));
+      // A card has no room for drawing; the rest is said at every width.
+      expect(open(390), isNot(contains('customPaint')));
+      expect(open(390), contains('state fits(c):boolean='));
+
+      // The examples, as they are written in it.
+      String example(String lines) => [
+            for (final l in lines.split('\n'))
+              if (l.startsWith('    ')) l.substring(4),
+          ].join('\n');
+      final paint = _open('${example(notationPaintLines)}\n');
+      expect(paint.issues.map((i) => '$i'), isEmpty);
+      final painted = jsonEncode(paint.document);
+      expect(painted, allOf(contains('"customPaint"'), contains('"circle"'), contains('"path"'), contains('"contain"')));
+
+      final phone = _open('state kind="All"\nstate q=""\nPage\n  Section\n${example(notationAtPhoneLines).split('\n').map((l) => '    $l').join('\n')}\n');
+      expect(phone.issues.map((i) => '$i'), isEmpty);
+      final nodes = phone.document['nodes'] as Map;
+      expect(nodes.keys, containsAll(['title', 'title_phone', 'kind_phone', 'find_phone']));
+
+      // The rest of what it says of them, on one page.
+      final r = _open('''
+state kind="All"
+state seg="A"
+state price=2.5
+state qty=2
+state total:decimal={price*qty}
+state list=[30,60,45]
+state rows=[{"n":3,"d":"Mon"},{"n":5,"d":"Tue"}]
+state cards=[{"name":"Lamb","kind":"Meat","icon":"restaurant"},{"name":"Leek","kind":"Veg","icon":"eco"}]
+state fits(c):boolean={kind=="All" || c.kind==kind}
+state half(n):decimal={n/2}
+state name(c):text={upper(c.name)}
+state veg(l):list={filter(l,c=>c.kind=="Veg")}
+Page
+  Section
+    Row#bar gap=24 phone.gap=8
+      Select @kind items=["All","Veg"]
+      SegmentedButton @seg items=["A","B"]
+    Box w=240 h=160
+      customPaint viewBox=[240,160] fit=contain
+        rrect rect=[10,10,40,20] radius=6 stroke=#FF111827 strokeWidth=2
+        oval rect=[60,10,40,20] fill=#FFDC2626
+        arc rect=[110,10,30,30] startAngle=0 sweepAngle=3.14 stroke=#FF16A34A strokeWidth=3
+        paragraph "Peak" offset=[8,8] style.color=#FF111827
+        repeat count={length(list)}
+          rect rect=[{index*10},0,6,{list[index]}] fill=#80000000
+    BarChart values={map(rows,r=>r.n)} labels={map(rows,r=>r.d)} h=120
+    LineChart values={map(rows,r=>r.n)} h=120
+    each c in filter(cards,c=>fits(c))
+      Row gap=8
+        Icon "{c.icon}"
+        Text "{name(c)} {half(total)} {length(veg(cards))}"
+    Text#code "{'if (x) { y }'}"
+''');
+      expect(r.issues.map((i) => '$i'), isEmpty);
+      expect(jsonEncode(_node(r, 'code')['props']), contains('if (x) { y }'));
     });
 
     test('lists no component of a design system', () async {
