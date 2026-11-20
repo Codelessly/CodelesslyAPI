@@ -1233,6 +1233,11 @@ final class _NodeLine {
       words.add('fill=$fillExpression');
       doneBind.add('decoration.fills[0].color');
     }
+    // `gradient={[m.c1, m.c2]}` as it is read: its fill worked out.
+    if (_boundGradient(bind['decoration.fills']) case final String g) {
+      words.add('gradient=$g');
+      doneBind.add('decoration.fills');
+    }
     final strokes = decoration['strokes'];
     final boundStroke = _expression(bind['decoration.strokes[0].color']);
     final sides = decoration['strokeSides'];
@@ -1273,6 +1278,47 @@ final class _NodeLine {
     return _probes.says(_asked, '${type == 'text' ? '"a" ' : ''}$word=#FF0A0B0C', word, (node) => _equal(readMap(node['decoration'])?[at], [
           {'color': '#FF0A0B0C'},
         ]));
+  }
+
+  /// The fills a `gradient={[a, b]}` is read as (a linear fill corner to
+  /// corner, its stops spread evenly, each color an expression), as that
+  /// gradient is written: `{[a, b]}`; null for any other.
+  static String? _boundGradient(Object? v) {
+    const head = r'${= [{"type": "linear", "begin": "topLeft", "end": "bottomRight", "stops": [', tail = ']}]}';
+    if (v is! String || !v.startsWith(head) || !v.endsWith(tail)) return null;
+    final body = v.substring(head.length, v.length - tail.length);
+    final colors = <String>[];
+    var at = 0;
+    final stop = RegExp(r'\{"position": ([0-9.]+), "color": \(');
+    while (at < body.length) {
+      final m = stop.matchAsPrefix(body, at);
+      if (m == null) return null;
+      // The color's expression, to its closing parenthesis.
+      var depth = 1, i = m.end;
+      String? quote;
+      for (; i < body.length && depth > 0; i++) {
+        final c = body[i];
+        if (quote != null) {
+          if (c == '\\') {
+            i++;
+          } else if (c == quote) {
+            quote = null;
+          }
+        } else if (c == '"' || c == "'") {
+          quote = c;
+        } else if (c == '(') {
+          depth++;
+        } else if (c == ')') {
+          depth--;
+        }
+      }
+      if (depth != 0 || !body.startsWith('}', i)) return null;
+      colors.add(body.substring(m.end, i - 1).trim());
+      at = i + 1;
+      if (body.startsWith(', ', at)) at += 2;
+    }
+    if (colors.length < 2) return null;
+    return '{[${colors.join(', ')}]}';
   }
 
   /// A fill `gradient=` writes: a linear one with its stops spread evenly,

@@ -59,7 +59,8 @@ text styles, spacing, radii, dark colors), its fonts, its design system and its 
   is text, so one that starts empty and later holds a record is `"replyTo": {"type": "map", "value": null}`) and
   `persist: true`, which keeps it on the device across reloads (a page's own `state … saved` is the same). A list of
   records (`[{"name": "cart", "type": "list", "value": []}]`) reads too.
-- **`theme`**: the names a line uses for its looks. `colors` by name (`fill=paper`, `color=ink`); `textStyles` by
+- **`theme`**: the names a line uses for its looks. `colors` by name (`fill=paper`, `color=ink`; in a formula
+  `theme.paper`, `fill={done ? theme.paper : theme.ink}`, each its dark value in dark mode); `textStyles` by
   name (`style=title`, `Text.caption`; `body` is a plain Text's); the roles `primary`, `onPrimary`, `surface`,
   `onSurface`, `error`, `success`, `warning` (built-in controls take them); `spacing`, `radii` and `sizes`, scales by
   name, read as `{theme.spacing.md}`, `{theme.radii.card}`; `fontFamily` and `titleFontFamily`; `mode` (`light`,

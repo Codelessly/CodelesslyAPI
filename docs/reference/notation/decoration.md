@@ -19,6 +19,17 @@ Column gap=8
   Column w=48 h=48 fill=#FF2563EB shape=circle
 ```
 
+A gradient worked out from data is the list of its colors in braces, each color an expression:
+`gradient={[m.c1, m.c2]}` (an avatar's two colors from its record), `gradient={[hot ? #FFFF6F61 : #FF4F8EF7,
+#FF8B6CFA]}`.
+
+```notation
+state people=[{"c1":"#FFFF9A6C","c2":"#FFE5484D"},{"c1":"#FF6EC1FF","c2":"#FF4F8EF7"}]
+Row gap=8
+  each item in people
+    box w=40 h=40 gradient={[item.c1, item.c2]} shape=circle
+```
+
 Shadows and blurs are `effects=[…]` ([Effect](#type-Effect)); `clip=true` clips the content to the corners.
 
 ```notation

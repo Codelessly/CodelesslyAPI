@@ -276,6 +276,20 @@ const notationThemeNames = [
   'hoverFill', 'quietInk', 'mutedInk', 'faintInk', 'contentWidth', 'narrowWidth', 'sidebarWidth', 'sidebarRail', 'sectionPad', 'gutter', 'siteHeadline',
 ];
 
+/// What a `theme.<name>` may name under [theme] ([notationThemeReads]), as
+/// an issue about one it does not give says it: the colors the site's theme
+/// names, the looks of the notation's own words, and `theme.style.<name>`.
+String _themeGives(Map<String, Object?> theme) {
+  final own = switch (theme['colors']) { final Set<Object?> s => s.map((n) => 'theme.$n').toList(), _ => const <String>[] };
+  return [
+    if (own.isEmpty)
+      'The site\'s theme names no colors of its own: a color the page names is added to its "colors" in site.json (its dark value under "dark"), and read as theme.<name>.'
+    else
+      'The site\'s theme names ${own.join(', ')} (its "colors" in site.json; another is added there, its dark value under "dark").',
+    'The looks of the notation\'s own words: ${notationThemeNames.map((n) => 'theme.$n').join(', ')}, and theme.style.<name> (a text style\'s name, or nothing).',
+  ].join(' ');
+}
+
 /// The run-time theme's own names (a binding reads them in the app: SDK
 /// themeValues): left to it, and no issue.
 const _runtimeTheme = {
@@ -1240,7 +1254,7 @@ final class DefinedWords {
       lines.add((indent: l.indent, text: t, line: l.line));
     }
     if (sub.unknownTheme.isNotEmpty) {
-      _issue(column, '${d.at(d.line)}: ${d.word} reads ${sub.unknownTheme.map((n) => 'theme.$n').join(', ')}, which the theme does not give a definition. It gives: ${notationThemeNames.map((n) => 'theme.$n').join(', ')}, and theme.style.<name> (a text style\'s name, or nothing).');
+      _issue(column, '${d.at(d.line)}: ${d.word} reads ${sub.unknownTheme.map((n) => 'theme.$n').join(', ')}, which the theme does not give a definition. ${_themeGives(theme)}');
     }
     // An `if` whose condition reads nothing at run time is decided here.
     final decided = _decideIfs(lines);
@@ -1566,6 +1580,9 @@ final class _Substitution {
       return (value: styles is Set && styles.contains(m[2]) ? m[2] : null, end: m.end);
     }
     if (notationThemeNames.contains(name)) return (value: theme[name], end: m.start + 6 + name.length);
+    // A color the site's theme names (`theme.mine`): read as the page runs
+    // (the page's lines make it `theme.colors.mine`), light or dark.
+    if (theme['colors'] case final Set<Object?> own when own.contains(name)) return null;
     if (!_runtimeTheme.contains(name)) unknownTheme.add(name);
     return null;
   }

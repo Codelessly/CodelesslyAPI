@@ -146,6 +146,45 @@ Column gap=8
   Button "Add" onTap={lines=append(lines,"Synced")}
 ```
 
+The list the `each … follow` makes is a `ListView` of its own, so its events are written on the each line:
+`onScroll={…}` (its `result`: `offset`, `max`, `viewport`, `fraction`, `index` the item at the start of the view,
+`count`), `onScrollEnd={…}`. Once the reader scrolls up it draws its own jump-to-latest button at its bottom end. A
+pill of your own that counts what arrived meanwhile reads the scroll: `away` while the reader is up from the end,
+the count kept while away and cleared at the end, and the pill (in a `Stack` over the list) going back to the
+last item with `scrollTo node=… item={…}`.
+
+```notation expands
+state msgs=[{"id":"m1","text":"Morning"},{"id":"m2","text":"Lunch today?"},{"id":"m3","text":"Yes, 12:30"},{"id":"m4","text":"Same place?"},{"id":"m5","text":"By the river"},{"id":"m6","text":"Perfect"},{"id":"m7","text":"See you there"},{"id":"m8","text":"Five late"},{"id":"m9","text":"No rush"},{"id":"m10","text":"Here now"},{"id":"m11","text":"Table by the window"},{"id":"m12","text":"On my way up"}]
+state away=false
+state unread=0
+Column h=360 gap=8
+  Stack w=fill grow
+    Column w=fill h=fill
+      each m in msgs follow grow onScroll={away = result.max - result.offset > 80; unread = away ? unread : 0}
+        Text#msg "{m.text}" pad=12
+    Row#latest visible={away and unread > 0} x={"align":0} y={"end":12} pad=[12,6,12,6] radius=16 fill=#FF2563EB onTap={scrollTo node=msg item={length(msgs) - 1}; unread=0}
+      Text "{unread} new" color=#FFFFFFFF
+  Button "Receive" onTap={msgs=append(msgs, {"id": "m" + (length(msgs) + 1), "text": "New message"}); unread = away ? unread + 1 : 0}
+```
+
+### Scrolling to one copy
+
+A line under an each is one line repeated, so it has one name: `Row#msg`, not an id worked out per copy (`id={m.id}`
+is said and left out). A copy is reached by its item: `scrollTo node=msg item={key}` scrolls to the copy of the item
+whose `id` is `key` (`item={3}`: the fourth item). A pinned message, a quote that goes to the message it quotes, a
+search result: each names the item. A list that follows its end builds only the messages near its view; one not
+built yet is built and scrolled to. An item no copy is of is said when the action runs, and nothing scrolls.
+
+```notation expands
+state msgs=[{"id":"m1","text":"We land on Thursday"},{"id":"m2","text":"Book the train"},{"id":"m3","text":"Done"}]
+state pinId="m1"
+Column h=300
+  Row pad=12 fill=#FFF3F4F6 onTap={scrollTo node=msg item={pinId}}
+    Text "Pinned: We land on Thursday"
+  each m in msgs follow grow
+    Text#msg "{m.text}" pad=12
+```
+
 ## A list chosen from and swiped
 
 `selectable selected=@chosen` on the line an each is under makes its rows chosen as a desktop list's are (a press

@@ -75,7 +75,7 @@ const Map<String, UniversalWord> notationUniversal = {
   'hidden': UniversalWord(UniversalKind.flag, 'not shown (hidden={cond}: while it holds)', grammar: true),
   'hide': UniversalWord(UniversalKind.parameter, 'not shown at that size (hide=phone)', grammar: true),
   'show': UniversalWord(UniversalKind.parameter, 'shown only at that size (show=phone)', grammar: true),
-  'id': UniversalWord(UniversalKind.parameter, 'a name a scroll goes to', grammar: true),
+  'id': UniversalWord(UniversalKind.parameter, 'a name a scroll goes to, as written (a copy an each repeats: scrollTo node=… item=…)', grammar: true),
   'drag': UniversalWord(UniversalKind.parameter, 'dragged, in a group, carrying a value', grammar: true),
   'drop': UniversalWord(UniversalKind.parameter, 'takes drops from those groups', grammar: true),
   'menu': UniversalWord(UniversalKind.parameter, 'that Menu on a right click or a long press', grammar: true),

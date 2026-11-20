@@ -1706,6 +1706,11 @@ Map<String, Object?> notationThemeReads(NotationOptions options) => {
       'gutter': options.gutter,
       'siteHeadline': options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : 60,
       'style': options.textStyles.keys.toSet(),
+      // The colors the site's (or the design system's) theme names itself
+      // (`"colors": {"mine": …}`): `theme.mine` is that color as the page
+      // runs (`theme.colors.mine`, light or dark). A look's own name stays
+      // the look's.
+      'colors': {...options.palette.keys, ...options.themeColors.where((n) => !ThemeTokens.notationRoles.containsKey(n))},
     };
 
 /// Where the meaning of [word] (a line's first word) is written: `base` (a
@@ -5193,6 +5198,7 @@ class _Parser {
     // `follow grow`: as tall as the room its column leaves (a chat over its
     // composer).
     final eachWords = <String, String>{};
+    final eachEvents = <String>[];
     if (line.startsWith('each ')) {
       line = line.trimRight();
       final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
@@ -5210,21 +5216,31 @@ class _Parser {
         final list = line.substring(eachHead.end);
         final end = _expressionEnd(list);
         if (end < list.length) {
-          final others = <String>[];
+          final others = <String>[], events = <String>[];
           for (final w in _topLevelWords(list.substring(end))) {
             final own = RegExp(r'^(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$').firstMatch(w);
             if (own != null) {
               final eq = w.indexOf('=');
               eachWords[eq < 0 ? w : w.substring(0, eq)] = eq < 0 ? '' : w.substring(eq + 1);
+            } else if (RegExp(r'^on[A-Z][A-Za-z0-9]*=\{').hasMatch(w) && w.endsWith('}')) {
+              events.add(w);
             } else {
               others.add(w);
             }
+          }
+          // `each m in rows follow grow onScroll={…}`: a list that follows
+          // its end is the list the each makes, a ListView of its own: its
+          // events (onScroll, onScrollEnd, onRefresh…) are that list's.
+          if (eachWords.containsKey('follow')) {
+            eachEvents.addAll(events);
+          } else {
+            others.addAll(events);
           }
           line = line.substring(0, eachHead.end + end).trimRight();
           if (others.isNotEmpty) {
             final shown = others.map((w) => w.length > 40 ? '${w.substring(0, 37)}…' : w).join(' ');
             _issue(column + eachHead.end + end,
-                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
+                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow; with follow, the list\'s events: onScroll={…}): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
           }
         }
       }
@@ -5423,6 +5439,18 @@ class _Parser {
           'trigger': {'type': 'keyDown', 'key': 'mod+a'},
           'actions': _actions('$sel = map($listName, x => coalesce(x.id, x)); announce "{length($sel)} selected"$then', column),
         });
+      }
+      // The events written on a following each's line: the list's own, as on
+      // a ListView line (onScroll: result.offset, result.max, result.index…).
+      for (final w in eachEvents) {
+        final eq = w.indexOf('=');
+        final key = w.substring(0, eq), body = w.substring(eq + 2, w.length - 1);
+        final trigger = _handlerTrigger(key, 'listView', null, nodes[listId]!);
+        if (trigger == null) {
+          _issue(column, _Events.noEvent('ListView', key, null));
+          continue;
+        }
+        listActions.add({'trigger': trigger, 'actions': _actions(body, column)});
       }
       if (listActions.isNotEmpty) nodes[listId]!['actions'] = listActions;
       final p = nodes[parent.id]!;
@@ -6704,6 +6732,24 @@ class _Parser {
           _anchors[raw] = id;
           continue;
         }
+        // `id={m.id}`: a line's name is written as it is, not worked out. A
+        // copy a list repeats is reached by its item: the line's name and
+        // the item's key (its `id`), or its index.
+        if (key == 'id' && (raw.isEmpty ? t.peek == '{' : raw.startsWith('{')) && !spec.props.any((p) => p.key == 'id')) {
+          if (raw.isEmpty) raw = t.balanced();
+          final each = [for (final o in _stack) if (o.each != null) o.each!].lastOrNull;
+          var value = raw.substring(1, raw.length - 1).trim();
+          if (each != null && value.startsWith('item.')) value = '$each${value.substring(4)}';
+          final named = head[3] ?? (each == null ? 'part' : 'row');
+          _issue(
+              col,
+              each == null
+                  ? 'An id is a name written as it is (id=$named, or $written#$named), not worked out: id={$value} is left out. A scroll may work out which line it goes to: scroll {expression} reaches the line whose id the expression gives.'
+                  : 'A copy an each repeats has no id of its own: id={$value} is left out. Name the line ($written#$named) and scroll to a copy by its item: '
+                      'scrollTo node=$named item={x} reveals the copy of the item whose id is x (item={i}: the item at index i, from 0), '
+                      'in a list that follows its end too (an item not built yet is built and scrolled to).');
+          continue;
+        }
         // `menu=rowMenu`: a right click, or a long press on a touch screen,
         // opens that Menu where the pointer is (a context menu).
         // Under an each, the menu's lines read the pressed row by the loop's
@@ -6766,6 +6812,16 @@ class _Parser {
         }
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
+        // `color=theme.ink`, `fill=theme.mine`: a color the site's theme names
+        // is the name alone (`color=ink`, light or dark); any other read of
+        // the theme (`theme.accent`, `theme.spacing.md`) is worked out as in
+        // braces. (It was kept as the text "theme.ink", which drew nothing.)
+        if (_plainThemeRead.firstMatch(raw) case final m?) {
+          final name = m[1]!;
+          final ownColor = m[2] == null && (options.palette.containsKey(name) || (options.themeColors.contains(name) && !ThemeTokens.notationRoles.containsKey(name)));
+          final ownStyle = m[2] == null && (key == 'style' || key == 'from') && options.textStyles.containsKey(name);
+          raw = ownColor || ownStyle ? name : '{$raw}';
+        }
         // key={expression}: a value worked out from the state (from here on
         // it is marked with a leading =). A map names a key first ({"a": 1})
         // and is the JSON it is.
@@ -7000,6 +7056,20 @@ class _Parser {
         if (key == 'gradient' && _gradient(_value(raw)) != null) {
           decoration['fills'] = [_gradient(_value(raw))];
           continue;
+        }
+        // gradient={[m.c1, m.c2]}: the same fill, each color read as the page
+        // runs (an avatar's colors from its record). It was left out, and
+        // the box drew nothing.
+        if (key == 'gradient' && raw.startsWith('=')) {
+          final e = raw.substring(1).trim();
+          final colors = e.startsWith('[') && e.endsWith(']') ? [for (final c in _split(e.substring(1, e.length - 1), ',')) if (c.trim().isNotEmpty) c.trim()] : const <String>[];
+          if (colors.length < 2) {
+            _issue(col, 'A gradient worked out is written as the list of its colors, each worked out in it: gradient={[m.c1, m.c2]} (two or more). gradient={$e} is left out.');
+            continue;
+          }
+          key = 'fills';
+          raw = '=[{"type": "linear", "begin": "topLeft", "end": "bottomRight", "stops": ['
+              '${[for (var i = 0; i < colors.length; i++) '{"position": ${i / (colors.length - 1)}, "color": (${colors[i]})}'].join(', ')}]}]';
         }
         if (key == 'fit' && written == 'Image') {
           imageFit = _literal(raw).$2?.toString() ?? raw;
@@ -11739,7 +11809,10 @@ class _Parser {
           // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
           // moves to that part, named by its id (`Section#pricing`) or by an
           // anchor (`id=pricing` on a line).
-          final target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
+          var target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
+          // `scroll {"step-" + n}`: the id the expression gives as the
+          // action runs (it was kept as the text "{…}", which names no line).
+          if (target.length > 2 && target.startsWith('{') && target.endsWith('}')) target = _read(target.substring(1, target.length - 1));
           if (target.isEmpty) {
             _issue(column, 'A scroll names where to: scroll pricing (the id of a line: Section#pricing, or id=pricing on it).');
           } else {
@@ -12133,6 +12206,11 @@ class _Parser {
   static const _themeOwn = {'colors', 'text', 'isDark', 'brightness', 'mode', 'hasDark', 'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning'};
 
   late final Map<String, Object?> _themeLooks = notationThemeReads(options);
+
+  /// A key's value written as a read of the theme without braces
+  /// (`color=theme.ink`, `gap=theme.spacing.md`): its first name, and the
+  /// rest of its path.
+  static final _plainThemeRead = RegExp(r'^theme\.([A-Za-z_][A-Za-z0-9_]*)((?:\.[A-Za-z_][A-Za-z0-9_]*)+)?$');
 
   String _natural(String expr) {
     // `theme.accent` in an expression of the page, where the theme has a

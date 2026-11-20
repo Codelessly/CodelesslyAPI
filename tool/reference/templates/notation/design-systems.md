@@ -39,7 +39,10 @@ own looks): `accent`, `accentText`, `line`, `selectedFill`, `surface`, `overlayS
 theme that has none, and a key given nothing is left out), `contentWidth`, `narrowWidth`, `sidebarWidth`,
 `sidebarRail`, `sectionPad`, `gutter`, `siteHeadline` (sizes), and `theme.style.<name>`, a text style's name when the
 theme has it. They work in an expression too (`{coalesce(theme.mutedInk, "#FF6B7280")}`,
-`Text.{coalesce(theme.style.caption, "muted")}`); any other `theme.` name is the theme read as the page runs.
+`Text.{coalesce(theme.style.caption, "muted")}`); any other `theme.` name is the theme read as the page runs. A
+color the site's theme names itself (`"colors": {"mine": …}`) is read so too: `fill={mine ? theme.mine :
+theme.theirs}` is the theme's color as the page runs, its dark value in dark mode. A name none of these give is
+said, with the names the theme has.
 
 ```notation expands
 define Tag "label"

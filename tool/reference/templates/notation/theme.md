@@ -22,6 +22,18 @@ document's theme gives it. A key written after a named style changes only that k
 `style=title size=13` and `style=title phone.size=13` are the title at 13, its colour and weight kept (`from=title`
 is the same; no `size=null` is needed). The theme itself is in the site's files ([design-systems.md](design-systems.md)).
 
+A color of the site's own (its theme's `colors` in `site.json`, [site.md](site.md)) is read by its name in a
+formula too, as `theme.<name>`, on a page and in a defined word: `fill={mine ? theme.mine : theme.theirs}`,
+`border={theme.line}`. Written plain, `color=theme.ink` is `color=ink`. Either way it is the color the theme gives
+as the page runs: its value under `dark` in dark mode. A defined word that reads a name the theme does not declare
+is said, with the names it does; the color is added to the theme's `colors` (its dark value under `dark`).
+
+```notation
+state mine=true
+Column gap=4 pad=12 fill={mine ? theme.mine : theme.theirs} radius=18
+  Text "Booked it" color={mine ? "#FFFFFFFF" : theme.ink}
+```
+
 ```notation
 Button "Dark mode" onTap={setThemeMode mode=dark}
 ```

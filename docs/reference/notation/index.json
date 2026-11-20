@@ -2,7 +2,7 @@
   "version": "40.1.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4399
+    "words": 4409
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4399
+      "words": 4409
     },
     {
       "topic": "notation-a-line",
@@ -32,7 +32,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words-every-line-takes",
       "title": "Words every line takes",
-      "words": 708
+      "words": 718
     },
     {
       "topic": "notation-sizes-and-alignment",
@@ -167,14 +167,14 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1347
+      "words": 1462
     },
     {
       "topic": "theme-text",
       "file": "theme.md",
       "anchor": "theme-text",
       "title": "Text",
-      "words": 162
+      "words": 277
     },
     {
       "topic": "theme-words",
@@ -217,14 +217,14 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 2635
+      "words": 2684
     },
     {
       "topic": "decoration-fills-borders-and-corners",
       "file": "decoration.md",
       "anchor": "decoration-fills-borders-and-corners",
       "title": "Fills, borders and corners",
-      "words": 82
+      "words": 131
     },
     {
       "topic": "decoration-pictures-and-icons",
@@ -381,7 +381,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 7434
+      "words": 7925
     },
     {
       "topic": "lists-a-list-over-data",
@@ -409,7 +409,7 @@
       "file": "lists.md",
       "anchor": "lists-a-list-that-follows-its-newest-entry",
       "title": "A list that follows its newest entry",
-      "words": 70
+      "words": 561
     },
     {
       "topic": "lists-a-list-chosen-from-and-swiped",
@@ -824,7 +824,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 625
+      "words": 672
     },
     {
       "topic": "design-systems-a-design-system",
@@ -838,7 +838,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 338
+      "words": 385
     },
     {
       "topic": "design-systems-examples",
@@ -853,7 +853,7 @@
       "anchor": "page-site",
       "title": "The site",
       "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries.",
-      "words": 619
+      "words": 635
     },
     {
       "topic": "site-a-whole-manifest",
@@ -867,7 +867,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 420
+      "words": 436
     },
     {
       "topic": "document",
