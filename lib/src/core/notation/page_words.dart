@@ -22,6 +22,8 @@
 import 'dart:convert' show jsonDecode;
 import 'dart:math' as math;
 
+import '../action_fields.dart' show OpenModalFields;
+
 part 'table_words.dart';
 part 'page_words_at.dart';
 
@@ -373,6 +375,16 @@ final class PageWords {
     // the open sheet rests at, read and written.
     final stop = parts.take('stop');
     final stopVariable = stop != null && RegExp(r'^@[A-Za-z_][A-Za-z0-9_]*$').hasMatch(stop) && stops.isNotEmpty ? stop.substring(1) : null;
+    // The fields of the route that shows it, written on its line
+    // (`Sheet#live maxHeightFactor=0.9 showDragHandle=false sheetRadius=10`):
+    // its route's, over what the word gives, as on an openModal. (They were
+    // read as its column's keys and refused.) A dialog's and a sheet's.
+    final route = <String, Object?>{
+      if (const {'Dialog', 'Modal', 'Sheet', 'BottomSheet'}.contains(head[1]))
+        for (final f in OpenModalFields.all)
+          if (!const {'to', 'params', 'presentation'}.contains(f.key))
+            if (parts.take(f.key) case final String raw) f.key: _routeValue(raw),
+    };
     final title = parts.string(), note = parts.string();
     final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
     // What heads a dialog or a sheet: its title, a close button, a line under it.
@@ -394,12 +406,12 @@ final class PageWords {
           // no event closes as the page's other overlays do.
           final events = frameEvents('Dialog');
           final closes = events.contains('onClose') ? 'onClose' : events.firstOrNull;
-          return Overlay('dialog', id, width ?? 480, action, [
+          return Overlay('dialog', id, width ?? 480, {...action, ...route}, [
             (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent || closes == null ? parts.props : '${parts.props} $closes={close}'}${parts.tail}'),
           ], surface: false, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
+        return Overlay('dialog', id, width ?? 480, {...action, ...route}, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -416,6 +428,7 @@ final class PageWords {
             'maxHeightFactor': stops.fold<double>(0.9, math.max),
             if (stops.isNotEmpty) 'snapHeights': stops,
             'stopVariable': ?stopVariable,
+            ...route,
           },
           // A sheet with stops is as tall as its stop, and scrolls in it.
           [(indent: 0, text: 'Column w=fill${stops.isEmpty ? '' : ' h=fill scroll'} pad=$pad gap=$gap${parts.all}'), ...titled()],
@@ -770,6 +783,16 @@ final class PageWords {
         final String s => '"${s.replaceAll(r'\', r'\\').replaceAll('"', r'\"')}"',
         _ => '$v',
       };
+
+  /// A route field's value as written on an overlay's line: a number, true
+  /// or false, a list (`[0.5,0.9]`), else the text (a color, `#8A000000`).
+  static Object? _routeValue(String raw) {
+    try {
+      return jsonDecode(raw);
+    } on FormatException {
+      return raw.length > 1 && raw.startsWith('"') && raw.endsWith('"') ? raw.substring(1, raw.length - 1) : raw;
+    }
+  }
 
   /// [text], a line written under an overlay that closes as its lines are
   /// used ([Overlay.closes]), with `close` after its actions. In a drawer

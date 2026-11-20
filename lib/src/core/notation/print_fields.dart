@@ -1014,7 +1014,16 @@ final class _NodeLine {
   void _text() {
     words.addAll(_style);
     final align = props['textAlign'];
-    if (const {'center', 'right', 'left'}.contains(align)) {
+    // The side its place gives it (`align=end`, not in a row): the place
+    // says it.
+    final placed = c.parentOf(id)?['type'] == 'row' ? null : switch (layout['align']) {
+      'end' || 'right' || 'topRight' || 'centerRight' || 'bottomRight' => 'end',
+      'center' || 'topCenter' || 'bottomCenter' => 'center',
+      _ => null,
+    };
+    if (placed != null && align == placed) {
+      doneProps.add('textAlign');
+    } else if (const {'center', 'right', 'left'}.contains(align)) {
       words.add('$align');
       doneProps.add('textAlign');
     }

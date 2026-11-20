@@ -31,7 +31,7 @@ Map<String, Object?> _at(NotationResult r, String id, num width) {
   for (final rule in (_node(r, id)['media'] as List? ?? const [])) {
     final m = (rule as Map).cast<String, Object?>();
     final max = m['maxWidth'] as num?, min = m['minWidth'] as num?;
-    if ((max == null || width <= max) && (min == null || width >= min)) out = mergePatch(out, (m['patch'] as Map).cast<String, Object?>());
+    if ((max == null || width <= max) && (min == null || width >= min)) out = mergePatch(out, (m['patch'] as Map).cast<String, Object?>(), keepNulls: true);
   }
   return out;
 }

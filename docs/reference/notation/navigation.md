@@ -269,6 +269,11 @@ Canvas#compose "compose" w=480 fill=surface blockBack={draft != ""} decoration.r
   on backPressed={confirm title="Discard the draft?" confirmLabel=Discard cancelLabel="Keep editing" destructive=true actions={draft=""; close}}
 ```
 
+A Dialog's content has a 24 px inset and a Sheet's `[20,8,20,24]`, under a grip, with 20 px top corners: `pad=0`
+leaves the inset to the content. The fields of the route that shows it are written on its line too, as on an
+`openModal`: `Sheet#live maxHeightFactor=0.95 showDragHandle=false sheetRadius=10 barrierColor=#8A000000`, or
+`Dialog#d insets=[24,48,24,48]`.
+
 A Sheet with stops keeps the stop it rests at in a variable: `stop=@name`, read and written. It holds the stop as
 `stops=` writes it (`0.5`, `1`), and `0` while the sheet is closed. The sheet writes it as it opens and when it is
 dragged (or moved by its handle or the keyboard) to another stop; setting it (`sheetStop=1`) moves the open sheet to
