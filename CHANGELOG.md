@@ -63,6 +63,18 @@ Each of these is a key the word writes on its node (the line's own key wins, and
   (`tooltipColor`, `tooltipTextColor`, a line chart's `tooltipBackground` when not written); it was an inverted
   surface.
 
+### The notation, beside charts
+
+- **A bare `Slot` in a component that declares slots and takes no children is the slot the call's lines fill.**
+  It drew nothing. A `Slot` that names a slot the component does not declare is an issue.
+- **A box with a fixed height keeps it when a child fills it**, whichever order the child and a text are written
+  in.
+- **`grow` on a box in a Column fills the height left.** It was 0 high.
+- **`x` or `y` on a line under a Column or Row is an issue**: only a Stack places its children.
+- **A state word on a line that is also a variable's name** (`pressed`) is an issue, once a document.
+- **The reference** says that controls in a row share a height, what a negative place and a fill do in a Stack that
+  hugs, that `null` in `site.json` is a text variable, a regex's inline flags, and the width a site is expanded at.
+
 ## 40.1.0
 
 The open prompt (`notationPrompt(open: true)`) teaches more of what the notation already has, at the same length;

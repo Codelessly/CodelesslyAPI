@@ -1,5 +1,5 @@
 {
-  "version": "40.1.0",
+  "version": "40.2.0",
   "base": {
     "files": {
       "file": "STARTER.md",
@@ -617,7 +617,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts.",
-      "words": 6781
+      "words": 6792
     },
     {
       "topic": "state-variables",
@@ -665,7 +665,7 @@
       "anchor": "state-formula-functions",
       "title": "Formula functions",
       "summary": "The functions a formula (`${= ...}`) can call, from the SDK's formula engine, grouped.",
-      "words": 458
+      "words": 452
     },
     {
       "topic": "state-text",
@@ -673,7 +673,7 @@
       "anchor": "state-text",
       "title": "Text",
       "summary": "(Continues: state.md#state-text.)",
-      "words": 444
+      "words": 441
     },
     {
       "topic": "state-numbers-and-math",
@@ -1409,7 +1409,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 1660
+      "words": 1700
     },
     {
       "topic": "render-what-it-does",
@@ -1432,8 +1432,8 @@
       "file": "render.md",
       "anchor": "render-render-codes",
       "title": "Render codes",
-      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have), `paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran: the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout` (a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it).",
-      "words": 191
+      "summary": "The render step reports what rendering shows: `render_exception` (naming the node), `action_error`, `interaction_failed`, `step_skipped`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `missing_glyph`, `icon_not_drawn`, `icon_smaller_than_size` (an icon's `size` larger than its box), `zero_size` (a node that paints, laid out 0 wide or 0 high, with the cause), `control_heights_differ` (controls in one Row drawn at different heights: each named with its height, written or hugged), `expression_not_evaluated`, `path_overflow`, `font_fallback`, `font_missing`, `fill_fallback`, `image_failed`, `image_network`, `empty_screen`, `invalid_json`, `component_missing`, `set_overwritten`, `theme_name_unknown` (a color or a `theme.<name>` the theme does not have), `paints_outside` (a child drawn past its Stack over what follows it), `formula_failed` (a formula that could not be worked out when the screen ran: the node that reads it, the formula and why), `formula_runaway` (functions that call each other without end), `screen_timeout` (a screen over `--screen-timeout`, 120 s: the run goes on to the next), `site_now`, `page_not_written`, `placeholder_word` (a word that stood in when the site's notation was expanded, read from the vocabulary record `notation.sh expand` saves beside it).",
+      "words": 231
     },
     {
       "topic": "render-a-loop-that-converges",
