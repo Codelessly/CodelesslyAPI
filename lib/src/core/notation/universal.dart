@@ -57,6 +57,7 @@ const Map<String, UniversalWord> notationUniversal = {
   'duration': UniversalWord(UniversalKind.parameter, 'with animate: how long', grammar: true),
   'delay': UniversalWord(UniversalKind.parameter, 'with animate: how long before', grammar: true),
   'stagger': UniversalWord(UniversalKind.parameter, 'with animate under an each: each copy that much later', grammar: true),
+  'after': UniversalWord(UniversalKind.parameter, 'with animate: starts once that node has settled', grammar: true),
   // --- the grammar's own: place --------------------------------------------
   'center': UniversalWord(UniversalKind.flag, 'centred across', grammar: true),
   'middle': UniversalWord(UniversalKind.flag, 'centred down', grammar: true),

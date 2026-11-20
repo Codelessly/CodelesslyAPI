@@ -545,6 +545,7 @@ final class NodeAnimation extends _Value {
     this.previewAt,
     this.ramp = 0,
     this.visibleFraction,
+    this.after,
   });
 
   /// Unique on the node: `${animation.<id>.*}`, the `animate` action's
@@ -626,6 +627,13 @@ final class NodeAnimation extends _Value {
   /// starts when the node appears.
   final double? visibleFraction;
 
+  /// The id of a node this animation waits for: an autoplaying play starts
+  /// (after [delay]) once that node has settled, when none of its own
+  /// entrances, the animations inside it and no lifted hero in it
+  /// ([HeroFlies.lift]) is still moving. A sequence: this starts when that
+  /// ends. Null (or a node not on screen): it starts as it would.
+  final String? after;
+
   /// The JSON key on a node.
   static const String key = 'animations';
 
@@ -668,6 +676,7 @@ final class NodeAnimation extends _Value {
       previewAt: previewAt ?? p.previewAt,
       ramp: ramp,
       visibleFraction: visibleFraction,
+      after: after,
     );
   }
 
@@ -697,6 +706,7 @@ final class NodeAnimation extends _Value {
       previewAt: r.dn('previewAt'),
       ramp: r.ms('ramp', 0),
       visibleFraction: r.dn('visibleFraction'),
+      after: r.sn('after'),
     );
   }
 
@@ -721,7 +731,8 @@ final class NodeAnimation extends _Value {
     j
       ..dn('previewAt', previewAt)
       ..i('ramp', ramp, 0)
-      ..dn('visibleFraction', visibleFraction);
+      ..dn('visibleFraction', visibleFraction)
+      ..s('after', after);
     return j;
   }
 
@@ -757,12 +768,13 @@ final class NodeAnimation extends _Value {
         previewAt: previewAt ?? this.previewAt,
         ramp: ramp,
         visibleFraction: visibleFraction,
+        after: after,
       );
 
   @override
   List<Object?> get props => [
         id, preset, params, enabled, duration, reverseDuration, delay, curve, repeat, autoplay, playKey, paused, //
-        phase, spring, progress, alignment, tracks, previewAt, ramp, visibleFraction,
+        phase, spring, progress, alignment, tracks, previewAt, ramp, visibleFraction, after,
       ];
 }
 

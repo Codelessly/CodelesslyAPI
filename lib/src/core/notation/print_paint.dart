@@ -201,16 +201,18 @@ final class _Printer {
 
   // --- animations ---------------------------------------------------------------
 
-  /// `animate=<word> duration=… delay=…` when [a] is what that word gives.
+  /// `animate=<word> duration=… delay=… after=…` when [a] is what that word
+  /// gives.
   List<String>? _preset(Object? a) {
     final m = readMap(a);
     if (m == null || m['id'] != 'a') return null;
     final rest = {...m}..remove('id');
-    final duration = rest.remove('duration'), delay = rest.remove('delay');
+    final duration = rest.remove('duration'), delay = rest.remove('delay'), after = rest.remove('after');
     if ((duration != null && duration is! int) || (delay != null && delay is! int)) return null;
+    if (after != null && (after is! String || !RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(after))) return null;
     for (final e in notationAnimations.entries) {
       if (!_same(rest, e.value)) continue;
-      return ['animate=${e.key}', if (duration != null) 'duration=$duration', if (delay != null) 'delay=$delay'];
+      return ['animate=${e.key}', if (duration != null) 'duration=$duration', if (delay != null) 'delay=$delay', if (after != null) 'after=$after'];
     }
     return null;
   }

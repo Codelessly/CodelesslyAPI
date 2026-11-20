@@ -789,7 +789,7 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 | `sideSheet` | A sheet from the side. |
 | `fullScreen` | The whole screen. |
 | `popover` | A popover next to the node that opened it (or the pointer). |
-| `banner` | A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), with no barrier: the app behind stays usable. It slides in, a swipe dismisses it when `OpenModalAction.barrierDismissible`, and its screen closes it with a `CloseModalAction` (after a `delay`, for one that goes by itself). A runtime that doesn't know it shows a dialog. |
+| `banner` | A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), over everything (a dialog and its barrier included), with no barrier: the app behind stays usable. It slides in (or as its `OpenModalAction.routeTransition`'s enter side says), a swipe toward its edge dismisses it when `OpenModalAction.barrierDismissible`, `OpenModalAction.closeAfterMs` closes it by itself, and its screen closes it with a `CloseModalAction`. Banners show one at a time, in the order they were opened: a toast is a banner. A runtime that doesn't know it shows a dialog. |
 
 <a id="enum-NavigationDestinationLabelBehavior"></a>
 ### NavigationDestinationLabelBehavior
@@ -1450,7 +1450,7 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 | `hold` | A press held for `Trigger.holdMs`; letting go early cancels it (before `Trigger.commitMs`, when set). |
 | `secondaryClick` | A right click, or a two-finger tap on a trackpad (`${result.x}`, `${result.y}`: where, on screen). |
 | `pointerDown` | A pointer went down on the node. |
-| `pointerUp` | A pointer went up (or was canceled) on the node. |
+| `pointerUp` | A pointer went up on the node, or was cancelled (taken away by the system or a scroll): `${result.cancelled}` says which (`onPointerUp={result.cancelled ? close : pick}`), `${result.x}`, `${result.y}` where, in the node. |
 | `hover` | The mouse cursor moved over the node (fires when it enters, too). |
 | `cursorEnter` | The mouse cursor entered the node (once). |
 | `cursorExit` | The mouse cursor left the node (once). |
@@ -1458,7 +1458,7 @@ An enum's value is a bare word: `textAlign=center`, `overflow=ellipsis`.
 | `swipeRight` |  |
 | `swipeUp` |  |
 | `swipeDown` |  |
-| `drag` | The node is dragged (every move); `dragEnd` when it's let go. |
+| `drag` | The node is dragged (every move); `dragEnd` when it's let go (`${result.vx}`, `${result.vy}`: its speed; `${result.cancelled}`: the drag was taken away, not let go). |
 | `dragEnd` |  |
 | `wheel` | Wheel or trackpad scroll over the node (`${result.deltaX}`, `${result.deltaY}`, and where: `${result.x}`, `${result.y}` in the node). |
 | `pinch` | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |

@@ -2,7 +2,7 @@
   "version": "40.2.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4409
+    "words": 4421
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4409
+      "words": 4421
     },
     {
       "topic": "notation-a-line",
@@ -32,7 +32,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words-every-line-takes",
       "title": "Words every line takes",
-      "words": 718
+      "words": 730
     },
     {
       "topic": "notation-sizes-and-alignment",
@@ -310,7 +310,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13171
+      "words": 13193
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -345,7 +345,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9827
+      "words": 9849
     },
     {
       "topic": "forms-behaviors",
@@ -509,21 +509,21 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 5929
+      "words": 6041
     },
     {
       "topic": "events-an-event",
       "file": "events.md",
       "anchor": "events-an-event",
       "title": "An event",
-      "words": 1913
+      "words": 1948
     },
     {
       "topic": "events-actions",
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 3939
+      "words": 4016
     },
     {
       "topic": "interaction",
@@ -581,28 +581,28 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 3568
+      "words": 4259
     },
     {
       "topic": "animation-the-animate-words",
       "file": "animation.md",
       "anchor": "animation-the-animate-words",
       "title": "The animate words",
-      "words": 167
+      "words": 305
     },
     {
       "topic": "animation-animation-lines",
       "file": "animation.md",
       "anchor": "animation-animation-lines",
       "title": "Animation lines",
-      "words": 520
+      "words": 776
     },
     {
       "topic": "animation-transitions",
       "file": "animation.md",
       "anchor": "animation-transitions",
       "title": "Transitions",
-      "words": 118
+      "words": 370
     },
     {
       "topic": "animation-behaviors",
@@ -623,7 +623,7 @@
       "file": "animation.md",
       "anchor": "animation-records",
       "title": "Records",
-      "words": 678
+      "words": 723
     },
     {
       "topic": "animation-examples",
@@ -717,7 +717,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 4276
+      "words": 4678
     },
     {
       "topic": "navigation-page-frames",
@@ -731,7 +731,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 736
+      "words": 1138
     },
     {
       "topic": "navigation-screens",
@@ -911,7 +911,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17082
+      "words": 17148
     },
     {
       "topic": "values-writing-a-value",
@@ -939,7 +939,7 @@
       "file": "values.md",
       "anchor": "values-enums",
       "title": "Enums",
-      "words": 10863
+      "words": 10929
     },
     {
       "topic": "values-records",

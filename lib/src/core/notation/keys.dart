@@ -56,7 +56,7 @@ const notationConstraintKeys = {'minWidth', 'maxWidth', 'minHeight', 'maxHeight'
 /// A key of the type's own props of the same name is the prop where the
 /// parser says so ([_ownFirst]).
 const _words = {
-  'bind', 'id', 'menu', 'preview', 'fill', 'gradient', 'animate', 'animation', 'enter', 'duration', 'delay', 'stagger', //
+  'bind', 'id', 'menu', 'preview', 'fill', 'gradient', 'animate', 'animation', 'enter', 'duration', 'delay', 'stagger', 'after', //
   'drag', 'drop', 'border', 'borderWidth', 'border-width', 'strokeWidth', 'borderSize', 'borderColor', 'border-color',
   'strokeColor', 'stroke', 'selected', 'hidden', 'show', 'hide', 'swipe', 'maxw', 'max-width', 'maxwidth',
   'border-bottom', 'border-top', 'border-left', 'border-right', 'borderBottom', 'borderTop', 'borderLeft', 'borderRight',

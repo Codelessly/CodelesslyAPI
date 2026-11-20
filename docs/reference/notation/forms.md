@@ -257,7 +257,7 @@ Flutter `TextButton`: no fill or border. With nothing styled it is the default (
 <a id="node-iconButton"></a>
 ### `IconButton` (`iconButton`)
 
-Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a "tooltip" (the behavior) to name it.
+Flutter `IconButton`: a square of its height (28 when it hugs), the icon in the secondary text color. Give it a "tooltip" (the behavior) to name it. Its target and its glyph are sized apart: `w` and `h` the target, `size` the glyph (`style.iconSize`): `IconButton "close" w=36 h=32 size=12`.
 
 - Written `IconButton`; also `Handle`. Level 1 (Widget catalog).
 - `IconButton "…"` sets `props.icon`; it takes one quoted string (a second is said).

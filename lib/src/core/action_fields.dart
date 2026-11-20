@@ -228,13 +228,16 @@ abstract final class OpenModalFields {
           'stop; a sheet opened while it holds one of the stops opens there. 0 while the sheet is closed.');
   static const cover = PropDef<bool>('cover', Codecs.bool, false,
       doc: 'A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device).');
-  static const enterScale = PropDef<double>('enterScale', Codecs.double, 1);
+  static const enterScale = PropDef<double>('enterScale', Codecs.double, 1,
+      doc: 'How large it starts (0–1), growing to its size as it comes in: a dialog about its middle, an anchored popover about the middle of the node that opened it (a menu that grows out of its button). 1: as the presentation comes.');
+  static const closeAfterMs = PropDef<int>('closeAfterMs', Codecs.int, 0,
+      doc: 'Closes itself (no result) this many ms after it has come in; the clock holds while it is pressed or dragged. 0: stays until closed.');
   static const routeTransition = PropDef<RouteTransition?>('routeTransition', routeTransitionCodec, null,
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showDragHandle, //
     alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, popoverArrow, hoverCard, hoverDelayMs, anchorNode, anchorItem, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor, snapHeights, stopVariable,
-    cover, enterScale, routeTransition,
+    cover, enterScale, closeAfterMs, routeTransition,
   ];
 }
 
