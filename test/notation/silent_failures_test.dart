@@ -159,10 +159,10 @@ void main() {
       expect(item['children'], hasLength(2));
     });
 
-    test('an id written from the data under an each is its fixed part, and said with how a copy is named', () {
+    test('an id written from the data under an each is refused (no id), and said with the fixed id and how a copy is named', () {
       final r = _expand('state rows=[1,2]\nColumn\n  each r in rows\n    Column#remove_{index} w=20 h=20\n');
-      expect(_nodes(r), contains('remove'));
-      expect(_said(r).single, allOf(contains('#remove_{index} is read as #remove'), contains('remove#2')));
+      expect(_nodes(r), isNot(contains('remove')));
+      expect(_said(r).single, allOf(contains('#remove_{index} is refused'), contains('fixed id (#remove)'), contains('remove#2')));
     });
   });
 

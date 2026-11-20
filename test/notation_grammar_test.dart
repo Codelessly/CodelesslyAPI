@@ -379,7 +379,7 @@ void main() {
       ]);
     });
 
-    test('ids: the App frame takes no author\'s name, a second use names the first, an id from the data is its fixed part', () {
+    test('ids: the App frame takes no author\'s name, a second use names the first, an id from the data on a repeated line is refused', () {
       const app = 'state on=false\nstate rows=[{"id":1}]\nApp\n  Sidebar\n    NavItem "Album" icon="album"\n  Main\n    Column\n'
           '      Button#more "More" onTap={open albumMenu}\n'
           '      if on\n        Button#closeButton "Close"\n      else\n        Button#closeButton "Close all"\n'
@@ -391,16 +391,16 @@ void main() {
         '12: The id "closeButton" is used twice: line 10 has it too, in the other branch of the if. A document holds one node per id, so both branches '
             'cannot have it: give this one an id of its own (closeButton2), or write one line whose values are worked out (label={cond ? "a" : "b"}).',
         '13: The id "more" is used twice: line 8 has it too. Give this line an id of its own.',
-        // The id is its fixed part, as before, and that is said with how a
-        // copy is named (`Column#remove_{index}` was read as `remove_`, and
-        // the steps that named `remove_0` found nothing).
-        '15: A copy an each repeats has no id of its own: #row-{row.id} is read as #row. Its copies are row#0, row#1… in order (a step taps row#2); '
-            'an action reaches one copy by its item: scrollTo node=row item={i}.',
+        // Refused: the line gets no id from it, and the fixed id to write is
+        // said with how a copy is named (`Column#remove_{index}` was read as
+        // `remove_`, and the steps that named `remove_0` found nothing).
+        '15: A copy an each repeats has no id of its own: #row-{row.id} is refused, and the line has no id. Give the line a fixed id (#row): '
+            'its copies are row#0, row#1… in order (a step taps row#2); an action reaches one copy by its item: scrollTo node=row item={i}.',
       ]);
       // The author's Menu#albumMenu on the album page is the author's; the
       // drawer the frame makes of the sidebar has a name of its own.
       expect(r.document['roots'], containsAll(['album', 'albumMenu', 'album_sidebar']));
-      expect(_node(r, 'row')['type'], 'row');
+      expect((r.document['nodes'] as Map).containsKey('row'), isFalse);
       // An overlay with the page's own id says what to write.
       expect(_said('state q=""\nDialog#compose "New message"\n  Text "x"\n'.replaceFirst('compose', 'screen')), [
         'The id "screen" is this page\'s own (its canvas): an overlay over the page needs an id of its own (screenOverlay, opened with open screenOverlay). '

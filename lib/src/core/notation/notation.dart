@@ -5760,19 +5760,23 @@ class _Parser {
     line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*\.[A-Za-z][A-Za-z0-9]*)(?:\.[A-Za-z][A-Za-z0-9]*)+'), (m) => m[1]!);
     // An id written from the data (`Row#row-{row.id}`, `Input#quick-{col.id}`):
     // a node has one id however many copies an each makes of it (each copy
-    // is told apart by its element), so the id is the fixed part.
+    // is told apart by its place). On a repeated line it is refused: the
+    // line gets no id from it, and the fixed id to write is said. (Outside
+    // an each the line is not repeated: the fixed part is its id.)
     line = line.replaceFirstMapped(RegExp(r'^([A-Za-z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)?)#([A-Za-z_][A-Za-z0-9_]*)?[-_]*\{[^{}]*\}[A-Za-z0-9_{}.-]*(?=\s|$)'), (m) {
       // `remove_{index}`: the fixed part is `remove`.
       final fixed = m[2]?.replaceFirst(RegExp(r'(?<=.)_+$'), '');
-      final id = fixed == null || _taken(fixed) ? null : fixed;
-      // Under an each, the writer meant an id per copy: said, with how a
-      // copy is named (the copies are told apart by their place).
-      if (_stack.any((o) => o.each != null) && !_top._quiet) {
-        final written = RegExp(r'#[A-Za-z_][A-Za-z0-9_]*[-_]*{[^{}]*}[A-Za-z0-9_{}.-]*').firstMatch(source)?[0] ?? m[0]!.substring(m[1]!.length);
-        _issue(column,
-            'A copy an each repeats has no id of its own: $written is read as ${id == null ? 'no id' : '#$id'}. '
-            '${id == null ? 'Give the line a fixed id (#remove)' : 'Its copies are $id#0, $id#1… in order (a step taps $id#2)'}; an action reaches one copy by its item: scrollTo node=${id ?? 'remove'} item={i}.');
+      if (_stack.any((o) => o.each != null)) {
+        if (!_top._quiet) {
+          final written = RegExp(r'#[A-Za-z_][A-Za-z0-9_]*[-_]*{[^{}]*}[A-Za-z0-9_{}.-]*').firstMatch(source)?[0] ?? m[0]!.substring(m[1]!.length);
+          final name = fixed ?? 'remove';
+          _issue(column,
+              'A copy an each repeats has no id of its own: $written is refused, and the line has no id. Give the line a fixed id (#$name): '
+              'its copies are $name#0, $name#1… in order (a step taps $name#2); an action reaches one copy by its item: scrollTo node=$name item={i}.');
+        }
+        return m[1]!;
       }
+      final id = fixed == null || _taken(fixed) ? null : fixed;
       return id == null ? m[1]! : '${m[1]}#$id';
     });
     // A quoted text the line ends inside (a line break typed in it): said,
