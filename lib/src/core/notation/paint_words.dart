@@ -118,6 +118,14 @@ extension _PaintWords on _Parser {
         frames.add(_PaintFrame(indent, open.id, 'skip', {}));
         return true;
       }
+      // The painter's own keys are values: one worked out is read by
+      // nothing (the drawing was in the box's pixels, with nothing said).
+      bool worked(Object? v) => v is String ? v.contains(r'${') : v is List && v.any(worked);
+      for (final key in [for (final e in paint.entries) if (e.key != 'painter' && e.key != 'foregroundPainter' && worked(e.value)) e.key]) {
+        paint.remove(key);
+        _issue(column,
+            'A customPaint\'s $key is a value, never worked out${key == 'viewBox' ? ': write its numbers (viewBox=[240,160]) and work the shapes out in those units (rect=[{index * 10},0,6,40]); the drawing is scaled to its box' : ''}. $key is left out.');
+      }
       // The block is the node's custom paint, whole: written after the
       // line, it replaces a `customPaint` its `{…}` tail gave.
       // A foregroundPainter line written before it, under the node, stays.
@@ -160,6 +168,11 @@ extension _PaintWords on _Parser {
       final around = eaches.length - 1 - k;
       final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
       if (eaches[k] != to) rest = _rename(rest, eaches[k], to);
+    }
+    // A worked-out value of no type is written out where it is read, as on
+    // a node's line.
+    for (final d in _derived.entries) {
+      if (rest.contains(d.key) && !eaches.contains(d.key)) rest = _rename(rest, d.key, '(${d.value})');
     }
     return '$word$rest';
   }

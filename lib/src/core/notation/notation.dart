@@ -7872,12 +7872,36 @@ class _Parser {
       ];
       layout.putIfAbsent('height', () => 160);
     }
+    // A list a chart's word is given, as a formula reads it: the one its
+    // key is bound to (`values={…}`), else the list written out.
+    String? chartList(String key, Object? literal) {
+      if (bind['props.$key'] case final String bound) {
+        var e = bound.trim();
+        if (e.startsWith(r'${') && e.endsWith('}')) e = e.substring(2, e.length - 1).trim();
+        return e.startsWith('=') ? e.substring(1).trim() : e;
+      }
+      return literal is List ? jsonEncode(literal) : null;
+    }
+
     // Shares of a whole: values=[…] labels=[…] colors=[…] as a donut (a pie
     // is a thick one).
     if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
       final palette = notationChartShades(_accentValue);
       props['chartType'] = 'donut';
+      // Lists that follow the state (values={…}, labels={…}, colors={…}):
+      // its rows are worked out from them, one for each value.
+      final valuesOf = chartList('values', values);
+      if (valuesOf != null && (values is! List || bind['props.labels'] is String || bind['props.colors'] is String)) {
+        final labelsOf = chartList('labels', labels);
+        final colorsOf = chartList('colors', colors is List ? [for (final c in colors) _named(c, 'fill')] : colors);
+        final shade = '(${jsonEncode(palette)})[i % ${palette.length}]';
+        for (final k in const ['values', 'labels', 'colors']) {
+          bind.remove('props.$k');
+        }
+        bind['props.data'] = '\${= map(range(length($valuesOf)), i => {"label": ${labelsOf == null ? '""' : 'text(coalesce(get($labelsOf, i), ""))'}, '
+            '"value": get($valuesOf, i), "color": ${colorsOf == null ? shade : 'coalesce(get($colorsOf, i), $shade)'}})}';
+      }
       if (values is List) {
         props['data'] = [
           for (var i = 0; i < values.length; i++)
@@ -7909,6 +7933,62 @@ class _Parser {
     // the series chart: one data row per label, one field per series.
     final area = written == 'AreaChart' || props.remove('area') == true || props['fill'] == true && type == 'lineChart';
     if (type == 'lineChart') props.remove('fill');
+    // Its lists that follow the state (labels={…}, series={[…]}, values={…}
+    // with labels or an area): the same chart, its rows worked out.
+    final worked = type == 'lineChart' &&
+        written != 'Sparkline' &&
+        (bind['props.series'] is String || bind['props.labels'] is String || bind['props.values'] is String && (area || props['labels'] is List));
+    if (worked) {
+      final labelsOf = chartList('labels', props.remove('labels'));
+      final plainOf = chartList('values', props.remove('values'));
+      final lines = <({String name, String values, Object? color})>[];
+      var read = true;
+      if (bind['props.series'] is String) {
+        final parts = _chartSeries(chartList('series', null)!);
+        if (parts == null) {
+          read = false;
+          if (!_quiet && !_mediaLine) {
+            _issue(column,
+                'A $written\x27s series that follow the state are written as its lines, each with its values worked out: series={[{"name":"Visits","values":map(rows, r => r.visits)}]}. This series= is left out.');
+          }
+        } else {
+          lines.addAll(parts);
+        }
+      } else if (props['series'] case final List literal) {
+        for (final s in literal.map(readMap).nonNulls) {
+          if (s['values'] ?? s['data'] case final List v) lines.add((name: jsonEncode('${s['name'] ?? s['label'] ?? ''}'), values: jsonEncode(v), color: s['color']));
+        }
+      } else if (plainOf != null) {
+        lines.add((name: '""', values: plainOf, color: props.remove('lineColor')));
+      }
+      for (final k in const ['values', 'labels', 'series']) {
+        bind.remove('props.$k');
+      }
+      props.remove('series');
+      if (read && lines.isNotEmpty) {
+        final palette = notationChartShades(_accentValue);
+        props.putIfAbsent('fitMinY', () => true);
+        type = 'chart';
+        bind['props.data'] = '\${= map(range(length(${labelsOf ?? lines.first.values})), i => {"label": ${labelsOf == null ? '""' : 'text(coalesce(get($labelsOf, i), ""))'}, '
+            '${[for (var k = 0; k < lines.length; k++) '"s$k": get(${lines[k].values}, i)'].join(', ')}})}';
+        props
+          ..remove('lineColor')
+          ..addAll({
+            'chartType': 'line',
+            'series': [
+              for (var k = 0; k < lines.length; k++)
+                {
+                  'field': 's$k',
+                  if (_literal(lines[k].name) case (true, final String name)) ...{if (name.isNotEmpty) 'name': name} else 'name': '\${= ${lines[k].name}}',
+                  'kind': area ? 'area' : 'line',
+                  'color': lines[k].color is String ? _named(lines[k].color, 'fill') : palette[k % palette.length],
+                  'curved': true,
+                },
+            ],
+          });
+        layout.putIfAbsent('height', () => 160);
+      }
+    }
     if (type == 'lineChart' && written != 'Sparkline' && (props['series'] is List || area || props['labels'] is List && props['values'] is List)) {
       final labels = props.remove('labels');
       final written0 = props.remove('series'), plain = props.remove('values');
@@ -7963,6 +8043,25 @@ class _Parser {
     // printer's word for a document's chart) is the node as written: only
     // the notation's words (BarChart, LineChart) add a height and colors.
     final asWritten = written == type;
+    // `data={rows} xField="day" yField="count"` on a bar chart: its values
+    // and labels are those fields of the rows (as a line chart reads them).
+    if (type == 'barChart' && !asWritten && props['yField'] is String && (bind['data'] is String || props['data'] is List)) {
+      final y = props.remove('yField')! as String, x = props.remove('xField');
+      if (props.remove('data') case final List rows) {
+        props['values'] = [for (final r in rows.map(readMap)) r?[y]];
+        if (x is String) props['labels'] = [for (final r in rows.map(readMap)) '${r?[x] ?? ''}'];
+      } else {
+        var rows = (bind.remove('data')! as String).trim();
+        if (rows.startsWith(r'${') && rows.endsWith('}')) rows = rows.substring(2, rows.length - 1).trim();
+        if (rows.startsWith('=')) rows = rows.substring(1).trim();
+        bind['props.values'] = '\${= map($rows, row => get(row, ${jsonEncode(y)}))}';
+        if (x is String) bind['props.labels'] = '\${= map($rows, row => text(coalesce(get(row, ${jsonEncode(x)}), "")))}';
+      }
+    }
+    // An area chart over data={rows}: the line's own fill under it.
+    if (type == 'lineChart' && area && !asWritten && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(_accentValue)) {
+      props.putIfAbsent('areaTopColor', () => '#33${_accentValue.substring(3)}');
+    }
     if (type == 'barChart' || type == 'lineChart') {
       if (!asWritten) layout.putIfAbsent('height', () => 140);
       // The design system's primary, unless a color is written.
@@ -10885,14 +10984,26 @@ class _Parser {
       if (_screenScopes.contains(name)) {
         return _issue(column, '$name is a name the runtime gives every expression (${_screenScopes.join(', ')}): name the state otherwise (state ${name}Text=…).');
       }
+      // A formula reads a worked-out value of no type by its name: that
+      // name is no variable of the document, so it is written out here as
+      // it is on a node's line (a parameter of that name is the function's).
+      var body = formula ? value.substring(1, value.length - 1).trim() : '';
+      for (final d in _derived.entries) {
+        if (!params.contains(d.key) && body.contains(d.key)) body = _rename(' $body', d.key, '(${d.value})').substring(1);
+      }
       variables[name] = {
         'name': name,
         'type': type,
-        if (formula) 'formula': value.substring(1, value.length - 1).trim() else if (value != null) 'value': _value(value),
+        if (formula) 'formula': body else if (value != null) 'value': _value(value),
         if (params.isNotEmpty) 'parameters': params,
         if (saved) 'persist': true,
       };
       return;
+    }
+    // A function with no type: what it gives is not known from its formula.
+    if (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\(([^()]*)\)\s*=').firstMatch(rest) case final untyped?) {
+      return _issue(column,
+          'A function says the type of what it gives, after its parameters: state ${untyped[1]}(${untyped[2]}):boolean={…} (one of integer, decimal, text, boolean, list, map).');
     }
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
@@ -10929,6 +11040,12 @@ class _Parser {
     final reads = indexed != null && (variables.containsKey(indexed[1]) || _derived.containsKey(indexed[1]));
     if (!_literal(written).$1 && (RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads || (braced && code.contains('[')))) {
       _derived[m[1]!] = written;
+      // A formula variable or a function written before it reads it too.
+      for (final v in variables.values) {
+        if (v['formula'] case final String f when f.contains(m[1]!) && !(readList(v['parameters'])?.contains(m[1]) ?? false)) {
+          v['formula'] = _rename(' $f', m[1]!, '($written)').substring(1);
+        }
+      }
       return;
     }
     var value = _value(written);
@@ -12209,6 +12326,39 @@ class _Parser {
         for (var i = 0; i < colors.length; i++) {'position': i / (colors.length - 1), 'color': colors[i]},
       ],
     };
+  }
+
+  /// The lines of a chart's `series` written as a formula ([source]: a list
+  /// of records, each with its `values` worked out or written, a `name` and
+  /// maybe a `color`), each part as a formula reads it. Null when it is not
+  /// written so (a variable that holds them: how many lines is not known).
+  List<({String name, String values, Object? color})>? _chartSeries(String source) {
+    final s = source.trim();
+    if (!s.startsWith('[') || !s.endsWith(']')) return null;
+    // A part in braces of its own (`"values":{map(…)}`) is that expression.
+    String bare(String v) => _bracedExpression(v) ? v.substring(1, v.length - 1).trim() : v;
+    final out = <({String name, String values, Object? color})>[];
+    for (final item in _split(s.substring(1, s.length - 1), ',')) {
+      final record = item.trim();
+      if (record.isEmpty) continue;
+      if (!record.startsWith('{') || !record.endsWith('}')) return null;
+      final fields = <String, String>{};
+      for (final field in _split(record.substring(1, record.length - 1), ',')) {
+        final at = _split(field, ':').first.length;
+        if (at >= field.length) return null;
+        final key = field.substring(0, at).trim();
+        fields[key.replaceAll(RegExp('^["\']|["\']\$'), '')] = bare(field.substring(at + 1).trim());
+      }
+      final values = fields['values'] ?? fields['data'];
+      if (values == null) return null;
+      final color = fields['color'];
+      out.add((
+        name: fields['name'] ?? fields['label'] ?? '""',
+        values: values,
+        color: color != null && _literal(color).$1 ? _literal(color).$2 : null,
+      ));
+    }
+    return out.isEmpty ? null : out;
   }
 
   List<String> _split(String s, String sep) {
