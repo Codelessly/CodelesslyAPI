@@ -329,8 +329,8 @@ abstract final class ChartProps {
   /// A key for each named series (a donut: for each labeled slice, with
   /// its share). Null: drawn when there is more than one to tell apart and
   /// the chart has room (under a plot; beside a donut in a box wide enough
-  /// that the ring keeps its whole height). True: always (a donut in a
-  /// narrower box: under it).
+  /// that the ring keeps at least three quarters of its height). True:
+  /// always (a donut in a narrower box: under it).
   static const legend = PropDef<bool?>('legend', Codecs.optionalBool, null);
 
   /// A donut: the sum of its values is written in its hole with this text

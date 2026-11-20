@@ -916,8 +916,9 @@ final class GraphLegend extends PropRecord {
 
   /// `auto`: drawn when there is more than one thing to tell apart and
   /// there is room: under a plot with two or more named marks; beside
-  /// labeled slices in a graph wide enough that they keep its whole height
-  /// (slices in a narrower graph have none). `always`, or `none`.
+  /// labeled slices in a graph wide enough that the ring keeps at least
+  /// three quarters of its height (slices in a narrower graph have none).
+  /// `always`, or `none`.
   static const showDef = PropDef<String>('show', _gs, 'auto');
 
   /// `bottom` or `top` (a line of keys in the middle, wrapped) or `right`

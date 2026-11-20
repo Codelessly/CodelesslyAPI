@@ -797,7 +797,7 @@ section's anchor is its topic.
 | [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4742 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 3820 |
 | [design-systems.md](#page-design-systems) | Giving every screen one look that is not the renderer's default and not the host app's: a set of components (buttons, fields, selects, cards, dialogs...) drawn from core nodes, the tokens they are styled with, and the two documents an author reads first, the principles and the patterns. | 828 |
-| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7955 |
+| [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 7959 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2311 |
 | [auth.md](#page-auth) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 470 |
 | [commerce.md](#page-commerce) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -806,7 +806,7 @@ section's anchor is its topic.
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 681 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3587 |
 | [render.md](#page-render) | Checking a document or a site before trusting it: screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 1660 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 16524 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a color, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 16529 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -9181,7 +9181,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `yAxisFontFamily` | String | unset |  |  |
 | `dimUnselected` | bool | `false` |  | Bars of other categories fade while one is selected (or hovered). |
 | `tooltip` | bool | `true` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
-| `legend` | bool | unset |  | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it). |
+| `legend` | bool | unset |  | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps at least three quarters of its height). True: always (a donut in a narrower box: under it). |
 | `centerLabel` | String | unset |  | A donut: the sum of its values is written in its hole with this text under it (while a slice is selected, that slice's value and label). Null: nothing is written there. |
 | `tooltipColor` | [Color](#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTextColor` | [Color](#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
@@ -11354,7 +11354,7 @@ A graph's legend: a key for each named mark (a dot in its color and its name), o
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `show` | String | `"auto"` |  | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that they keep its whole height (slices in a narrower graph have none). `always`, or `none`. |
+| `show` | String | `"auto"` |  | `auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`, or `none`. |
 | `position` | String | `"auto"` |  | `bottom` or `top` (a line of keys in the middle, wrapped) or `right` (a list). `auto`: under a plot; beside slices where the list fits there, else under them. |
 | `values` | bool | `true` |  | Each slice's share is written after its label. |
 

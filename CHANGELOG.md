@@ -1,3 +1,62 @@
+## 40.2.0
+
+A chart written as one line looks finished: its series are told apart by hue, its axis has round figures, several
+series have a legend, a donut says its total, and what is under the pointer says its value. With CodelesslySDK
+40.2.0. Read the first section before upgrading.
+
+### Behaviour changes (read before upgrading)
+
+- **A `chart` selects what is under the pointer and shows a tooltip** unless it says not: `selectOnHover` and
+  `tooltip` are `true` by default (they were `false`), and a `lineChart`'s `scrubEnabled` is `true`. Write `false`
+  for a chart that is only looked at.
+- **A `chart`'s bars are rounded**: `barRadius` is 4 by default (it was 0). `axisFontSize` is 11 (it was 10).
+- **The colors after a theme's accent are other hues.** A `Donut`, and a chart of several series, drew the accent
+  and then lighter and darker steps of it; they draw the accent and then colors of other hues as light and as
+  strong as it. A color written on the line (`colors=[…]`, a series' `"color"`) is as it was.
+- **A series that writes no color leaves it out of the document.** `LineChart series=[{"name":"A","values":[…]}]`
+  wrote each series a color from the accent; the series now takes the theme's next series color where it is drawn
+  (`chart1`, `chart2`… where the theme names them), in light and in dark.
+- **`LineChart values=[…]` is a smooth line with no fill under it** (`smooth=true`, a clear `areaTopColor`); it was
+  a straight line over the node's soft fill. `smooth=false` and `areaTopColor=` on the line are kept; `AreaChart`
+  has the fill.
+- **A `Donut` has its total in its hole** (`centerLabel`), and one that writes no legend of its own on the page (its
+  lists follow the state, or the canvas is under 700 wide) is as wide as what it is in, so the chart's own legend
+  has room beside the ring. `total=false` leaves the hole empty, `legend=false` keeps the square; in a `Row` or a
+  `Stack` it is the square it was.
+- **A bar chart's axis writes 20K for 20000** (and 1.5M): ten thousand and more is written in thousands.
+
+### Charts
+
+- **`chartPalette("#FF2563EB")`** (and `chartPaletteOf(0xFF2563EB)`): the eight colors of a chart whose accent is
+  that one. The accent first, then seven colors of other hues, each about as light and as strong as it (a yellow a
+  little lighter, as yellows are); an accent with no hue (a black, a gray) is followed by colors of a moderate
+  strength.
+- **`BarChart` takes `series`**: `BarChart labels=["Q1","Q2"] series=[{"name":"2024","values":[30,42]},{"name":
+  "2025","values":[36,45]}]` draws each label's bars side by side, and `BarChart stacked …` one on another. The
+  series follow the state in braces, as a `LineChart`'s do. `series=` on a `BarChart` was left out.
+- **A `BarChart` whose values follow the state has its figures**: `BarChart values={…}` and
+  `BarChart data={rows} yField="n"` set `gridValues`, and the chart chooses its round lines and labels them as the
+  values come. Such a chart had lines and no figures.
+- **`chart` takes `legend`** (a key for each named series, or for each labeled slice with its share; unset: drawn
+  when there is more than one to tell apart and room) **and `centerLabel`** (a donut's total in its hole, this text
+  under it). **`barChart` takes `gridValues`**.
+- **A `Donut` reads `total=`**: `total="Visitors"` names the figure in its hole, `total=false` leaves it out.
+
+### The graph
+
+- **`legend`** (`show`: `auto`, `always`, `none`; `position`: `auto`, `bottom`, `top`, `right`; `values`): a key
+  for each named mark, or in a polar pane for each slice with its share. With nothing written it is drawn under a
+  plot of two or more named marks, and beside labeled slices in a graph wide enough that the ring keeps at
+  least three quarters of its height.
+- **`style.palette`**: the colors of the marks that write none, in turn (an area and the line along its top take
+  one), and of an arc's slices. **`style.ink`**: a figure written large.
+- **`xAxis.inset`**: pixels kept clear at each end of a fitted view. **`xAxis.maxBarWidth`**: the widest a bar is
+  drawn (bars side by side: each of them); the graph read it, and the record now has it.
+- **`yAxis.nice`**: a fitted scale is rounded out to its ticks, so the plot starts and ends on a labeled line.
+- **A mark's `dots`** (a dot on every row of a line), **`center` and `centerLabel`** (the sum of an arc's values
+  in its hole, a text under it).
+- A selection's `tooltipFill` and `tooltipText` are the style's `tag` and `tagText` when not written.
+
 ## 40.1.0
 
 The open prompt (`notationPrompt(open: true)`) teaches more of what the notation already has, at the same length;

@@ -8335,6 +8335,8 @@ class _Parser {
     if (ours && written == 'Sparkline') {
       layout['height'] = layout['height'] == 140 ? 32 : layout['height'];
       layout.putIfAbsent('width', () => 96);
+      // A trend to look at: nothing under the pointer.
+      props.putIfAbsent('scrubEnabled', () => false);
       props.addAll({
         'plotPadding': [2, 4, 2, 4],
         'smooth': true,

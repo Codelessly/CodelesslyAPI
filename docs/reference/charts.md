@@ -302,7 +302,7 @@ A chart of data rows: bars, lines and areas over categories, a timeline of segme
 | `yAxisFontFamily` | String | unset |  |  |
 | `dimUnselected` | bool | `false` |  | Bars of other categories fade while one is selected (or hovered). |
 | `tooltip` | bool | `true` |  | A box over the selected (or hovered) category: its label, then each series' name and value there. |
-| `legend` | bool | unset |  | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it). |
+| `legend` | bool | unset |  | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps at least three quarters of its height). True: always (a donut in a narrower box: under it). |
 | `centerLabel` | String | unset |  | A donut: the sum of its values is written in its hole with this text under it (while a slice is selected, that slice's value and label). Null: nothing is written there. |
 | `tooltipColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTextColor` | [Color](values.md#type-Color) | unset |  | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |

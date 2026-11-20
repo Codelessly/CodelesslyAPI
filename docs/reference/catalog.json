@@ -9293,7 +9293,7 @@
           "kind": "boolean",
           "default": null,
           "nullable": true,
-          "doc": "A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it)."
+          "doc": "A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps at least three quarters of its height). True: always (a donut in a narrower box: under it)."
         },
         {
           "key": "centerLabel",
@@ -18004,7 +18004,7 @@
           "kind": "string",
           "default": "auto",
           "nullable": false,
-          "doc": "`auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that they keep its whole height (slices in a narrower graph have none). `always`, or `none`."
+          "doc": "`auto`: drawn when there is more than one thing to tell apart and there is room: under a plot with two or more named marks; beside labeled slices in a graph wide enough that the ring keeps at least three quarters of its height (slices in a narrower graph have none). `always`, or `none`."
         },
         {
           "key": "position",

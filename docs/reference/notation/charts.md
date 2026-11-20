@@ -303,7 +303,7 @@ Series chart (bar, line, timeline, donut).
 | `yAxisFontFamily` | text |  | 4 |  |
 | `dimUnselected` | `true`/`false` | `false` | 4 | Bars of other categories fade while one is selected (or hovered). |
 | `tooltip` | `true`/`false` | `true` | 4 | A box over the selected (or hovered) category: its label, then each series' name and value there. |
-| `legend` | `true`/`false` |  | 4 | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps its whole height). True: always (a donut in a narrower box: under it). |
+| `legend` | `true`/`false` |  | 4 | A key for each named series (a donut: for each labeled slice, with its share). Null: drawn when there is more than one to tell apart and the chart has room (under a plot; beside a donut in a box wide enough that the ring keeps at least three quarters of its height). True: always (a donut in a narrower box: under it). |
 | `centerLabel` | text |  | 4 | A donut: the sum of its values is written in its hole with this text under it (while a slice is selected, that slice's value and label). Null: nothing is written there. |
 | `tooltipColor` | [Color](values.md#type-Color) |  | 4 | Null: the theme's onSurface (an inverted surface) (`ControlTheme`), so it reads in light and dark. |
 | `tooltipTextColor` | [Color](values.md#type-Color) |  | 4 | Null: the theme's surface (`ControlTheme`), so it reads in light and dark. |
