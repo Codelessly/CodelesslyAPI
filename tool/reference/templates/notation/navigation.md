@@ -138,8 +138,10 @@ Dialog#signup "Join the waitlist"
 An overlay's id is one of the page's ids, so the line that opens it has another (`IconButton#openFilters …
 onTap={open filters}` and `Sheet#filters`). The actions after `open id` in the same chain run once the overlay has
 closed, however it closed (its `close`, a tap outside, a drag down, Escape, back): that is where a page reacts to a
-sheet going away, and `result` there is what `closeModal result=…` gave. A Sheet's own corners are 20 at its top;
-`radius=` on its line rounds the content under it, not the sheet.
+sheet going away, and `result` there is what `closeModal result=…` gave; an overlay line has no `onClose`. A
+Sheet's own corners are 20 at its top; `radius=` on its line rounds the content under it, not the sheet. A key of
+the `openModal` that shows it, written on the overlay's line, is what every `open` of it says: `Sheet#options
+"Options" sheetRadius=10 showDragHandle=false`, `Dialog#confirm barrierDismissible=false`.
 
 ```notation width=390 expands
 state rating=0

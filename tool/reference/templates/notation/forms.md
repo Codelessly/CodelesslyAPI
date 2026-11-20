@@ -41,9 +41,11 @@ Words a writer reaches for, and what they read as:
   line gives `color=`).
 - `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
 - `Input "Password" password` hides what is typed (`obscureText`; there is no `obscure`). `password` and
-  `multiline` are flags, written bare (`Input "Note" multiline`, not `multiline=true`). An Input has no variants
-  (`Input.outline` is refused): its line says its look, `border=` its line (`border=none`: none), `radius=20` its
-  corners (not `decoration.radius`), `fill=` its ground.
+  `multiline` are flags, written bare (`Input "Note" multiline`; `multiline=true` is the same, `=false` none). An
+  Input has no variants (`Input.outline` is refused): its line says its look, `border=` its line (`border=none`:
+  none; `border={bad ? "#FFEF5350" : "#FFF3F5F6"}` one worked out, the same line `focused.border=` sets),
+  `radius=20` its corners (not `decoration.radius`), `fill=` its ground. `enableSuggestions=false` turns the
+  keyboard's suggestions off (`autocorrect=false` its corrections).
 - A field whose words are inside it, with no label above, is `Input hint="Password"`.
 - A field taller than its step that still grows with its lines (a composer 48 high at one line) takes its height
   from its padding, `decoration.contentPadding=[14,14,14,14] maxLines=5`; an `h=` picks a fixed step and stops it

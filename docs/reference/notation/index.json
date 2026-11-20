@@ -2,7 +2,7 @@
   "version": "40.2.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4570
+    "words": 4599
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4570
+      "words": 4599
     },
     {
       "topic": "notation-a-line",
@@ -60,7 +60,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-events-and-actions",
       "title": "Events and actions",
-      "words": 501
+      "words": 530
     },
     {
       "topic": "notation-lists-and-conditions",
@@ -167,14 +167,14 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1794
+      "words": 1843
     },
     {
       "topic": "theme-text",
       "file": "theme.md",
       "anchor": "theme-text",
       "title": "Text",
-      "words": 580
+      "words": 606
     },
     {
       "topic": "theme-words",
@@ -188,7 +188,7 @@
       "file": "theme.md",
       "anchor": "theme-behaviors",
       "title": "Keys any line takes here",
-      "words": 414
+      "words": 437
     },
     {
       "topic": "theme-events-and-actions",
@@ -345,14 +345,14 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13675
+      "words": 13723
     },
     {
       "topic": "forms-a-control-and-its-value",
       "file": "forms.md",
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
-      "words": 572
+      "words": 598
     },
     {
       "topic": "forms-tabs-segments-and-chips-chosen-from",
@@ -387,7 +387,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9883
+      "words": 9904
     },
     {
       "topic": "forms-behaviors",
@@ -401,7 +401,7 @@
       "file": "forms.md",
       "anchor": "forms-events-and-actions",
       "title": "Events and actions",
-      "words": 23
+      "words": 24
     },
     {
       "topic": "forms-records",
@@ -423,14 +423,14 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 8253
+      "words": 8262
     },
     {
       "topic": "lists-a-list-over-data",
       "file": "lists.md",
       "anchor": "lists-a-list-over-data",
       "title": "A list over data",
-      "words": 733
+      "words": 742
     },
     {
       "topic": "lists-a-table-of-records",
@@ -558,21 +558,21 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 6222
+      "words": 6311
     },
     {
       "topic": "events-an-event",
       "file": "events.md",
       "anchor": "events-an-event",
       "title": "An event",
-      "words": 2047
+      "words": 2102
     },
     {
       "topic": "events-actions",
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 4098
+      "words": 4132
     },
     {
       "topic": "interaction",
@@ -780,7 +780,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 4502
+      "words": 4534
     },
     {
       "topic": "navigation-page-frames",
@@ -794,7 +794,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 962
+      "words": 994
     },
     {
       "topic": "navigation-screens",
@@ -837,7 +837,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2890
+      "words": 2912
     },
     {
       "topic": "components-calling-one",
@@ -858,7 +858,7 @@
       "file": "components.md",
       "anchor": "components-writing-one",
       "title": "Writing one",
-      "words": 454
+      "words": 476
     },
     {
       "topic": "components-words",
@@ -887,7 +887,7 @@
       "anchor": "page-design-systems",
       "title": "Design systems",
       "summary": "A design system's components and words, and words defined in the text (`define`).",
-      "words": 953
+      "words": 1001
     },
     {
       "topic": "design-systems-a-design-system",
@@ -901,7 +901,7 @@
       "file": "design-systems.md",
       "anchor": "design-systems-defined-words",
       "title": "Defined words",
-      "words": 666
+      "words": 714
     },
     {
       "topic": "design-systems-examples",
@@ -974,7 +974,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17178
+      "words": 17228
     },
     {
       "topic": "values-writing-a-value",
@@ -1002,7 +1002,7 @@
       "file": "values.md",
       "anchor": "values-enums",
       "title": "Enums",
-      "words": 10955
+      "words": 11005
     },
     {
       "topic": "values-records",
@@ -1148,7 +1148,7 @@
       "anchor": "page-levels",
       "title": "Levels and trust",
       "summary": "The words by feature level (`lib/src/core/levels.dart`, the same table as the JSON reference's levels.md).",
-      "words": 547
+      "words": 548
     },
     {
       "topic": "level-core",
@@ -1162,7 +1162,7 @@
       "file": "levels.md",
       "anchor": "level-widgets",
       "title": "1. Widget catalog (widgets)",
-      "words": 76
+      "words": 77
     },
     {
       "topic": "level-state",
@@ -1319,6 +1319,7 @@
       "imageError": "events.md#trigger-imageError",
       "changed": "events.md#trigger-changed",
       "changeEnd": "events.md#trigger-changeEnd",
+      "changeStart": "events.md#trigger-changeStart",
       "submitted": "events.md#trigger-submitted",
       "deleted": "events.md#trigger-deleted",
       "editingComplete": "events.md#trigger-editingComplete",

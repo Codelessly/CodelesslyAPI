@@ -325,6 +325,37 @@ final class PageWords {
   /// `Lightbox#zoom`), or null: the lines under it are a canvas of their
   /// own, shown over the page by `open <id>`.
   Overlay? overlay(String text) {
+    // A key of the `openModal` that shows it, written on its line
+    // (`Sheet#s sheetRadius=10 showDragHandle=false`, `Dialog#d
+    // barrierDismissible=false`): what every `open` of it says.
+    final head = _overlayHead.firstMatch(text);
+    if (head == null || head[1] == 'Lightbox') return _overlayAsWritten(text);
+    final parts = _Parts(text.substring(head.end));
+    final more = <String, Object?>{};
+    for (final f in OpenModalFields.all) {
+      if (const {'to', 'params', 'presentation'}.contains(f.key) || parts.bound(f.key)) continue;
+      if (parts.take(f.key) case final String v) more[f.key] = _modalValue(v);
+    }
+    if (more.isEmpty) return _overlayAsWritten(text);
+    return _overlayAsWritten('${text.substring(0, head.end)}${parts.props}${parts.tail}')?.withAction(more);
+  }
+
+  /// A value written for a key of an `openModal` on an overlay's line.
+  static Object? _modalValue(String v) {
+    if (v == 'true' || v == 'false') return v == 'true';
+    if (num.tryParse(v) case final num n) return n;
+    if (v.startsWith('[')) {
+      try {
+        return jsonDecode(v);
+      } on FormatException {
+        return v;
+      }
+    }
+    if (v.length >= 2 && v.startsWith('"') && v.endsWith('"')) return v.substring(1, v.length - 1);
+    return v;
+  }
+
+  Overlay? _overlayAsWritten(String text) {
     // `Canvas#about "About" path="about"`: another canvas of the document
     // (a page, or what an open shows as written), its lines its tree.
     final canvas = RegExp(r'^Canvas#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)(?=\s|$)').firstMatch(text);
@@ -375,16 +406,8 @@ final class PageWords {
     // the open sheet rests at, read and written.
     final stop = parts.take('stop');
     final stopVariable = stop != null && RegExp(r'^@[A-Za-z_][A-Za-z0-9_]*$').hasMatch(stop) && stops.isNotEmpty ? stop.substring(1) : null;
-    // The fields of the route that shows it, written on its line
-    // (`Sheet#live maxHeightFactor=0.9 showDragHandle=false sheetRadius=10`):
-    // its route's, over what the word gives, as on an openModal. (They were
-    // read as its column's keys and refused.) A dialog's and a sheet's.
-    final route = <String, Object?>{
-      if (const {'Dialog', 'Modal', 'Sheet', 'BottomSheet'}.contains(head[1]))
-        for (final f in OpenModalFields.all)
-          if (!const {'to', 'params', 'presentation'}.contains(f.key))
-            if (parts.take(f.key) case final String raw) f.key: _routeValue(raw),
-    };
+    // (The fields of the route that shows it, written on its line, were
+    // taken in [overlay] and go over what the word gives here.)
     final title = parts.string(), note = parts.string();
     final heading = _variant(const ['heading', 'heading3', 'sectionTitle', 'strong']);
     // What heads a dialog or a sheet: its title, a close button, a line under it.
@@ -406,12 +429,12 @@ final class PageWords {
           // no event closes as the page's other overlays do.
           final events = frameEvents('Dialog');
           final closes = events.contains('onClose') ? 'onClose' : events.firstOrNull;
-          return Overlay('dialog', id, width ?? 480, {...action, ...route}, [
+          return Overlay('dialog', id, width ?? 480, action, [
             (indent: 0, text: 'Dialog${title == null ? '' : ' $title'}${note == null ? '' : ' $note'}${parts.hasEvent || closes == null ? parts.props : '${parts.props} $closes={close}'}${parts.tail}'),
           ], surface: false, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
         }
         final pad = parts.take('pad') ?? '24', gap = parts.take('gap') ?? '16';
-        return Overlay('dialog', id, width ?? 480, {...action, ...route}, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
+        return Overlay('dialog', id, width ?? 480, action, [(indent: 0, text: 'Column w=fill pad=$pad gap=$gap${parts.all}'), ...titled()], radius: 16, guard: guard, guardText: guardText, onDiscard: discard, onBack: onBack);
       case 'Sheet' || 'BottomSheet':
         final pad = parts.take('pad') ?? '[20,8,20,24]', gap = parts.take('gap') ?? '16';
         final w = width ?? 560;
@@ -428,7 +451,6 @@ final class PageWords {
             'maxHeightFactor': stops.fold<double>(0.9, math.max),
             if (stops.isNotEmpty) 'snapHeights': stops,
             'stopVariable': ?stopVariable,
-            ...route,
           },
           // A sheet with stops is as tall as its stop, and scrolls in it.
           [(indent: 0, text: 'Column w=fill${stops.isEmpty ? '' : ' h=fill scroll'} pad=$pad gap=$gap${parts.all}'), ...titled()],
@@ -784,15 +806,6 @@ final class PageWords {
         _ => '$v',
       };
 
-  /// A route field's value as written on an overlay's line: a number, true
-  /// or false, a list (`[0.5,0.9]`), else the text (a color, `#8A000000`).
-  static Object? _routeValue(String raw) {
-    try {
-      return jsonDecode(raw);
-    } on FormatException {
-      return raw.length > 1 && raw.startsWith('"') && raw.endsWith('"') ? raw.substring(1, raw.length - 1) : raw;
-    }
-  }
 
   /// [text], a line written under an overlay that closes as its lines are
   /// used ([Overlay.closes]), with `close` after its actions. In a drawer
@@ -1649,6 +1662,22 @@ final class Overlay {
   /// Which of its lines close it after their actions: `all` (a menu's
   /// items), `nav` (a drawer's NavItems and Links) or `none`.
   final String closes;
+
+  /// This overlay with [more] over what its `open` says.
+  Overlay withAction(Map<String, Object?> more) => Overlay(kind, id, width, {...action, ...more}, head,
+      shift: shift,
+      foot: foot,
+      surface: surface,
+      radius: radius,
+      outlined: outlined,
+      closes: closes,
+      empty: empty,
+      variables: variables,
+      guard: guard,
+      guardText: guardText,
+      onDiscard: onDiscard,
+      onBack: onBack,
+      stop: stop);
 }
 
 class _Line {

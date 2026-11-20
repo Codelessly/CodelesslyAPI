@@ -83,11 +83,17 @@ void main() {
   });
 
   group('actions', () {
-    test('a bound value in a field that takes a number written out is said, with the field that takes one', () {
-      final r = _expand('state wait=2000\nColumn\n  Button "Go" onTap={delay ms={wait}; toast "x"}\n');
-      expect(_said(r).single, allOf(contains('ms is a value written out'), contains('duration={…}')));
+    test('a bound value in a field that takes a number written out goes to the field that takes one; with none it is said', () {
+      // `delay ms={wait}`: the delay's worked-out field is duration, so it
+      // goes there and works (nothing said).
+      final r = _expand('state wait=2000\nColumn\n  Button#b "Go" onTap={delay ms={wait}; toast "x"}\n');
+      expect(r.issues, isEmpty, reason: '${_said(r)}');
+      expect(_actions(r, 'b').first, {'type': 'delay', 'duration': r'${wait}'});
       final ok = _expand('state wait=2000\nColumn\n  Button "Go" onTap={delay duration={wait}; toast "x"}\n');
       expect(ok.issues, isEmpty, reason: '${_said(ok)}');
+      // A field with no worked-out form is said and left out.
+      final said = _expand('state x=0\nColumn\n  Button#b "Go" onTap={scrollTo node=b offset={x}}\n');
+      expect(_said(said).single, allOf(contains('offset is a value written out'), contains('offset={x} is left out')));
     });
 
     test('showDragHandle=false beside snapHeights is said: a sheet with stops always draws its grip', () {

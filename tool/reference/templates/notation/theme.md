@@ -21,7 +21,9 @@ Column gap=4
 
 A part of a text in its own style, or a link, is a run over its characters: `runs=[…]`, each
 [TextRun](@type-TextRun) a range `start` to `end` (the end not included) with its `style` and its `link`, over the
-text's own style. A run holds no text of its own; it styles the text that is there. A run written whole is a record:
+text's own style. A run holds no text of its own; it styles the text that is there (a run written with `"text"` and
+no `start` is that text where the line first has it; a text the line does not have is said). A run written whole is
+a record:
 
 ```notation
 Text "Feeling stuck? Find help here." runs=[{"start":15,"end":29,"style":{"color":"#FF545CEA","fontWeight":600},"link":"https://example.com/help"}]

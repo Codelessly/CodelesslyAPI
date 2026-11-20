@@ -142,7 +142,7 @@ extension _Events on _Parser {
         continue;
       }
       trigger[key] = _fieldValue(raw, column);
-      _literalOnly(TriggerFields.all, key, trigger[key], "A trigger's", column);
+      _literalOnly(TriggerFields.all, trigger, key, raw, "A trigger's", column);
     }
   }
 
@@ -181,8 +181,8 @@ extension _Events on _Parser {
         out[key] = {'left': v is bool ? '\${= $v}' : v, 'op': 'isTrue'};
       }
       // (After the predicate is made a record: a condition worked out is
-      // read, never said.)
-      _literalOnly([...spec.fields, ...ActionCommonFields.all], key, out[key], 'A ${spec.type} action\x27s', column);
+      // read, never moved or said.)
+      _literalOnly([...spec.fields, ...ActionCommonFields.all], out, key, raw, 'A ${spec.type} action\x27s', column);
     }
     // `stopVariable=name`: the stops are shares (0.5), which a whole-number
     // variable would round away.
@@ -200,16 +200,26 @@ extension _Events on _Parser {
   /// `ActionCommonFields.when`): `{"left": …, "op": …}` or a junction.
   static const _predicateFields = {'condition', 'when'};
 
-  /// Says a value worked out (`${…}`) given to a field that holds only a
+  /// A value worked out (`${…}`) given to a field of [out] that holds only a
   /// value written out (a number, true or false, one of its words): it is
-  /// read once, as the document loads, and the `${…}` would be dropped for
-  /// the field's default. Names the fields of [fields] that do take one.
-  void _literalOnly(List<PropDef<Object?>> fields, String key, Object? value, String whose, int column) {
+  /// read once, as the document loads, and the `${…}` was dropped for the
+  /// field's default (`delay ms={x ? 4000 : 3000}` waited 500, with no word
+  /// said). Where the field's doc names the field that takes one (`ms`: "A
+  /// wait worked out is `duration`") the value goes there and works; else it
+  /// is left out and said, naming the fields of [fields] that do take one.
+  void _literalOnly(List<PropDef<Object?>> fields, Map<String, Object?> out, String key, String raw, String whose, int column) {
+    final value = out[key];
     if (value is! String || !value.contains(r'${')) return;
     final f = fields.where((f) => f.key == key).firstOrNull;
     if (f == null) return;
     final c = f.codec;
     if (c is! IntCodec && c is! DoubleCodec && c is! BoolCodec && c is! OptionalIntCodec && c is! OptionalDoubleCodec && c is! OptionalBoolCodec && c is! EnumCodec && c is! OptionalEnumCodec) return;
+    final to = RegExp(r'worked out is `([A-Za-z_][A-Za-z0-9_]*)`').firstMatch(f.doc)?[1];
+    out.remove(key);
+    if (to != null && to != key && fields.any((g) => g.key == to)) {
+      out[to] = value;
+      return;
+    }
     final worked = [
       for (final g in fields)
         if (g.key != key && (g.codec is ExprCodec || (g.codec is StringCodec && RegExp(r'formula|expression', caseSensitive: false).hasMatch(g.doc)))) g.key,
@@ -217,7 +227,7 @@ extension _Events on _Parser {
       if (identical(f, ActionCommonFields.enabled)) 'when',
     ];
     _issue(column,
-        '$whose $key is a value written out (${c is BoolCodec || c is OptionalBoolCodec ? 'true or false' : c is EnumCodec || c is OptionalEnumCodec ? 'one of its words' : 'a number'}); it does not read a value worked out, so $value would be dropped for its default. '
+        '$whose $key is a value written out (${c is BoolCodec || c is OptionalBoolCodec ? 'true or false' : c is EnumCodec || c is OptionalEnumCodec ? 'one of its words' : 'a number'}); it does not read a value worked out, so $key=$raw is left out (it would be dropped for its default). '
         '${worked.isEmpty ? 'Write the value itself.' : 'A value worked out goes in ${worked.map((k) => '$k={…}').join(' or ')}.'}');
   }
 

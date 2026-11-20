@@ -39,12 +39,14 @@ const Map<String, Map<String, List<String>>> notationTypeKeys = {
 const notationTextStyleKeys = {
   'color': 'color', 'size': 'fontSize', 'fontSize': 'fontSize', 'weight': 'fontWeight', 'fontWeight': 'fontWeight',
   'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height',
+  'fontFamilyFallback': 'fontFamilyFallback',
 };
 
 /// Keys written on an Input that belong to the style of its typed text.
 const notationFieldStyleKeys = {
   'font': 'fontFamily', 'fontFamily': 'fontFamily', 'fontSize': 'fontSize', 'textSize': 'fontSize', //
   'weight': 'fontWeight', 'fontWeight': 'fontWeight', 'letterSpacing': 'letterSpacing', 'lineHeight': 'height',
+  'fontFamilyFallback': 'fontFamilyFallback',
 };
 
 /// The bounds of a node's `constraints` (Flutter's `BoxConstraints`), each a
@@ -235,18 +237,60 @@ List<String> notationKeyNames(String type, {Catalog? catalog}) {
 }
 
 /// The name an author most likely meant by [key] on [type] (at the segment
-/// that did not resolve, for a dotted key), or null.
+/// that did not resolve, for a dotted key), or null. It is a key [type]
+/// takes: a near name whose path does not resolve (`Button
+/// labelStyle.fontWeight` → `label.fontWeight`, then refused) is not said;
+/// the key's last names under one or two of the type's names are tried
+/// instead (`style.textStyle.fontWeight`).
 String? notationKeyNearest(String key, String type, {Catalog? catalog}) {
   final c = catalog ?? Catalog.current;
   final raw = key.split('.');
   if (_segments(key) == null) return null;
+  bool takes(String k) => resolveNotationField(k, type, catalog: c)?.key != null;
   String name(String s) => s.replaceAll(RegExp(r'\[\d+\]'), '');
   for (var i = 1; i <= raw.length; i++) {
     if (i == 1 && raw.length > 1 && (_sections.contains(raw.first) || raw.first == 'node')) continue;
     final r = resolveNotationField(raw.take(i).join('.'), type, catalog: c);
     if (r?.key != null) continue;
     final near = i == 1 ? didYouMean(name(raw.first), notationKeyNames(type, catalog: c)) : didYouMean(name(raw[i - 1]), r?.names ?? const []);
-    return near == null ? null : [...raw.take(i - 1), near, ...raw.skip(i)].join('.');
+    final guess = near == null ? null : [...raw.take(i - 1), near, ...raw.skip(i)].join('.');
+    if (guess != null && takes(guess)) return guess;
+    // The rest of the key after the name that did not resolve, under
+    // another name of the type.
+    final rest = raw.skip(i).join('.');
+    if (i != 1 || rest.isEmpty) return null;
+    final found = <String>[];
+    for (final n in notationKeyNames(type, catalog: c)) {
+      if (takes('$n.$rest')) found.add('$n.$rest');
+      // (The names under one: what a name that is none of them is offered.)
+      if (resolveNotationField(n, type, catalog: c)?.key == null) continue;
+      for (final m in resolveNotationField('$n.noSuchName', type, catalog: c)?.names ?? const <String>[]) {
+        if (takes('$n.$m.$rest')) found.add('$n.$m.$rest');
+      }
+    }
+    if (found.isEmpty) return null;
+    // The one whose names share the longest run of letters with the name
+    // written (`labelStyle` → `style.textStyle`, not `icon`).
+    int shared(String a, String b) {
+      a = a.toLowerCase();
+      b = b.toLowerCase();
+      var best = 0;
+      for (var x = 0; x < a.length; x++) {
+        for (var y = 0; y < b.length; y++) {
+          var n = 0;
+          while (x + n < a.length && y + n < b.length && a[x + n] == b[y + n]) {
+            n++;
+          }
+          if (n > best) best = n;
+        }
+      }
+      return best;
+    }
+
+    final head = name(raw.first);
+    int score(String f) => shared(head, f.substring(0, f.length - rest.length));
+    found.sort((a, b) => score(b) != score(a) ? score(b) - score(a) : a.length - b.length);
+    return score(found.first) >= 3 ? found.first : null;
   }
   return null;
 }

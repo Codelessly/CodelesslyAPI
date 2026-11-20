@@ -81,6 +81,7 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | <a id="trigger-pinch"></a>`onPinch` | `pinch` | 4 | A pinch on the node: two fingers on a touch screen, or a trackpad (ctrl + wheel on the web). Each step fires it with `${result.scale}`, the scale of that step (multiply a zoom by it), and the point it is about, `${result.x}`, `${result.y}` in the node (between the fingers; the pointer on a trackpad): zoom about it by keeping that point still. |
 | <a id="trigger-changed"></a>`onChange` | `changed` | 1 | An input's value changed (typed text, a toggled checkbox, a slider step, a picked item). `${result}` is the new value (a text field's: its text, word and selection). |
 | <a id="trigger-changeEnd"></a>`onChangeEnd` | `changeEnd` | 1 | A slider was let go, with its final value. |
+| <a id="trigger-changeStart"></a>`onChangeStart` | `changeStart` | 1 | A slider was taken (a drag or a press on it began, or a key moves it), with its value before the change (Flutter's `onChangeStart`). |
 | <a id="trigger-submitted"></a>`onSubmit` | `submitted` | 1 | A text field was submitted from the keyboard. |
 | <a id="trigger-deleted"></a>`onDeleted` | `deleted` | 1 | An input chip's delete icon was tapped, or Delete or Backspace pressed on it (Flutter's `onDeleted`). |
 | <a id="trigger-editingComplete"></a>`onEditingComplete` | `editingComplete` | 1 | A text field lost focus after editing. |
@@ -96,7 +97,7 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | <a id="trigger-frame"></a>`onFrame` | `frame` | 4 | Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks. |
 | <a id="trigger-keyDown"></a>`onKeyDown` | `keyDown` | 4 | A key went down (or up) while the screen shows; `Trigger.key` limits it to one key or combination, `Trigger.when` to while a formula holds. `${result.key}`, `${result.shift}`, `${result.alt}`, `${result.meta}`. |
 | <a id="trigger-keyUp"></a>`onKeyUp` | `keyUp` | 4 |  |
-| <a id="trigger-scroll"></a>`onScroll` | `scroll` | 4 | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`). |
+| <a id="trigger-scroll"></a>`onScroll` | `scroll` | 4 | The node (a scrolling row, column, list, grid or canvas) scrolled (`${result.offset}`, `${result.max}`, `${result.fraction}` 0–1, `${result.index}` the item at the start of the view (the last at the end), `${result.count}` the items, `${result.overscroll}` how far it is pulled past an end: below 0 past the start, above 0 past the end, 0 within). Store what a carousel's arrows, dots or progress bar show. How near the end it is, to load more: `${result.max - result.offset}` (under 600: fetch the next page); a list's `pagination` loads its next page by itself (`thresholdPixels`). |
 | <a id="trigger-scrollEnd"></a>`onScrollEnd` | `scrollEnd` | 4 | The node stopped scrolling; `${result}` as for `scroll`. |
 | <a id="trigger-enterViewport"></a>`onEnterViewport` | `enterViewport` | 4 | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | <a id="trigger-exitViewport"></a>`onExitViewport` | `exitViewport` | 4 |  |
@@ -125,7 +126,9 @@ A field that holds actions takes them in braces: `confirm "Remove it?" then {clo
 `cond ? a : b` chooses between actions (a branch may be `{a; b}`, or empty; `cond ? a` alone does nothing when it
 does not hold). `if` is a line of the tree, not a verb: `onTap={missing ? {open naming} : {open account}}`, not
 `onTap={if missing {…} else {…}}` (the action by its type is `if condition={missing} then={…} else={…}`). A verb
-says only the fields its row shows; any other is the action by its type: `showToast message="Saved" style=success`. `close` closes the overlay the action
+says only the fields its row shows; any other is the action by its type: `showToast message="Saved" style=success`
+(`toast "Saved" style=success` is said with that line). A number of an action is a number: `delay ms={…}` is the
+delay's `duration={…}`, and a value worked out given to another number field is said. `close` closes the overlay the action
 runs in; a second `close` in the same chain closes the one under it (`close; close` from a dialog over a dialog
 closes both).
 

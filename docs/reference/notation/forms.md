@@ -44,9 +44,11 @@ Words a writer reaches for, and what they read as:
   line gives `color=`).
 - `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
 - `Input "Password" password` hides what is typed (`obscureText`; there is no `obscure`). `password` and
-  `multiline` are flags, written bare (`Input "Note" multiline`, not `multiline=true`). An Input has no variants
-  (`Input.outline` is refused): its line says its look, `border=` its line (`border=none`: none), `radius=20` its
-  corners (not `decoration.radius`), `fill=` its ground.
+  `multiline` are flags, written bare (`Input "Note" multiline`; `multiline=true` is the same, `=false` none). An
+  Input has no variants (`Input.outline` is refused): its line says its look, `border=` its line (`border=none`:
+  none; `border={bad ? "#FFEF5350" : "#FFF3F5F6"}` one worked out, the same line `focused.border=` sets),
+  `radius=20` its corners (not `decoration.radius`), `fill=` its ground. `enableSuggestions=false` turns the
+  keyboard's suggestions off (`autocorrect=false` its corrections).
 - A field whose words are inside it, with no label above, is `Input hint="Password"`.
 - A field taller than its step that still grows with its lines (a composer 48 high at one line) takes its height
   from its padding, `decoration.contentPadding=[14,14,14,14] maxLines=5`; an `h=` picks a fixed step and stops it
@@ -384,6 +386,7 @@ Flutter `TextField`. Leave its height to hug: every input (text field, dropdown,
 | `textInputAction` | [TextInputAction](values.md#enum-TextInputAction) |  | 1 |  |
 | `textCapitalization` | `none` `words` `sentences` `characters` | `none` | 1 |  |
 | `autocorrect` | `true`/`false` | `true` | 1 |  |
+| `enableSuggestions` | `true`/`false` | `true` | 1 | The keyboard's word suggestions (Flutter's enableSuggestions); off for a password field. |
 | `autofocus` | `true`/`false` | `false` | 1 |  |
 | `enableInteractiveSelection` | `true`/`false` | `true` | 1 |  |
 | `enabled` | `true`/`false` | `true` | 1 |  |
@@ -1028,7 +1031,7 @@ Written `radioGroup={…}` on any line ([RadioGroupBehavior](#type-RadioGroupBeh
 
 Each is on [events.md](events.md), with its fields.
 
-- Events: [`onChange`](events.md#trigger-changed), [`onChangeEnd`](events.md#trigger-changeEnd), [`onSubmit`](events.md#trigger-submitted), [`onDeleted`](events.md#trigger-deleted), [`onEditingComplete`](events.md#trigger-editingComplete), [`onFocus`](events.md#trigger-focusGained), [`onBlur`](events.md#trigger-focusLost), [`onKeyDown`](events.md#trigger-keyDown), [`onKeyUp`](events.md#trigger-keyUp).
+- Events: [`onChange`](events.md#trigger-changed), [`onChangeEnd`](events.md#trigger-changeEnd), [`onChangeStart`](events.md#trigger-changeStart), [`onSubmit`](events.md#trigger-submitted), [`onDeleted`](events.md#trigger-deleted), [`onEditingComplete`](events.md#trigger-editingComplete), [`onFocus`](events.md#trigger-focusGained), [`onBlur`](events.md#trigger-focusLost), [`onKeyDown`](events.md#trigger-keyDown), [`onKeyUp`](events.md#trigger-keyUp).
 - Actions: [`editText`](events.md#action-editText), [`focus`](events.md#action-focus), [`validate`](events.md#action-validate).
 
 <a id="forms-records"></a>

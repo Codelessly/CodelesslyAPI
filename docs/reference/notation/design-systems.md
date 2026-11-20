@@ -25,7 +25,9 @@ Before a `define` (or a `primitive`), look the word up in [index.md](index.md): 
 it stands for. Those lines read the word's strings and keys by name in braces; `...` on a line of its own is where
 the lines written under a use go. A defined word is written out where it is used. A word that keeps a value is
 written with `@value=…` in its head (`define Stepper @value=0 min=0`), its lines binding `@value`; a use binds its
-own variable (`Stepper @qty`).
+own variable (`Stepper @qty`). A key read where an action goes is the use's actions, whatever its name
+(`define Act "label" save` over `Button "{label}" onTap={save}`, used as `Act "Go" save={n=n+1}`); an id of its lines
+named like a variable they bind (`Toggle#shown @shown`) is the use's own, the variable the page's.
 
 ```notation expands
 define Pill "text" tone="neutral"

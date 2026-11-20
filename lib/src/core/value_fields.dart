@@ -52,6 +52,10 @@ abstract final class TextStyleFields {
   /// The font family (`"Inter"`); `fontWeight` picks its file. Without one: the platform's default (Roboto).
   static const fontFamily = PropDef<String?>('fontFamily', Codecs.optionalString, null);
 
+  /// The families tried, in order, for a glyph [fontFamily] lacks (Flutter's `fontFamilyFallback`).
+  static const fontFamilyFallback = PropDef<List<String>>('fontFamilyFallback', Codecs.strings, [],
+      doc: 'The families tried, in order, for a glyph fontFamily lacks (`["Roboto", "Noto Sans"]`).');
+
   /// Flutter's `FontWeight`: 100–900, in hundreds.
   static const fontWeight = PropDef<int?>('fontWeight', FontWeightCodec(), null);
   /// `normal` or `italic`.
@@ -103,7 +107,7 @@ abstract final class TextStyleFields {
           '`"style": "title"` is short for `{"from": "title"}`.');
 
   static const List<PropDef<Object?>> all = [
-    from, fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
+    from, fontFamily, fontFamilyFallback, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
     decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
     shadows,
   ];
