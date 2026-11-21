@@ -58,6 +58,7 @@ String notationPrompt({
   bool glossary = true,
   bool signatures = true,
   bool pages = false,
+  bool site = false,
 }) {
   var text = _prompt(
       catalog: catalog, options: options, designSystem: designSystem, only: only, natural: natural, wanted: wanted, open: open, define: define, glossary: glossary, signatures: signatures);
@@ -72,6 +73,19 @@ String notationPrompt({
       text = text.replaceRange(at.end, at.end, '\n$notationPagesRule');
     } else {
       text = '${text.trimRight()}\n$notationPagesRule\n';
+    }
+  }
+  if (site) {
+    // A site of files: each file is one screen, so the open prompt's line on
+    // several screens in one answer goes.
+    const several = '- Several screens: each starts at a ### line, with its own state lines and overlays under it, before the next ###.';
+    final at = RegExp(r'^- #id only when something else names the node[^\n]*$', multiLine: true).firstMatch(text);
+    if (text.contains(several)) {
+      text = text.replaceFirst(several, notationSiteRule);
+    } else if (at != null) {
+      text = text.replaceRange(at.end, at.end, '\n$notationSiteRule');
+    } else {
+      text = '${text.trimRight()}\n$notationSiteRule\n';
     }
   }
   final words = notationDictionaryLines(options.vocabulary, prompt: text);
@@ -97,6 +111,25 @@ const String notationPagesRule =
     'indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on a line of '
     'its own is where the lines written under a use go. Every screen then calls it as any other word '
     '(BudgetRow "Groceries" spent=320 limit=400). Define each word once, after the last screen, and none of the words taught here.';
+
+/// How an app or a site of several screens is written as files
+/// ([notationPrompt] with `site`): the layout `expand <site folder>` reads
+/// (docs/reference/notation: site.md, and "Calling one" of components.md),
+/// as lines of the prompt's list.
+const String notationSiteRule =
+    '- An app or a site of several screens is a folder of files. pages/<name>.txt is one screen, the whole file (pages/home.txt, '
+    'pages/transactions.txt): its file name is its name, in lower case with a hyphen for a space, and it has no ### line. '
+    'go transactions on any page shows pages/transactions.txt.\n'
+    '- components/<Word>.txt is one word of the app\'s own, shared by every page (the app\'s navigation, a row of a list, a stat): its '
+    'first line is define and the word as a line would use it, each value its default (define BudgetRow "name" spent=0 limit=100); '
+    'under it, indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on '
+    'a line of its own is where the lines written under a use go. Every page and every other component then calls it as any other '
+    'word (BudgetRow "Groceries" spent=320 limit=400), with nothing more said. One word a file, its file named after it, and none of '
+    'the words taught here.\n'
+    '- site.json is the app\'s manifest: "pages", the screens in order (["home.json", "transactions.json"]); "variables", what every '
+    'page and component reads and sets by name with no state line of its own ({"plan": "pro", "cart": [], "draft": {"value": "", '
+    '"persist": true}}); "theme", the names a line uses for its looks ("colors": {"ink": "#FF1F2A24"} read as color=ink, '
+    '"textStyles", "radii", "primary", "surface"). State only one page uses stays a state line on that page.';
 
 /// The lines of the words [vocabulary]'s dictionaries define that [prompt]
 /// does not already list (a design system's component or word of that name

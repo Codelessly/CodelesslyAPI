@@ -38,6 +38,7 @@ export 'src/core/notation/prompt.dart'
         notationGlossaryLead,
         notationGlossaryLines,
         notationPagesRule,
+        notationSiteRule,
         notationPrompt,
         notationSignaturesLead;
 export 'src/core/a2ui/a2ui.dart' show A2uiResult, a2uiToDocument, parseA2ui;
