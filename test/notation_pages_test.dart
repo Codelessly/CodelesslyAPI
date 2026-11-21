@@ -187,7 +187,7 @@ void main() {
   });
 
   test('the rule\'s own example reads with no issue', () {
-    const text = '### Home\nRow gap=8\n  NavLink "Budgets" icon="pie_chart" active\n\ndefine NavLink "label" icon="home" active=false\n  Row gap=6\n    Icon "{icon}"\n    Text "{label}"\n';
+    const text = '### Home\nColumn gap=8\n  BudgetRow "Groceries" spent=320 limit=400\n\ndefine BudgetRow "name" spent=0 limit=100\n  Row gap=6\n    Text "{name}"\n    Text "{spent} of {limit}"\n';
     final pages = notationPages(text);
     expect(_read(pages, pages.pages.single).issues, isEmpty);
   });
