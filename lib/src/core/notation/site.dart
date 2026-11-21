@@ -109,6 +109,25 @@ final class NotationSiteFiles {
       }
     }
     _readComponents();
+    _checkRings();
+  }
+
+  /// Says each word of the site's definitions that reaches itself through
+  /// words other files define (`A` calls `B`, whose file calls `A`): one file
+  /// read alone cannot know, and the pages read it as no word at all. The
+  /// message is the one a file gets for a word that calls itself, with every
+  /// word on the way: `A uses itself (A > B > A): it is not read.`
+  void _checkRings() {
+    final text = definitionText;
+    if (text == null) return;
+    for (final p in readPageDefinitions(text).problems) {
+      final m = RegExp(r'^page:(\d+): (\S+ uses itself \(.*\): it is not read\.)$').firstMatch(p.message);
+      final at = m == null ? null : definitionLine(int.parse(m[1]!));
+      if (m == null || at == null) continue;
+      // A word that calls itself in its own file is said there already.
+      if (problems.any((q) => q.path == at.path && q.line == at.line && q.message.contains(' uses itself ('))) continue;
+      problems.add((path: at.path, line: at.line, message: m[2]!));
+    }
   }
 
   /// The files, by path with `/` between its parts.
@@ -123,7 +142,8 @@ final class NotationSiteFiles {
 
   /// What is not read or must be said: a manifest that is not JSON, a
   /// component file that is neither a component nor definitions, a second
-  /// file of one type, what a file of definitions has wrong.
+  /// file of one type, what a file of definitions has wrong, a word that
+  /// reaches itself through the words of other files.
   final List<NotationSiteProblem> problems = [];
 
   /// The site's variables by name, as [NotationOptions.projectVariables]

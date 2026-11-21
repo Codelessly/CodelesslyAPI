@@ -139,7 +139,14 @@ final class WantedBlock {
 }
 
 final class NotationResult {
-  const NotationResult(this.document, this.issues, {this.wanted = const [], this.vocabulary = const []});
+  const NotationResult(this.document, this.issues, {this.wanted = const [], this.vocabulary = const [], this.lines = const {}});
+
+  /// The line of the text (1-based) that made each node, by node id: the
+  /// line it is written on, or the line that calls the word (a defined
+  /// word, a page word, a component) whose lines made it. A node made once
+  /// the text was whole (what the end of the text adds) has none: its
+  /// parent's line is where to look.
+  final Map<String, int> lines;
 
   /// The words the text used that the notation has no meaning for, and the
   /// aliases it used ([VocabularyUse]; docs/design/19-open-vocabulary.md).
@@ -4849,8 +4856,23 @@ class _Parser {
   /// kanban).
   void _readLine(String raw) {
     _rawText.writeln(raw);
+    _rawLine++;
     line(raw);
+    // Each node the line made is that line's ([NotationResult.lines]).
+    for (final p in [this, ..._overlays]) {
+      if (p.nodes.length == p._linedNodes) continue;
+      for (final id in p.nodes.keys) {
+        _nodeLines.putIfAbsent(id, () => _rawLine);
+      }
+      p._linedNodes = p.nodes.length;
+    }
   }
+
+  /// How many lines of the text were read, and the line that made each node
+  /// ([NotationResult.lines]).
+  int _rawLine = 0;
+  final _nodeLines = <String, int>{};
+  int _linedNodes = 0;
 
   /// The end of the text, read whole or as it arrived ([NotationStream]):
   /// each line's tail merged again, the nodes a tail took away left out,
@@ -4910,7 +4932,7 @@ class _Parser {
             for (final e in _takenOverlays.entries) {'id': e.key, 'nodes': e.value},
           ],
         if (own.isNotEmpty) 'variables': {_documentWords['scope'] as String? ?? _root ?? options.screen: own},
-      }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
+      }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary), lines: Map.unmodifiable(_nodeLines));
     }
     return NotationResult(patched({
       'schema': 3,
@@ -4924,7 +4946,7 @@ class _Parser {
       },
       if (variables.values.any((v) => !_projectVariables.contains(v['name'])))
         'variables': {_scope: variables.values.where((v) => !_projectVariables.contains(v['name'])).toList()},
-    }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary));
+    }), issues, wanted: List.unmodifiable(wanted), vocabulary: List.unmodifiable(vocabulary), lines: Map.unmodifiable(_nodeLines));
   }
 
   /// The slot of [block] the lines under it go in.
