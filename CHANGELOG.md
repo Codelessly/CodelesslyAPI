@@ -1,3 +1,23 @@
+## 41.1.0
+
+An app of several screens read in memory as a site of files, and each node traced back to the line that wrote it.
+Nothing that read before reads differently. With CodelesslySDK 41.1.0.
+
+- **A site of files in memory.** `package:codelessly_api/notation_site.dart` (`NotationSiteFiles`,
+  `NotationSiteExpander`) reads `pages/<screen>.txt`, `components/<Word>.txt` and `site.json` held as texts,
+  by the rules `tool/notation/notation.sh expand <site folder>` reads a folder by: a site's components and
+  definitions are known to every page, its variables are read by name, its theme applies, `go <page>` goes between
+  its pages. It reads no file, so it runs in a browser. Not read yet: components written as JSON, and a dictionary
+  or a design system that `site.json` names by folder.
+- **A word that reaches itself through another file's word is said**: `A uses itself (A > B > A): it is not
+  read.`, once, with its file and line. It was left out without a word.
+- **`NotationResult.lines`**: for each node of the document, the line of the text that wrote it, so a problem found
+  in what was drawn can be shown at its line.
+- **`notationPages(text)`** splits a text that writes several screens under `### Name` lines, as the site tools
+  do: each page's lines, the lines every page shares, and the page ids.
+- **`notationPrompt`** takes `site: true` (an app is written as a folder of files: a page a file, a word a file,
+  `site.json`) and `pages: true` (several screens in one text under `### Name` lines).
+
 ## 41.0.0
 
 A major version: lines that were silently read as nothing are now read as written or said, and a few lines draw
