@@ -93,10 +93,10 @@ const String notationPagesRule =
     '- State every screen shares (the signed-in user, the list they all show) is written once, before the first ### line. '
     'go transactions shows the screen called Transactions (its name in lower case, a hyphen for a space: go cook-mode).\n'
     '- A part several screens share (the app\'s navigation, a row, a stat) is a word of the app\'s own, written once: at the margin, '
-    'define and the word as a line would use it, each value its default (define NavLink "label" icon="home" active=false); under it, '
-    'indented, the lines it stands for, which read its strings and parameters by name in braces ({label}, {icon}); ... on a line of '
+    'define and the word as a line would use it, each value its default (define BudgetRow "name" spent=0 limit=100); under it, '
+    'indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on a line of '
     'its own is where the lines written under a use go. Every screen then calls it as any other word '
-    '(NavLink "Budgets" icon="pie_chart" active). Define each word once, after the last screen, and none of the words taught here.';
+    '(BudgetRow "Groceries" spent=320 limit=400). Define each word once, after the last screen, and none of the words taught here.';
 
 /// The lines of the words [vocabulary]'s dictionaries define that [prompt]
 /// does not already list (a design system's component or word of that name
