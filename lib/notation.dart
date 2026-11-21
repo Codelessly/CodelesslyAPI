@@ -27,6 +27,7 @@ export 'src/core/notation/define.dart' show DefinedLine, DefinedWords, NotationD
 export 'src/core/notation/define_reads.dart' show DefinitionReads, definitionReads;
 export 'src/core/notation/vocabulary.dart' show LinePart, LineParts, NotationVocabulary, TypeAlias, VocabularyUse;
 export 'src/core/notation/universal.dart' show UniversalKind, UniversalWord, isUniversal, notationUniversal, universalWords;
+export 'src/core/notation/pages.dart' show NotationPage, NotationPages, notationPageHeading, notationPages;
 export 'src/core/notation/print.dart' show notationOptionsFor, printNotation;
 export 'src/core/notation/prompt.dart'
     show
@@ -36,6 +37,7 @@ export 'src/core/notation/prompt.dart'
         notationGlossaryDefinitionLine,
         notationGlossaryLead,
         notationGlossaryLines,
+        notationPagesRule,
         notationPrompt,
         notationSignaturesLead;
 export 'src/core/a2ui/a2ui.dart' show A2uiResult, a2uiToDocument, parseA2ui;

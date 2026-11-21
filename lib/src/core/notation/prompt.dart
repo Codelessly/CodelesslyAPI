@@ -42,6 +42,10 @@ const double notationPageWidth = 700;
 /// The words of the dictionaries [options] has (folders of definitions a
 /// caller gave: [NotationOptions.dictionary]) are listed after it, one line
 /// each as a line uses it, as a design system's words are.
+///
+/// With [pages], the prompt also teaches how an app or a site of several
+/// screens is written as one answer ([notationPagesRule]): each screen under
+/// a `### Name` line, as `notationPages` reads it.
 String notationPrompt({
   Catalog? catalog,
   NotationOptions options = const NotationOptions(),
@@ -53,9 +57,23 @@ String notationPrompt({
   bool define = true,
   bool glossary = true,
   bool signatures = true,
+  bool pages = false,
 }) {
-  final text = _prompt(
+  var text = _prompt(
       catalog: catalog, options: options, designSystem: designSystem, only: only, natural: natural, wanted: wanted, open: open, define: define, glossary: glossary, signatures: signatures);
+  if (pages) {
+    // After the rule on ids. The open prompt's line on several screens is
+    // this rule's first sentence, so it gives way to the whole of it.
+    const several = '- Several screens: each starts at a ### line, with its own state lines and overlays under it, before the next ###.';
+    final at = RegExp(r'^- #id only when something else names the node[^\n]*$', multiLine: true).firstMatch(text);
+    if (text.contains(several)) {
+      text = text.replaceFirst(several, notationPagesRule);
+    } else if (at != null) {
+      text = text.replaceRange(at.end, at.end, '\n$notationPagesRule');
+    } else {
+      text = '${text.trimRight()}\n$notationPagesRule\n';
+    }
+  }
   final words = notationDictionaryLines(options.vocabulary, prompt: text);
   if (words.isEmpty) return text;
   final names = {
@@ -65,6 +83,20 @@ String notationPrompt({
     ..sort();
   return '${text.trimRight()}\n${notationSignaturesLead(names.join(', '), define: open && define)}\n${words.map((l) => '  $l').join('\n')}\n';
 }
+
+/// How an app or a site of several screens is written as one answer
+/// ([notationPrompt] with `pages`): the rules, as lines of the prompt's list.
+/// `notationPages` reads a text written this way.
+const String notationPagesRule =
+    '- An app or a site of several screens is one answer. Each screen starts at a ### line that names it (### Home, ### Transactions), '
+    'with its own state lines and overlays under it, before the next ###. A single UI has no ### line.\n'
+    '- State every screen shares (the signed-in user, the list they all show) is written once, before the first ### line. '
+    'go transactions shows the screen called Transactions (its name in lower case, a hyphen for a space: go cook-mode).\n'
+    '- A part several screens share (the app\'s navigation, a row, a stat) is a word of the app\'s own, written once: at the margin, '
+    'define and the word as a line would use it, each value its default (define NavLink "label" icon="home" active=false); under it, '
+    'indented, the lines it stands for, which read its strings and parameters by name in braces ({label}, {icon}); ... on a line of '
+    'its own is where the lines written under a use go. Every screen then calls it as any other word '
+    '(NavLink "Budgets" icon="pie_chart" active). Define each word once, after the last screen, and none of the words taught here.';
 
 /// The lines of the words [vocabulary]'s dictionaries define that [prompt]
 /// does not already list (a design system's component or word of that name
