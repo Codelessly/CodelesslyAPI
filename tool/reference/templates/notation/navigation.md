@@ -26,10 +26,23 @@ A website's text is a website's size. Under a `Page`, outside its bar, a `Text` 
 `heading1` and `pageTitle` 64, `heading2` 38, `heading3` 24, `title` 22, `heading` 18, running text (`Text`,
 `bodySecondary`, `muted`, `strong`) 16, `small` and `mono` 14, `caption` 13; on a phone the headlines are smaller
 (reflow) and `heading3` and `title` are 18. A style the site's theme gives a size keeps it, and a theme that sizes `body` sizes the styles drawn
-from it. An app's sizes are the theme's own (`heading1` 30, body 13). A quiet button in a bar
+from it. A theme that has a style for a page beside the one for an app, named `<look>Page` (`heading1Page` beside
+`heading1`, `leadPage`, `bodyPage`: a design system made for an app's window says so what its headline, its lead
+and its running text are on a website), gives a text under a `Page` that style whole, its size, line height and
+spacing; the page's bar and its `Footer` keep the app's. What a site's theme says of a look (`"textStyles":
+{"heading2": {"fontWeight": 400}}`) it says of the page's style too. An app's sizes are the theme's own
+(`heading1` 30, body 13): nothing under an `App` changes. A quiet button in a bar
 (`Button.ghost "Pricing" onTap={go pricing}`) is a link: 15 semibold on a website, and drawn selected (the
 accent's tint and ink) on the page it goes to, unless the line says `selected=` itself. A `Section tint` stands
-on the theme's `band`, or a step off the page's ground when the theme names none. A `Nav` takes `maxw` for how
+on the theme's `band`, or a step off the page's ground when the theme names none. A band takes a ground of its
+own: `Section fill=primary`, `Section gradient=["#FF16222E","#FF2E4A62"]`, or a picture, `Section
+image="assets/harbour.jpg"` (from edge to edge under a scrim its text reads on: `scrim=#99102030` says another,
+`scrim=none` none; `image={cover}` reads it from the state). The texts written on a dark fill, a dark gradient, a
+picture or the accent are in the ink that reads there (white, a lead and a muted line a little dimmer, a caption
+dimmer still; on `fill=primary` the theme's `onPrimary`), unless a line says its `color` or stands on a ground of
+its own (a `Card` on the band, a `Box fill=`). The first `Section` under the page's bar keeps a section's whole
+space above it when it holds the page's headline (`Text.heading1`, `Text.pageTitle`, a text of `size=32` and up: a
+hero) and starts half of it down when it does not (a list, a form: a page that is a tool). A `Nav` takes `maxw` for how
 wide its items spread, in the middle of the bar. A Column (Row, Stack) written `maxw=` straight in the column
 that scrolls the page (an app's `Main`, a `Column scroll`) is the page's content and stands in its middle, unless
 the line or that column says a side.

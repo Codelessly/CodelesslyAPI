@@ -253,15 +253,21 @@ void main() {
       expect(_c(t, 'page'), '#FFEEE0C8');
       expect(_c(t, 'pageFill', dark: true), '#FF1E1914');
       expect(_c(t, 'page', dark: true), '#FF1E1914');
-      expect(_c(t, 'card', dark: true), '#FF1F1F1F');
+      // A card keeps its place over the ground: a little lighter than the site's dark surface.
+      final card = t.forBrightness(dark: true).color('card')!;
+      expect(card.red, inInclusiveRange(0x1F, 0x40), reason: card.toJson());
+      expect(card.red, greaterThan(card.blue), reason: 'in the warm ground\'s tone: ${card.toJson()}');
     });
 
     test('onSurface: the ink where the design system\'s is its onSurface', () {
       final t = cards.withSiteTheme(ThemeTokens.fromJson({'onSurface': '#FF2A2620'}));
       expect(_c(t, 'primaryText'), '#FF2A2620');
       expect(_c(t, 'ink'), '#FF2A2620');
-      expect(_c(t, 'secondaryText'), '#FF4B5563');
-      expect(_c(t, 'tooltipBackground'), '#FF111827', reason: 'not an ink');
+      // The second ink keeps its place between the ground and the ink: in the site's warm tone now.
+      final second = t.color('secondaryText')!;
+      expect(second.red, greaterThan(second.blue), reason: second.toJson());
+      expect(second.red, inInclusiveRange(0x48, 0x70), reason: second.toJson());
+      expect(_c(t, 'tooltipBackground'), '#FF2A2620', reason: 'a tooltip is drawn in the ink');
     });
 
     test('titleFontFamily: the title and heading styles; fontFamily: the rest', () {

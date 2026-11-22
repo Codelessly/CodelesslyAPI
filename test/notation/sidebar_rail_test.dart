@@ -105,80 +105,69 @@ void main() {
 
   Matcher isRail = allOf(contains(railRule), contains(phoneRule));
 
-  /// As wide as written at a tablet's width, and what the same text is with
-  /// no rail in the design system (the drawer on a phone, the room its
-  /// table has).
-  void asWritten(String text) {
+  const drawerRule = '{"maxWidth":1023,"patch":{"visible":false}}';
+
+  /// The drawer at a tablet's width, as on a phone: hidden, with no rail.
+  void isDrawer(String text) {
     final r = read(text);
     expect(media(r), isNot(contains('"width":64')), reason: text);
+    expect(media(r), contains(drawerRule), reason: text);
     expect(media(r), contains(phoneRule), reason: text);
     expect(jsonEncode(r.document), contains('_sidebar'), reason: text);
-    expect(jsonEncode(_sorted(r.document)), jsonEncode(_sorted(read(text, rail: false).document)), reason: text);
   }
 
-  group('a sidebar whose lines all fold by themselves is a rail at a tablet', () {
-    test('components that declare a rail parameter, whatever their names', () {
-      expect(media(read(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    NavItem "Sent" icon="send"'))), isRail);
+  /// A rail, in which the node [hidden] is not shown.
+  void railWithout(String text, String hidden) {
+    final r = read(text);
+    expect(media(r), isRail, reason: text);
+    final node = ((r.document['nodes'] as Map)[hidden]! as Map);
+    expect(jsonEncode(node['media']), contains(drawerRule), reason: '$hidden is hidden where the sidebar is a rail: $text');
+  }
+
+  group('a sidebar with a line written by hand that does something is the drawer at a tablet, as on a phone', () {
+    test('a row of an icon and a text that is tapped', () {
+      isDrawer(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle onTap={toast "up"}\n      Icon "bolt"\n      Text "Upgrade"'));
     });
 
-    test('with lines that take no width, the foot, an if, an each and a plain Column that hold folding lines', () {
-      expect(
-          media(read(_app('''
-  Sidebar#side
-    Brand "Acme"
-    Divider
-    Column gap=2
-      NavItem "Inbox" icon="inbox"
-    if length(people) > 0
-      NavItem "People" icon="group"
-    each p in people
-      NavItem "{p.name}" icon="person"
-    Spacer
-    Footer
-      NavItem "Settings" icon="settings"'''))),
-          isRail);
-    });
-
-    test('with a line that says what it is at a tablet itself: it and the lines under it are its own', () {
-      for (final own in ['hide=tablet', 'show=desktop', 'tablet.hidden', 'max899.hidden', 'show=tablet']) {
-        expect(media(read(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 $own\n      Icon "bolt"\n      Text "Upgrade"'))), isRail, reason: own);
-      }
-    });
-
-    test("with a writer's word whose lines are folding words", () {
-      expect(media(read(_app('  Sidebar#side\n    Go "Inbox" icon="inbox"\n    Go "Sent" icon="send"', before: 'define Go "label" icon\n  NavItem "{label}" icon={icon}\n'))), isRail);
-    });
-
-    test('an empty one too', () {
-      expect(media(read('App\n  Sidebar#side\n  Main\n    Text "Hello"\n')), isRail);
-    });
-  });
-
-  group('a sidebar with a line written by hand is as wide as written at a tablet, and the drawer on a phone', () {
-    test('a row of an icon and a text', () {
-      asWritten(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle\n      Icon "bolt"\n      Text "Upgrade"'));
-    });
-
-    test('a group label, an account row in the foot, a hand-written line under an if', () {
-      asWritten(_app('  Sidebar#side\n    Text.caption "PEOPLE"\n    NavItem "Inbox" icon="inbox"'));
-      asWritten(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Footer\n      Row gap=10 middle\n        Avatar "Ada Okafor"\n        Column\n          Text "Ada Okafor"\n          Text "Owner"'));
-      asWritten(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    if length(people) > 0\n      Text "People"'));
+    test('a field, a list of rows that are tapped, a box with a button in it', () {
+      isDrawer(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Input "Search" @q', before: 'state q=""\n'));
+      isDrawer(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    each p in people\n      Row gap=8 onTap={toast "{p.name}"}\n        Text "{p.name}"'));
+      isDrawer(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Box#note pad=12\n      Text "Storage is full"\n      Button "Upgrade" onTap={toast "up"}'));
     });
 
     test("a writer's word that is a row of its own, and a component with no rail parameter", () {
-      asWritten(_app('  Sidebar#side\n    NavTo "Inbox" icon="inbox"\n    NavTo "Sent" icon="send"',
+      isDrawer(_app('  Sidebar#side\n    NavTo "Inbox" icon="inbox"\n    NavTo "Sent" icon="send"',
           before: 'define NavTo "label" icon\n  Row w=fill gap=10 middle\n    Icon "{icon}" size=18\n    Text "{label}" grow\n'));
-      asWritten(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Tile "Storage"'));
-    });
-
-    test('a line that says only what it is on a phone, or on a desktop, is still written by hand at a tablet', () {
-      asWritten(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Text "Upgrade" hide=phone'));
-      asWritten(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Text "Upgrade" phone.size=12'));
+      isDrawer(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Tile "Storage"'));
     });
 
     test('a sidebar written in a defined word (the app\'s shell)', () {
-      asWritten(_app('  Shell', before: 'define Shell\n  Sidebar#side\n    Row gap=8 middle\n      Icon "shield"\n      Text "Tenant"\n    NavItem "Inbox" icon="inbox"\n'));
+      isDrawer(_app('  Shell', before: 'define Shell\n  Sidebar#side\n    Row gap=8 middle onTap={toast "t"}\n      Icon "shield"\n      Text "Tenant"\n    NavItem "Inbox" icon="inbox"\n'));
       expect(media(read(_app('  Shell', before: 'define Shell\n  Sidebar#side\n    Brand "Tenant"\n    NavItem "Inbox" icon="inbox"\n'))), isRail);
+    });
+
+    test('nothing under it folds and all of it only shows something: no empty rail', () {
+      isDrawer(_app('  Sidebar#side\n    Text "About this app"\n    Box pad=8\n      Text "Version 2"'));
+    });
+  });
+
+  group('a line that only shows something is hidden where its sidebar is a rail', () {
+    test('a note in a box at the foot, a group label written as a text, an account row of an avatar and two texts', () {
+      railWithout(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    Spacer\n    Box#note fill=#FFFFF3C4 radius=16 pad=12\n      Text.strong "6-day streak"\n      Text.small "Study today to keep it going."'), 'note');
+      railWithout(_app('  Sidebar#side\n    Text.caption#label "PEOPLE"\n    NavItem "Inbox" icon="inbox"'), 'label');
+      railWithout(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Footer\n      Row#who gap=10 middle\n        Avatar "Ada Okafor"\n        Column\n          Text "Ada Okafor"\n          Text "Owner"'), 'who');
+    });
+
+    test('under an if; with a rule for a phone only', () {
+      railWithout(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    if length(people) > 0\n      Text#some "People"'), 'some');
+      railWithout(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Text#up "Upgrade" phone.size=12'), 'up');
+    });
+
+    test('the lines under it are not hidden a second time, and the drawer shows it', () {
+      final r = read(_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Box#note pad=12\n      Text#inner "Storage is full"'));
+      final nodes = (r.document['nodes'] as Map);
+      expect((nodes['inner'] as Map)['media'], isNull);
+      expect(jsonEncode(r.document), contains('_sidebar'));
     });
   });
 
@@ -192,10 +181,10 @@ void main() {
   });
 
   group('a design at a width under the sidebar', () {
-    const hand = '    Row#brand gap=8 middle\n      Icon "bolt"\n      Text "Acme"';
+    const hand = '    Row#brand gap=8 middle onTap={toast "a"}\n      Icon "bolt"\n      Text "Acme"';
     test('a block that holds at a tablet is what the part shows there: its lines are the ones that fold', () {
       expect(media(read(_app('  Sidebar#side\n$hand\n    at tablet\n      NavItem "Acme" icon="bolt"'))), isRail);
-      expect(media(read(_app('  Sidebar#side\n    NavItem "Acme" icon="bolt"\n    at tablet\n      Row gap=8 middle\n        Icon "bolt"\n        Text "Acme"'))), isNot(contains('"width":64')));
+      expect(media(read(_app('  Sidebar#side\n    NavItem "Acme" icon="bolt"\n    at tablet\n      Row gap=8 middle onTap={toast "a"}\n        Icon "bolt"\n        Text "Acme"'))), isNot(contains('"width":64')));
     });
 
     test('a block that holds on a phone only says nothing of a tablet', () {
@@ -258,7 +247,7 @@ void main() {
   test('printed and read back, the page is the same document, a rail or not', () {
     for (final side in [
       '  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"',
-      '  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle\n      Icon "bolt"\n      Text "Upgrade"',
+      '  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle onTap={toast "up"}\n      Icon "bolt"\n      Text "Upgrade"',
     ]) {
       final doc = read(_app(side)).document;
       final text = Catalog.run(acme.catalog, () => printNotation(doc, catalog: acme.catalog));
@@ -330,7 +319,7 @@ void main() {
     });
 
     test('a sidebar with a line written by hand is no rail: its components are told nothing', () {
-      final r = read(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle\n      Icon "bolt"\n      Text "Upgrade"'));
+      final r = read(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle onTap={toast "up"}\n      Icon "bolt"\n      Text "Upgrade"'));
       expect(told(r, 'NavItem'), [untold]);
       expect(told(r, 'Brand'), [untold]);
       // Nor outside an app's sidebar: a component on a page.
@@ -387,7 +376,7 @@ void main() {
     }
 
     const rail = '  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"';
-    const hand = '  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Row gap=8\n      Icon "bolt"\n      Text "Upgrade"';
+    const hand = '  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 onTap={toast "up"}\n      Icon "bolt"\n      Text "Upgrade"';
 
     test('a rail: a phone only, in a slim bar and in a bar of the page', () {
       expect(hiddenFrom(read(window(rail))), 700);

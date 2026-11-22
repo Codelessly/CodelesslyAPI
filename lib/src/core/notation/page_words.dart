@@ -50,6 +50,7 @@ final class PageWords {
     this.accent = '#FF2563EB',
     this.siteHeadline,
     this.siteType = const {},
+    this.colorOf,
     this.page,
     this.selectedFill = '#FFE5E7EB',
     this.selectedRow,
@@ -116,6 +117,10 @@ final class PageWords {
   /// (a 13 px paragraph, a 24 px section heading) read as a form.
   final Map<String, num> siteType;
 
+  /// The value (`#AARRGGBB`) of a color the theme names, or null: what a
+  /// band written `fill=ink` is drawn in ([_bandInk]).
+  final String? Function(String name)? colorOf;
+
   /// The name of the page being read (what `go <name>` goes to), or null.
   final String? page;
 
@@ -132,6 +137,19 @@ final class PageWords {
 
   /// Whether the page's bar (its first `Nav`) was written.
   bool _pageBar = false;
+
+  /// While the last line written straight under the Page is its bar.
+  bool _afterBar = false;
+
+  /// The plain Sections written straight under the page's bar, in order;
+  /// [underBarWritten] while the last line [rewrite] read is one of them.
+  /// One that holds the page's headline (a hero) keeps a section's full
+  /// space above it; one that does not (a list, a form, a board: a page
+  /// that is a tool) starts half of it down, as a Section after a Section
+  /// does. It left 64 px of bare ground under the bar.
+  final _underBar = <_Line>[];
+  bool underBarWritten = false;
+  List<bool> get underBarHeroes => [for (final l in _underBar) l.hero];
 
   /// Whether the text is a website's (its top is a `Page`): its controls are
   /// a page's size ([NotationOptions.controlHeight] else 40).
@@ -314,7 +332,9 @@ final class PageWords {
   /// where it is hidden there, else as written (what a table beside it has
   /// no room for).
   double get _sideAtTablet => switch (_sideRail) {
-        final _Line l when l.railBreaks == 0 => sidebarRail!,
+        final _Line l when l.isRail => sidebarRail!,
+        // One whose lines do not fold is the drawer there.
+        final _Line _ => 0,
         _ => _sideWritten,
       };
   double _sideWritten = 0;
@@ -339,7 +359,10 @@ final class PageWords {
   /// word's lines hold lines, and fold when theirs do. An `at` block that
   /// holds at a tablet's width is what its part shows there: its lines are
   /// the ones read, in place of the part's own.
-  List<bool> get railFolds => [for (final l in _rails) l.railBreaks == 0];
+  List<bool> get railFolds => [for (final l in _rails) l.isRail];
+
+  /// How many sidebars were written as a rail so far.
+  int get railCount => _rails.length;
 
   /// The windows a tablet has: a rule that holds at neither says nothing of
   /// a tablet's width (`phone.…`, `desktop.…`).
@@ -367,6 +390,15 @@ final class PageWords {
       if (indent >= from) return;
       side.railSkip = null;
     }
+    // Under a line that only shows something (below): it stays one while
+    // nothing under it does anything.
+    if (side.railShown case final int from) {
+      if (indent > from) {
+        if (word == null ? _doesSomething(text) && !RegExp(r'^(if|each|for|else)\b').hasMatch(text) : !_onlyShows(word, rest)) side.railBreaks++;
+        return;
+      }
+      side.railShown = null;
+    }
     if (word == null) {
       // What is no node (an `if`, an `each`, a state, a defined word's
       // lines written where it is used) holds lines or draws nothing.
@@ -378,12 +410,85 @@ final class PageWords {
       side.railSkip = indent + 1;
       return;
     }
-    if (folds(word) || _noWidth.contains(word)) return;
+    if (folds(word) || _noWidth.contains(word)) {
+      if (folds(word)) side.railFolded = true;
+      return;
+    }
     if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) return;
     // A column is as wide as its place: its lines are what has a width.
     if (word == 'Column' && !isComponent(word) && !parts.has('pad') && const {null, 'fill'}.contains(parts.value('w'))) return;
+    // A line that only shows something (a note in a box, a tip, a figure):
+    // a rail has no room for it and loses nothing without it, so it is
+    // hidden there ([railShownWritten] tells the reader which node), and
+    // the sidebar is a rail still. One that does something (a field, a row
+    // that is tapped, a list of the writer's own links) is not left out:
+    // the sidebar is not a rail ([railFolds]).
+    if (_onlyShows(word, rest)) {
+      side.railShown = indent;
+      side.railHides = true;
+      railShownWritten = true;
+      return;
+    }
     side.railBreaks++;
   }
+
+  /// A line that draws on a ground of its own.
+  static final _grounded = RegExp(r'(^|\s)(fill|gradient|image|fills)=');
+
+  /// The looks of a text that are a second ink (a lead, a muted line) and a
+  /// third (a caption, a label over a group).
+  static const _quietLooks = {'lead', 'muted', 'bodySecondary', 'small', 'reading', 'mono'};
+  static const _faintLooks = {'caption', 'overline', 'meta', 'helper'};
+
+  /// The inks (the first, a second, a third) of the texts on a band whose
+  /// ground is its own ([parts]: the Section's line), or null where the
+  /// theme's inks read on it (no ground of its own, a light one, a color
+  /// the theme does not name).
+  (String, String, String)? _bandInk(_Parts parts) {
+    double? luma(String hex) {
+      final m = RegExp(r'^#([0-9A-Fa-f]{2})?([0-9A-Fa-f]{6})$').firstMatch(hex);
+      if (m == null) return null;
+      // (A wash of a color over the page is the page still.)
+      if (m[1] != null && int.parse(m[1]!, radix: 16) < 0x99) return null;
+      final v = int.parse(m[2]!, radix: 16);
+      return (0.2126 * ((v >> 16) & 0xff) + 0.7152 * ((v >> 8) & 0xff) + 0.0722 * (v & 0xff)) / 255;
+    }
+
+    const onDark = ('#FFFFFFFF', '#D9FFFFFF', '#B3FFFFFF');
+    if (parts.has('image') && !const {'none', 'false'}.contains(parts.value('scrim'))) return onDark;
+    if (parts.value('gradient') case final String g) {
+      final stops = [
+        for (final m in RegExp(r'#[0-9A-Fa-f]{6,8}').allMatches(g))
+          if (luma(m[0]!) case final double l) l,
+      ];
+      return stops.isNotEmpty && stops.reduce((a, b) => a + b) / stops.length < 0.4 ? onDark : null;
+    }
+    final fill = parts.value('fill');
+    if (fill == null) return null;
+    // The accent, by its name: what the theme draws on it, in either mode.
+    if (fill == 'primary' || (fill == 'accent' && accentName == 'accent')) {
+      final on = fill == 'primary' ? 'onPrimary' : 'onAccent';
+      return colorOf?.call(on) == null ? null : (on, on, on);
+    }
+    final value = fill.startsWith('#') ? fill : colorOf?.call(fill);
+    final l = value == null ? null : luma(value);
+    return l != null && l < 0.4 ? onDark : null;
+  }
+
+  /// The words that draw and do nothing by themselves.
+  static const _shows = {'Box', 'Card', 'Column', 'Row', 'Stack', 'Grid', 'Text', 'Icon', 'Image', 'Badge', 'Progress', 'Ring', 'Avatar'};
+
+  /// Whether a line's text does something: an event, a value it holds, a
+  /// drag or a drop, a link.
+  static bool _doesSomething(String text) => RegExp(r'(^|\s)(on[A-Z][A-Za-z]*=|@[A-Za-z_]|drag=|drop=|href=|to=|reorder\b)').hasMatch(text);
+
+  /// Whether [word]'s line only shows something: a plain word that draws
+  /// (not a component, whose inside is its own), with nothing it does.
+  bool _onlyShows(String word, String rest) => _shows.contains(word) && !isComponent(word) && !_doesSomething(rest);
+
+  /// While the last line [rewrite] read is one hidden in its sidebar's rail
+  /// (a line that only shows something): the reader keeps its node.
+  bool railShownWritten = false;
   bool _mainSeen = false;
   int? _mainAt;
 
@@ -416,8 +521,12 @@ final class PageWords {
   /// folding, or the writer's own `tablet.w=64`) is not dropped there: it
   /// has its own rule for that width, and a button beside a rail that shows
   /// opened a drawer of the same items.
-  String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 && !_firstIsRail ? 'tablet' : 'phone';
-  bool get _firstIsRail => _firstOwnRail || (_firstRail != null && _firstRail!.railBreaks == 0);
+  String get _menuSize => (_panesBefore >= 2 && _widthBefore > 420 && !_firstIsRail) || _firstIsDrawer ? 'tablet' : 'phone';
+  bool get _firstIsRail => _firstOwnRail || (_firstRail != null && _firstRail!.isRail);
+
+  /// Whether the first pane is a design system's sidebar whose lines do not
+  /// fold: no rail, so on a tablet it is the drawer, as on a phone.
+  bool get _firstIsDrawer => !_firstOwnRail && _firstRail != null && !_firstRail!.isRail;
   _Line? _firstRail;
   bool _firstOwnRail = false;
 
@@ -1101,7 +1210,10 @@ final class PageWords {
         ..breaksBefore = side?.railBreaks ?? 0
         // A design system's frame written `flush` (Cards' `Panel … flush`):
         // its lines run to its edges, which are their border.
-        ..flush = word != null && isComponent(word) && _flush.hasMatch(rest);
+        ..flush = word != null && isComponent(word) && _flush.hasMatch(rest)
+        // What is drawn on a ground of its own: a card, a component, a
+        // line with a fill (its texts are not the band's: [_bandInk]).
+        ..ownGround = word != null && (word == 'Card' || word == 'Panel' || isComponent(word) || _grounded.hasMatch(rest));
       _open.add(l);
       return l;
     }
@@ -1166,6 +1278,9 @@ final class PageWords {
     }
     final parts = _Parts(rest);
     if (parent?.frame == 'Page' && word != 'Section') _plainSectionAt = null;
+    // What follows the page's bar: only the line straight after it.
+    final afterBar = _afterBar;
+    if (parent?.frame == 'Page' || indent == 0) _afterBar = false;
     // `TopBar "…" type=TopBar`: the design system's component, by its own
     // name (design 22, 4.2), no page word.
     if ((isComponent(word) || declares(word)) && parts.value('type') == word) {
@@ -1256,26 +1371,49 @@ final class PageWords {
       final bleed = parts.word('bleed');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
-      final grounded = tint || parts.has('fill');
+      final grounded = tint || parts.has('fill') || parts.has('gradient') || parts.has('image');
       // A plain Section after a plain Section starts half its space down:
       // two sections' padding made 128 px of white between them.
       final plain = !grounded && !bleed && !footer && parent?.frame == 'Page';
       final top = plain && _plainSectionAt == indent ? _n((sectionPad / 2).roundToDouble()) : v;
+      final ownPad = parts.has('pad');
       _plainSectionAt = plain && !parts.has('pad') ? indent : null;
       final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$top,$g,$v]');
       // (A theme with no band of its own: a tenth of mid grey over the page,
       // a step off whatever its ground is, light or dark. With no fill at
       // all a tinted section was two sections' padding of bare page.)
       final banded = tint && !parts.has('fill') ? ' fill=${band ?? '#14808080'} border-top=$line border-bottom=$line' : '';
+      // The ink of what is written on the band's own ground: light on a
+      // dark fill, a dark gradient or a picture, the theme's `onPrimary` on
+      // its accent ([_bandInk]). Read before the picture is taken off.
+      final inks = _bandInk(parts);
+      // `image="…"`: a picture as the band's ground, under a scrim its
+      // text reads on (`scrim=#66000000`, or `scrim=none`), from edge to
+      // edge and top to bottom whatever the picture's shape.
+      var picture = '';
+      if (parts.take('image') case final String image) {
+        final scrim = parts.take('scrim') ?? '#73000000';
+        final over = scrim == 'none' || scrim == 'false' ? '' : ',{"color":"$scrim"}';
+        final bound = image.startsWith('{');
+        picture = ' fills=[{"image":{"url":${bound ? '""' : image},"fit":"cover"}}$over]${bound ? ' fills[0].image.url=$image' : ''}';
+      }
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
-      open(frame: 'Section', shift: 2);
+      final section = open(frame: 'Section', shift: 2)
+        ..foot = footer
+        ..inks = inks;
+      // A plain Section straight under the page's bar: whether it holds the
+      // page's headline is known once its lines are read ([underBarHeroes]).
+      if (plain && afterBar && !ownPad) {
+        _underBar.add(section);
+        underBarWritten = true;
+      }
       // A page's Footer sits at the window's foot when the page is short: what
       // is left goes above it (nothing, on a page longer than the window).
       if (footer && parent?.frame == 'Page') out.add((indent: at, text: 'Spacer'));
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
-        ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded${parts.all}'))
+        ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded$picture${parts.all}'))
         ..add((indent: at + 2, text: 'Column w=fill${bleed ? '' : ' maxw=$width'} gap=$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
@@ -1332,6 +1470,7 @@ final class PageWords {
           ..add((indent: at + 2, text: 'Row w=fill maxw=$width between middle gap=$gap phone.scroll=true'));
       }
       _pageBar = true;
+      _afterBar = true;
       open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
         ..add((indent: at, text: 'Column$mark w=fill center pad=$pad$sticky${parts.all}'))
@@ -1515,8 +1654,25 @@ final class PageWords {
         ..add((indent: at + 2, text: '$text w=40 h=40'));
     }
     // A website's headline written as its text style: the same size.
-    if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection) {
+    // (Or as a text of a headline's size: `Text "…" size=56`.)
+    if (word == 'Text' &&
+        !inApp &&
+        _inSiteSection &&
+        (mark.startsWith('.pageTitle') || mark.startsWith('.heading1') || mark.startsWith('.display') || (double.tryParse(parts.value('size') ?? '') ?? 0) >= 32)) {
       _open.lastWhere((l) => l.frame == 'Section').hero = true;
+    }
+    // A text on a band with a ground of its own (a dark fill, a picture,
+    // the accent) is in the ink that reads on it, unless it says its color
+    // or is on a ground of its own further in (a card on the band).
+    var onBand = '';
+    if (word == 'Text' && !parts.has('color') && !mark.startsWith('.{')) {
+      final from = _open.lastIndexWhere((l) => l.frame == 'Section' && l.inks != null);
+      if (from >= 0 && !_open.skip(from + 1).any((l) => l.ownGround)) {
+        final inks = _open[from].inks!;
+        final name = mark.startsWith('.') ? mark.substring(1).split('#').first : 'body';
+        onBand = ' color=${_faintLooks.contains(name) ? inks.$3 : _quietLooks.contains(name) ? inks.$2 : inks.$1}';
+        text = '$text$onBand';
+      }
     }
     // A website's text is a website's size: its headline a display size,
     // the headings under it in proportion, its running text 16, wherever it
@@ -1526,6 +1682,16 @@ final class PageWords {
     // written.
     if (word == 'Text' && site && !inApp && root == 'Page' && !_open.any((l) => l.frame == 'Nav') && !mark.startsWith('.{') && !const ['size', 'fontSize', 'style', 'from'].any(parts.has)) {
       final name = mark.startsWith('.') ? mark.substring(1).split('#').first : 'body';
+      // A theme with a style for a website's page beside the one for an app
+      // (`heading1Page` beside `heading1`: a design system made for an app's
+      // window says what its headline, its lead and its running text are on
+      // a page): the text takes it, whole (its size, its line height, its
+      // spacing). A page's foot keeps the small type.
+      if (textVariants.contains('${name}Page') && !name.endsWith('Page') && !_open.any((l) => l.frame == 'Section' && l.foot)) {
+        open(frame: null);
+        final id = mark.contains('#') ? mark.substring(mark.indexOf('#')) : '';
+        return out..add((indent: at, text: 'Text.${name}Page$id$rest$onBand'));
+      }
       if (siteType[name] case final num size) {
         open(frame: null);
         // A small heading is a phone's size on a phone (18): a card of a set
@@ -1841,6 +2007,16 @@ class _Line {
 
   /// A website's Section that holds its headline (a hero): its buttons are large.
   bool hero = false;
+
+  /// Whether this Section is the page's Footer.
+  bool foot = false;
+
+  /// A Section with a ground of its own on which the theme's inks do not
+  /// read: the inks of its texts (the first, a second, a third).
+  (String, String, String)? inks;
+
+  /// Whether the line draws on a ground of its own (a card, a fill).
+  bool ownGround = false;
   ///
   /// Each is a link (a quiet button) or, with its [mark] (`.outline`, empty
   /// for a plain one), another labelled button of the bar.
@@ -1856,6 +2032,16 @@ class _Line {
   bool rail = false;
   int railBreaks = 0;
   int? railSkip;
+
+  /// The indent of the line under it that only shows something (hidden in
+  /// the rail), while its lines are read; whether a line under it folds.
+  int? railShown;
+  bool railFolded = false, railHides = false;
+
+  /// Whether the sidebar is a rail at a tablet's width: nothing under it
+  /// breaks one, and where a line is hidden in it something else folds
+  /// into it (a rail of nothing but hidden lines would be empty).
+  bool get isRail => railBreaks == 0 && (railFolded || !railHides);
 
   /// Under such a sidebar: how many of its lines did not fold when this
   /// line was read (an `at` block that takes this line's place at a

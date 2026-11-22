@@ -64,6 +64,17 @@ A published design system is one bundle, `{"manifest": {...}, "design": "...", "
 
 - **Theme.** The tokens are the site's base theme; the site's `theme` is merged over them key by key (a color, a
   style, a scale step). Named colors and text styles, light and dark, work as in [the theme](theme.md#page-theme).
+- **The site's roles, everywhere.** A site that gives `primary`, `surface` or `onSurface` and nothing else gets the
+  design system in them: every color made from the accent follows `primary` (with what is drawn on it dark where the
+  accent is light, and text in the accent kept readable on the ground); every neutral (a color on the line from the
+  design system's ground to its ink: a card, a chrome, a band, a field, a hairline, a second ink) keeps its place
+  between the site's `surface` and `onSurface`, and an ink that read on the design system's ground reads on the
+  site's. A `surface` as dark as the design system's dark ground, given as the light one, starts from the dark side's
+  colors, roles and shadows. Colors named `on…`, scrims and hues are not tones of the ground and stay. `"mode":
+  "dark"` opens the site on the dark side.
+- **A page's type.** A text style named `<look>Page` beside `<look>` (`heading1Page`, `leadPage`, `bodyPage`) is what
+  a text of that look takes on a website's page in the notation (under `Page`), so one design system serves an app's
+  window and a landing page. What a site says of `<look>` it says of `<look>Page` too.
 - **Scales.** `${theme.spacing.3}`, `${theme.radii.panel}`, `${theme.sizes.compact}`, `${theme.shadows.level3}` and
   `${theme.durations.fast}` are read in bindings: `"bind": {"layout.padding": "${theme.spacing.3}",
   "decoration.radius": "${theme.radii.panel}"}`. A name the theme does not have names nothing.

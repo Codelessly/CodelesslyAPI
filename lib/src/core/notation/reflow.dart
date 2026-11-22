@@ -938,9 +938,11 @@ final class PageReflow {
       final pressed = _type(n).endsWith('Button') || (n['actions'] is List && (n['actions'] as List).isNotEmpty);
       if (cols >= 3 && small && pressed) return true;
       if (cols < 5) return false;
-      if (small) return true;
       num? side(Object? v) => v is num ? v : null;
       final w = side(_layout(n)['width']), h = side(_layout(n)['height']);
+      // (A tile of a set height over 64, a photo's, is no small thing: five
+      // across a phone were strips 68 wide and 130 tall.)
+      if (small) return !(h != null && h > 64 && w == null);
       return ((w != null && w <= 64) || (h != null && h <= 64)) && _small(cell, 12) >= 0;
     }
     if (cols < 5) return false;
@@ -1011,7 +1013,7 @@ final class PageReflow {
     }
     if (cols is! num || cols < 2) return;
     if (_keeps(id, cols.toInt(), _kids(n), repeated: true)) return;
-    final tablet = cols >= 6 ? 3 : cols >= 4 ? 2 : cols;
+    final tablet = cols >= 5 ? 3 : cols >= 4 ? 2 : cols;
     if (tablet != cols) _add(id, reflowTabletMax, {'props': {'crossAxisCount': tablet}});
     _add(id, reflowPhoneMax, {'props': {'crossAxisCount': cols >= 5 ? 2 : 1}});
   }
