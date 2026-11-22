@@ -54,6 +54,7 @@ final class PageWords {
     this.page,
     this.selectedFill = '#FFE5E7EB',
     this.selectedRow,
+    this.darkGround = false,
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
     this.isComponent = _none,
@@ -103,6 +104,9 @@ final class PageWords {
   /// A theme's own fill for a chosen row (`selectedRow`); null: the
   /// accent's tint.
   final String? selectedRow;
+
+  /// Whether the theme's own ground is dark (its inks are light).
+  final bool darkGround;
 
   /// The size of a website's headline (`Text.pageTitle`, `Text.heading1` in
   /// a Page's Section), its second and third levels in
@@ -442,8 +446,10 @@ final class PageWords {
 
   /// The inks (the first, a second, a third) of the texts on a band whose
   /// ground is its own ([parts]: the Section's line), or null where the
-  /// theme's inks read on it (no ground of its own, a light one, a color
-  /// the theme does not name).
+  /// theme's inks read on it (no ground of its own, one as light or as dark
+  /// as the theme's, a color the theme does not name): light inks on a dark
+  /// ground, and under a theme whose own ground is dark ([darkGround]) dark
+  /// inks on a light one.
   (String, String, String)? _bandInk(_Parts parts) {
     double? luma(String hex) {
       final m = RegExp(r'^#([0-9A-Fa-f]{2})?([0-9A-Fa-f]{6})$').firstMatch(hex);
@@ -455,13 +461,15 @@ final class PageWords {
     }
 
     const onDark = ('#FFFFFFFF', '#D9FFFFFF', '#B3FFFFFF');
+    const onLight = ('#FF111827', '#D9111827', '#B3111827');
+    (String, String, String)? inksOn(double? l) => l == null ? null : l < 0.4 ? onDark : darkGround && l > 0.6 ? onLight : null;
     if (parts.has('image') && !const {'none', 'false'}.contains(parts.value('scrim'))) return onDark;
     if (parts.value('gradient') case final String g) {
       final stops = [
         for (final m in RegExp(r'#[0-9A-Fa-f]{6,8}').allMatches(g))
           if (luma(m[0]!) case final double l) l,
       ];
-      return stops.isNotEmpty && stops.reduce((a, b) => a + b) / stops.length < 0.4 ? onDark : null;
+      return inksOn(stops.isEmpty ? null : stops.reduce((a, b) => a + b) / stops.length);
     }
     final fill = parts.value('fill');
     if (fill == null) return null;
@@ -471,8 +479,7 @@ final class PageWords {
       return colorOf?.call(on) == null ? null : (on, on, on);
     }
     final value = fill.startsWith('#') ? fill : colorOf?.call(fill);
-    final l = value == null ? null : luma(value);
-    return l != null && l < 0.4 ? onDark : null;
+    return inksOn(value == null ? null : luma(value));
   }
 
   /// The words that draw and do nothing by themselves.

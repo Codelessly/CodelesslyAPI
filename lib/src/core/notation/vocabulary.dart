@@ -63,6 +63,11 @@ final class VocabularyUse {
   /// The whole line as written, without its indentation.
   final String source;
 
+  /// What to write in its place, when the reader can say (a word that
+  /// takes no lines under it, a parameter its definition does not name, a
+  /// list given where an `each` goes); null when it can only be left out.
+  String? say;
+
   /// 1-based.
   final int line, column;
 
@@ -95,6 +100,7 @@ final class VocabularyUse {
         if (on != null) 'on': on,
         if (value != null) 'value': value,
         if (node != null) 'node': node,
+        if (say != null) 'say': say,
         'line': line,
         'column': column,
         'source': source,

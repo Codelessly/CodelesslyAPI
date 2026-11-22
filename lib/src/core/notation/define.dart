@@ -825,7 +825,8 @@ final class DefinedWords {
 
   /// A word on a use its definition does not have (kind `parameter`, `flag`,
   /// `event`, `variant`, `children`, `missing`), as a stand-in's would be.
-  final void Function(String kind, String word, String on, String? value, int column)? record;
+  /// (With what the reader says of it, when it can say what to write.)
+  final void Function(String kind, String word, String on, String? value, int column, [String? say])? record;
 
   /// A problem, at a column of the line being read.
   final void Function(int column, String message)? issue;
@@ -1113,7 +1114,7 @@ final class DefinedWords {
     }
     void unknown(String kind, String word, String? value, int c, String message) {
       if (open && context == null) {
-        record?.call(kind, word, d.word, value, c);
+        record?.call(kind, word, d.word, value, c, message);
       } else {
         _issue(c, message);
       }
@@ -1271,7 +1272,12 @@ final class DefinedWords {
             // On the line marked `...`, as the page would read it there.
             root.add(x);
           } else {
-            unknown(x.isEvent ? 'event' : 'parameter', k, v, col(x), 'A ${d.word} has no "$k". It takes: ${takes()}.');
+            // (A definition of the writer's own takes what its first line
+            // names: said with that line as it would be written.)
+            final own = !x.isEvent && d.dictionary == null && !d.primitive;
+            unknown(x.isEvent ? 'event' : 'parameter', k, v, col(x),
+                'A ${d.word} has no "$k"${takes().isEmpty ? ': its definition names no parameter' : '. It takes: ${takes()}'}.'
+                '${own ? ' For its lines to read {$k}, name it on the definition\x27s first line: ${d.file == 'page' ? 'define ' : ''}${d.signature.trim()} $k={} (or leave $k= out here).' : ''}');
           }
         case 'word' when x.raw.startsWith('@'):
           // `@servings`: the value the word keeps (its `@value`, or a plain
@@ -1720,9 +1726,9 @@ final class _Use {
         final slots = [for (final m in markers) m.name];
         if (slots.isEmpty) {
           if (words.open && words.context == null) {
-            words.record?.call('children', name, name, null, i + 1);
+            words.record?.call('children', name, name, null, i + 1, 'A $name takes no lines under it (its definition has no Slot line to put them at): they are drawn at its end. Write them after the $name, at its indent, or give the definition a Slot line.');
           } else {
-            words._issue(i + 1, 'A $name takes no lines under it: they are drawn at its end.');
+            words._issue(i + 1, 'A $name takes no lines under it (its definition has no Slot line to put them at): they are drawn at its end.');
           }
         } else {
           words._issue(i + 1, 'The lines under $name go under ${slots.join(' or ')}.');

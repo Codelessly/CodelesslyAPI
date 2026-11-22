@@ -214,7 +214,8 @@ Column gap=12
       expect([for (final u in open.vocabulary.where((u) => u.kind != 'definition')) (u.kind, u.word, u.on)], [('parameter', 'x', 'StickyNote'), ('flag', 'resizable', 'StickyNote'), ('event', 'onMove', 'StickyNote')]);
       final closed = _parse(text);
       expect(closed.issues.map((i) => i.message), [
-        'A StickyNote has no "x". It takes: "text", fill, w, selected, onTap.',
+        'A StickyNote has no "x". It takes: "text", fill, w, selected, onTap. For its lines to read {x}, name it on the definition\'s first line: '
+            'StickyNote "text" fill=#FFFDE68A w=180 selected=false onTap x={} (or leave x= out here).',
         'A StickyNote has no "resizable". It takes: "text", fill, w, selected, onTap.',
         'A StickyNote has no "onMove". It takes: "text", fill, w, selected, onTap.',
       ]);
@@ -259,7 +260,7 @@ Column
 
     test('lines under a word with no slot: drawn at its end, and said', () {
       const text = 'Column\n  StickyNote "x"\n    Text "under"\n';
-      expect(_parse(text).issues.map((i) => i.message), ['A StickyNote takes no lines under it: they are drawn at its end.']);
+      expect(_parse(text).issues.map((i) => i.message), ['A StickyNote takes no lines under it (its definition has no Slot line to put them at): they are drawn at its end.']);
       final open = _parse(text, _open);
       expect(open.issues, isEmpty);
       expect(_uses(open, 'children').single.word, 'StickyNote');

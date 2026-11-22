@@ -89,18 +89,22 @@ extension _PaintWords on _Parser {
 
   /// Reads [text] (indented [indent]) when it is a record line: the head of
   /// a block under a node, or a line inside one. False: not one.
-  bool _paintLine(int indent, String text) {
+  bool _paintLine(int indent, String text, {int? written}) {
     final frames = _paintStack;
     while (frames.isNotEmpty && frames.last.indent >= indent) {
       frames.removeLast();
     }
     final column = indent + 1;
     if (frames.isNotEmpty) {
+      // (A line of the page is the one being read, as a node's is: what is
+      // recorded of it carries its own source and the lines it is under.)
+      if (_from == null) _track(written ?? indent, text);
       _paintInside(indent, _paintRenamed(text), frames.last, column);
       return true;
     }
     final head = _paintHead.firstMatch(text);
     if (head == null) return false;
+    if (_from == null) _track(written ?? indent, text);
     // The node it is under: what a node line at this depth would be under.
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
@@ -427,7 +431,7 @@ extension _PaintWords on _Parser {
             }
             at[path.last] = _paintValue(m[3]!, col);
           } else {
-            _paintUnknown(word, p.raw, keys.keys, col, kind: 'flag');
+            _paintUnknown(word, p.raw, keys, col, kind: 'flag');
           }
         case 'pair':
           final key = p.key!, value = _paintValue(p.value!, col);
@@ -456,7 +460,7 @@ extension _PaintWords on _Parser {
             }
             at[path.last] = value;
           } else {
-            _paintUnknown(word, key, keys.keys, col, value: p.value);
+            _paintUnknown(word, key, keys, col, value: p.value);
             op[key] = value;
           }
         case 'tail':
@@ -479,16 +483,24 @@ extension _PaintWords on _Parser {
     return op;
   }
 
-  void _paintUnknown(String on, String key, Iterable<String> keys, int column, {String kind = 'parameter', String? value}) {
+  void _paintUnknown(String on, String key, Map<String, PropDef<Object?>> fields, int column, {String kind = 'parameter', String? value}) {
+    final keys = fields.keys;
     final near = didYouMean(key, [...keys, 'fill', 'stroke', ...notationStrokeWords, ...notationPaintWords]);
-    _paintSay(kind, key, column, 'A $on has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${[...keys, 'fill', 'stroke'].join(', ')}.', on: on, value: value);
+    // A point or a rectangle is one key with its numbers in a list (a
+    // circle's `cx=` and `cy=` are its `c=[x,y]`): said as it is written.
+    final whole = switch (fields[near]?.type.name) {
+      'Offset' => ' $near is a point, both numbers in one key: $near=[x,y].',
+      'Rect' => ' $near is a rectangle in one key: $near=[left,top,width,height].',
+      _ => '',
+    };
+    _paintSay(kind, key, column, 'A $on has no "$key"${near == null ? '' : ': did you mean $near?'}$whole It takes ${[...keys, 'fill', 'stroke'].join(', ')}.', on: on, value: value);
   }
 
   /// A word the record does not take: said, or with the open vocabulary
   /// recorded (design 19).
   void _paintSay(String kind, String word, int column, String message, {required String on, String? value}) {
     if (options.openVocabulary) {
-      _use(kind, word, column, on: on, value: value);
+      _use(kind, word, column, on: on, value: value, say: message);
     } else {
       _issue(column, message);
     }

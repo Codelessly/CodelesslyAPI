@@ -288,6 +288,7 @@ final class NotationOptions {
     this.contentWidth = 1120,
     this.selectedFill = '#FFE5E7EB',
     this.selectedRow,
+    this.darkGround = false,
     this.line = '#FFE5E7EB',
     this.narrowWidth = 720,
     this.sidebarWidth = 248,
@@ -394,6 +395,7 @@ final class NotationOptions {
         contentWidth: contentWidth,
         selectedFill: selectedFill,
         selectedRow: selectedRow,
+        darkGround: darkGround,
         line: line,
         narrowWidth: narrowWidth,
         sidebarWidth: sidebarWidth,
@@ -461,6 +463,7 @@ final class NotationOptions {
       line: base.line,
       selectedFill: base.selectedFill,
       selectedRow: base.selectedRow,
+      darkGround: base.darkGround,
       narrowWidth: base.narrowWidth,
       sidebarWidth: base.sidebarWidth,
       sidebarRail: base.sidebarRail,
@@ -565,6 +568,19 @@ final class NotationOptions {
     }
 
     final dark = groundHex != null && lum(groundHex) < 0.35;
+    // A color as it is where the site opens: under a theme that opens dark
+    // (`"mode": "dark"`) what its dark side gives over the light one.
+    final night = theme['mode'] == 'dark' ? readMap(theme['dark']) : null;
+    final nightColors = readMap(night?['colors']) ?? const {};
+    String? openHex(String name) {
+      Object? c = nightColors[name] ?? night?[name] ?? colors[name] ?? theme[name];
+      for (var i = 0; i < 8 && c is String && !c.startsWith('#'); i++) {
+        c = nightColors[c] ?? night?[c] ?? colors[c] ?? theme[c];
+      }
+      return c is String && RegExp(r'^#[0-9A-Fa-f]{8}$').hasMatch(c) ? c : null;
+    }
+
+    final openGround = openHex('page') ?? openHex('surface') ?? openHex('primaryBackground') ?? (groundName == null ? null : openHex(groundName));
     // The tones the notation draws its own parts in are the theme's roles
     // (ThemeTokens.notationRoles): with [roles] (a site with no design
     // system) written by their names, so the renderer gives each its light
@@ -723,6 +739,9 @@ final class NotationOptions {
       line: color('line', color('primaryBorder', lineTone)),
       selectedFill: color('activeTint', color('primaryTint', color('subtleFill', fillTone))),
       selectedRow: switch (color('selectedRow', '')) { '' => null, final String c => c },
+      // The ground the site opens on: a dark theme's, or the dark side of
+      // one that says it opens dark (`"mode": "dark"`).
+      darkGround: dark || (openGround != null && lum(openGround) < 0.35),
       narrowWidth: readDouble(sizes['narrow']) ?? 720,
       sidebarWidth: readDouble(sizes['sidebar']) ?? 248,
       sidebarRail: readDouble(sizes['rail']),
@@ -748,7 +767,7 @@ final class NotationOptions {
       },
       colorValues: {
         for (final n in {...colors.keys, ...ThemeTokens.roleNames})
-          if (hexOf(n) case final String v) n: v,
+          if (openHex(n) case final String v) n: v,
       },
       displaySizes: {
         for (final e in textStyles.entries)
@@ -827,6 +846,7 @@ final class NotationOptions {
         contentWidth: contentWidth,
         selectedFill: selectedFill,
         selectedRow: selectedRow,
+        darkGround: darkGround,
         line: line,
         narrowWidth: narrowWidth,
         sidebarWidth: sidebarWidth,
@@ -1013,8 +1033,9 @@ final class NotationOptions {
   /// font size: a text in one of them is smaller on a phone.
   final Map<String, num> displaySizes;
 
-  /// The theme's colors and roles by name → `#AARRGGBB`, as its light side
-  /// has them: what a page's band written `fill=<name>` is drawn in, for
+  /// The theme's colors and roles by name → `#AARRGGBB`, as the side the
+  /// site opens on has them (the light one; under `"mode": "dark"` what the
+  /// dark side gives over it): what a page's band written `fill=<name>` is drawn in, for
   /// the ink of the texts on it.
   final Map<String, String> colorValues;
 
@@ -1042,6 +1063,12 @@ final class NotationOptions {
   /// A design system whose chosen things are neutral with an accent mark
   /// (a ticked box, a bar at the row's start) gives its neutral here.
   final String? selectedRow;
+
+  /// Whether the theme's ground is dark where the site opens (a dark
+  /// theme, or one whose `mode` is dark and whose dark side gives a dark
+  /// ground): its inks are light, so a text on
+  /// a light band of the page's own takes a dark ink.
+  final bool darkGround;
 
   /// What a `Card` inside a card adds (a row of options, a tile in a grid
   /// of cards): smaller corners, no shadow. Null: the same as [card].
@@ -2747,7 +2774,7 @@ class _Parser {
     {...options.vocabulary.dictionary, ...options.vocabulary.definitions},
     theme: notationThemeReads(options),
     open: options.openVocabulary,
-    record: (kind, word, on, value, column) => _use(kind, word, column, on: on, value: value),
+    record: (kind, word, on, value, column, [say]) => _use(kind, word, column, on: on, value: value, say: say),
     issue: _issue,
     ours: _ownType,
     component: _componentNames,
@@ -2842,6 +2869,7 @@ class _Parser {
     String? node,
     LineParts? parts,
     _ListWords? at,
+    String? say,
   }) {
     if (_top._quiet) return null;
     final line = at?.line ?? _line, source = at?.source ?? _src, path = at?.path ?? _srcPath;
@@ -2900,8 +2928,40 @@ class _Parser {
         },
       );
     }
+    use.say = say ?? _listGiven(kind, on, value);
     vocabulary.add(use);
     return use;
+  }
+
+  /// What is said of a list given by a key the word [on] does not have, when
+  /// the word takes lines under it (`Pages items=routes`, `Column
+  /// data={rows}`): the lines under a word are repeated by an `each`.
+  String? _listGiven(String kind, String? on, String? value) {
+    if (kind != 'parameter' || on == null || value == null) return null;
+    final v = value.startsWith('{') && value.endsWith('}') ? value.substring(1, value.length - 1).trim() : value;
+    if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(v)) return null;
+    final list = variables[v]?['type'] == 'list' || (_derived[v] != null && _formulaType(_derived[v]!) == 'list');
+    if (!list) return null;
+    final type = notationTypes[on]?.type ?? '${on[0].toLowerCase()}${on.substring(1)}';
+    final spec = catalog.widget(type);
+    if (spec == null || spec.children == ChildModel.none) return null;
+    final item = v[0].toLowerCase() == v ? 'item' : v[0].toLowerCase();
+    return 'A $on takes no list by a key: the lines under it are what it shows, and an each repeats them. Under the $on write: each $item in $v, and under that the line for one (it reads {$item.…}).';
+  }
+
+  /// What is said of the line being read, written under [word] (a node of
+  /// [type]) that takes no lines: where it was drawn and where to write it;
+  /// and, when the line is a word with a text that [word] takes by a key of
+  /// that name (an `Icon "grip"` under a word with `icon=`), that key.
+  String _childlessSaid(String word, String type) {
+    final under = RegExp(r'^([A-Z][A-Za-z0-9]*)(?:[.#][A-Za-z0-9_.#-]*)?\s+("[^"]*")').firstMatch(_src.trimLeft());
+    final key = under == null ? null : '${under[1]![0].toLowerCase()}${under[1]!.substring(1)}';
+    final byKey = key != null && (catalog.widget(type)?.props.any((p) => p.key == key) ?? false);
+    // (A word of the writer's own takes lines where its definition has a
+    // Slot line.)
+    final slot = _defined.has(word) ? ', or give its definition a Slot line where the lines under it go' : '';
+    return 'A $word takes no lines under it: this line is drawn after it. Write it after the $word, at the $word\x27s indent$slot'
+        '${byKey ? '; a $word\x27s own $key is named on its line: $word $key=${under![2]}' : ''}.';
   }
 
   /// Whether [word] is a type the notation, the catalog or the page words
@@ -3469,7 +3529,7 @@ class _Parser {
     // line among them (`customPaint`) is its body's, not the page's (it was
     // put on the node open above the definition, or said to have none).
     if (indent == 0) _inDeclaration = isDeclaration(raw.trimRight());
-    if (!_inDeclaration && _paintLine(indent + _pages.shiftAt(indent), raw.trim())) return _emit(null); // a node's custom paint or animation (paint_words.dart)
+    if (!_inDeclaration && _paintLine(indent + _pages.shiftAt(indent), raw.trim(), written: indent)) return _emit(null); // a node's custom paint or animation (paint_words.dart)
     var before = nodes.length;
     // `Badge.{ok ? "success" : "error"} "Pass"`: a variant worked out from
     // the state is the line's variant={…}.
@@ -3567,6 +3627,7 @@ class _Parser {
     page: options.screen,
     selectedFill: options.selectedFill,
     selectedRow: options.selectedRow,
+    darkGround: options.darkGround,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
@@ -5816,15 +5877,17 @@ class _Parser {
       parent = _Open(block.indent, _slotRow(block), 'row', condition: block.condition);
     } else if (ownChildren && nodes[parent.id] != null) {
       // Appended below, as any line under a node is.
-    } else if (!options.openVocabulary && parent != null && parent.leaf && parent.written != null && catalog.widget(parent.written!) != null && nodes[parent.id] != null) {
-      // A block that takes nothing under it: said, and the line is drawn
-      // after it, where it would otherwise be lost.
-      _issue(column, 'A ${parent.written} takes no lines under it (it has no children and no slot): write this line after it, at its own indent.');
+    } else if (!options.openVocabulary && parent != null && parent.leaf && nodes[parent.id] != null) {
+      // A word that takes nothing under it (a block, a Divider, a Handle):
+      // said, and the line is drawn after it, where it would otherwise be
+      // lost. (Of a line that is a node's, and once: a line already said
+      // to be somewhere it was not meant has been said.)
+      if (RegExp(r'^[A-Z]').hasMatch(line) && !issues.any((i) => i.line == _line)) _issue(column, _childlessSaid(_srcPath.lastOrNull ?? parent.written ?? parent.type, parent.type));
       parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;
     }
     if (options.openVocabulary && parent != null && parent.leaf && !ownChildren) {
       // Lines under a word that takes none: recorded, and drawn after it.
-      _use('children', _srcPath.lastOrNull ?? parent.type, column, value: _srcWord);
+      _use('children', _srcPath.lastOrNull ?? parent.type, column, value: _srcWord, say: _childlessSaid(_srcPath.lastOrNull ?? parent.written ?? parent.type, parent.type));
       parent = _stack.reversed.where((o) => !o.leaf).firstOrNull;
     }
     // `SwipeAction "Book" side=end when={!row.full} onTap={…}` under an
@@ -10633,7 +10696,7 @@ class _Parser {
           _issue(u.column, _noKey(written, u.key, '${out['type']}', component: component, takes: spec));
           continue;
         }
-        if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value);
+        if (!standIn) _use('parameter', u.key, u.column, on: _srcWord ?? written, value: u.value, say: _otherKeySaid(written, u.key));
         if (standIn) dropped.add(u.key);
       }
     }
@@ -11355,6 +11418,68 @@ class _Parser {
   }
 
   String _rename(String line, String name, [String to = 'item']) {
+    // A function's own parameter of that name (`map(xs, top=>top.a)` beside
+    // a state called top, or under `each top in …`) is the function's, in
+    // its head and to the end of its body: set aside, and put back as it
+    // was written.
+    if (line.contains('=>')) {
+      final own = _lambdaOwn(line, name);
+      if (own.isNotEmpty) {
+        final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
+        final masked = StringBuffer();
+        var at = 0;
+        for (final (start, end) in own) {
+          masked
+            ..write(line.substring(at, start))
+            ..write(line.substring(start, end).replaceAll(word, '\u0003'));
+          at = end;
+        }
+        masked.write(line.substring(at));
+        return _renameWords(masked.toString(), name, to).replaceAll('\u0003', name);
+      }
+    }
+    return _renameWords(line, name, to);
+  }
+
+  /// The stretches of [line] where [name] is a parameter of a function
+  /// written there (`name=>…`, `(a, name)=>…`): from the parameter to the
+  /// end of the function's body (the comma or the bracket that closes the
+  /// argument it is).
+  static List<(int, int)> _lambdaOwn(String line, String name) {
+    final k = RegExp.escape(name);
+    final head = RegExp('(?<![A-Za-z0-9_.])(?:$k|\\((?:[^()]*,)?\\s*$k\\s*(?:,[^()]*)?\\))\\s*=>');
+    final out = <(int, int)>[];
+    for (final m in head.allMatches(line)) {
+      if (out.isNotEmpty && m.start < out.last.$2) continue;
+      var depth = 0, end = line.length;
+      String? quote;
+      for (var i = m.end; i < line.length; i++) {
+        final c = line[i];
+        if (quote != null) {
+          if (c == quote && line[i - 1] != r'\') quote = null;
+          continue;
+        }
+        if (c == "'") {
+          quote = c;
+        } else if (c == '(' || c == '[' || c == '{') {
+          depth++;
+        } else if (c == ')' || c == ']' || c == '}') {
+          if (depth == 0) {
+            end = i;
+            break;
+          }
+          depth--;
+        } else if ((c == ',' || c == ';') && depth == 0) {
+          end = i;
+          break;
+        }
+      }
+      out.add((m.start, end));
+    }
+    return out;
+  }
+
+  String _renameWords(String line, String name, String to) {
     // A short loop name may also be a layout key (`each h ... Text ... h=120`).
     // A key followed by ':' is notation, not a reference to the item.
     final word = RegExp('(?<![A-Za-z0-9_.#])${RegExp.escape(name)}(?![A-Za-z0-9_])');
@@ -12648,7 +12773,7 @@ class _Parser {
     if (RegExp(r'^(\{|with\(|merge\(|obj\(|object\(|find\(|set\(|unset\(|pick\(|toMap\(|groupBy\(|maxBy\(|minBy\()').hasMatch(f)) return 'map';
     if (RegExp(r'^(\[|map\(|filter\(|where\(|sortBy\(|sortByDesc\(|append\(|prepend\(|concat\(|range\(|take\(|skip\(|slice\(|unique\(|reverse\(|without\(|updateWhere\(|removeWhere\(|removeAt\(|insertAt\(|setAt\(|move\(|keys\(|values\(|split\()').hasMatch(f)) return 'list';
     if (RegExp(r'^(!|contains\(|any\(|all\(|isEmpty\(|isNotEmpty\(|startsWith\(|endsWith\(|matches\(|isToday\(|isPast\(|isFuture\(|isAfter\(|isBefore\(|isSameDay\(|true\b|false\b)').hasMatch(f)) return 'boolean';
-    if (RegExp(r'^("|\x27|join\(|upper\(|lower\(|trim\(|text\(|formatDate\(|money\(|replace\(|substring\(|titleCase\(|slug\(|pad\(|padLeft\(|padRight\(|timeAgo\(|plural\()').hasMatch(f)) return 'text';
+    if (RegExp(r'^("|\x27|today\(|now\(|wallTime\(|parseDate\(|addSeconds\(|addMinutes\(|addHours\(|addDays\(|addMonths\(|join\(|upper\(|lower\(|trim\(|text\(|formatDate\(|money\(|replace\(|substring\(|titleCase\(|slug\(|pad\(|padLeft\(|padRight\(|timeAgo\(|plural\()').hasMatch(f)) return 'text';
     final code = formula.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
     if (!code.contains('?') && RegExp(r'==|!=|<=|>=|&&|\|\||(?<![=-])[<>](?!=)').hasMatch(code.replaceAll('=>', ''))) return 'boolean';
     return 'decimal';
@@ -12784,7 +12909,12 @@ class _Parser {
     // read it drew nothing.
     final indexed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\.[A-Za-z_][A-Za-z0-9_]*)*\[[^\[\]"]+\](?:\.[A-Za-z_][A-Za-z0-9_]*|\[[^\[\]]+\])*$').firstMatch(code);
     final reads = indexed != null && (variables.containsKey(indexed[1]) || _derived.containsKey(indexed[1]));
-    if (!_literal(written).$1 && (RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads || (braced && (code.contains('[') || RegExp(r'[A-Za-z0-9_)\]]\s*-\s*[A-Za-z0-9_(]').hasMatch(code))))) {
+    // Whatever is written in braces that is no value is a formula, as it is
+    // after every key (`{cur%12}`, `{a!=b}`, `{-a}`, `{a.b}`, `{a}`): the
+    // operators above are how a formula written without braces is told from
+    // a text, and braces need none. (`{cur%12}` was kept as the text
+    // "cur%12", and `{a}` copied what a started as.)
+    if (!_literal(written).$1 && (braced || RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads)) {
       _derived[m[1]!] = written;
       // A formula variable or a function written before it reads it too.
       for (final v in variables.values) {
@@ -12893,7 +13023,16 @@ class _Parser {
       }
       // A worked-out value follows the state by itself: an action that sets
       // it too (`onTap={votes=…; total=total+1}`) is dropped, not rewritten.
+      final before = line;
       line = _withoutSets(line, d.key);
+      // One that reads no state has nothing to follow (`state day={today()}`):
+      // a set of it is meant, and was dropped with nothing said.
+      if (line != before && _readsNoState(d.value)) {
+        final type = _formulaType(d.value);
+        final start = switch (type) { 'text' => '""', 'list' => '[]', 'boolean' => 'false', 'map' => 'null', _ => '0' };
+        _issue(1, '${d.key} is worked out (state ${d.key}={${d.value}}): it is that formula wherever it is read, so setting it does nothing. '
+            'For a value that starts there and then changes, give it a start and set it when the page opens: state ${d.key}${type == 'map' ? ':map' : ''}=$start and on load={${d.key}=${d.value}}.');
+      }
       if (!line.contains(d.key)) continue;
       // A call on the name (`total.toFixed(2)`) is rewritten while it is
       // still a name: written out, it is a formula no call pattern follows.
@@ -12913,6 +13052,13 @@ class _Parser {
       line = line.replaceAll('\u0001$i\u0002', ownWords[i]);
     }
     return line;
+  }
+
+  /// Whether [formula] reads nothing but values written in it and what its
+  /// functions give (`today()`, `range(7)`, `1+2`): no state, no item.
+  static bool _readsNoState(String formula) {
+    final code = formula.replaceAll(RegExp('"[^"]*"|\x27[^\x27]*\x27'), '');
+    return !RegExp(r'(?<![A-Za-z0-9_.])(?!(?:true|false|null)\b)[A-Za-z_][A-Za-z0-9_]*(?!\s*\(|[A-Za-z0-9_])').hasMatch(code);
   }
 
   String _withoutSets(String line, String name) {
@@ -13761,6 +13907,14 @@ class _Parser {
       final look = const {'radius', 'shadow', 'effects', 'clip', 'clipBehavior', 'opacity'}.contains(key) && key != 'opacity';
       return 'A $written has no "$key". It takes: ${takes.props.map((p) => p.key).join(', ')}.${look ? ' ${_callLookWhy(written)}' : ''}';
     }
+    if (_otherKeySaid(written, key) case final String said) return said;
+    final near = notationKeyNearest(key, type, catalog: catalog);
+    return 'A $written has no "$key"${near == null ? '' : ' (did you mean $near?)'}: left out.';
+  }
+
+  /// What is said of a key another framework has and the notation does
+  /// not, where it can say what is written instead; null for any other.
+  static String? _otherKeySaid(String written, String key) {
     // An inset (CSS's `right: 16px`) is a place in a Stack, not a near
     // spelling of another key ("right" read as "height").
     if (const {'left', 'right', 'top', 'bottom'}.contains(key)) {
@@ -13769,8 +13923,12 @@ class _Parser {
       return 'A $written has no "$key": left out. A node is placed from an edge as a child of a Stack: $key=16 there, or $axis={"$edge":16} '
           '(a floating button over a page: a Stack holding the page, then the button with right=16 bottom=16).';
     }
-    final near = notationKeyNearest(key, type, catalog: catalog);
-    return 'A $written has no "$key"${near == null ? '' : ' (did you mean $near?)'}: left out.';
+    // The web's place in the Tab order: every line that is tapped has one.
+    if (const {'tabindex', 'focusorder', 'taborder'}.contains(key.toLowerCase())) {
+      return 'A $written has no "$key": left out. A line that is tapped (onTap=, a Button, a link) is a Tab stop already, in the order the lines are written, '
+          'and Enter runs it: write onTap={…} on the $written; focusable=false takes a line out of the order.';
+    }
+    return null;
   }
 
   /// A key's value as it was written: the word's own, or what followed it
@@ -14000,7 +14158,57 @@ class _Parser {
   /// rest of its path.
   static final _plainThemeRead = RegExp(r'^theme\.([A-Za-z_][A-Za-z0-9_]*)((?:\.[A-Za-z_][A-Za-z0-9_]*)+)?$');
 
+  /// [expr] with an expression written in braces inside it read as one in
+  /// parentheses (`filter(rows,x=>x.id=={id})`, as a value is written after
+  /// a key): a formula is already in braces, so braces within it group. A
+  /// record (`{"a": 1}`, `{a: 1}`, `{}`) names a key first and stays; text
+  /// in quotes is left as it is.
+  static final _recordStart = RegExp('^\\{\\s*(?:"[^"]*"|\x27[^\x27]*\x27|[A-Za-z_][A-Za-z0-9_]*)\\s*:');
+  static final _wholeStart = RegExp(r'^(?:-?[0-9.]+$|"[^"]*"$|[A-Za-z_][A-Za-z0-9_.]*(?:$|\()|\(|\[)');
+
+  static String _bracesRead(String expr) {
+    if (!expr.contains('{')) return expr;
+    final out = StringBuffer();
+    var i = 0;
+    while (i < expr.length) {
+      final c = expr[i];
+      if (c == '"' || c == "'") {
+        var j = i + 1;
+        while (j < expr.length && expr[j] != c) {
+          if (expr[j] == r'\') j++;
+          j++;
+        }
+        j = j < expr.length ? j + 1 : expr.length;
+        out.write(expr.substring(i, j));
+        i = j;
+        continue;
+      }
+      if (c == '{') {
+        final close = _closing(expr, i);
+        if (close > i) {
+          final group = expr.substring(i, close + 1);
+          final inner = _bracesRead(group.substring(1, group.length - 1));
+          if (_recordStart.hasMatch(group) || !_bracedExpression(group)) {
+            out.write('{$inner}');
+          } else {
+            // (A name, a value, a call or what is already in brackets is
+            // one thing as it stands.)
+            final one = inner.trim();
+            final whole = _wholeStart.firstMatch(one);
+            out.write(whole != null && (whole.end == one.length || _closing(one, whole.end - 1) == one.length - 1) ? one : '($one)');
+          }
+          i = close + 1;
+          continue;
+        }
+      }
+      out.write(c);
+      i++;
+    }
+    return out.toString();
+  }
+
   String _natural(String expr) {
+    expr = _bracesRead(expr);
     // `theme.accent` in an expression of the page, where the theme has a
     // color called accent: that color (`theme.colors.accent`), as the name
     // alone is after a color key. (It read nothing: the theme's colors are

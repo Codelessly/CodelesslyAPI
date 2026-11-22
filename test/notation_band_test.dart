@@ -23,8 +23,32 @@ const _theme = <String, Object?>{
   },
 };
 
-NotationResult _parse(String text) {
-  final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(_theme, named: true, width: 1440)));
+/// A theme whose own ground is dark; and the light theme with a dark side,
+/// opening dark (`"mode": "dark"`).
+const _darkTheme = <String, Object?>{
+  'primary': '#FF7AA2F7',
+  'onPrimary': '#FF0F1115',
+  'surface': '#FF0F1115',
+  'onSurface': '#FFF4F4F5',
+  'colors': {'primaryText': '#FFF4F4F5', 'secondaryText': '#FFA1A1AA', 'night': '#FF101418', 'sand': '#FFF4EDE0'},
+  'textStyles': {
+    'lead': {'fontSize': 15, 'color': 'secondaryText'},
+    'caption': {'fontSize': 12, 'color': 'secondaryText'},
+    'heading1': {'fontSize': 30, 'color': 'primaryText'},
+  },
+};
+final _opensDark = <String, Object?>{
+  ..._theme,
+  'mode': 'dark',
+  'dark': {
+    'surface': '#FF0F1115',
+    'onSurface': '#FFF4F4F5',
+    'colors': {'primaryText': '#FFF4F4F5', 'secondaryText': '#FFA1A1AA', 'sand': '#FF2A2520'},
+  },
+};
+
+NotationResult _parse(String text, {Map<String, Object?> theme = _theme}) {
+  final r = parseNotation(text, catalog: standardCatalog, options: withTestWords(NotationOptions.fromTheme(theme, named: true, width: 1440)));
   expect(r.issues, isEmpty, reason: text);
   return r;
 }
@@ -74,6 +98,37 @@ void main() {
       expect(_ink(r, 'head'), isNot('#FFFFFFFF'), reason: ground);
       expect(_ink(r, 'lead'), isNot('#D9FFFFFF'), reason: ground);
     }
+  });
+
+  test('under a theme whose ground is dark, on a light fill or a light gradient: the texts are dark, a second and a third ink dimmer', () {
+    for (final theme in [_darkTheme, _opensDark]) {
+      for (final ground in ['fill=#FFF4EDE0', 'gradient=["#FFFFFFFF","#FFEFEFEF"]', if (identical(theme, _darkTheme)) 'fill=sand']) {
+        final r = _parse(_band(ground), theme: theme);
+        expect(_ink(r, 'head'), '#FF111827', reason: ground);
+        expect(_ink(r, 'lead'), '#D9111827', reason: ground);
+        expect(_ink(r, 'small'), '#B3111827', reason: ground);
+        expect(_ink(r, 'own'), '#FF00FF00', reason: 'a color written on the line is the line\'s');
+        expect(_ink(r, 'carded'), isNot('#FF111827'), reason: 'a card on the band has its own ground');
+        expect(_ink(r, 'after'), isNot('#FF111827'), reason: 'the next band is the page\'s');
+      }
+      // A dark band keeps the light inks; a wash, a tint and no ground the theme's.
+      expect(_ink(_parse(_band('fill=#FF101418'), theme: theme), 'head'), '#FFFFFFFF');
+      for (final ground in ['fill=#14FFFFFF', 'tint', '']) {
+        final r = _parse(_band(ground), theme: theme);
+        expect(_ink(r, 'head'), isNot(anyOf('#FF111827', '#FFFFFFFF')), reason: ground);
+      }
+    }
+  });
+
+  test('under a theme that opens dark, a fill by a name is judged by what its dark side gives', () {
+    // sand is light in the light side and dark in the dark one: the site
+    // opens dark, so the texts on it are light.
+    final r = _parse(_band('fill=sand'), theme: _opensDark);
+    expect(_ink(r, 'head'), '#FFFFFFFF');
+    // A theme that says it opens dark with no dark ground is drawn light:
+    // its inks stay.
+    final light = _parse(_band('fill=#FFF4EDE0'), theme: {..._theme, 'mode': 'dark'});
+    expect(_ink(light, 'head'), isNot('#FF111827'));
   });
 
   test('Section image="…": the picture covers the band under a scrim; scrim= says another, or none', () {

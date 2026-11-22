@@ -1224,7 +1224,7 @@ Column
     Text "Inside"
 ''');
       expect(r.issues.map((i) => '${i.line}: ${i.message}'), [
-        '6: A StatusPill takes no lines under it (it has no children and no slot): write this line after it, at its own indent.',
+        '6: A StatusPill takes no lines under it: this line is drawn after it. Write it after the StatusPill, at the StatusPill\'s indent.',
       ]);
       final header = _node(r, 'h');
       expect(header['slots'], {'actions': 'hActions'});
