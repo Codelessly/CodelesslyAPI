@@ -24,6 +24,9 @@
 // (print_at.dart). A line brought by `...` is a second node, its id
 // `<id>_<condition>` (`links_phone`), and an action that names the id
 // (`focus`, `scroll`) is written once for each.
+//
+// A defined word's lines may hold blocks too (a word's own design at a
+// width): at_defined.dart reads those, where the word is used.
 part of 'notation.dart';
 
 /// The line the parser reads, through the defined words and the page words,
@@ -65,6 +68,11 @@ final class _AtBlock {
 
   /// Its first lines: the nodes under [holder] it made.
   final tops = <String>[];
+
+  /// In a defined word's lines (at_defined.dart): where the `at` line is
+  /// once the blocks around it have moved it, and where it is written.
+  int out = 0;
+  String? from;
 }
 
 /// What the parser keeps of the `at` blocks of a text.
@@ -107,9 +115,14 @@ final class _AtWidths {
   _Open? anchor;
   bool anchored = false;
 
-  /// In a defined word's lines: the indent of an `at` whose lines are
-  /// passed over.
-  int? definedSkip;
+  /// The lines of the defined words (at_defined.dart): each line as the
+  /// words write it out, the blocks open among them (the innermost last),
+  /// the indent of an `at` whose lines are passed over, and which reading
+  /// of the lines is going on (0 the text's own; one more for each `...`).
+  final wordLines = <_WordLine>[];
+  final wordOpen = <_AtBlock>[];
+  int? wordSkip;
+  int wordReading = 0, wordReadings = 0;
 }
 
 extension _AtRead on _Parser {
@@ -138,8 +151,8 @@ extension _AtRead on _Parser {
       }
       _atClose(b);
     }
-    // A definition's lines are the definition's: an `at` there is said
-    // where the word is used (stage 2 of the design reads it there).
+    // A definition's lines are the definition's: an `at` there is read
+    // where the word is used (at_defined.dart).
     final inDefinition = indent > 0 && isDeclaration(at.margin);
     if (_isAt(text) && !inDefinition) {
       _atOpen(indent, text);
@@ -176,27 +189,9 @@ extension _AtRead on _Parser {
       return refuse('$said at the margin is under no line: write it under the line whose lines it changes (the page\'s root line, for the whole page), after that line\'s own lines.');
     }
     final head = at.lines[part];
-    if (_statement.firstMatch(head.text)?[1] case final String s) {
-      return refuse('$said is under an ${s == 'for' ? 'each' : s}, which is not a part of its own: write the block under the line ${s == 'each' || s == 'for' ? 'the each repeats (each row\'s design at that width)' : 'the if is in'}.');
-    }
-    if (!RegExp(r'^[A-Z]').hasMatch(head.text)) {
-      return refuse('$said goes under a node line (a Row, a Column, a Nav…), after that line\'s own lines: its lines are that line\'s children at that width.');
-    }
-    if (words.isEmpty) return refuse('at names a width: at phone, at tablet, at desktop, at max899, at min700.tablet, at portrait.');
-    final read = mediaCondition('$words.x');
-    if (read == null || read.length != words.length + 1) {
-      return refuse('$said: "$words" is not a width. A block is written at phone, at tablet, at desktop, at max899, at min700.tablet or at portrait.');
-    }
-    if (read.problem case final String p) return refuse('$said: $p');
-    if (read.condition.values.any((v) => v is String && v != 'portrait' && v != 'landscape')) {
-      return refuse('$said names a breakpoint, which a block does not read yet: write its width in pixels (at min600, at max1023).');
-    }
-    final word = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(head.text)!;
-    if (const {'App', 'AppShell', 'Window'}.contains(word) && catalog.widget(word) == null && !_defined.has(word)) {
-      return refuse(
-          '$said under $word is not read yet: an App\'s panes and its drawer are its own at every width. Write the block under the pane whose lines change (Main, a Sidebar, a Pane), or write the window as a Row of your own panes with the block under it.');
-    }
-    final b = _AtBlock(part, indent, _line, read.condition, mediaConditionWords(read.condition) ?? words);
+    final read = _atHead(said, words, head.text);
+    if (read.refused case final String r) return refuse(r);
+    final b = _AtBlock(part, indent, _line, read.condition!, read.words);
     final earlier = at.blocks[part] ?? const <_AtBlock>[];
     for (final e in earlier) {
       if (atCovers(b.condition, e.condition)) {
@@ -205,7 +200,7 @@ extension _AtRead on _Parser {
     }
     // The page words pass the block by (a Table's cells, a Nav's menu, a
     // Sidebar's drawer): what they still had to write first.
-    final pass = _pages.passBy(indent, phone: atHolds(b.condition, 390, 844) || atHolds(b.condition, 390, 300));
+    final pass = _pages.passBy(indent, phone: atHolds(b.condition, 390, 844) || atHolds(b.condition, 390, 300), holds: (w, h) => atHolds(b.condition, w, h));
     if (pass.refused case final String r) return refuse('$said: $r');
     if (pass.lines.isNotEmpty) {
       final before = nodes.length;
@@ -217,33 +212,73 @@ extension _AtRead on _Parser {
     // Where its lines go: what the mark reads.
     _atMarkAt(indent, anchor: true);
     final anchor = at.anchor;
-    if (anchor == null) return refuse('$said: the line it is under holds no lines.');
-    final holderId = anchor.id;
+    if (_atAnchor(said, anchor) case final String r) return refuse(r);
+    _atUnder(b, anchor!.id, head.end, pass.wholeFrame);
+    at.open = b;
+  }
+
+  /// `at <words>` under the line [head]: its condition and its words as
+  /// the notation says them, or why it is not read.
+  ({Json? condition, String words, String? refused}) _atHead(String said, String words, String head) {
+    ({Json? condition, String words, String? refused}) no(String message) => (condition: null, words: words, refused: message);
+    if (_statement.firstMatch(head)?[1] case final String s) {
+      return no('$said is under an ${s == 'for' ? 'each' : s}, which is not a part of its own: write the block under the line ${s == 'each' || s == 'for' ? 'the each repeats (each row\'s design at that width)' : 'the if is in'}.');
+    }
+    if (!RegExp(r'^[A-Z]').hasMatch(head) || head == notationSplice) {
+      return no('$said goes under a node line (a Row, a Column, a Nav…), after that line\'s own lines: its lines are that line\'s children at that width.');
+    }
+    if (words.isEmpty) return no('at names a width: at phone, at tablet, at desktop, at max899, at min700.tablet, at portrait.');
+    final read = mediaCondition('$words.x');
+    if (read == null || read.length != words.length + 1) {
+      return no('$said: "$words" is not a width. A block is written at phone, at tablet, at desktop, at max899, at min700.tablet or at portrait.');
+    }
+    if (read.problem case final String p) return no('$said: $p');
+    if (read.condition.values.any((v) => v is String && v != 'portrait' && v != 'landscape')) {
+      return no('$said names a breakpoint, which a block does not read yet: write its width in pixels (at min600, at max1023).');
+    }
+    final word = RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(head)!;
+    if (const {'App', 'AppShell', 'Window'}.contains(word) && catalog.widget(word) == null && !_defined.has(word)) {
+      return no(
+          '$said under $word is not read yet: an App\'s panes and its drawer are its own at every width. Write the block under the pane whose lines change (Main, a Sidebar, a Pane), or write the window as a Row of your own panes with the block under it.');
+    }
+    return (condition: read.condition, words: mediaConditionWords(read.condition) ?? words, refused: null);
+  }
+
+  /// Why the node a block's lines would go in ([anchor], what the mark
+  /// read) takes no block; null when it does.
+  String? _atAnchor(String said, _Open? anchor) {
+    if (anchor == null) return '$said: the line it is under holds no lines.';
     if (anchor.leaf) {
-      return refuse('$said: a ${anchor.written ?? anchor.type} takes no lines under it, so it has no design at a width (its values at a width are keys: phone.w=fill).');
+      return '$said: a ${anchor.written ?? anchor.type} takes no lines under it, so it has no design at a width (its values at a width are keys: phone.w=fill).';
     }
     if (anchor.grid != null) {
-      return refuse('$said: a Grid lays the lines under it out in its cells. Write its columns at that width (phone.cols=1), or write the block under a Column around the Grid.');
+      return '$said: a Grid lays the lines under it out in its cells. Write its columns at that width (phone.cols=1), or write the block under a Column around the Grid.';
     }
     if (anchor.pages != null || anchor.slot != null || anchor.slots.isNotEmpty) {
-      return refuse('$said: the lines under a ${anchor.written ?? anchor.type} are its ${anchor.pages != null ? 'pages' : 'slots'}, not its children: write the block under a Column inside it.');
+      return '$said: the lines under a ${anchor.written ?? anchor.type} are its ${anchor.pages != null ? 'pages' : 'slots'}, not its children: write the block under a Column inside it.';
     }
-    // The part's own lines: the nodes under the holder its lines made after
-    // its own line (a page word's frame of its own, a Nav's menu button,
-    // stays), or for a Table all of them (its header and its rows).
-    if (!at.blocks.containsKey(part)) {
-      final kids = [...readStrings(nodes[holderId]?['children'])];
-      final made = head.end == null ? const <String>{} : nodes.keys.skip(head.end!).toSet();
-      at.defaults[part] = [
+    return null;
+  }
+
+  /// Block [b]'s lines go in the node [holder]. The part's own lines (when
+  /// this is its first block): the nodes under the holder its lines made
+  /// after its own line, which ended at node [headEnd] (a page word's frame
+  /// of its own, a Nav's menu button, stays), or with [wholeFrame] all of
+  /// them (a Table's header and its rows).
+  void _atUnder(_AtBlock b, String holder, int? headEnd, bool wholeFrame) {
+    final at = _at;
+    if (!at.blocks.containsKey(b.part)) {
+      final kids = [...readStrings(nodes[holder]?['children'])];
+      final made = headEnd == null ? const <String>{} : nodes.keys.skip(headEnd).toSet();
+      at.defaults[b.part] = [
         for (final k in kids)
-          if (pass.wholeFrame || made.contains(k)) k,
+          if (wholeFrame || made.contains(k)) k,
       ];
     }
     b
-      ..holder = holderId
+      ..holder = holder
       ..start = nodes.length;
-    (at.blocks[part] ??= []).add(b);
-    at.open = b;
+    (at.blocks[b.part] ??= []).add(b);
   }
 
   /// Reads the mark at [indent]: what is open deeper closes, and with
@@ -352,7 +387,7 @@ extension _AtRead on _Parser {
       final m = _head.firstMatch(t);
       if (m != null && !t.contains('#{')) {
         final id = m[1]!;
-        renamed[id] = '${id}_${b.suffix}';
+        renamed[id] = _atUse(t) ? _atUseCopy(id, b) : '${id}_${b.suffix}';
         final from = m.start + m[0]!.lastIndexOf('#') + 1;
         t = t.replaceRange(from, from + id.length, renamed[id]!);
       } else if (RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(t) case final String w when _defined.has(w) && l.end != null && l.end! > l.start && !t.contains('#')) {
@@ -360,7 +395,7 @@ extension _AtRead on _Parser {
         // state the same (its names are made from the use's id).
         final first = nodes.keys.elementAtOrNull(l.start);
         if (first != null) {
-          renamed[first] = '${first}_${b.suffix}';
+          renamed[first] = _atUseCopy(first, b);
           t = t.replaceFirst(RegExp(r'^[A-Z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*'), '${RegExp(r'^[A-Z][A-Za-z0-9]*(\.[A-Za-z][A-Za-z0-9]*)*').stringMatch(t)}#${renamed[first]}');
         }
       }
@@ -376,8 +411,31 @@ extension _AtRead on _Parser {
     for (final e in renamed.entries) {
       if (_taken(e.key) && _taken(e.value)) (at.copies[e.key] ??= []).add(e.value);
     }
-    // A defined word's own state: the copy keeps the use's (a card turned
-    // over on a desktop is turned over on a phone).
+    _atShare(b, nodesBefore, variablesBefore);
+  }
+
+  /// Whether the line [text] is a use of a defined word.
+  bool _atUse(String text) => switch (RegExp(r'^[A-Z][A-Za-z0-9]*').stringMatch(text)) { final String w => _defined.has(w), null => false };
+
+  /// The id of the copy block [b] reads of the use [id] of a defined word:
+  /// `<id>_<condition>`, the lines of the copy named after it
+  /// (`title_<id>_<condition>`); with a number after it where a line the
+  /// word's own block read again has such a name already.
+  String _atUseCopy(String id, _AtBlock b) {
+    final top = _top;
+    bool named(String to) => [top, ...top._overlays].any((p) => p.nodes.keys.any((k) => k.endsWith('_$to')));
+    var to = '${id}_${b.suffix}';
+    for (var n = 2; named(to); n++) {
+      to = '${id}_${b.suffix}_$n';
+    }
+    return to;
+  }
+
+  /// A defined word's own state, in the lines block [b] read again (the
+  /// nodes from [nodesBefore] on, the variables not in [variablesBefore]):
+  /// the copy keeps the use's (a card turned over on a desktop is turned
+  /// over on a phone).
+  void _atShare(_AtBlock b, int nodesBefore, Set<String> variablesBefore) {
     final made = nodes.keys.skip(nodesBefore).toList();
     final suffix = '_${b.suffix}';
     final shared = <String, String>{
@@ -411,6 +469,13 @@ extension _AtRead on _Parser {
     at.open = null;
     // What is open deeper in it closes, in it.
     _atMarkAt(b.indent, anchor: false);
+    _atClosed(b);
+    at.after = (part: b.part, indent: b.indent);
+  }
+
+  /// Block [b]'s lines are read and closed: the rules of [_atClose].
+  void _atClosed(_AtBlock b) {
+    final at = _at;
     final holder = b.holder!;
     for (final k in nodes.keys.skip(b.start)) {
       if (_parentOf[k] == holder && !at.tops.contains(k)) b.tops.add(k);
@@ -442,7 +507,6 @@ extension _AtRead on _Parser {
         });
       }
     }
-    at.after = (part: b.part, indent: b.indent);
   }
 
   /// Adds [rule] to node [id]'s media rules, unless it has it: whether it did.
@@ -469,25 +533,6 @@ extension _AtRead on _Parser {
   void _atEnd() {
     if (_at.open case final _AtBlock b) _atClose(b);
     _at.skip = null;
-  }
-
-  /// In the lines a defined word stands for, an `at` line is not read yet
-  /// (stage 2 reads it there): said, and its lines passed over. Whether
-  /// [l] is passed over.
-  bool _atInDefinition(PageLine l, String? from) {
-    final at = _at;
-    if (from == null) {
-      at.definedSkip = null;
-      return false;
-    }
-    if (at.definedSkip case final int s) {
-      if (l.indent > s) return true;
-      at.definedSkip = null;
-    }
-    if (!_isAt(l.text)) return false;
-    _issue(1, '${l.text} in a definition is not read yet (a word\'s own design at a width): write the block on the page, under the line that uses the word.');
-    at.definedSkip = l.indent;
-    return true;
   }
 
   /// Each action that names an id read again in a block (`focus search`,

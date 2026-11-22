@@ -138,12 +138,70 @@ Row#window w=fill h=fill
   in the block (as the bar above does), or give the part's line the direction at that width
   (`Row gap=12 phone.direction=vertical`).
 - Not read, and said: `at` at the margin, under an `each` or an `if` (write it under the line the `each` repeats,
-  each row's design at that width), inside another block, in a definition's lines, under `App` (write it under the
-  pane whose lines change), under a `Grid` (its columns at a width are `phone.cols=1`), a breakpoint by its name
-  (`at minTablet`: write the width in pixels), and a part's line written after its blocks.
+  each row's design at that width), inside another block, under `App` (write it under the pane whose lines
+  change), under a `Grid` (its columns at a width are `phone.cols=1`), a breakpoint by its name (`at minTablet`:
+  write the width in pixels), and a part's line written after its blocks.
 - A document's block prints back as the block: its first lines are named for it (`at phone`, the layer's name in
   the editor), and a line that is one of the part's own read again prints as `...#id`. Lines written as twins
   (`hide=phone` beside `show=phone`) print as twins.
+
+### A word's own design at a width
+
+A definition (a page's `define`, a file of a site's `components`, of a dictionary or of a design system) writes
+`at <width>` under any of its node lines (its first line, for the whole word), as a page does: every use of the
+word then has that design at that width, with nothing written where it is used.
+
+```notation expands
+define Product "title" "price" photo
+  Column gap=8
+    Image#photo src={photo} h=160 w=fill radius=8
+    Column#words gap=2
+      Text.strong "{title}"
+      Text.muted "{price}"
+    at phone
+      Row gap=12 middle
+        Image src={photo} w=72 h=72 radius=8
+        ...#words
+Grid cols=3 gap=16 phone.cols=1
+  Product "Kettle" "$48" photo="https://picsum.photos/seed/kettle/400"
+  Product "Mug" "$14" photo="https://picsum.photos/seed/mug/400"
+```
+
+- In a block `...` and `...#id` mean what they mean on a page: the lines of the part the block is under, read
+  again. The lines a use writes under the word are among them where the definition has its slot, so a block
+  brings them again with `...` (or with `...#id` of the line the slot is under). A slot itself (`...` for the
+  lines under a use, `...Name`) is written among a part's own lines, never in a block.
+
+```notation expands
+define Shelf "title"
+  Column gap=12
+    Text.heading3 "{title}"
+    Row#items gap=16
+      ...
+    at phone
+      Column gap=8
+        ...#items
+Shelf "New"
+  Text "Kettle"
+  Text "Mug"
+```
+
+- The word's parameters read in a block as in its other lines (`"{title}"`). A line read again is the same use:
+  its state and the value it binds are the use's own, one for both designs, its id is the use's with the width
+  after it (`words_product1_phone`), and an action of the word that names the line (`focus`, `scroll`) reaches the
+  one shown.
+- A word with a design at a width may be used in a block, of a page or of another word, and be read again by one:
+  it has its own design there too. Printed, such a part inside a block is its lines side by side
+  (`hide=phone` beside `show=phone`).
+- What is wrong in a definition's block is said once, with the file and line of the definition: a block at the
+  margin of the definition, a block inside a block, a slot or other words on a `...` line of a block, a `...#id`
+  no line of the part has (or written outside a block), a line after the part's blocks. What depends on where the
+  word is used (a width that is none, a part that takes no block) is said with each use, and the block's lines are
+  passed over: the part shows its own.
+- A block of the page written under a line that a word's block reads again (the lines a use gives a slot) is not
+  read again with it, and that is said: a block is not written inside a block.
+- A block the page writes under the use itself, where the word has a block of its own for the same part, is the
+  page's design of that use: where it holds it is the one shown, and the word's own block is not.
 
 ## What reflow does
 
@@ -197,7 +255,17 @@ defaults:
   (but for the phone's wrap above, when its parts still have no room there). A width rule on a line whose width
   is bound (`w={listW} phone.w=fill`) holds where it says: the binding is the desktop's.
 - A design system with a rail (`sizes.rail` in its theme, Desk's 64) makes an app's `Sidebar` written with no
-  rule for other widths a rail that wide on a tablet, its words folded to their icons, and the drawer on a phone.
+  rule for other widths a rail that wide on a tablet, its words folded to their icons, and the drawer on a phone,
+  when every line under it folds by itself there. A line folds when it is a component that declares a `rail`
+  parameter (the design system's `NavItem`, `Brand`, `Account`; a site's own component with `param rail:bool=false`
+  that shows its icon alone on a tablet), takes no width of its own (`Spacer`, `Divider`), or says what it is at
+  that width itself (`hide=tablet`, `show=desktop`, `tablet.…`, `max899.…`: it and the lines under it are then
+  yours). The sidebar's `Footer`, a plain `Column`, an `if`, an `each` and a defined word hold lines, and fold when
+  their lines do; under an `at tablet` block, the block's lines are the ones read. With a line written by hand (a
+  `Row` of an `Icon` and a `Text`, a `Text` group label, a defined word that is such a row) the sidebar is as wide
+  as written on a tablet, as with no rail, and still the drawer on a phone: a label has no room in 64. To make
+  such a sidebar a rail, write its width there and what each line does (`Sidebar tablet.w=64 hide=phone`, the
+  labels `hide=tablet`).
 - `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width (a child written
   `phone.w=fill` still turns its row there: that is what the line says).
 - A text never breaks inside a word. Where its box is narrower than its longest word the text is drawn smaller so

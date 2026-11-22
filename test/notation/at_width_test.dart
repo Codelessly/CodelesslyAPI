@@ -304,14 +304,10 @@ void main() {
       expect(_kids(r, 'c'), hasLength(1));
     });
 
-    test('in a definition it is said where the word is used, and its lines passed over', () {
+    test('in a definition it is the word\'s own design at that width, read where the word is used (at_defined_test.dart)', () {
       final r = _parse('define Tile\n  Column\n    Text "wide"\n    at phone\n      Text "phone"\nRow\n  Tile\n  Tile');
-      expect(_said(r), hasLength(2));
-      for (final m in _said(r)) {
-        expect(m, endsWith('at phone in a definition is not read yet (a word\'s own design at a width): write the block on the page, under the line that uses the word.'));
-      }
-      expect([for (final i in r.issues) i.line], [7, 8]);
-      expect(_nodes(r).values.where((n) => ((n as Map)['props'] as Map?)?['text'] == 'phone'), isEmpty);
+      expect(r.issues, isEmpty);
+      expect(_nodes(r).values.where((n) => ((n as Map)['props'] as Map?)?['text'] == 'phone'), hasLength(2));
     });
   });
 

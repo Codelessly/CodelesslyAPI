@@ -780,7 +780,10 @@ final class _Printer {
   bool _under(Json n, int depth, [String? id]) {
     var kids = readStrings(n['children']);
     // A part's `at` blocks (print_at.dart): its own lines, then each block.
-    final at = id == null || plan != _Plan.full || _noAt.contains(id) ? null : atBlocksOf(n, nodes);
+    // (A part in a block, where a defined word with a design at a width
+    // is used, is printed as its children are: a block in a block is not
+    // read.)
+    final at = id == null || plan != _Plan.full || _noAt.contains(id) || _atIn != null ? null : atBlocksOf(n, nodes);
     if (at != null) {
       kids = at.own;
       _view.addAll(at.view);

@@ -51,6 +51,7 @@ part 'notation_events.dart';
 part 'paint_words.dart';
 part 'state_words.dart';
 part 'at_width.dart';
+part 'at_defined.dart';
 
 /// An id as a line writes it after `#` (design 13, section 3): letters,
 /// digits and `_`, its parts joined by single hyphens, as a JSON or HTML id
@@ -2612,7 +2613,7 @@ class _Parser {
   /// The lines a line of the text stands for once the defined words are
   /// written out, each with where it is written.
   Iterable<(PageLine, String?)> _definedLines(int indent, String text) sync* {
-    for (final d in _defined.rewrite(indent, text, line: _line)) {
+    for (final d in _defined.rewrite(indent, text, line: _line).expand(_atWord)) {
       // An overlay's word with no id, in an overlay: there is nothing to
       // open, so it is the open overlay's content (its title, its note and
       // the lines under it), without a second close button.
@@ -3309,7 +3310,6 @@ class _Parser {
     {
       _from = null;
       for (var (l, from) in _definedLines(indent, raw.trim())) {
-        if (_atInDefinition(l, from)) continue;
         _from = from;
         // A line a defined word stands for reads the alias table as the
         // page's lines do (`Input onSubmitted=` is onSubmit), unrecorded.
@@ -3332,6 +3332,7 @@ class _Parser {
         _lastNode = null;
         _lineAt(l.indent, role == null ? l.text : role[2] == 'splice' ? notationSplice : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
+        _railRead(role);
         // The lines a defined word stands for: each line's nodes are sent
         // before the next line's, which may patch them.
         if (from != null && nodes.length > before) {
@@ -3382,6 +3383,8 @@ class _Parser {
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
+    // A component that says it folds in a rail: it declares a `rail` parameter.
+    folds: (name) => notationTypes[name] == null && (catalog.widget(name)?.props.any((p) => p.key == 'rail') ?? false),
     declares: (name) => catalog.widget(name) != null,
     isFrame: (name) => notationTypes[name] == null && catalog.widget(name)?.children == ChildModel.list,
     frameEvents: (name) => [for (final e in catalog.widget(name)?.events ?? const <EventSpec>[]) e.key],
@@ -4036,8 +4039,48 @@ class _Parser {
     }
   }
 
+  /// The sidebars the page words wrote as a design system's rail
+  /// (PageWords.railFolds, in the same order): each one's node, and the
+  /// media rules its line gave it (`tablet.w=64 hide=phone`).
+  final _railSides = <({String? id, List<Object?> rules})>[];
+
+  /// After a line the page words wrote was read ([role]: its frame's mark):
+  /// a sidebar written as a rail is kept, for the end of the text.
+  void _railRead(RegExpMatch? role) {
+    if (role?[2] != 'sidebar' || !_pages.railWritten) return;
+    _pages.railWritten = false;
+    final id = _lastNode;
+    _railSides.add((id: id, rules: [...?(nodes[id]?['media'] as List?)]));
+  }
+
+  /// A sidebar written as a rail whose lines do not all fold by themselves
+  /// (a row of an icon and a text written by hand) is as wide as written at
+  /// a tablet's width, as with no rail: the rail's rules come off its line.
+  /// Whether they fold is known once the lines under it are read.
+  void _unrail() {
+    final folds = _pages.railFolds;
+    for (var i = 0; i < _railSides.length && i < folds.length; i++) {
+      final side = _railSides[i];
+      final n = nodes[side.id];
+      if (folds[i] || n == null) continue;
+      final media = [...?(n['media'] as List?)];
+      for (final r in side.rules) {
+        final at = media.indexWhere((m) => jsonEquality.equals(m, r));
+        if (at >= 0) media.removeAt(at);
+      }
+      if (media.isEmpty) {
+        n.remove('media');
+      } else {
+        n['media'] = media;
+      }
+      if (_canvas) ops.add({'op': 'patch', 'id': side.id, 'patch': {'media': media.isEmpty ? null : media}});
+    }
+    _railSides.clear();
+  }
+
   void _reflow() {
     _rejoinWraps();
+    _unrail();
     // The slim bar made for a sidebar's button before the page's own bar or
     // button was read (PageWords.slimBarSuperseded) is not drawn; with a
     // button of the writer's own, neither is the one made in Main's bar.
@@ -11541,16 +11584,20 @@ class _Parser {
     }
     // What a defined word still has to write (the rest of its lines), each
     // line's nodes sent before the next line's.
+    // (Their `at` blocks are read as they are written out, and those still
+    // open at the end are closed: at_defined.dart.)
     _from = null;
-    for (final d in _defined.finish()) {
+    var sent = nodes.length;
+    for (final d in _defined.finish().expand(_atWord).followedBy(_atWordEnd())) {
       _from = d.from;
       for (final l in _pages.rewrite(d.indent, d.text)) {
         final role = _roleMark.firstMatch(l.text);
         _lastNode = null;
-        final mark = nodes.length;
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
-        nodes.keys.skip(mark).toList().forEach(_emit);
+        _railRead(role);
+        nodes.keys.skip(sent).toList().forEach(_emit);
+        sent = nodes.length;
       }
     }
     _from = null;

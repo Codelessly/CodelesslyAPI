@@ -709,7 +709,7 @@ const String notationAtPhoneLines = '''
           Row gap=8
             ...#kind
             ...#find
-  at tablet too (the wider first); never directly under each, if, Grid or App, nor in a definition.''';
+  at tablet too (the wider first); never directly under each, if, Grid or App.''';
 
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
 /// reference pages (an unknown word is written, not escaped to JSON), and

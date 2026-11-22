@@ -23,6 +23,8 @@ import 'dart:convert' show jsonDecode;
 import 'dart:math' as math;
 
 import '../action_fields.dart' show OpenModalFields;
+import 'at_rules.dart' show atHolds;
+import 'media_words.dart' show mediaCondition;
 
 part 'table_words.dart';
 part 'page_words_at.dart';
@@ -53,6 +55,7 @@ final class PageWords {
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
     this.isComponent = _none,
+    this.folds = _none,
     this.declares = _none,
     this.isFrame = _none,
     this.frameEvents = _noEvents,
@@ -74,8 +77,9 @@ final class PageWords {
   final double sidebarWidth;
 
   /// A design system's rail width (`sizes.rail`): an app's sidebar written
-  /// with no rule for other widths is a rail that wide at a tablet's, where
-  /// the system's words fold to their icons. Null: as wide as written.
+  /// with no rule for other widths, whose lines all fold by themselves
+  /// ([railFolds]), is a rail that wide at a tablet's, where the system's
+  /// words fold to their icons. Null: as wide as written.
   final double? sidebarRail;
 
   /// A section's padding above and below, and a page's side gutter.
@@ -138,6 +142,11 @@ final class PageWords {
   /// Whether a design system has a component of this name (its `Sidebar`
   /// with `items:` is that component, not a pane).
   final bool Function(String name) isComponent;
+
+  /// Whether a component of this name folds by itself where its sidebar is
+  /// a rail: its definition declares a `rail` parameter (a design system's
+  /// `NavItem`, a site's own component), whatever its name.
+  final bool Function(String name) folds;
 
   /// Whether the catalog declares a node type of this name, also one a word
   /// of the notation shadows (`Badge "3" type=Badge` is the component).
@@ -299,7 +308,77 @@ final class PageWords {
   /// How wide an app's sidebar is at a tablet's width: a rail's 64, none
   /// where it is hidden there, else as written (what a table beside it has
   /// no room for).
-  double _sideAtTablet = 0;
+  double get _sideAtTablet => switch (_sideRail) {
+        final _Line l when l.railBreaks == 0 => sidebarRail!,
+        _ => _sideWritten,
+      };
+  double _sideWritten = 0;
+  _Line? _sideRail;
+
+  /// The sidebars written as a design system's rail (`tablet.w=64
+  /// hide=phone` after their own words), in order; [railWritten] while the
+  /// last line [rewrite] read is one of them.
+  final _rails = <_Line>[];
+  bool railWritten = false;
+
+  /// For each sidebar written as a rail, in order: whether every line under
+  /// it folds by itself at a tablet's width, so far. One that does not is as
+  /// wide as written there (the reader takes the rail's rules off its line):
+  /// a row of an icon and a text written by hand has no room in a rail.
+  ///
+  /// A line folds when it is a component that declares a `rail` parameter
+  /// ([folds]), takes no width of its own (a Spacer, a Divider), or says
+  /// what it is at a tablet's width itself (`hide=tablet`, `tablet.…`,
+  /// `show=desktop`: the lines under it are then its own business). The
+  /// sidebar's `Footer`, a plain `Column`, an `if`, an `each` and a defined
+  /// word's lines hold lines, and fold when theirs do. An `at` block that
+  /// holds at a tablet's width is what its part shows there: its lines are
+  /// the ones read, in place of the part's own.
+  List<bool> get railFolds => [for (final l in _rails) l.railBreaks == 0];
+
+  /// The windows a tablet has: a rule that holds at neither says nothing of
+  /// a tablet's width (`phone.…`, `desktop.…`).
+  static const _tablets = [(834, 1112), (1000, 700)];
+
+  /// Whether a word of a line says what the line is at a tablet's width.
+  static bool _saysTablet(String t) {
+    if (t.startsWith('"')) return false;
+    if (t.startsWith('hide=') || t.startsWith('show=')) {
+      final size = t.substring(5);
+      if (!const {'phone', 'mobile', 'tablet', 'desktop'}.contains(size)) return false;
+      return !(t.startsWith('hide=') && (size == 'phone' || size == 'mobile'));
+    }
+    final read = mediaCondition(t.split('=').first);
+    return read != null && read.problem == null && _tablets.any((w) => atHolds(read.condition, w.$1, w.$2));
+  }
+
+  /// Lines that take no width of their own.
+  static const _noWidth = {'Spacer', 'Divider', 'Separator'};
+
+  /// A line read under [side], a sidebar written as a rail: whether it
+  /// folds by itself ([railFolds]).
+  void _railLine(_Line side, _Line? parent, int indent, String text, String? word, String rest) {
+    if (side.railSkip case final int from) {
+      if (indent >= from) return;
+      side.railSkip = null;
+    }
+    if (word == null) {
+      // What is no node (an `if`, an `each`, a state, a defined word's
+      // lines written where it is used) holds lines or draws nothing.
+      if (text.startsWith('node ') || (RegExp(r'^[A-Z]').hasMatch(text) && text != 'Column~splice')) side.railBreaks++;
+      return;
+    }
+    final parts = _Parts(rest);
+    if (parts._tokens.any(_saysTablet)) {
+      side.railSkip = indent + 1;
+      return;
+    }
+    if (folds(word) || _noWidth.contains(word)) return;
+    if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) return;
+    // A column is as wide as its place: its lines are what has a width.
+    if (word == 'Column' && !isComponent(word) && !parts.has('pad') && const {null, 'fill'}.contains(parts.value('w'))) return;
+    side.railBreaks++;
+  }
   bool _mainSeen = false;
   int? _mainAt;
 
@@ -985,8 +1064,13 @@ final class PageWords {
     final framed = parent == null || parent.frame != null;
     final root = _open.isEmpty ? null : _open.first.frame;
 
+    // Under a sidebar written as a rail: whether this line folds there.
+    final side = _open.where((l) => l.rail).lastOrNull;
+    if (side != null) _railLine(side, parent, indent, text, word, rest);
+    railWritten = false;
+
     _Line open({String? frame, int shift = 0, String? after}) {
-      final l = _Line(indent, frame, before: at - indent, shift: shift, after: after);
+      final l = _Line(indent, frame, before: at - indent, shift: shift, after: after)..breaksBefore = side?.railBreaks ?? 0;
       _open.add(l);
       return l;
     }
@@ -1224,22 +1308,27 @@ final class PageWords {
       // A design system whose sidebar words fold to their icons at a
       // tablet's width (Desk) has a rail there: a sidebar written with no
       // rule for other widths was as wide as on a desktop with its items
-      // folded, icons alone in 240 (track C).
+      // folded, icons alone in 240 (track C). The lines under it say whether
+      // it stays one ([railFolds]): they are read after this line.
       final railed = window &&
           sidebarRail != null &&
           (double.tryParse(width) ?? sidebarWidth) >= 120 &&
           !tokens.any((t) => _byWidth.hasMatch(t));
       // (On a phone it is the drawer, as a writer's rail is: `hide=phone`.)
       final rail = railed ? ' tablet.w=${_n(sidebarRail!)} hide=phone' : '';
-      open(frame: framed ? 'Sidebar' : null);
-      final side = sideFill ?? paneFill;
-      final fill = !framed || parts.has('fill') || side == null ? '' : ' fill=$side';
+      final opened = open(frame: framed ? 'Sidebar' : null);
+      if (railed) {
+        opened.rail = true;
+        _rails.add(opened);
+        railWritten = true;
+      }
+      final ground = sideFill ?? paneFill;
+      final fill = !framed || parts.has('fill') || ground == null ? '' : ' fill=$ground';
       if (window) {
         _panesBefore++;
         _widthBefore += double.tryParse(width) ?? sidebarWidth;
-        _sideAtTablet = railed
-            ? sidebarRail!
-            : parts.railWidths.any((w) => w != 'phone')
+        _sideRail = railed ? opened : null;
+        _sideWritten = parts.railWidths.any((w) => w != 'phone')
             ? 64
             : tokens.contains('hide=tablet') || tokens.contains('tablet.hidden') || tokens.contains('tablet.visible=false')
                 ? 0
@@ -1714,6 +1803,19 @@ class _Line {
 
   /// An `if` or an `each`: what is under it shows by a condition or is repeated.
   bool conditional = false;
+
+  /// A sidebar written as a design system's rail: how many lines under it
+  /// do not fold by themselves at a tablet's width, and the indent from
+  /// which the lines being read are not counted (under a line with a rule
+  /// of its own there, in an `at` block that does not hold there).
+  bool rail = false;
+  int railBreaks = 0;
+  int? railSkip;
+
+  /// Under such a sidebar: how many of its lines did not fold when this
+  /// line was read (an `at` block that takes this line's place at a
+  /// tablet's width takes those read since out of the count).
+  int breaksBefore = 0;
 }
 
 /// The words of a line after its type, taken apart: `key=value` pairs

@@ -5,7 +5,9 @@
 // name (`at phone`). A line of a block that is one of the part's own read
 // again (`links_phone`, equal to `links` up to its ids) is `...#links`, and
 // all of them `...`. A part whose print does not read back so is printed as
-// its children are (twins: `hide=phone` beside `show=phone`).
+// its children are (twins: `hide=phone` beside `show=phone`), and so is a
+// part inside a block (a defined word with a design of its own at a width,
+// used in a block or read again by one).
 part of 'print.dart';
 
 extension on _Printer {
@@ -128,7 +130,8 @@ extension on _Printer {
   /// `_<condition>`. Its own visible binding is the `if` it is under
   /// ([condition]), or one to write above it ([needIf]). Null: not.
   ({String? needIf})? _atSame(String copy, String of, String? condition) {
-    if (_noCopy.contains(copy)) return null;
+    // (A line printed with blocks of its own is not read again with them.)
+    if (_noCopy.contains(copy) || _atPrinted.contains(of)) return null;
     final c = _view[copy] ?? readMap(nodes[copy]), o = _view[of] ?? readMap(nodes[of]);
     if (c == null || o == null) return null;
     var cn = _atBare(c), on = _atBare(o);
@@ -172,7 +175,7 @@ extension on _Printer {
 
   bool _atDeep(String copy, String of) {
     final c = readMap(nodes[copy]), o = readMap(nodes[of]);
-    if (c == null || o == null) return false;
+    if (c == null || o == null || _atPrinted.contains(of)) return false;
     return jsonEncode(_sorted(_atBare(c))) == jsonEncode(_sorted(_atBare(o))) && _atIds(copy, of) && _atUnder(c, o);
   }
 

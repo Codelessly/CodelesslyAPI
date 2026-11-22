@@ -175,7 +175,7 @@ place it, is nearer to what the web does than a second copy of the content.
 | under a node line, before or among its other lines | an issue: `...` would name lines not read yet (the parser reads a stream, note 20 section 3), and the default lines read first are the clearest |
 | under `each` or `if` | an issue: an `each` or `if` is not a place of its own (the page words treat it so). Write it under the line the `each` repeats: each row's design at a width |
 | at the margin (under no line) | an issue in the first stages: write it under the root line. Later it could be a screen's canvas for that breakpoint (the base has canvases per breakpoint) |
-| inside a `define` body, under any of its lines | yes (stage 2): a word's own design at a width, its `...` the use's lines (3.4) |
+| inside a `define` body, under any of its node lines | yes: a word's own design at a width, its `...` the part's own lines, the use's among them (3.4, and section 13) |
 | inside another `at` block | an issue in the first stages; the inner condition could later hold where both do |
 | with nothing under it | the part has no children at that width (its own line, its fill and padding, stay). Not `hide=phone`, which leaves out the part |
 
@@ -218,9 +218,9 @@ Row#bar w=fill between middle pad=[24,14,24,14]
 ```
 
 This is the meaning `...` has in a `define` body (note 20 section 3), extended: there it is "the lines written under
-the use", here "the lines written under the part". In a body's block (stage 2) it is the use's lines again, so a
-word can present what it is given otherwise at a width: `...` in the body's default lines and again in its block is
-the same content presented twice, of which one shows.
+the use", here "the lines written under the part". In a body's block it is the block's meaning, the part's own
+lines, and the use's lines are among those where the body has its slot: `...` in the body's default lines and again
+in its block is the same content presented twice, of which one shows (section 13).
 
 A line brought by `...` is the line as written, with its keys at widths: `Row#links … phone.direction=vertical`
 is a column where the phone block shows it. Nothing in a block may be written on a line brought by `...`; what
@@ -502,7 +502,8 @@ own menu button in a Nav (one button where there were two): question 8.
 1. **On a page.** `at <condition>` under a node line, the children at that width; `...` and `...#id`; the twins
    expansion; the reflow leaves the block; the issues; the reference section and the prompt's sentence. The printer
    prints twins. Useful at once: the 82 structure twins and the hand-written panes of round 11 become one part each.
-2. **In `define`.** A body's block; `...` the use's lines again; the page words that read their lines pass a block by.
+2. **In `define`.** A body's block; `...` the part's own lines again, the use's among them; the page words that
+   read their lines pass a block by (section 13).
 3. **Printed back.** The mark and the copy recognition; `print --check` over every corpus.
 4. **The words' designs as definitions.** Nav's menu, Table's phone list, a list beside its detail, each closure
    tested as note 23 did; the phone behaviours keep their names, their code reduced to what section 5 lists.
@@ -634,3 +635,48 @@ and the prompt teaches `at` (one sentence where widths are taught). Where the bu
   are sent then as patches.
 - **Section 6's bug** was fixed before this build (37.0.0): experiment 8's Nav with its own `show=phone` menu
   button expands to that one button and no `navMenu` column.
+
+## 13. As built (stage 2: in a definition)
+
+A definition's body holds `at <condition>` blocks under any of its node lines, its root line among them. Whatever
+defines the word (a page's `define`, a site's `components`, a dictionary, a design system), each use then holds the
+part's own lines and each block's lines, hidden by the rules of 3.8, and the block prints back as one.
+
+- **Where it is read.** Not in `define.dart`: a use is written out as before, its `at` lines and the lines under
+  them among the others, and the parser reads the blocks from the lines the words write out
+  (`at_defined.dart`), between the defined words and the page words. So a block's part may be a line of the body,
+  the lines a use wrote are already where the body's slots put them, and the names a use makes its own (its ids,
+  its state, its loops' items) are already the use's.
+- **`...` in a block is the block's, never a slot.** It is the part's own lines read again, and `...#id` the one
+  with that id, as on a page. The lines a use writes are among a part's own lines where the body has its slot, so
+  `...` brings them, and `...#id` of the line a slot is under brings that slot's. Section 3.4 first said "the
+  use's lines again"; the two agree where the part's own lines are the slot alone, and where they are more the
+  page's meaning is the one that holds, so that `...` means one thing in every block. A slot written in a block
+  (`...Name`, or words after `...`) is said, and that line is left out.
+- **Ids.** A body's ids are the use's before a block is read (`title_card1`), so a line read again is
+  `title_card1_phone`, a second use's `title_card2_phone`, and one in an `each` is one line of the row's design.
+  `...#title` in the body names `title_card1` in the use. Where the name is taken (a word in a word, both with a
+  design at the same width) a number follows it (`title_card1_phone_2`); the copy a block of the page reads of a
+  use is named so that the lines of the copy cannot take the name of a line the word's own block read again.
+- **State.** A line read again is written out with the use's names, so the word's state, the value a use binds
+  and a loop's item are one for both designs with nothing renamed back. A state line under the part is declared
+  once. A variable a line makes from its own id is renamed back to the use's, as a page's copy's is.
+- **A block inside a block** is still not written: a definition's block that holds an `at` is said. It does come
+  about, where a word with a design at a width is used in a block (a page's, or another word's) or read again by
+  one, and that is read: the inner block's lines and rules are written in the outer block's lines. The printer
+  prints a part inside a block as its lines side by side (`hide=phone` beside `show=phone`), which read back to
+  the same document. A block of the page written under a line a word's block reads again (a line a use gave a
+  slot) is not read again with it: the page's block was read once, with the page's lines, and that is said.
+- **A block of the page under the use.** Where the page writes a block under a use and its lines go in a part
+  the word has a block of its own for, the page's is the one shown where it holds (the word's block is hidden
+  there, and the page's block is not one of the part's own lines). Printed, that part is its lines side by side.
+- **What is said, and where.** What the text of a definition alone gets wrong is said once, with the definition's
+  file and line: a block at the body's margin, a block in a block, words on a `...` line, a `...#id` no line of
+  the part has, `...#id` outside a block, a line after the part's blocks. What depends on the use (a condition
+  that is no width, a part under an `each`, a part that takes no lines, a Grid) is said with each use, as any
+  issue of a definition's line is, and the block's lines are passed over.
+- **The reflow, the printer and streams** treat a word's block as a page's: the block's lines are left as
+  written, the part's reflow rules are undone where a block holds, the block's first lines are named `at <width>`,
+  and its rules are sent as patches when the next line not indented past it is written out.
+- **A page written narrow.** The blocks do not depend on the width a page is expanded at: a page expanded at 390
+  holds the same lines and rules for the word as one expanded at 1440.

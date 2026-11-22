@@ -21,12 +21,34 @@ extension PageWordsAt on PageWords {
   ///   phone is where the Nav's own menu is;
   /// - an app's first Sidebar: its drawer is the sidebar as its own lines
   ///   write it, not the block's.
-  PagePass passBy(int indent, {required bool phone}) {
+  ///
+  /// Under a sidebar written as a design system's rail ([railFolds]) the
+  /// block's lines are what its part shows where it holds ([holds] says so
+  /// of a window's width and height): at a tablet's width they are the
+  /// lines that must fold, in place of the part's own; a block that does
+  /// not hold there is not read for it.
+  PagePass passBy(int indent, {required bool phone, bool Function(num width, num height)? holds}) {
     final i = _open.lastIndexWhere((l) => l.indent < indent);
     if (i < 0) return (lines: const [], refused: null, wholeFrame: false);
     final l = _open[i];
+    final side = _open.take(i + 1).where((o) => o.rail).lastOrNull;
+    if (side != null && holds != null) {
+      if (side.railSkip case final int from when indent <= from) side.railSkip = null;
+      if (side.railSkip == null) {
+        final at = [for (final w in PageWords._tablets) holds(w.$1, w.$2)];
+        if (!at.contains(true)) {
+          side.railSkip = indent;
+        } else if (!at.contains(false)) {
+          side.railBreaks = identical(l, side) ? 0 : l.breaksBefore;
+        }
+      }
+    }
     _Line again({int? shift}) => _Line(l.indent, l.frame, before: l.before, shift: shift ?? l.shift, after: l.after)
-      ..hero = l.hero;
+      ..hero = l.hero
+      ..rail = l.rail
+      ..railBreaks = l.railBreaks
+      ..railSkip = l.railSkip
+      ..breaksBefore = l.breaksBefore;
     if (l.table case final _Table t) {
       // Its lines go in its frame, beside its header and its rows.
       _open[i] = again(shift: 0);

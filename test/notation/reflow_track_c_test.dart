@@ -140,18 +140,27 @@ App
   });
 
   group("a design system's rail (sizes.rail)", () {
-    const page = 'App\n  #SIDE\n    NavItem "Inbox" icon="inbox"\n  Main\n    Text "Hello"\n';
-    Map<String, Object?> side(String sidebar, {double? rail = 64}) {
-      final r = _read(page.replaceFirst('#SIDE', sidebar), options: NotationOptions(width: 1440, sidebarRail: rail));
+    // (Which lines fold by themselves, and so leave the sidebar a rail:
+    // sidebar_rail_test.dart.)
+    const page = 'App\n  #SIDE\n#LINES  Main\n    Text "Hello"\n';
+    Map<String, Object?> side(String sidebar, {double? rail = 64, String lines = '    Spacer\n    Divider\n'}) {
+      final r = _read(page.replaceFirst('#SIDE', sidebar).replaceFirst('#LINES', lines), options: NotationOptions(width: 1440, sidebarRail: rail));
       final nodes = (r.document['nodes'] as Map).cast<String, Object?>();
       return (nodes.values.firstWhere((n) => (n as Map)['type'] == 'column' && jsonEncode(n['layout']).contains('"width":248')) as Map).cast<String, Object?>();
     }
 
-    test('a sidebar written with no rule for other widths is a rail at a tablet, its items icons alone', () {
+    test('a sidebar written with no rule for other widths, with no line that needs its width, is a rail at a tablet', () {
       final s = side('Sidebar');
       expect(jsonEncode(s['media']), contains('{"maxWidth":1023,"patch":{"layout":{"width":64}}}'));
       // On a phone it is the drawer.
       expect(jsonEncode(s['media']), contains('{"maxWidth":699,"patch":{"visible":false'));
+    });
+
+    test('a sidebar whose items are rows written by hand (a defined word of an icon and a text) is as wide as written: at 64 its labels stood a letter a line', () {
+      const items = '    NavItem "Inbox" icon="inbox"\n';
+      final s = side('Sidebar', lines: items);
+      expect(jsonEncode(s['media']), isNot(contains('"width":64')));
+      expect(s['media'], side('Sidebar', rail: null, lines: items)['media']);
     });
 
     test("a sidebar with rules of the writer's, or a system with no rail, is as written", () {

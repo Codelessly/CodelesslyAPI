@@ -131,10 +131,13 @@ final class NotationDefinition {
   static bool _marked(({int indent, String text, int line}) l) => !l.text.startsWith('...') && restMarkAt(l.text) >= 0;
 
   /// The names of its slots in body order (`''` the default slot).
-  List<String> get slots => [
-        for (final l in body)
-          if (l.text.startsWith('...')) slotOf(l.text).name,
-      ];
+  List<String> get slots {
+    final block = inAtBlock([for (final l in body) l.indent], [for (final l in body) l.text]);
+    return [
+      for (var i = 0; i < body.length; i++)
+        if (!block[i] && body[i].text.startsWith('...')) slotOf(body[i].text).name,
+    ];
+  }
 
   @override
   String toString() => 'NotationDefinition($label, ${at(line)})';
@@ -346,6 +349,113 @@ int restMarkAt(String text) {
 }
 
 /// A line of a body before its root: the word's own state and timers.
+/// Whether [text] is a line `at <width>`: the lines under it are the
+/// children, at that width, of the line it is under (docs/design/24).
+bool isAtLine(String text) => text == 'at' || text.startsWith('at ');
+
+/// For each line (its indent and its text, in order), whether it is a line
+/// of an `at` block: there `...` is the part's own lines read again, not a
+/// slot.
+List<bool> inAtBlock(List<int> indents, List<String> texts) {
+  final out = <bool>[];
+  int? at;
+  for (var i = 0; i < indents.length; i++) {
+    if (at != null && indents[i] <= at) at = null;
+    out.add(at != null);
+    if (at == null && isAtLine(texts[i])) at = indents[i];
+  }
+  return out;
+}
+
+/// A body's lines as its `at` blocks are read (docs/design/24): what a
+/// block's text gets wrong is said once, where the definition is written,
+/// and those lines are left out.
+List<({int indent, String text, int line})> _atChecked(String file, List<({int indent, String text, int line})> body, List<String> problems) {
+  if (!body.any((l) => isAtLine(l.text) || l.text.startsWith('...#'))) return body;
+  final margin = body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
+  final out = <({int indent, String text, int line})>[];
+  final inBlock = <bool>[];
+  ({int indent, String words, int part})? block;
+  ({int indent, String words})? after;
+  int? drop;
+  for (final l in body) {
+    if (drop != null) {
+      if (l.indent > drop) continue;
+      drop = null;
+    }
+    if (block != null && l.indent <= block.indent) {
+      after = (indent: block.indent, words: block.words);
+      block = null;
+    }
+    final said = isAtLine(l.text) ? (l.text.substring(2).trim().isEmpty ? 'at' : 'at ${l.text.substring(2).trim()}') : '';
+    if (block != null) {
+      if (isAtLine(l.text)) {
+        problems.add('$file:${l.line}: $said inside the at ${block.words} block is not read: write each block under the part itself, the wider first (where two hold, the later wins).');
+        drop = l.indent;
+        continue;
+      }
+      if (l.text.startsWith('...')) {
+        final form = RegExp(r'^\.\.\.(?:#(' + notationId + r'))?(.*)$').firstMatch(l.text)!;
+        final rest = form[2]!.trim();
+        if (rest.isNotEmpty) {
+          problems.add(form[1] == null && RegExp(r'^[A-Za-z]').hasMatch(rest) && !rest.contains(' ')
+              ? '$file:${l.line}: In an at block, ... stands for the part\'s own lines (the lines under a use among them) and ...#id for one of them by its id: "${l.text}" is neither. A slot is written among the part\'s own lines, and a block brings them with ... .'
+              : '$file:${l.line}: Nothing is written on a ... line (here "$rest"): what differs at the width is written on the part\'s own line with a prefix (phone.gap=4), or the line is written out in the block.');
+          drop = l.indent;
+          continue;
+        }
+        if (form[1] case final String id) {
+          final head = RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*(?:~[a-z]+)?#(' + notationId + r')(?=\s|$)');
+          final ids = [
+            for (var i = block.part + 1; i < out.length; i++)
+              if (!inBlock[i] && !isAtLine(out[i].text)) ?head.firstMatch(out[i].text)?[1],
+          ];
+          if (!ids.contains(id)) {
+            final part = out[block.part];
+            final word = RegExp(r'^[A-Z][A-Za-z0-9]*(?:#' + notationId + r')?').stringMatch(part.text) ?? part.text;
+            problems.add(
+                '$file:${l.line}: ...#$id: no line under $word (line ${part.line}) has the id "$id"${ids.isEmpty ? ', and none of its lines has an id: give the line one (Row#$id) to name it here' : ' (its lines with ids: ${ids.join(', ')})'}. A block names a line of the part by its id.');
+            drop = l.indent;
+            continue;
+          }
+        }
+      }
+      out.add(l);
+      inBlock.add(true);
+      continue;
+    }
+    if (isAtLine(l.text)) {
+      final part = l.indent == margin ? -1 : out.lastIndexWhere((o) => o.indent < l.indent);
+      if (part < 0 || inBlock[part]) {
+        problems.add('$file:${l.line}: $said is under no line of the definition: write it under the line whose lines it changes (the first line, for the whole word), after that line\'s own lines.');
+        drop = l.indent;
+        continue;
+      }
+      if (after != null && l.indent < after.indent) after = null;
+      block = (indent: l.indent, words: l.text.substring(2).trim(), part: part);
+      out.add(l);
+      inBlock.add(false);
+      continue;
+    }
+    if (l.text.startsWith('...#')) {
+      problems.add('$file:${l.line}: ${l.text} is read in an at block (one of the part\'s own lines, read again at that width). Among a definition\'s own lines, ... is where the lines under a use go.');
+      drop = l.indent;
+      continue;
+    }
+    if (after != null) {
+      if (l.indent == after.indent) {
+        problems.add('$file:${l.line}: This line comes after the at block of the line it is under, so it is read as a line of that part at every width. A part\'s own lines come first, then its at blocks: move it above "at ${after.words}".');
+        after = null;
+      } else if (l.indent < after.indent) {
+        after = null;
+      }
+    }
+    out.add(l);
+    inBlock.add(false);
+  }
+  return out;
+}
+
 bool _preamble(String text) => RegExp(r'^(state|every|key|on)\s').hasMatch(text);
 
 /// The definitions written in one text.
@@ -389,6 +499,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
   final primitive = signature.trim().startsWith('primitive ');
   final sig = declared(signature);
   final parts = LineParts.of(sig);
+  body = _atChecked(file, body, problems);
   // A body of statements alone (`key …`, `state …`): the word stands for a
   // statement, and may be written lowercase, as a statement is.
   final margin = body.isEmpty ? 0 : body.map((l) => l.indent).reduce((a, b) => a < b ? a : b);
@@ -1283,10 +1394,14 @@ final class DefinedWords {
     }
     expanded.addAll(inner.finish());
     // Split at its slots.
+    // (A `...` in an `at` block is the part's own lines read again, the
+    // parser's: at_defined.dart.)
     final segments = <List<DefinedLine>>[[]];
     final markers = <({String name, String each, String words, int indent})>[];
-    for (final l in expanded) {
-      if (l.text.startsWith('...')) {
+    final block = inAtBlock([for (final l in expanded) l.indent], [for (final l in expanded) l.text]);
+    for (var k = 0; k < expanded.length; k++) {
+      final l = expanded[k];
+      if (!block[k] && l.text.startsWith('...')) {
         final slot = slotOf(l.text);
         markers.add((name: slot.name, each: slot.each, words: slot.words, indent: at + l.indent));
         segments.add([]);
@@ -1883,6 +1998,10 @@ final class _Substitution {
     // `Row~app …`: the line read without its role mark, which is put back.
     final (text: plain, :role) = splitRole(text);
     if (role.isNotEmpty) return switch (line(plain)) { final String t => withRole(t, role), null => null };
+    // `at phone`: the width is no word of the use's. `...#id` in its block
+    // names a line of the body, whose id is the use's.
+    if (isAtLine(text)) return text;
+    if (RegExp(r'^\.\.\.#(' + notationId + r')$').firstMatch(text) case final m?) return '...#${ids[m[1]!] ?? m[1]}';
     if (text.startsWith('...')) {
       // A slot's holding column reads the use's values too.
       final slot = slotOf(text);
