@@ -451,10 +451,14 @@ Column
         ],
       });
       final catalog = standardCatalog + mast;
-      final r = Catalog.run(catalog, () => parseNotation('Column scroll\n  Masthead#m sticky\n  Column#toc sticky\n', catalog: catalog, options: withTestWords()));
+      final r = Catalog.run(catalog, () => parseNotation('Column scroll\n  Masthead#m sticky\n  Row\n    Column#toc sticky\n    Column grow\n  Box#month sticky h=44\n', catalog: catalog, options: withTestWords()));
       expect(r.issues, isEmpty);
       expect(_node(r, 'm')['sticky'], {'offset': 0});
       expect(_node(r, 'toc')['sticky'], {'offset': 16});
+      // What is stacked in the column over what scrolls under it (a month's
+      // heading over its photos) is pinned at the very top too; a rail beside
+      // the content keeps 16 px above it.
+      expect(_node(r, 'month')['sticky'], {'offset': 0});
     });
   });
 

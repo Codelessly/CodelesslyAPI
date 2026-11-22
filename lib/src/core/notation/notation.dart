@@ -7345,8 +7345,13 @@ class _Parser {
             // contents beside an article, an order summary).
             // A bar across the top (SiteNav, a TopBar, a Header, a site's
             // Masthead or Mast: test 10, a 16 px gap above it) stays at the
-            // very top.
-            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header|Head|Mast|Masthead)$').hasMatch(written) ? 0 : 16};
+            // very top. So does what is stacked in a column or a list over
+            // what scrolls under it (a month's heading over its grid of
+            // photos: 16 px down from the top it covered the first row's top
+            // and drew its hairline across the tiles, test 17). What is
+            // beside the content (a rail in a row) keeps 16 px of air.
+            final stacked = parent?.type == 'column' || parent?.type == 'listView';
+            node['sticky'] = {'offset': stacked || RegExp(r'(Nav|Bar|Header|Head|Mast|Masthead)$').hasMatch(written) ? 0 : 16};
           } else if (word == 'disabled' && component && spec.props.any((p) => p.key == 'disabled' && p.type.kind == PropKind.list)) {
             // `ChoiceChips disabled`: off as a whole (its own disabled lists the options that are off).
             bind['disabled'] = _formula('true');
