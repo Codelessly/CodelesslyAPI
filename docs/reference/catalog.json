@@ -14584,6 +14584,14 @@
             "doc": "For a repeated node: the key (or index) of the list item whose copy to reveal."
           },
           {
+            "key": "index",
+            "type": "String",
+            "kind": "string",
+            "default": "",
+            "nullable": false,
+            "doc": "For a repeated node: the position (from 0) of the copy to reveal, an expression, whatever the items' keys are (it wins over item)."
+          },
+          {
             "key": "durationMs",
             "type": "int",
             "kind": "integer",

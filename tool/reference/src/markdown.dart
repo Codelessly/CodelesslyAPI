@@ -44,7 +44,7 @@ final class Renderer {
   /// [keep] are left for a later step.
   String template(String name, {Map<String, String Function()> fills = const {}, Set<String> keep = const {}}) {
     // `\{{` is a literal `{{`.
-    var text = File('$_templates/$name').readAsStringSync().replaceAll(r'\{{', '\u0000');
+    var text = File('$_templates/$name').readAsStringSync().replaceAll('\r\n', '\n').replaceAll(r'\{{', '\u0000');
     text = text.replaceAllMapped(RegExp(r'\{\{example:([\w/-]+)\}\}'), (m) => '```json\n${example(m[1]!)}\n```');
     text = text.replaceAllMapped(RegExp(r'\{\{example-as-written:([\w/-]+)\}\}'), (m) => '```json\n${exampleAsWritten(m[1]!)}\n```');
     text = text.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (m) {
@@ -59,7 +59,7 @@ final class Renderer {
   /// Example [name] as its file is written (one node per line: compact
   /// enough for a ui_docs section), after checking it is JSON.
   String exampleAsWritten(String name) {
-    final text = File('$root/tool/reference/examples/$name.json').readAsStringSync().trimRight();
+    final text = File('$root/tool/reference/examples/$name.json').readAsStringSync().replaceAll('\r\n', '\n').trimRight();
     jsonDecode(text);
     return text;
   }

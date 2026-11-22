@@ -320,7 +320,7 @@ void main() {
   });
 
   test('the guide\'s JSON samples read and write back unchanged', () {
-    final text = File('docs/guide/07-custom-paint.md').readAsStringSync();
+    final text = File('docs/guide/07-custom-paint.md').readAsStringSync().replaceAll('\r\n', '\n');
     final blocks = RegExp(r'```json\n([\s\S]*?)```').allMatches(text).map((m) => m[1]!).toList();
     expect(blocks.length, greaterThanOrEqualTo(4));
     for (final b in blocks) {

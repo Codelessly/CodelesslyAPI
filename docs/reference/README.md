@@ -19,8 +19,8 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [STARTER.md](STARTER.md) | The base, file-authoring form: give it to an agent up front. | 6195 | 12791 |
 | [RUNTIME_STARTER.md](RUNTIME_STARTER.md) | The base, runtime form (`runtimeStarter()`): the system prompt of a model streaming `ui_apply` ops. | 6176 | 11804 |
 | [index.md](index.md) | The index: "you need X → open Y", an A–Z of every name, the pages. | 4649 | 14309 |
-| [layout.md](layout.md) | Feature page. | 10484 | 19064 |
-| [theme.md](theme.md) | Feature page. | 3108 | 5344 |
+| [layout.md](layout.md) | Feature page. | 10517 | 19105 |
+| [theme.md](theme.md) | Feature page. | 3143 | 5390 |
 | [decoration.md](decoration.md) | Feature page. | 4582 | 7930 |
 | [forms.md](forms.md) | Feature page. | 14128 | 23846 |
 | [lists.md](lists.md) | Feature page. | 8364 | 14600 |
@@ -39,10 +39,10 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3591 | 5881 |
 | [render.md](render.md) | Feature page. | 2186 | 3649 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 17188 | 25860 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 117606 | 201426 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 83399 | 214327 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 117878 | 201807 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 83436 | 214408 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10823 | 29889 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27583 | 114775 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27588 | 114794 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1280 | 3866 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
 | [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2753 | 11579 |

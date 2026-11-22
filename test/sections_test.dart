@@ -387,7 +387,7 @@ void main() {
   test('the guide\'s example site (tool/reference/examples/sections) is the guide\'s', () {
     const base = 'tool/reference/examples/sections';
     Json read(String f) => jsonDecode(File('$base/$f').readAsStringSync()) as Json;
-    final section = File('docs/reference/components.md').readAsStringSync();
+    final section = File('docs/reference/components.md').readAsStringSync().replaceAll('\r\n', '\n');
     final blocks = RegExp(r'```json\n(.*?)\n```', dotAll: true).allMatches(section).map((m) => m[1]!).toList();
     expect(jsonDecode(blocks[0]), read('components/Chip.json'));
     final calls = (jsonDecode('{${blocks[1]}}') as Map)['nodes'] as Map;
