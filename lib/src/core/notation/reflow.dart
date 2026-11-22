@@ -1318,7 +1318,17 @@ final class PageReflow {
     if (_underKept(id) || _own.contains(id) || kids.any(_own.contains)) return;
     if (kids.any((k) => nodes[k]?['reorderHandle'] == true)) return;
     final growing = [for (final k in kids) if (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null && _type(nodes[k]!) != 'spacer') k];
-    if (growing.isNotEmpty) return _crowded(id, n);
+    if (growing.isNotEmpty) {
+      // Only where it is plain that it has none: beside something of a
+      // width of its own that is wide (a picture, a rail: 160 or more), or
+      // where what grows is a field. A row of a text beside a switch and a
+      // button is counted too roughly to be wrapped on the count (it has
+      // room, and its last button went to a line of its own).
+      final wide = kids.any((k) => (_fixedWidth(nodes[k]!) ?? 0) >= 160);
+      final field = growing.any((k) => _fields.contains(_type(nodes[k]!)));
+      if (wide || field) _crowded(id, n);
+      return;
+    }
     if (kids.any((k) => _type(nodes[k]!) == 'spacer')) return;
     // (Buttons alone too: three of them in a card of a grid, the last 44 px
     // past its row.)
@@ -1399,12 +1409,12 @@ final class PageReflow {
     // (What grows gives way down to the least its words can be read at: a
     // text that ends in an ellipsis to almost nothing, any other to 120.
     // A column of them; a text alone narrows, as a list row's subject does.)
-    // (A field that grows too: it was counted at 32 and drawn 4 px wide
+    // (A field that grows at 100: it was counted at 32 and drawn 4 px wide
     // beside two fields and three buttons.)
     num least(String k) => _truncates(k)
         ? 32
         : _fields.contains(_type(nodes[k]!))
-            ? 120
+            ? 100
             : _type(nodes[k]!) != 'column'
                 ? 32
                 : _showsData(k)
