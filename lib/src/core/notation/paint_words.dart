@@ -459,6 +459,15 @@ extension _PaintWords on _Parser {
               };
             }
             at[path.last] = value;
+          } else if (keys.containsKey('style') && notationTextStyleKeys.containsKey(key) && key != 'bold') {
+            // `paragraph "Peak" offset=[8,8] color=#FF… size=12 weight=700`:
+            // the words a Text's line takes for its style are the style's
+            // here too (`style.color=`, `style.fontSize=`).
+            final style = switch (op['style']) {
+              final Map m => m.cast<String, Object?>(),
+              _ => op['style'] = <String, Object?>{},
+            };
+            style[notationTextStyleKeys[key]!] = value;
           } else {
             _paintUnknown(word, key, keys, col, value: p.value);
             op[key] = value;

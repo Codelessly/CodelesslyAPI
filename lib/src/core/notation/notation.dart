@@ -1707,6 +1707,8 @@ final _overlayCloses = Expando<Map<String, List<Json>>>();
 
 final _flagKey = RegExp(r'^((?:[a-z][A-Za-z0-9]*\.)+)?(scroll|stretch|top|bottom|middle|center|left|right|start|end|between|around|evenly)=(true|false)$');
 
+final _flagAtWidth = RegExp(r'^(grow|scroll|stretch|top|bottom|middle|center|left|right|start|end|between|around|evenly)=(phone|tablet)$');
+
 /// The flags a line reads as bare words that no key of a type is named
 /// like (`Input "m" multiline`, `Text italic`, `Row clip`, `Row keep`):
 /// written `=true` each is the flag, `=false` none. (`password=`,
@@ -2225,7 +2227,7 @@ typedef _Silent = ({String word, bool primitive, bool top, int said, bool sized}
 
 class _Open {
   _Open(this.indent, this.id, this.type,
-      {this.condition, this.grid, this.each, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot, this.splice = false});
+      {this.condition, this.grid, this.each, this.index, this.list, this.pages, this.leaf = false, this.slots = const [], this.written, this.slot, this.splice = false});
 
   /// The lines of a defined word written where its use is ([notationSplice]):
   /// they go in the node around it, [id].
@@ -2245,6 +2247,11 @@ class _Open {
   /// The row a slot's lines go in, once the first of them is written.
   String? slotRow;
 
+  /// Under a Grid's `if` or `else`: the cells its lines made, and (an
+  /// `else`) how many of its lines take the cell of the branch before it
+  /// rather than one of their own: one of the branches shows at a time.
+  int cells = 0, shares = 0;
+
   /// A node that takes no lines under it (a Slider, a component without
   /// children): with an open vocabulary what is written under it goes to
   /// the node around it.
@@ -2259,6 +2266,10 @@ class _Open {
 
   /// An `each <name> in …` above: the name its lines call an item by.
   final String? each;
+
+  /// `each x,i in …`: the name its lines call the item's place by (the
+  /// document's `index`).
+  final String? index;
 
   /// A grid above (its own line, or an `if` inside it): children go in its
   /// rows.
@@ -2544,6 +2555,15 @@ class _Parser {
   /// for any other list.
   String? _reorderStore(String list) {
     var e = list.trim();
+    // (A state worked out is written out in brackets where it is read:
+    // `each n in la` for `state la={find(teams,t=>t.id==at).members}`.)
+    while (e.startsWith('(') && _closes(e, 0) == e.length - 1) {
+      e = e.substring(1, e.length - 1).trim();
+    }
+    // A field of the record at a place of a list variable (`days[at].ex`).
+    if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*\[.+\]\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(e) && !_derived.containsKey(e.substring(0, e.indexOf('[')))) {
+      if (_pickedWrite(e, 'result') case final String write) return write.replaceFirst(' = ', '=');
+    }
     // A field of the item of the each around this one.
     if (RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(e) case final m?) {
       final around = _stack.lastWhere((o) => o.each != null, orElse: () => _stack.first);
@@ -2886,7 +2906,9 @@ class _Parser {
       if (kind == 'event') {
         _issue(column, '${on == null ? '' : '$on: '}"$word" is not an event the notation has here. Events: $_eventsTaught.');
       } else if (kind != 'alias') {
-        _issue(column, '${on == null ? '' : '$on: '}"$word" is not a ${kind == 'type' ? 'type' : kind} the notation has.');
+        // (What is written instead, where it can be said: a key another
+        // framework has.)
+        _issue(column, say ?? '${on == null ? '' : '$on: '}"$word" is not a ${kind == 'type' ? 'type' : kind} the notation has.');
       }
       return null;
     }
@@ -4927,6 +4949,42 @@ class _Parser {
           'layout': {'width': {'fill': 0}, 'flex': w},
         },
       });
+      // A cell of copies an each repeats (a member's teams as tags, `Row
+      // w=150` over `each t in m.teams`): as a share it may be narrower than
+      // it is written, and its copies do not shrink, so they wrap in it
+      // where they no longer fit (two tags reached 14 px past a cell of 150
+      // given 115, over the next cell). Where they fit, they are on a line.
+      final kids = n['children'] as List? ?? const [];
+      final list = kids.length == 1 ? nodes[kids.single] : null;
+      final props = readMap(list?['props']);
+      if (list == null || props == null || list['type'] != 'listView' || n['type'] != 'row' || readMap(n['props'])?['scrollable'] == true) continue;
+      if (props['scrollDirection'] != 'horizontal' || props['scrollable'] == true || props['wrap'] == true || props['reorder'] != null) continue;
+      if (readMap(list['layout'])?['width'] case final Map width when !width.containsKey('hug')) continue;
+      final spacing = switch (props['spacing']) { final num s => s, _ => 0 };
+      final Json patch = {
+        'layout': {'width': {'hug': null, 'fill': 0}},
+        'props': {
+          'wrap': true,
+          'wrapSpacing': spacing,
+          'runSpacing': spacing > 0 ? (spacing < 12 ? spacing : 12) : 4,
+          // As wide as the cell now, its lines sit where the cell put it (`Row w=150 end`).
+          if (readMap(n['props'])?['mainAxisAlignment'] case final String align when align == 'end' || align == 'center') 'wrapAlignment': align,
+        },
+      };
+      nodes[kids.single as String] = mergePatch(list, patch);
+      _patches.add({'op': 'patch', 'id': kids.single, 'patch': patch});
+      // A copy on a line of its own is as tall as it is (as tall as its
+      // row, it had no height there).
+      for (final item in list['children'] as List? ?? const []) {
+        final copy = nodes[item];
+        if (readMap(copy?['layout'])?['height'] case final Map h when h.containsKey('fill')) {
+          const Json hugs = {
+            'layout': {'height': {'fill': null, 'hug': 0}},
+          };
+          nodes[item as String] = mergePatch(copy!, hugs);
+          _patches.add({'op': 'patch', 'id': item, 'patch': hugs});
+        }
+      }
     }
   }
 
@@ -5676,6 +5734,12 @@ class _Parser {
   void _lineAt(int indent, String source, int column) {
     if (_paintLine(indent, source)) return; // a defined word's custom paint or animation (paint_words.dart)
     var line = source;
+    // A shortcut written on a node's line (`Row … onTap={…} key ArrowRight
+    // onPress={…}`, as the screen's own `key` line is written): that key
+    // pressed while the line has the focus, `onKeyDown(key=ArrowRight)={…}`.
+    if (line.contains(' key ') && !line.startsWith('key ')) {
+      line = line.replaceAllMapped(RegExp(r'(?<=[}\]"\w]) key ([A-Za-z][A-Za-z0-9]*) onPress=\{'), (m) => ' onKeyDown(key=${m[1]})={');
+    }
     while (_stack.isNotEmpty && _stack.last.indent >= indent) {
       _close(_stack.removeLast());
     }
@@ -5717,6 +5781,17 @@ class _Parser {
       // hides the outer one, as in any language: the name is the inner's.
       if (eaches.skip(k + 1).contains(eaches[k])) continue;
       if (eaches[k] != to) line = _rename(line, eaches[k], to);
+    }
+    // `each x,i in …`: i is that each's index (parent.index from an each
+    // inside it), unless an each inside names its element or its place so.
+    final opens = [
+      for (final open in _stack)
+        if (open.each != null) open,
+    ];
+    for (var k = 0; k < opens.length; k++) {
+      final name = opens[k].index;
+      if (name == null || opens.skip(k + 1).any((o) => o.each == name || o.index == name)) continue;
+      line = _rename(line, name, '${'parent.' * (opens.length - 1 - k)}index');
     }
     // The small model marks a name with `$` (`$total`, `"{money($total)}"`):
     // the name is the same without it. A price ("$24") and an interpolation
@@ -5788,6 +5863,19 @@ class _Parser {
       ];
       if (own.isNotEmpty) {
         _issue(column, "A component's ${line.split(RegExp(r'\s')).first} line runs on the screen that shows it, which has no ${own.join(', ')} of this component: make ${own.length == 1 ? 'it a variable' : 'them variables'} of the site (site.json's variables, read here by name) or write the line on the page.");
+      }
+    }
+    // `every 1s when={playing} onTick={…}` (the condition as a key, in
+    // either place, as a key line takes it) is `every 1s when playing
+    // onTick={…}`.
+    if (line.startsWith('every ') && line.contains('when={')) {
+      final words = _topLevelWords(line);
+      final at = words.indexWhere((w) => w.startsWith('when={') && w.endsWith('}'));
+      final tick = words.indexWhere((w) => w.startsWith('onTick={'));
+      if (at > 0 && tick > 0) {
+        final when = words.removeAt(at);
+        words.insert(words.indexWhere((w) => w.startsWith('onTick={')), 'when ${when.substring(6, when.length - 1).trim()}');
+        line = words.join(' ');
       }
     }
     final everyExpr = RegExp(r'^every\s+\{([^{}]+)\}(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
@@ -5996,7 +6084,19 @@ class _Parser {
       } else {
         _ifAt[indent] = _formula('(${inner(before)}) || (${otherwise[1]!.trim()})');
       }
-      _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
+      final branch = _Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid);
+      // A Grid's cell written as an `if` and its `else` is one cell: the
+      // branch's lines take the cells the branch before it made (each was a
+      // cell of its own: the one not shown left a hole in its row, and a row
+      // of nothing else was a row of no height).
+      final earlier = _ifOpenAt[indent];
+      if (parent.grid != null && earlier != null && identical(earlier.grid, parent.grid)) branch.shares = earlier.cells;
+      if (otherwise[1] == null) {
+        _ifOpenAt.remove(indent);
+      } else {
+        _ifOpenAt[indent] = branch;
+      }
+      _stack.add(branch);
       return;
     }
     if (line.startsWith('if ')) {
@@ -6007,19 +6107,22 @@ class _Parser {
       if (parent == null) return _issue(column, 'An "if" needs a parent: indent it under a node.');
       final own = _formula(line.substring(3).trim());
       _ifAt[indent] = own;
-      _stack.add(_Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
+      _stack.add(_ifOpenAt[indent] = _Open(indent, parent.id, parent.type, condition: _and(parent.condition, own), grid: parent.grid));
       return;
     }
     // Anything else at this depth ends the chance of an `else`.
     _ifAt.removeWhere((depth, _) => depth >= indent);
+    _ifOpenAt.removeWhere((depth, _) => depth >= indent);
     // `each rows` is `each row in rows`: the element is read as `row` (or
     // `item`).
     // `each dot,index in items` (a name for the place, as in a language):
     // the place is `index` with nothing written. Said, and read as `each dot
     // in items` (it said "No node type each").
-    if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line) case final two?) {
-      _issue(indent + 1,
-          'An each names its element only: its place is index, there with nothing written (from 0; parent.index in an each inside it). Write each ${two[1]} in ${two[3]}${two[2] == 'index' ? '' : ', and read ${two[2]} as index'}.');
+    // Read: the second name is that each's place in the lines under it
+    // (index there, parent.index in an each inside it).
+    String? eachIndexName;
+    if (RegExp(r'^each\s+\(?\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)?\s+in\s+(.+)$').firstMatch(line) case final two?) {
+      if (two[2] != 'index' && two[2] != two[1]) eachIndexName = two[2];
       line = 'each ${two[1]} in ${two[3]}';
     }
     final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line);
@@ -6118,8 +6221,10 @@ class _Parser {
     final reorderGroup = eachWords['reorder'] ?? '';
     final follows = eachWords.containsKey('follow');
     final eachHeight = num.tryParse(eachWords['h'] ?? '');
-    final eachGrows = eachWords.containsKey('grow');
-    if (follows != (eachHeight != null || eachGrows) || eachHeight != null && eachGrows) {
+    // (`follow grow h=520`: a height of its own is the height; grow would
+    // take the room that is left, and with a height there is none to ask.)
+    final eachGrows = eachWords.containsKey('grow') && eachHeight == null;
+    if (follows != (eachHeight != null || eachGrows)) {
       return _issue(column, 'A list that follows its end has a height to scroll in: each line in lines follow h=180, or follow grow to take the room its column leaves (a chat over its composer).');
     }
     final each = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
@@ -6136,7 +6241,7 @@ class _Parser {
         view['bind'] = {...?(view['bind'] as Map?)?.cast<String, Object?>(), ...data};
         (view['props'] as Map?)?.remove('itemCount');
         _patches.add({'op': 'patch', 'id': pagesId, 'patch': {'bind': data, 'props': {'itemCount': null}}});
-        _stack.add(_Open(indent, parent.id, 'column', each: each[1], list: each[2]!.trim(), pages: pagesId));
+        _stack.add(_Open(indent, parent.id, 'column', each: each[1], index: eachIndexName, list: each[2]!.trim(), pages: pagesId));
         return;
       }
       // Under a ListView or GridView line of its own, the list is that one:
@@ -6155,7 +6260,7 @@ class _Parser {
         final data = {'data': _read(each[2]!.trim())};
         listNode['bind'] = {...?readMap(listNode['bind']), ...data};
         _patches.add({'op': 'patch', 'id': parent.id, 'patch': {'bind': data}});
-        _stack.add(_Open(indent, parent.id, parent.type, each: each[1], list: each[2]!.trim()));
+        _stack.add(_Open(indent, parent.id, parent.type, each: each[1], index: eachIndexName, list: each[2]!.trim()));
         return;
       }
       // A list that repeats over its own data= already, with an each right
@@ -6185,7 +6290,7 @@ class _Parser {
         final p = nodes[parent.id]!;
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
         _parentOf[id] = parent.id;
-        _stack.add(_Open(indent, id, 'stack', each: each[1], list: each[2]!.trim()));
+        _stack.add(_Open(indent, id, 'stack', each: each[1], index: eachIndexName, list: each[2]!.trim()));
         return;
       }
       // In a row the copies go across, each at its own width.
@@ -6444,7 +6549,7 @@ class _Parser {
           };
       }
       _parentOf[itemId] = listId;
-      _stack.add(_Open(indent, itemId, 'column', each: each[1], list: each[2]!.trim()));
+      _stack.add(_Open(indent, itemId, 'column', each: each[1], index: eachIndexName, list: each[2]!.trim()));
       return;
     }
     // `node {…}`: a node written whole, as the document holds it, for what
@@ -6904,31 +7009,7 @@ class _Parser {
           // `@colAll[r]` (an entry of a list or a map variable) and
           // `@find(clips,c=>c.id==sel).name` (a field of the record a
           // find picks): shown as read, and a change writes it back.
-          final next = list ? 'result[0]' : 'result';
-          // (A state worked out is written out in brackets where it is read:
-          // `@p.name` for `state p={plans[at]}` is `@(plans[at]).name`.)
-          var picked = expr;
-          if (RegExp(r'\)\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(expr) && expr.startsWith('(') && _closes(expr, 0) == expr.lastIndexOf(').')) {
-            picked = '${expr.substring(1, expr.lastIndexOf(').'))}${expr.substring(expr.lastIndexOf(').') + 1)}';
-          }
-          final entry = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]$').firstMatch(expr);
-          final entryField = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(picked);
-          final found = RegExp(r'^find\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=>\s*(.+)\)\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(picked);
-          final String? write;
-          if (entryField != null && variables[entryField[1]]?['value'] is List && _closing(picked, entryField[1]!.length) == picked.lastIndexOf('].')) {
-            // `@rows[at].name`: a field of the record at a place of a list.
-            final (v, at, field) = (entryField[1]!, entryField[2]!, entryField[3]!);
-            write = '$v = setAt($v,$at,with($v[$at],"$field",$next))';
-          } else if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
-            final v = entry[1]!;
-            write = variables[v]!['value'] is Map ? '$v = with($v,${entry[2]},$next)' : '$v = setAt($v,${entry[2]},$next)';
-          } else if (found != null && variables[found[1]]?['value'] is! Map) {
-            // (A list another page declares is the site's: written the same way.)
-            final (l, x) = (found[1]!, found[2]!);
-            write = '$l = updateWhere($l,$x=>${found[3]},$x=>with($x,"${found[4]}",$next))';
-          } else {
-            write = null;
-          }
+          final write = _pickedWrite(expr, list ? 'result[0]' : 'result');
           if (write == null) {
             _issue(col, 'A control is bound to a variable by its name (@name), to a field of a record variable (@draft.title), or under an each to a field of its element (@row.name): "$expr" is none of these. '
                 'Show it and write the change yourself: value={$expr} onChange={<list>=updateWhere(<list>,x=>x.id==…,x=>with(x,"<field>",result))}.');
@@ -7291,6 +7372,14 @@ class _Parser {
             word = '${f[1] ?? ''}scrollable=false';
           }
         }
+        // A flag given a width's name (`Column w={listW} grow=phone`, as
+        // `hide=phone` is written): the flag at that width, `phone.grow`.
+        // (It was kept as the flag's value: "flex":"phone", nothing said.)
+        String? flagAtWidth;
+        if ((withFields == null ? _flagAtWidth.firstMatch(word) : null) case final f? when !spec.props.any((p) => p.key == f[1])) {
+          word = '${f[2]}.${f[1]}';
+          flagAtWidth = f[1];
+        }
         // `Input "m" multiline=true`, `password=false`: a flag of the line
         // that no key of its type is named like, written as a key: `=true` is
         // the flag, `=false` none.
@@ -7331,7 +7420,7 @@ class _Parser {
         if (mediaCondition(eq < 0 ? word : word.substring(0, eq)) case final m? when !spec.props.any((p) => p.key == word.substring(0, m.length - 1).split('.').first)) {
           if (eq == word.length - 1 && t.peek == '"') t.string();
           if (eq == word.length - 1 && (t.peek == '{' || t.peek == '[')) t.balanced();
-          final ruleWord = t.s.substring(from + m.length, t.at);
+          final ruleWord = flagAtWidth ?? t.s.substring(from + m.length, t.at);
           if (m.problem != null) {
             _issue(col, m.problem!);
           } else if (grid != null && RegExp(r'^(cols|columns)=').hasMatch(ruleWord)) {
@@ -7786,9 +7875,21 @@ class _Parser {
               worked = parts.join(' + ');
             }
           }
+          // A name that reads nothing once it is read (`id="ch{n}"`,
+          // `id={slug}` in a definition, n and slug its parameters: each
+          // use has its own, `ch0`, `intro`) is the name written as it is.
+          final fixed = given.startsWith('"')
+              ? _interpolate(given.length > 1 && given.endsWith('"') ? given.substring(1, given.length - 1) : given.substring(1))
+              : switch (worked == null ? (false, null) : _literal(worked)) { (true, final String v) => v, (true, final num v) => '$v', _ => null };
+          if (fixed != null && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(fixed)) {
+            _anchors[fixed] = id;
+            continue;
+          }
           final list = eaches.length == 1 ? eaches.single.list : null;
-          if (worked != null && list != null && !RegExp(r'(?<![A-Za-z0-9_.])(index|parent)(?![A-Za-z0-9_])').hasMatch(worked)) {
-            (_repeatAnchors[_top] ??= []).add((node: id, list: list, key: _rename(worked, 'item', 'anchorItem')));
+          // (A name from the copy's place, `id={"sec"+index}`, is its item's
+          // too: the place is the second thing a list's function is given.)
+          if (worked != null && list != null && !RegExp(r'(?<![A-Za-z0-9_.])parent(?![A-Za-z0-9_])').hasMatch(worked)) {
+            (_repeatAnchors[_top] ??= []).add((node: id, list: list, key: _rename(_rename(worked, 'item', 'anchorItem'), 'index', 'anchorIndex')));
             continue;
           }
           // Not one of those (no each repeats the line, or an each inside
@@ -7805,7 +7906,7 @@ class _Parser {
               col,
               each == null
                   ? 'An id is a name written as it is (id=$named, or $written#$named), not worked out: id={$value} is left out. A scroll may work out which line it goes to: scroll {expression} reaches the line whose id the expression gives.'
-                  : 'A copy an each inside another each repeats (or one named by its position) has no id of its own: id={$value} is left out. Name the line ($written#$named) and scroll to a copy by its item: '
+                  : 'A copy an each inside another each repeats has no id of its own: id={$value} is left out. Name the line ($written#$named) and scroll to a copy by its item: '
                       'scrollTo node=$named item={x} reveals the copy of the item whose id is x (item={i}: the item at index i, from 0), '
                       'in a list that follows its end too (an item not built yet is built and scrolled to).');
           continue;
@@ -7874,6 +7975,29 @@ class _Parser {
         }
         if (raw.isEmpty && t.peek == '"') raw = jsonEncode(t.string());
         if (raw.isEmpty && (t.peek == '[' || t.peek == '{')) raw = t.balanced();
+        // `w=40%`, `w={share*100}%`, `w="{share*100}%"`, `w={share*100+"%"}`:
+        // a share of the width (or the height) of what the line is in, which
+        // is widthFactor= (heightFactor=) from 0 to 1. (A percent was kept as
+        // the text "40%", which is no width; one after braces was an unknown
+        // word.)
+        if ((key == 'w' || key == 'h') && !component && (raw.contains('%') || t.peek == '%' || t.rest.startsWith(' %'))) {
+          String? share;
+          // (`w={x} %`: as a definition's line is written out where it is used.)
+          if (raw.startsWith('{') && raw.endsWith('}') && RegExp(r'^ ?%(?: |$)').hasMatch(t.rest)) {
+            t.at += t.rest.indexOf('%') + 1;
+            share = '(${raw.substring(1, raw.length - 1).trim()})/100';
+          } else if (RegExp(r'^"?(\d+(?:\.\d+)?)%"?$').firstMatch(raw) case final m?) {
+            share = '${double.parse(m[1]!) / 100}';
+          } else if (RegExp(r'^"\{([^{}]+)\}%"$').firstMatch(raw) case final m?) {
+            share = '(${m[1]!.trim()})/100';
+          } else if (RegExp(r'^\{(.+?)\s*\+\s*\\?"%\\?"\}$').firstMatch(raw) case final m?) {
+            share = '(${m[1]!.trim()})/100';
+          }
+          if (share != null) {
+            key = key == 'w' ? 'widthFactor' : 'heightFactor';
+            raw = share.contains('/') ? '{$share}' : share;
+          }
+        }
         // `color=theme.ink`, `fill=theme.mine`: a color the site's theme names
         // is the name alone (`color=ink`, light or dark); any other read of
         // the theme (`theme.accent`, `theme.spacing.md`) is worked out as in
@@ -7956,6 +8080,12 @@ class _Parser {
               _issue(col, 'A value read from the state is written in braces: $key={$shown}.');
               continue;
             }
+          } else if (!known && !ownValue && !themeWord && !raw.contains('.') && spec.props.any((p) => p.key == key && p.type.kind == PropKind.list)) {
+            // `items=teamNames` where nothing declares teamNames yet (the
+            // app's state is written after the page): a key that takes a
+            // list takes no word, so a bare name can only be a value read.
+            // (It was kept as the text "teamNames": no item showed.)
+            raw = '=$raw';
           }
         }
         // Flutter's names for a Grid's words (test 10: Grid crossAxisCount=,
@@ -8927,6 +9057,18 @@ class _Parser {
           }
           continue;
         }
+        // `shadow={playing ? "lg" : "none"}`: a choice between two sizes is
+        // the effect of the one that holds.
+        if (unknownKey && !standIn && !component && key == 'shadow' && spec.decorated && raw.startsWith('=')) {
+          final choice = RegExp(r'''^(.+?)\s*\?\s*["']([A-Za-z]+)["']\s*:\s*["']([A-Za-z]+)["']$''').firstMatch(raw.substring(1).trim());
+          final yes = notationShadows[choice?[2]?.toLowerCase()], no = notationShadows[choice?[3]?.toLowerCase()];
+          if (choice != null && yes != null && no != null) {
+            bind['decoration.effects'] = _formula('(${choice[1]}) ? ${jsonEncode(yes)} : ${jsonEncode(no)}');
+          } else {
+            _issue(col, 'A shadow that follows the state is a choice between two sizes (sm or soft, md, lg, none): shadow={on ? "lg" : "none"}. $key=${_written(word, eq, raw)} is left out.');
+          }
+          continue;
+        }
         if (unknownKey && !standIn && key == 'variant' && raw.startsWith('=')) {
           final choice = RegExp(r'''^(.+?)\s*\?\s*["']?([A-Za-z][A-Za-z0-9]*)["']?\s*:\s*["']?([A-Za-z][A-Za-z0-9]*)["']?$''').firstMatch(raw.substring(1).trim());
           _issue(
@@ -9813,6 +9955,25 @@ class _Parser {
             {'type': 'setVariable', 'variable': highVariable, 'value': _formula(highNext)},
           ],
         });
+      } else if ((valueMark == null || low != null ? null : _pickedWrite(valueMark!, 'result.low'), _pickedWrite(high, 'result.high')) case (final String lowWrite, final String highWrite)) {
+        // `Slider @cur.heatTo @cur.coolTo` where `state cur={find(devices,
+        // x=>x.id==sel)}` (or two entries, two fields of a record at a
+        // place): each end is shown as read, and one change writes both.
+        final single = _formula(_pickedWrite(valueMark!, 'result')!.split(' = ').skip(1).join(' = '));
+        bind['props.rangeEnd'] = _read(high);
+        reactions.removeWhere((r) =>
+            readMap(r['trigger'])?['type'] == 'changed' && (r['actions'] as List?)?.any((a) => readMap(a)?['type'] == 'setVariable' && readMap(a)?['value'] == single) == true);
+        reactions.insert(0, {
+          'trigger': {'type': 'changed'},
+          'actions': [
+            for (final w in [lowWrite, highWrite]) {'type': 'setVariable', 'variable': w.substring(0, w.indexOf(' = ')), 'value': _formula(w.substring(w.indexOf(' = ') + 3))},
+          ],
+        });
+      } else if (lowField ?? highField case final String say) {
+        // (A field that has nowhere to be written says why: an each over a
+        // list worked out whose records have no id, a record that is no
+        // variable of the page.)
+        _issue(sliderEndColumn, say);
       } else if (low == null || !_identifier.hasMatch(high) || high.contains('.')) {
         _issue(sliderEndColumn,
             'A range is a slider with a variable for each end, or under an each a field of its item for each: Slider @low @high min=0 max=100, Slider @row.low @row.high min=0 max=100.');
@@ -11043,7 +11204,11 @@ class _Parser {
         ((p['children'] as List<Object?>?) ?? (p['children'] = <Object?>[])).add(id);
       }
       _parentOf[id] = parent.id;
-      if (cell) _intoRow(parent.grid!, id);
+      if (cell) {
+        final shared = parent.shares > parent.cells;
+        _intoRow(parent.grid!, id, shared: shared);
+        parent.cells++;
+      }
     }
     // `Pages`: a page view of one page, the lines under it. `PageView`
     // (`pageView`), the catalog's name, is the node as written (design 22,
@@ -11575,7 +11740,7 @@ class _Parser {
 
   /// Moves [id], just added under a grid, into the grid's current row (a
   /// new row every `cols` cells).
-  void _intoRow(_Grid g, String id) {
+  void _intoRow(_Grid g, String id, {bool shared = false}) {
     // Cells written one by one with columns at other widths (`Grid cols=4
     // phone.cols=2`, round 10, R11: 22 runs) are laid out by the grid an
     // each makes ([_literalGrids]); not inside an each, whose copy that
@@ -11593,6 +11758,14 @@ class _Parser {
     }
     final gridNode = nodes[g.id]!;
     (gridNode['children'] as List<Object?>).remove(id);
+    // The `else` of a cell written as an `if`: in the row of that cell, and
+    // no cell more (one of the two shows).
+    if (shared && g.row != null) {
+      (nodes[g.row]!['children'] as List<Object?>).add(id);
+      _parentOf[id] = g.row!;
+      _sharedCells.add(id);
+      return;
+    }
     if (g.row == null || g.inRow >= g.cols) {
       final rowId = '${g.id}Row${++g.rows}';
       // Before the cell, so it is sent first.
@@ -11621,6 +11794,9 @@ class _Parser {
   /// widths ([_intoRow]).
   final _literalCells = <_Grid>[];
 
+  /// The cells that take the place of the one before them ([_intoRow]).
+  final _sharedCells = <String>{};
+
   /// Each Grid of [_literalCells], once its cells are all read, is the grid an
   /// `each k in range(n)` makes: one copy a cell, each copy showing its own
   /// (`visible={item == k}`), so `tablet.cols` and `phone.cols` are the
@@ -11642,7 +11818,7 @@ class _Parser {
         'layout': {'width': {'fill': 0}, 'height': {'hug': 0}},
         'props': {'crossAxisCount': g.cols, 'mainAxisSpacing': g.gap, 'crossAxisSpacing': g.gap, if (!g.cellLayout.containsKey('childAspectRatio')) 'shrinkWrapRows': true, 'physics': 'never', ...g.cellLayout},
         'bind': {
-          'data': _formula('range(${cells.length})'),
+          'data': _formula('range(${cells.where((c) => !_sharedCells.contains(c)).length})'),
           if (g.colsFormula case final String cols) 'props.crossAxisCount': cols,
         },
         'media': [for (final r in g.mediaCols) _copy(r)],
@@ -11663,9 +11839,11 @@ class _Parser {
         _parentOf.remove(r);
       }
       grid['children'] = [for (final k in (grid['children'] as List?) ?? const []) if (!rows.contains(k)) k, list];
-      for (var k = 0; k < cells.length; k++) {
-        final cell = nodes[cells[k]]!;
-        _parentOf[cells[k]] = item;
+      for (var at = 0, k = -1; at < cells.length; at++) {
+        // (The `else` of a cell is drawn in that cell's copy.)
+        if (k < 0 || !_sharedCells.contains(cells[at])) k++;
+        final cell = nodes[cells[at]]!;
+        _parentOf[cells[at]] = item;
         // A cell takes its copy's width (a row's cell grew to share it).
         final layout = readMap(cell['layout']);
         if (layout != null) layout.remove('flex');
@@ -12503,7 +12681,7 @@ class _Parser {
           final target = worked ? '(${read![1]})' : jsonEncode(to);
           Json? chain;
           for (final a in repeated.reversed) {
-            final at = 'indexOf(map(${a.list}, anchorItem => ${a.key}), $target)';
+            final at = 'indexOf(map(${a.list}, ${a.key.contains('anchorIndex') ? '(anchorItem, anchorIndex)' : 'anchorItem'} => ${a.key}), $target)';
             chain = {
               'type': 'if',
               'condition': {'left': _formula('$at >= 0'), 'op': 'isTrue'},
@@ -12828,8 +13006,20 @@ class _Parser {
       }
     }
     if (typed != null) {
-      final name = typed[1]!, type = typed[3]!.toLowerCase(), value = typed[4]?.trim();
+      final name = typed[1]!, value = typed[4]?.trim();
+      var type = typed[3]!.toLowerCase();
       final params = [for (final p in (typed[2] ?? '').split(',')) if (p.trim().isNotEmpty) p.trim()];
+      // A type by the name another language gives it (`:record`, `:object`,
+      // `:string`, `:number`, `:int`, `:bool`, `:array`) is the notation's
+      // type of that meaning; `:any` says none, so it is what the value
+      // (or the formula's start) says, as a function with no type is.
+      if (type == 'any') {
+        type = value != null && _bracedExpression(value)
+            ? _formulaType(value.substring(1, value.length - 1))
+            : switch (value == null ? null : _value(value)) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', String _ => 'text', _ => 'map' };
+      } else if (_typeNames[type] case final String meant) {
+        type = meant;
+      }
       if (!const {'integer', 'text', 'decimal', 'boolean', 'color', 'list', 'map', 'image', 'choice'}.contains(type)) {
         return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null ("$type" is not one): state $name${typed[2] == null ? '' : '(${typed[2]})'}:${_typeNames.containsKey(type) ? _typeNames[type]! : value != null && _bracedExpression(value) ? _formulaType(value.substring(1, value.length - 1)) : value == null ? 'text' : switch (_value(value)) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' }}=${value ?? '""'}.');
       }
@@ -13257,6 +13447,38 @@ class _Parser {
     return params is List && params.any((p) => p is Map && p['key'] == name && (p['type'] as Map?)?['kind'] == 'variable');
   }
 
+  /// How a change is written to [expr], an entry of a list or a map
+  /// variable (`colAll[r]`), a field of the record at a place of a list
+  /// (`rows[at].name`) or of the record a find picks
+  /// (`find(clips,c=>c.id==sel).name`), [next] the new value: `variable =
+  /// formula`. Null when [expr] is none of these.
+  String? _pickedWrite(String expr, String next) {
+    // (A state worked out is written out in brackets where it is read:
+    // `@p.name` for `state p={plans[at]}` is `@(plans[at]).name`.)
+    var picked = expr;
+    if (RegExp(r'\)\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(expr) && expr.startsWith('(') && _closes(expr, 0) == expr.lastIndexOf(').')) {
+      picked = '${expr.substring(1, expr.lastIndexOf(').'))}${expr.substring(expr.lastIndexOf(').') + 1)}';
+    }
+    final entry = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]$').firstMatch(expr);
+    final entryField = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(picked);
+    final found = RegExp(r'^find\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=>\s*(.+)\)\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(picked);
+    if (entryField != null && variables[entryField[1]]?['value'] is List && _closing(picked, entryField[1]!.length) == picked.lastIndexOf('].')) {
+      // `@rows[at].name`: a field of the record at a place of a list.
+      final (v, at, field) = (entryField[1]!, entryField[2]!, entryField[3]!);
+      return '$v = setAt($v,$at,with($v[$at],"$field",$next))';
+    }
+    if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
+      final v = entry[1]!;
+      return variables[v]!['value'] is Map ? '$v = with($v,${entry[2]},$next)' : '$v = setAt($v,${entry[2]},$next)';
+    }
+    if (found != null && variables[found[1]]?['value'] is! Map) {
+      // (A list another page declares is the site's: written the same way.)
+      final (l, x) = (found[1]!, found[2]!);
+      return '$l = updateWhere($l,$x=>${found[3]},$x=>with($x,"${found[4]}",$next))';
+    }
+    return null;
+  }
+
   Object _fieldWrite(String expr, String value) {
     String withAt(String base, List<String> fields, String v) =>
         fields.isEmpty ? v : 'with($base,"${fields.first}",${withAt('$base.${fields.first}', fields.sublist(1), v)})';
@@ -13362,6 +13584,33 @@ class _Parser {
       final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
       if (over != null && _identifier.hasMatch(over) && !over.contains('.')) {
         return '$over = setAt($over,index,with(item,"${field[1]}",${field[2]}))';
+      }
+    }
+    // A field of the record a find gives (`r.conds=without(r.conds,c)` where
+    // `state r={find(rules,x=>x.id==at)}`, which arrives here written out:
+    // `(find(rules,x=>x.id==at)).conds=…`): that record changed in its
+    // list, `rules=updateWhere(rules,x=>x.id==at,x=>with(x,"conds",…))`.
+    if (a.startsWith('(') || a.startsWith('find(')) {
+      final close = _closing(a, a.startsWith('(') ? 0 : 4);
+      final set = close < 0 ? null : RegExp(r'^((?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s*([-+*/])?=(?!=)\s*(.+)$').firstMatch(a.substring(close + 1));
+      if (set != null) {
+        var inner = a.startsWith('(') ? a.substring(1, close).trim() : a.substring(0, close + 1);
+        while (inner.startsWith('(') && _closing(inner, 0) == inner.length - 1) {
+          inner = inner.substring(1, inner.length - 1).trim();
+        }
+        final fields = set[1]!.substring(1).split('.');
+        final value = set[2] == null ? set[3]! : '($inner)${set[1]} ${set[2]} (${set[3]})';
+        final args = inner.startsWith('find(') && _closing(inner, 4) == inner.length - 1 ? _split(inner.substring(5, inner.length - 1), ',') : const <String>[];
+        final list = args.isEmpty ? '' : args.first.trim();
+        if (args.length == 2 && _identifier.hasMatch(list) && !list.contains('.') && variables.containsKey(list) && !_derived.containsKey(list) && RegExp(r'^\s*[A-Za-z_][A-Za-z0-9_]*\s*=>').hasMatch(args[1])) {
+          final word = RegExp(r'[A-Za-z_][A-Za-z0-9_]*').allMatches(value).map((m) => m[0]).toSet();
+          final rec = ['rec', 'rec_', 'rec__', 'rec___'].firstWhere((n) => !word.contains(n) && !variables.containsKey(n));
+          String withAt(String base, List<String> f, String v) => f.isEmpty ? v : 'with($base,"${f.first}",${withAt('$base.${f.first}', f.sublist(1), v)})';
+          return '$list = updateWhere($list,${args[1].trim()},$rec=>${withAt(rec, fields, value)})';
+        }
+        // (An element by its place, a record variable's field, in
+        // parentheses: read as written without them.)
+        if (RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*(?:\[[^\[\]]+\])?$').hasMatch(inner)) return _inPlace('$inner${a.substring(close + 1)}');
       }
     }
     // A field of an element written where it stands (`d.pos = 0` under an
@@ -13645,6 +13894,12 @@ class _Parser {
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
     for (final part in _choicesRejoined(_split(text, ';'))) {
+      // `a=1; (ok ? {b=2} : {})`: parentheses round an action, a choice or
+      // several actions group them, as they do in a formula.
+      if (part.trim() case final String whole when whole.startsWith('(') && _closing(whole, 0) == whole.length - 1) {
+        out.addAll(_actions(whole.substring(1, whole.length - 1), column));
+        continue;
+      }
       // `setThemeMode lower(result)`, `setThemeMode result ? dark : light`:
       // the mode worked out, written after the verb with no braces (light,
       // dark and system in it are the modes, where no state has that name).
@@ -13745,7 +14000,7 @@ class _Parser {
       }
       final space = a.indexOf(' ');
       final verb = space < 0 ? a : a.substring(0, space), arg = space < 0 ? '' : a.substring(space + 1).trim();
-      var s = arg.startsWith('"') ? _interpolate(_Tokens(arg).string()) : arg;
+      var s = arg.startsWith('"') ? _joinedText(arg) ?? _interpolate(_Tokens(arg).string()) : arg;
       switch (verb) {
         case 'emit':
           // The core's "tell the host": outside a component it reaches the
@@ -13774,7 +14029,15 @@ class _Parser {
           var target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
           // `scroll {"step-" + n}`: the id the expression gives as the
           // action runs (it was kept as the text "{…}", which names no line).
-          if (target.length > 2 && target.startsWith('{') && target.endsWith('}')) target = _read(target.substring(1, target.length - 1));
+          if (target.length > 2 && target.startsWith('{') && target.endsWith('}')) {
+            target = _read(target.substring(1, target.length - 1));
+          } else if ((arg.startsWith('"') ? _Tokens(arg).string() : arg).replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim() case final String written when _spans(written).isNotEmpty) {
+            // `scroll sec{index}`, `scroll "ch-{c.id}"`: an id with a value
+            // in it, as a text has one, is the id those give (`scroll
+            // {"sec"+index}`).
+            final fixed = _interpolate(written);
+            target = fixed.contains(r'${') ? _formula(_formulaSource(written)) : fixed;
+          }
           if (target.isEmpty) {
             _issue(column, 'A scroll names where to: scroll pricing (the id of a line: Section#pricing, or id=pricing on it).');
           } else {
@@ -13814,14 +14077,14 @@ class _Parser {
           }
         case 'toast':
           _verbRest(verb, arg, 'showToast', 'message', column);
-          out.add({'type': 'showToast', 'message': s});
+          out.add({'type': 'showToast', 'message': _workedText(arg) ?? s});
         case 'announce':
           _verbRest(verb, arg, 'announce', 'message', column);
           // Said to a screen reader; nothing is shown and the focus stays.
           if (s.isEmpty) {
             _issue(column, 'An announce says a text to a screen reader: announce "3 results".');
           } else {
-            out.add({'type': 'announce', 'message': s});
+            out.add({'type': 'announce', 'message': _workedText(arg) ?? s});
           }
         case 'link':
           out.add({'type': 'openLink', 'url': s});
@@ -13877,6 +14140,14 @@ class _Parser {
                 'An action that chooses is written cond ? {actions} : {actions} (onTap={ready ? {a=1; go next} : toast "Fill it in"}), or as the if action with its fields: if condition={ready} then={a=1; go next} else={toast "Fill it in"}.');
             continue;
           }
+          // A field set on a value that is worked out (`(first(shown)).done=true`):
+          // there is no variable to write it to.
+          if (RegExp(r'^\(.+\)((?:\.[A-Za-z_][A-Za-z0-9_]*)+)\s*[-+*/]?=(?!=)').firstMatch(a) case final m?) {
+            final f = m[1]!.substring(1).split('.').first;
+            _issue(column,
+                'A field is set on a variable (draft.title="…"), on the item of an each over a list variable, or on the record a find gives (state r={find(rules,x=>x.id==at)}, then r.$f=…): this one is of a value that is worked out, which has nowhere to be written. Write the change to its list: <list>=updateWhere(<list>,x=>x.id==<id>,x=>with(x,"$f",<value>)).');
+            continue;
+          }
           _issue(column, _unknownAction(verb));
       }
     }
@@ -13885,12 +14156,44 @@ class _Parser {
 
   static const _verbs = {'emit', 'open', 'scroll', 'close', 'go', 'toast', 'announce', 'link', 'focus', 'copy'};
 
+  /// A verb's text that begins in quotes and goes on as a formula
+  /// (`announce "Removed "+id`, `toast "Saved " + (n>1 ? "all" : "one")`):
+  /// that formula. Null when the text is all there is, or what follows it
+  /// is no operator (`toast "Bad" style=error`).
+  String? _joinedText(String arg) {
+    if (!arg.startsWith('"')) return null;
+    final t = _Tokens(arg)..string();
+    final rest = t.rest.trim();
+    return rest.startsWith('+') && rest.length > 1 ? _formula(arg) : null;
+  }
+
+  /// The text of a verb that says one (`toast`, `announce`) written with
+  /// no quotes as what works it out: a value in braces (`toast {msg}`), a
+  /// call (`announce say(row,col)`), a value in parentheses, a value joined
+  /// to a text or chosen (`toast n+" saved"`, `toast ok ? "Saved" : "Not
+  /// saved"`), a field read (`toast item.name`, `toast result`) and a
+  /// variable by its name. Null for anything else: words are the text.
+  String? _workedText(String arg) {
+    if (arg.isEmpty || arg.startsWith('"')) return null;
+    if (arg.length > 2 && (arg.startsWith('{') || arg.startsWith('(')) && _closing(arg, 0) == arg.length - 1) {
+      return arg.startsWith('{') ? _read(arg.substring(1, arg.length - 1)) : _formula(arg);
+    }
+    final call = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*\(').firstMatch(arg);
+    if (call != null && _closing(arg, call.end - 1) == arg.length - 1) return _formula(arg);
+    if (arg.contains('"') && _outsideQuotes(arg, (code) => code.replaceAll(RegExp(r'[^+?]'), '')).replaceAll(RegExp('"[^"]*"'), '').isNotEmpty) return _formula(arg);
+    if (_identifier.hasMatch(arg)) {
+      final root = arg.split('.').first;
+      if (variables.containsKey(root) || arg == 'result' || arg.contains('.') && const {'result', 'item', 'parent'}.contains(root)) return _read(arg);
+    }
+    return null;
+  }
+
   /// What a verb whose argument is its text ([arg]: `toast "Bad"
   /// style=error`) has after that text: it takes none of it (the style was
   /// left out with no word said), so it is said, with the [typed] action
   /// that takes it written out ([field] its text).
   void _verbRest(String verb, String arg, String typed, String field, int column) {
-    if (!arg.startsWith('"')) return;
+    if (!arg.startsWith('"') || _joinedText(arg) != null) return;
     final t = _Tokens(arg)..string();
     final rest = t.rest.trim();
     if (rest.isEmpty) return;
@@ -13997,6 +14300,13 @@ class _Parser {
     if (const {'tabindex', 'focusorder', 'taborder'}.contains(key.toLowerCase())) {
       return 'A $written has no "$key": left out. A line that is tapped (onTap=, a Button, a link) is a Tab stop already, in the order the lines are written, '
           'and Enter runs it: write onTap={…} on the $written; focusable=false takes a line out of the order.';
+    }
+    // A state of the pointer or the focus given a condition (`hover={at==c.id}`,
+    // React's `isHovered`): the line knows its own, and its look there is
+    // written with the state's name before the key.
+    if (const {'hover': 'hovered', 'hovered': 'hovered', 'ishovered': 'hovered', 'pressed': 'pressed', 'ispressed': 'pressed', 'focus': 'focused', 'focused': 'focused', 'isfocused': 'focused'}[key.toLowerCase()] case final String state) {
+      return 'A $written has no "$key": left out. A line knows by itself when it is $state, with no state kept for it: its look then is written on it with $state. before the key '
+          '($state.fill=#FFF3F4F6 $state.shadow=md), and onHover={…} runs actions when the pointer comes over it.';
     }
     return null;
   }
@@ -14131,6 +14441,10 @@ class _Parser {
   /// The condition of the last `if` (and its `else if`s) at each depth, for an `else`.
   final Map<int, String> _ifAt = {};
 
+  /// The `if` (or `else if`) open at each depth, for the cells of a Grid an
+  /// `else` after it shares.
+  final Map<int, _Open> _ifOpenAt = {};
+
   static final _identifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$');
 
   /// An expression as a binding reads it: a name, or a formula.
@@ -14209,7 +14523,75 @@ class _Parser {
     return out.toString();
   }
 
-  static const _methods = {'filter', 'map', 'sum', 'count', 'find', 'any', 'all', 'sortBy', 'trim', 'upper', 'lower', 'contains', 'startsWith', 'join', 'reverse', 'first', 'last', 'slice', 'take', 'unique', 'indexOf'};
+  static const _methods = {'filter', 'map', 'sum', 'count', 'find', 'any', 'all', 'sortBy', 'trim', 'upper', 'lower', 'contains', 'startsWith', 'endsWith', 'join', 'reverse', 'first', 'last', 'slice', 'take', 'unique', 'indexOf', 'concat', 'split', 'replace', 'flatMap', 'findIndex'};
+
+  /// A call on a value under the name another language gives it, as the
+  /// formula function of that meaning (`tags.includes(t)` is
+  /// `contains(tags,t)`).
+  static const _methodNames = {'includes': 'contains', 'some': 'any', 'every': 'all', 'toUpperCase': 'upper', 'toLowerCase': 'lower'};
+
+  /// [expr] with a call on a value that is itself a list written out, a
+  /// call or a group (`["All"].concat(names)`, `filter(rows,r=>r.on).length`,
+  /// `(a+b).toFixed(1)`) as the function of that name over it
+  /// (`concat(["All"],names)`): what a call on a name already is.
+  static String _groupMethods(String expr) {
+    if (!expr.contains('].') && !expr.contains(').')) return expr;
+    for (var round = 0; round < 64; round++) {
+      // Each closing bracket's opening one, text in quotes aside.
+      final opens = <int, int>{};
+      final quoted = List.filled(expr.length, false);
+      final stack = <int>[];
+      String? quote;
+      for (var i = 0; i < expr.length; i++) {
+        final c = expr[i];
+        if (quote != null) {
+          quoted[i] = true;
+          if (c == r'\') {
+            if (i + 1 < expr.length) quoted[++i] = true;
+          } else if (c == quote) {
+            quote = null;
+          }
+        } else if (c == '"' || c == "'") {
+          quote = c;
+          quoted[i] = true;
+        } else if (c == '(' || c == '[' || c == '{') {
+          stack.add(i);
+        } else if ((c == ')' || c == ']' || c == '}') && stack.isNotEmpty) {
+          opens[i] = stack.removeLast();
+        }
+      }
+      String? next;
+      for (var i = 1; i < expr.length && next == null; i++) {
+        if (expr[i] != '.' || quoted[i] || (expr[i - 1] != ')' && expr[i - 1] != ']') || !opens.containsKey(i - 1)) continue;
+        final m = RegExp(r'([A-Za-z]+)(\(\s*\)|\()?').matchAsPrefix(expr, i + 1);
+        if (m == null) continue;
+        final name = _methodNames[m[1]] ?? m[1]!;
+        final length = name == 'length' && m[2] == null && !RegExp(r'[A-Za-z0-9_]').hasMatch(m.end < expr.length ? expr[m.end] : '');
+        final fixed = name == 'toFixed' && m[2] == '(';
+        if (!length && !fixed && (m[2] == null || !_methods.contains(name))) continue;
+        // Where the value begins: its bracket, the name or path before it
+        // (a call's, an element's), and what that stands on in turn.
+        var from = opens[i - 1]!;
+        while (from > 0) {
+          if (RegExp(r'[A-Za-z0-9_.]').hasMatch(expr[from - 1]) && !quoted[from - 1]) {
+            from--;
+          } else if ((expr[from - 1] == ')' || expr[from - 1] == ']') && opens.containsKey(from - 1)) {
+            from = opens[from - 1]!;
+          } else {
+            break;
+          }
+        }
+        final value = expr.substring(from, i);
+        final call = length
+            ? 'length($value)'
+            : '${fixed ? 'fixed' : name}($value${m[2] == '(' ? ',' : ')'}';
+        next = '${expr.substring(0, from)}$call${expr.substring(m.end)}';
+      }
+      if (next == null) return expr;
+      expr = next;
+    }
+    return expr;
+  }
 
   /// An expression as models write one, as the formula language has it:
   /// `and`, `or`, `not`; a call on a value (`rows.filter(…)`, `n.toFixed(2)`,
@@ -14278,7 +14660,7 @@ class _Parser {
   }
 
   String _natural(String expr) {
-    expr = _bracesRead(expr);
+    expr = _groupMethods(_bracesRead(expr));
     // `theme.accent` in an expression of the page, where the theme has a
     // color called accent: that color (`theme.colors.accent`), as the name
     // alone is after a color key. (It read nothing: the theme's colors are
@@ -14329,8 +14711,9 @@ class _Parser {
           (m) => switch (_sample(m[1]!)) { null || Map() => m[0]!, _ => 'length(${m[1]})' });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
-        if (!_methods.contains(m[2])) return m[0]!;
-        return m[3] == ')' ? '${m[2]}(${m[1]})' : '${m[2]}(${m[1]},';
+        final name = _methodNames[m[2]] ?? m[2]!;
+        if (!_methods.contains(name)) return m[0]!;
+        return m[3] == ')' ? '$name(${m[1]})' : '$name(${m[1]},';
       });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_]*\([^()]*\))\.length\b'), (m) => 'length(${m[1]})');
       out.write(code);
@@ -14541,9 +14924,25 @@ class _Parser {
           return (true, jsonDecode(bare));
         } catch (_) {}
       }
+      // `\{` and `\}` in a text of the list (braces that are the text's
+      // own, as a line's text writes them) are no escapes of JSON's: the
+      // braces themselves.
+      if (bare.contains(r'\{') || bare.contains(r'\}')) {
+        try {
+          return (true, _plainBraces(jsonDecode(bare.replaceAllMapped(RegExp(r'(?<!\\)((?:\\\\)*)\\([{}])'), (m) => '${m[1]}\\\\${m[2]}'))));
+        } catch (_) {}
+      }
     }
     return (false, null);
   }
+
+  /// [json] with `\{` and `\}` in its texts as the braces they stand for.
+  static Object? _plainBraces(Object? json) => switch (json) {
+        final String s => s.replaceAll(r'\{', '{').replaceAll(r'\}', '}'),
+        final List<Object?> l => [for (final e in l) _plainBraces(e)],
+        final Map<Object?, Object?> m => {for (final e in m.entries) e.key: _plainBraces(e.value)},
+        _ => json,
+      };
 
   Object? _value(String raw) {
     final l = _literal(raw);

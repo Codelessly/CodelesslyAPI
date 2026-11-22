@@ -3206,7 +3206,6 @@ Column
     for (final bad in [
       'Column\n  each line in lines follow\n    Text "{line}"',
       'Row\n  each line in lines follow h=180\n    Text "{line}"',
-      'Column\n  each line in lines follow h=180 grow\n    Text "{line}"',
       'Column\n  each line in lines grow\n    Text "{line}"',
     ]) {
       expect(_parse('state lines=[]\n$bad').issues.first.message, contains('A list that follows its end'), reason: bad);

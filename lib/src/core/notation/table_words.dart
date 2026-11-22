@@ -88,6 +88,14 @@ final class _Table {
   /// The cells written so far.
   int cells = 0;
 
+  /// The lines of its rows (their column, the each, the row), until they
+  /// are written: at its first cell, or where it closes. A `slot caption`
+  /// before them is between the header and the rows.
+  List<PageLine>? body;
+
+  /// The line a `slot caption` block's lines go under.
+  String captionLine = '';
+
   /// What the table says when it has no rows ('' none).
   String empty = '';
 
@@ -144,6 +152,15 @@ extension on PageWords {
     final height = parts.take('h');
     final stickyOff = parts.take('sticky') == 'false';
     parts.word('sticky');
+    // What a row does: the events and the menu written on the Table's line
+    // are its rows' (`Table m in members … onTap={sel=m.id} menu=rowMenu`),
+    // each reading its record by the Table's name, as the line under an
+    // each does. (A frame does nothing by itself; how far the rows of a
+    // table with a height have scrolled is its own, onScroll.)
+    final rowWords = [
+      for (final t in parts._tokens.toList())
+        if (RegExp(r'^(?:on(?!Scroll)[A-Z][A-Za-z0-9]*(?:\([^()]*\))?|menu)=').hasMatch(t) && parts._tokens.remove(t)) t,
+    ];
     final rowH = compact ? 36 : (comfortable ? 52 : 44);
     final headH = compact ? 32 : 40;
     final head = band ?? siteFill ?? _headBand;
@@ -186,6 +203,8 @@ extension on PageWords {
           (indent: at + 6, text: "Icon \"unfold_more\" size=14 opacity=0.4 visible={replace($sort, '-', '') != '${c.key}'}"),
         ],
       ],
+    ];
+    final body = <PageLine>[
       // The rows.
       (indent: at + 2, text: 'Column${sub('body')} w=fill${height == null ? '' : ' grow scroll'}${select == null ? '' : ' selectable selected=@$select'}'),
       (indent: at + 4, text: 'each $item in $shown'),
@@ -197,7 +216,8 @@ extension on PageWords {
         // that names a chosen row's fill (`selectedRow`) has that: its
         // ticked box is the accent's mark.
         text: 'Row${sub('row')} w=fill minHeight=$rowH pad=[16,6,16,6] gap=16 border-bottom=$line hovered.fill=$head'
-            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedRow ?? (selectedFill.startsWith('#') || selectedFill == 'subtleFill' ? _mix(surface, accent, .1) : selectedFill)}'}',
+            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedRow ?? (selectedFill.startsWith('#') || selectedFill == 'subtleFill' ? _mix(surface, accent, .1) : selectedFill)}'}'
+            '${rowWords.isEmpty ? '' : ' ${rowWords.join(' ')}'}',
       ),
       if (select != null) ...[
         (indent: at + 8, text: 'Row w=16'),
@@ -206,7 +226,9 @@ extension on PageWords {
     ];
     final table = _Table(columns, item: item, list: shown, at: at, select: select, rowsAt: at + 8)
       ..empty = empty ?? ''
-      ..emptyVariant = _muted;
+      ..emptyVariant = _muted
+      ..body = body
+      ..captionLine = 'Row${sub('caption')} w=fill pad=[16,8,16,8] gap=8 middle border-bottom=$line';
     return (out, table);
   }
 
@@ -268,15 +290,18 @@ extension on PageWords {
 
   /// The wrapper of the next cell written under [t] (the line itself goes
   /// two further in).
-  PageLine _cellLine(_Table t) {
+  List<PageLine> _cellLine(_Table t) {
     final c = t.cells < t.columns.length ? t.columns[t.cells] : null;
     t.cells++;
-    return (indent: t.rowsAt, text: 'Row${_role('cell')}${c?.size ?? ' grow'} gap=8');
+    final body = t.body ?? const <PageLine>[];
+    t.body = null;
+    return [...body, (indent: t.rowsAt, text: 'Row${_role('cell')}${c?.size ?? ' grow'} gap=8')];
   }
 
   /// What closes a table: the cells no line was written for (their key's
   /// value), and what it says with no rows.
   List<PageLine> _tableClose(_Table t) => [
+        ...?t.body,
         for (final c in t.columns.skip(t.cells)) ...[
           (indent: t.rowsAt, text: 'Row${c.size}'),
           (

@@ -433,8 +433,27 @@ Column
       Box h=80 fill=#FF88AA99
 ''');
       final grid = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'gridView').key;
-      expect('${(_at(r, grid, 390)['bind'] as Map)['props.crossAxisCount']}', startsWith(r'${= min(3, '));
+      // (Seven are a week, which keeps its columns.)
+      expect('${(_at(r, grid, 390)['bind'] as Map)['props.crossAxisCount']}', r'${= (max(1, round(zoom))) == 7 ? 7 : min(3, max(1, round(zoom)))}');
       expect(_at(r, grid, 834), isEmpty);
+    });
+
+    test('the days an each repeats across a row keep their seven columns on a phone, as a Grid cols=7 does', () {
+      // A week written as rows of copies that grow (its head, then its day
+      // columns 768 high): the copies are a grid of as many columns as there
+      // are days. Capped at three, the head was three lines of days and the
+      // day columns were one under the other.
+      final r = _parse('''
+state weekDays=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+Column
+  Row gap=0
+    Text "" w=48
+    each d in weekDays
+      Column grow center
+        Text "{d}"
+''');
+      final grid = _nodes(r).entries.firstWhere((e) => (e.value as Map)['type'] == 'gridView').key;
+      expect('${(_at(r, grid, 390)['bind'] as Map)['props.crossAxisCount']}', r'${= (max(1, length(weekDays))) == 7 ? 7 : min(3, max(1, length(weekDays)))}');
     });
   });
 

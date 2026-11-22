@@ -213,7 +213,13 @@ final class PageReflow {
     // A line that says where it shows (show=phone, hide=tablet) is left to
     // what it says: a link a Nav would hide, written show=phone, shows.
     if (nodes[id]?['media'] != null) return;
-    final bound = readMap(nodes[id]?['bind'])?.containsKey('visible') ?? false;
+    // So is one under a condition that reads the screen (`if screen.width>700
+    // || !showNote` over a list beside its note): the writer shows it on a
+    // phone by turns. Hidden there too, with its note hidden by the same
+    // condition, a phone showed neither: a page with nothing under its bar.
+    final shows = readMap(nodes[id]?['bind'])?['visible'];
+    if (shows is String && RegExp(r'\bscreen\.[a-zA-Z]').hasMatch(shows)) return;
+    final bound = shows != null;
     _add(id, max, {
       'visible': false,
       if (bound) 'bind': {'visible': null},
@@ -1116,8 +1122,14 @@ final class PageReflow {
     if (readMap(n['bind'])?['props.crossAxisCount'] case final String bound) {
       final inner = RegExp(r'^\$\{=?\s*(.*)\}$', dotAll: true).firstMatch(bound)?[1];
       if (inner == null || keepColumns.contains(id) || _underKept(id) || _own.contains(id)) return;
+      // Seven of them are a week, which keeps its columns as a `Grid cols=7`
+      // does ([_keeps]): the days an each repeats across a row (`each d in
+      // weekDays` / `Column grow`) were three to a line on a phone, its head
+      // three lines of days and its day columns, each 768 high, one under
+      // the other.
+      final count = inner.trim();
       _add(id, reflowPhoneMax, {
-        'bind': {'props.crossAxisCount': '\${= min(3, ${inner.trim()})}'},
+        'bind': {'props.crossAxisCount': '\${= ($count) == 7 ? 7 : min(3, $count)}'},
       });
       return;
     }
@@ -1169,6 +1181,11 @@ final class PageReflow {
       for (final k in kids) {
         if (fixed[k] case final num w) {
           _add(k, reflowTabletMax, {'layout': {'width': {'fill': 0}, 'flex': w}});
+          // A cell of copies an each repeats (a member's teams as tags): a
+          // share of the row is less than the width it was written with, so
+          // its copies wrap in it where they no longer fit (two tags reached
+          // 14 px past a cell of 150 given 115 on a tablet, over the next).
+          if (_type(nodes[k]!) == 'row' && _props(nodes[k]!)['scrollable'] != true) _rowOfCopies(k, nodes[k]!, cell: true);
         } else if (share(k) > 0 && share(k) < 20) {
           _add(k, reflowTabletMax, {'layout': {'flex': share(k) * widest * 1.5}});
         }
@@ -1228,9 +1245,11 @@ final class PageReflow {
   }
 
   /// A row whose one child is the list an `each` makes: its copies wrap.
-  void _rowOfCopies(String id, Json n) {
+  /// [cell]: a table row's cell, which the row's rules made narrower than
+  /// it is written ([_tableRow]); it wraps though it is in a list's row.
+  void _rowOfCopies(String id, Json n, {bool cell = false}) {
     final kids = _kids(n);
-    if (kids.length != 1 || _leftAsWritten(id, list: true)) return;
+    if (kids.length != 1 || (cell ? _underKept(id) : _leftAsWritten(id, list: true))) return;
     final list = nodes[kids.single]!;
     final p = _props(list);
     if (_type(list) != 'listView' || p['scrollDirection'] != 'horizontal' || p['scrollable'] == true || p['wrap'] == true || p['reorder'] != null) return;

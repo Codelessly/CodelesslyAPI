@@ -211,4 +211,90 @@ ${people}Page
     // A design system's own NumberInput comes first.
     expect(TextFieldProps.steppers.defaultValue, false);
   });
+
+  group('a row of a Table', () {
+    test('does what the Table\'s line says: its events and its menu are the row\'s, reading the record by the Table\'s name', () {
+      final r = _parse('''
+${people}state at=""
+Page
+  Section
+    Table#people p in people columns=["Name",{"key":"seats","label":"Seats"},{"key":"more","label":"","w":40}] onTap={at=p.id} onDoubleTap={at=""} menu=rowMenu w=600
+      Text "{p.name}"
+      Text "{p.seats}"
+      IconButton#more "more_vert" tooltip="More" onTap={at=p.id; open rowMenu}
+Menu#rowMenu
+  Row onTap={at=p.id}
+    Text "Remove {p.name}"
+''');
+      expect(r.issues, isEmpty);
+      final n = _nodes(r);
+      List<Object?> triggers(String id) => [for (final a in (n[id]!['actions'] as List? ?? const [])) ((a as Map)['trigger'] as Map)['type']];
+      expect(triggers('people-row'), containsAll(['click', 'doubleTap', 'secondaryClick', 'longPress']));
+      expect(triggers('people'), isEmpty, reason: 'the frame does nothing');
+      final tap = (n['people-row']!['actions'] as List).cast<Map>().firstWhere((a) => (a['trigger'] as Map)['type'] == 'click');
+      expect(tap['actions'], [
+        {'type': 'setVariable', 'variable': 'at', 'value': r'${= item.id}'},
+      ]);
+      // A cell's own control keeps its tap; the frame keeps its own keys.
+      expect(triggers('more'), ['click']);
+      expect((n['people']!['layout'] as Map)['width'], 600);
+    });
+
+    test('with select too: the row is chosen and does what its line says', () {
+      final r = _parse('''
+${people}state at=""
+Page
+  Section
+    Table#people p in people columns=["Name"] select=@sel onTap={at=p.id}
+''');
+      expect(r.issues, isEmpty);
+      final row = _nodes(r)['people-row']!;
+      expect('${row['actions']}', contains('at'));
+      expect('${row['bind']}', contains('contains(sel'));
+    });
+  });
+
+  group('slot caption under a Table', () {
+    test('is a row between the header and the rows, its lines side by side; the cells follow as they did', () {
+      final r = _parse('''
+${people}Page
+  Section
+    Table#people p in people columns=["Name","Email"] sort=@sortKey
+      slot caption
+        Text.caption#by "Sorted by {sortKey}"
+        Text.caption#n "{length(people)} people"
+      Row gap=8
+        Text.strong#name "{p.name}"
+''');
+      expect(r.issues, isEmpty);
+      final n = _nodes(r);
+      expect(n['people']!['children'], ['people-head', 'people-caption', 'people-body']);
+      final caption = n['people-caption']!;
+      expect(caption['type'], 'row');
+      expect(caption['children'], ['by', 'n']);
+      expect((caption['decoration']! as Map)['strokeSides'], 'bottom');
+      // The cell written is the first column's; the second shows its key's value.
+      String? up(String id) => n.entries.where((e) => (e.value['children'] as List?)?.contains(id) ?? false).firstOrNull?.key;
+      var at = 'name';
+      while (up(at) != null && up(at) != 'people-row') {
+        at = up(at)!;
+      }
+      expect(up(at), 'people-row');
+      expect([for (final v in n.values) if (v['type'] == 'text') (v['props']! as Map)['text']], contains(r'${item.email}'));
+    });
+
+    test('with no cells written, and with none of it: the table is as it was', () {
+      final r = _parse('''
+${people}Page
+  Section
+    Table#people p in people columns=["Name"] empty="Nobody"
+      slot caption
+        Text.caption "All people"
+''');
+      expect(r.issues, isEmpty);
+      expect(_nodes(r)['people']!['children']!.toString(), startsWith('[people-head, people-caption, people-body'));
+      final plain = _parse('${people}Page\n  Section\n    Table#people p in people columns=["Name"]\n');
+      expect(_nodes(plain)['people']!['children'], ['people-head', 'people-body']);
+    });
+  });
 }

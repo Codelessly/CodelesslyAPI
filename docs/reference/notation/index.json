@@ -437,7 +437,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 9840
+      "words": 9963
     },
     {
       "topic": "lists-a-list-over-data",
@@ -465,7 +465,7 @@
       "file": "lists.md",
       "anchor": "lists-a-table-of-records",
       "title": "A table of records",
-      "words": 1061
+      "words": 1184
     },
     {
       "topic": "lists-a-list-of-its-own-line",

@@ -436,7 +436,7 @@ are on [site.md](site.md).
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`: a shadow, a gradient, a picture placed in its box. | 3937 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 2350 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 13801 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 9840 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 9963 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | a value must be worked out, kept, or shared, or you need a function's signature. | 4074 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | a UI reacts to more than a tap and a change, or an action needs a field the verbs do not say. | 6767 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | a line reacts to the pointer beyond a tap, or is dragged, dropped or swiped. | 3663 |

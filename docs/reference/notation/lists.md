@@ -206,6 +206,12 @@ from a Column of Rows: write `Table`.
   design system that names a chosen row's fill (`colors.selectedRow` in its theme) has that instead, here, on a
   selectable list's row and on a line written `selected={…}`: one whose chosen things are neutral, the ticked box
   the accent's mark.
+- What a row does is written on the Table's line: its events (`onTap={sel=o.id}`, `onDoubleTap={…}`,
+  `onRightClick={…}`, `onHover={…}`) and `menu=rowMenu` are each row's, and read the record by the Table's name as
+  the line under an `each` does. A control in a cell (a Button, an IconButton) keeps its own tap. (`onScroll={…}`
+  stays the table's.)
+- `slot caption` as the first line under the Table, with a line or more under it, is a row between the header and
+  the rows, its lines side by side with a rule under them (what is sorted by, a count, a hint). The cells follow it.
 - `compact` makes the rows denser (36 instead of 44), `comfortable` roomier (52); `h=400` gives the table a height
   its rows scroll in under the header; `empty="No orders match."` is said when there are no rows; `maxw=`, `w=`
   and the other keys of a Column are the frame's. A design system's own `Table` comes first.
@@ -226,7 +232,9 @@ Page
     Row gap=8
       Input "" "Search" @search w=280
       Select @status items=["All","Paid","Due"] w=140
-    Table#orders o in shown columns=[{"key":"name","label":"Customer"},{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end"}] sort=@sortKey select=@chosen empty="No orders match."
+    Table#orders o in shown columns=[{"key":"name","label":"Customer"},{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end"}] sort=@sortKey select=@chosen empty="No orders match." onDoubleTap={search=o.name}
+      slot caption
+        Text.caption "Sorted by {sortKey}, {length(chosen)} chosen"
       Row gap=10
         Avatar "AB" size=28
         Text.strong "{o.name}"
@@ -266,10 +274,12 @@ Column stretch scroll h=fill
             Text.panelTitle "Total" color=#FF9CA3AF maxLines=1
             Icon "{sortKey == '-total' ? 'arrow_downward' : 'arrow_upward'}" visible={replace(sortKey, '-', '') == 'total'} size=14 color=#FF2563EB
             Icon "unfold_more" opacity=0.4 visible={replace(sortKey, '-', '') != 'total'} size=14
+        Row#orders-caption gap=8 pad=[16,8,16,8] border-bottom=#FFE5E7EB
+          Text "Sorted by {sortKey}, {length(chosen)} chosen" color=#FF9CA3AF
         Column#orders-body
           ListView data={sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')} scrollable=false gap=0 focusGroup.axis=vertical focusGroup.wrap=false onKeyDown(key=mod+a)={chosen="{map(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc'), x => coalesce(x.id, x))}"; announce "{length(chosen)} selected"}
             Column#listView1Item selected={contains(chosen, coalesce(item.id, item))} onTap={chosen="{(result.shift && chosenAnchor >= 0 ? map(slice(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc'), min(chosenAnchor, index), max(chosenAnchor, index) + 1), x => coalesce(x.id, x)) : (result.meta ? (contains(chosen, coalesce(item.id, item)) ? without(chosen, coalesce(item.id, item)) : append(chosen, coalesce(item.id, item))) : [coalesce(item.id, item)]))}"; chosenAnchor=(result.shift && chosenAnchor >= 0 ? chosenAnchor : index); announce "{length(chosen)} selected"}
-              Row#orders-row gap=16 pad=[16,6,16,6] minHeight=44 border-bottom=#FFE5E7EB selected={contains(chosen, coalesce(item.id, item))} hovered.fill=#FFF8FAFC selected.fill=#FFE9EFFD
+              Row#orders-row gap=16 pad=[16,6,16,6] minHeight=44 border-bottom=#FFE5E7EB selected={contains(chosen, coalesce(item.id, item))} hovered.fill=#FFF8FAFC selected.fill=#FFE9EFFD onDoubleTap={search=item.name}
                 Row w=16
                   Checkbox w=16 h=16 readOnly value={contains(chosen, coalesce(item.id, item))} compact=true focusable=false
                 Row gap=8 grow

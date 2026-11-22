@@ -1236,7 +1236,16 @@ final class PageWords {
     // A line under a Table is its next cell (table_words.dart); an `else`
     // goes on the cell of the `if` before it (round 11b, kanban-board: "An
     // else follows an if at the same depth" was said of one that did).
-    if (parent?.table case final _Table t when !RegExp(r'^else\b').hasMatch(text)) out.add(_cellLine(t));
+    if (parent?.table case final _Table t when !RegExp(r'^else\b').hasMatch(text)) {
+      // `slot caption` under a Table, before its cells: the lines under it
+      // are a row between the header and the rows (what is sorted by, a
+      // count, a hint), as a `slot name` line fills a place of any word.
+      if (t.body != null && RegExp(r'^slot\s+caption$').hasMatch(text.trim())) {
+        open(frame: 'TableCaption', shift: -8);
+        return out..add((indent: t.at + 2, text: t.captionLine));
+      }
+      out.addAll(_cellLine(t));
+    }
     if (word == 'Table' && !isComponent('Table') && !declares('Table')) {
       if (_tableLines(at, mark, rest, flush: parent?.flush ?? false) case (final lines, final table)) {
         // Its cells go under a row's: eight further in than its own lines.

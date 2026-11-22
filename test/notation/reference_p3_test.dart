@@ -143,8 +143,9 @@ void main() {
       expect(d.message, contains('not "number"'));
     });
 
-    test('state x:number is refused by the notation', () {
-      expect(_read('state price:number=0\nColumn').issues.single.message, contains("A variable's type is one of"));
+    test('state x:number is a decimal in the notation; a type that is no type is refused', () {
+      expect(_read('state price:number=0\nColumn').issues, isEmpty);
+      expect(_read('state price:money=0\nColumn').issues.single.message, contains("A variable's type is one of"));
     });
   });
 

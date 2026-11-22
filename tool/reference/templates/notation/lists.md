@@ -148,6 +148,12 @@ from a Column of Rows: write `Table`.
   design system that names a chosen row's fill (`colors.selectedRow` in its theme) has that instead, here, on a
   selectable list's row and on a line written `selected={…}`: one whose chosen things are neutral, the ticked box
   the accent's mark.
+- What a row does is written on the Table's line: its events (`onTap={sel=o.id}`, `onDoubleTap={…}`,
+  `onRightClick={…}`, `onHover={…}`) and `menu=rowMenu` are each row's, and read the record by the Table's name as
+  the line under an `each` does. A control in a cell (a Button, an IconButton) keeps its own tap. (`onScroll={…}`
+  stays the table's.)
+- `slot caption` as the first line under the Table, with a line or more under it, is a row between the header and
+  the rows, its lines side by side with a rule under them (what is sorted by, a count, a hint). The cells follow it.
 - `compact` makes the rows denser (36 instead of 44), `comfortable` roomier (52); `h=400` gives the table a height
   its rows scroll in under the header; `empty="No orders match."` is said when there are no rows; `maxw=`, `w=`
   and the other keys of a Column are the frame's. A design system's own `Table` comes first.
@@ -168,7 +174,9 @@ Page
     Row gap=8
       Input "" "Search" @search w=280
       Select @status items=["All","Paid","Due"] w=140
-    Table#orders o in shown columns=[{"key":"name","label":"Customer"},{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end"}] sort=@sortKey select=@chosen empty="No orders match."
+    Table#orders o in shown columns=[{"key":"name","label":"Customer"},{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end"}] sort=@sortKey select=@chosen empty="No orders match." onDoubleTap={search=o.name}
+      slot caption
+        Text.caption "Sorted by {sortKey}, {length(chosen)} chosen"
       Row gap=10
         Avatar "AB" size=28
         Text.strong "{o.name}"

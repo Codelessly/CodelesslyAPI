@@ -403,13 +403,10 @@ Column
       expect(variables['rowsOf'], containsPair('type', 'list'));
     });
 
-    test('a type the notation has not says the line to write: the type it names, the function\'s parameters kept', () {
+    test('a type by another name is read; one that is no type says the line to write, the function\'s parameters kept', () {
       final r = _parse('state makeSeat(r,i):record={with({},"id",i)}\nstate best(r):number={r.n*2}\nstate pick(r,i):seat={with({},"id",i)}\nstate n:int=3\nColumn\n  Text "{n}"\n');
       expect(_said(r), [
-        endsWith('("record" is not one): state makeSeat(r,i):map={with({},"id",i)}.'),
-        endsWith('("number" is not one): state best(r):decimal={r.n*2}.'),
         endsWith('("seat" is not one): state pick(r,i):map={with({},"id",i)}.'),
-        endsWith('("int" is not one): state n:integer=3.'),
       ]);
     });
   });

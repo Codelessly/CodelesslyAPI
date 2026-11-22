@@ -139,10 +139,10 @@ void main() {
     expect((_props(r, 't')['style']! as Map)['fontStyle'], 'italic');
   });
 
-  test('12: each a,i in … is said with the index there with nothing written', () {
-    final r = _read('state items=[1,2]\nColumn\n  each dot,index in items\n    Text "{dot}"\n');
-    expect(_said(r).single, allOf(contains('its place is index'), contains('Write each dot in items')));
-    expect(_said(r).single, isNot(contains('No node type')));
+  test('12: each a,i in … is read: the second name is the index', () {
+    final r = _read('state items=[1,2]\nColumn\n  each dot,index in items\n    Text "{dot}"\n  each dot,at in items\n    Text#t "{at}: {dot}"\n');
+    expect(_said(r), isEmpty);
+    expect(_props(r, 't')['text'], r'${index}: ${item}');
   });
 
   group('13: an overlay line', () {

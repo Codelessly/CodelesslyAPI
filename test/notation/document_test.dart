@@ -93,8 +93,10 @@ Column
   Text "x"
 ''', same: ["state status:text={coalesce(find(rows, 'id', sel), 'none')}"]);
       expect((_vars(doc).single as Map)['formula'], "coalesce(find(rows, 'id', sel), 'none')");
-      final r = parseNotation('state n:float=1\nColumn\n  Text "x"', catalog: standardCatalog);
+      final r = parseNotation('state n:money=1\nColumn\n  Text "x"', catalog: standardCatalog);
       expect(r.issues.single.message, contains('integer, text, decimal'));
+      // (A type by another language's name is the notation's.)
+      expect(parseNotation('state n:float=1\nColumn\n  Text "x"', catalog: standardCatalog).issues, isEmpty);
     });
   });
 

@@ -49,6 +49,17 @@ const double notationPageWidth = 700;
 /// With [pages], the prompt also teaches how an app or a site of several
 /// screens is written as one answer ([notationPagesRule]): each screen under
 /// a `### Name` line, as `notationPages` reads it.
+/// A table of records, as a page's prompt teaches it up front (it was in
+/// the reference only: writers wrote a header Row over an each of Rows with
+/// fixed widths, which has no frame and runs off a tablet's edge).
+const String notationTableLine =
+    'Table#orders o in shown columns=["Customer",{"key":"status","label":"Status","w":120},{"key":"total","label":"Total","w":100,"align":"end","hide":"phone"}] sort=@sortKey select=@chosen empty="No orders match.": '
+    'a table of records, finished: a frame, a header that stays in view and sorts by a press (sortKey: a text, the key sorted by), a rule under each row, rows chosen by a press, Shift for a range, Ctrl for one more (chosen: a list of their ids), '
+    'and at a tablet\'s or a phone\'s width only the columns there is room for ("hide":"phone" leaves one out by hand). The lines under it are its cells, one per column in order, each any lines that read the record '
+    '(Row gap=8 over an Avatar and Text.strong "{o.name}", a Badge "{o.status}", an IconButton for the row\'s menu); a column with no line shows its key\'s value. '
+    'What a row does is written on the Table\'s line and reads the record too (onTap={sel=o.id} menu=rowMenu; a button in a cell keeps its own tap); slot caption as the first line under the Table, with a line under it, '
+    'is a row between the header and the rows (Text.caption "Sorted by {sortKey}"). Write every table of records so, never a header Row over an each of Rows.';
+
 String notationPrompt({
   Catalog? catalog,
   NotationOptions options = const NotationOptions(),
@@ -309,6 +320,12 @@ ${componentLines.map((l) => '  $l').join('\n')}${wanted ? '''
     }
   }
   final w = options.width.round();
+  // The design system's words for a sidebar's parts: the components that
+  // take `rail` (they fold to their icons where the sidebar is a rail).
+  final railWords = [
+    for (final l in componentLines)
+      if (RegExp(r'^([A-Z][A-Za-z0-9]*)\b.*\srail(?:\s|$)').firstMatch(l.split(' : ').first) case final m?) m[1]!,
+  ];
   final pages = options.width < notationPageWidth
       ? ''
       : '''
@@ -322,11 +339,11 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
       Footer
   An app window is as tall as the window, and each pane scrolls by itself:
     App
-      Sidebar                a fixed pane at the side (w=240): the name, a Row per item, Spacer grow, then what sits at its foot
+      Sidebar                a fixed pane at the side (w=240): ${railWords.isEmpty ? 'the name, a Row per item' : 'its parts are the components that take rail (${railWords.join(', ')}: on a tablet the sidebar folds to a rail of their icons, which lines written by hand cannot)'}, Spacer grow, then what sits at its foot
       Main                   the pane that takes the rest: a Nav (its top bar: the title, then a Row of actions) and under it a Column pad=24 gap=16 of content
       Pane w=320             a further pane (a list beside its details, a details panel): Pane w=320 pad=16 gap=12
     Footer directly under Main, as its last line, is a bar at its foot that stays in view while Main scrolls (a player, a composer, a basket).
-  A sidebar's item: Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}, an Icon and a Text grow under it. A link: Text "Docs" color=#FF2563EB onTap={an action}; in a bar, Button.ghost "Docs" onTap={…}; a quiet one, Text.muted. A heading: Text.heading1 (a landing page's headline, at a display size in a Page's Section), Text.heading2, Text.heading3 (a card's or a panel's title). An icon-only button is named by its tooltip: IconButton "filter_alt_off" tooltip="Clear filters" (shown on hover, focus or a touch hold).
+  ${railWords.isEmpty ? "A sidebar's item" : "A row that is chosen, anywhere but in a Sidebar"}: Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}, an Icon and a Text grow under it. A link: Text "Docs" color=#FF2563EB onTap={an action}; in a bar, Button.ghost "Docs" onTap={…}; a quiet one, Text.muted. A heading: Text.heading1 (a landing page's headline, at a display size in a Page's Section), Text.heading2, Text.heading3 (a card's or a panel's title). An icon-only button is named by its tooltip: IconButton "filter_alt_off" tooltip="Clear filters" (shown on hover, focus or a touch hold).
   Side by side: Row gap=32 with grow on each child that shares the width (Column grow gap=12), or Grid cols=3 gap=24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Section bleed runs what is in it from edge to edge (a wide picture, a map). Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w=320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom=#… (border-top, border-left, border-right).
   A block's events are on its line, each by its name: SiteNav … onNavigate={go {replace(lower(result)," ","_")}} onCta={go signup} onSecondary={go login}. SiteNav … sticky keeps it at the top.
   key mod+k onPress={open search} on its own line (top level) is a shortcut of the page (mod: Ctrl, ⌘ on a Mac; also alt, shift), key j when={!editing} onPress={…} acts only while its condition holds (a plain key never acts while a field is typed in; under a Dialog#id, only while that dialog is open); Text "Search" shortcut="mod+k" shows it as Ctrl K or ⌘K; Button "B" shortcut="mod+b" presses it.
@@ -338,17 +355,18 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     CodeInput "Code" @code length=6 digits: a one-time code, one field drawn as boxes.
     Slider @low @high min=0 max=100: a range, one slider with two thumbs.
     Calendar @arrival @departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}: a month in the page for a range of days (yyyy-MM-dd; one @: one day, its value that day); a disabled day is not picked or crossed, a mark is a short text under its day (or marks={list}: days, or records of date and label).
-    DataTable rows={orders} columns=[{"key":"name","label":"Customer"},{"key":"total","label":"Total"}] @row: a table whose headers sort and whose rows are chosen (row: the chosen one's place, -1 none); onSort={…} reads result.column, onRowTap={…} result.row.
+    $notationTableLine
+    DataTable rows={orders} columns=[{"key":"name","label":"Customer"},{"key":"total","label":"Total"}] @row: a table whose cells are all texts, whose headers sort and whose rows are chosen (row: the chosen one's place, -1 none); onSort={…} reads result.column, onRowTap={…} result.row.
     Splitter @paneW min=200 max=640: a divider dragged between two panes of a Row, the first Column w={paneW} (orientation=vertical: of a Column, its height).
     each r in fuzzy(rows,q,x=>x.title): a search, the rows whose text matches q, best first (fuzzy(rows,q,x=>x.title,3,"keep"): 3 letters off a word, in list order); Text "{r.title}" mark={q} marks what matched (a block's mark={q} too).
-    each stop in trip reorder: a list put in order by hand; a Handle in each row is its grip (dragged, or Alt+arrows) and trip holds the order. Lists with one reorder=group pass rows between them.
+    each stop in trip reorder: a list put in order by hand; a Handle in each row is its grip (dragged, or Alt+arrows) and trip, a list variable, holds the order. A list that is worked out (a filter, a sort, a function) has nowhere to keep it, so the line says how a move is stored: each t in shown reorder onReorder={order=map(result,x=>x.id)} (result: the list in its new order). Lists with one reorder=group pass rows between them.
     each line in lines follow h=180: a log or a chat; it scrolls in that height, opens at its end and follows what is added (follow grow: it takes the room its column leaves, over a composer).
     SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}, under an each: an action behind the swiped row (side=start: the other side; removes takes the row out). Give the row a menu button for the same.
 ${notationLookedUpLines.map((l) => '    $l').join('\n')}${options.reflow ? '''
 
   Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns (one of 7, or written Grid cols=4 keep, keeps them), a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a list beside its detail shows one at a time on a phone, with a back button (each row: onTap={sel=m.id}), a Nav hides its quiet buttons (Button.ghost) and opens them from a menu button it adds itself, sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w=320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
-    Equal cells are a Grid, not a Row of fixed-width boxes. A table's row is a Row whose cells have widths (Text "Status" w=90) and one cell that grows, its header written the same way.
+    Equal cells are a Grid, not a Row of fixed-width boxes. A table is a Table: a header Row over rows of fixed-width cells runs off a tablet's edge.
     hide=phone leaves a node out on a phone, hide=tablet on a tablet and a phone; show=phone shows it on a phone only, show=tablet on a tablet and a phone only. Write no menu button for a Nav's links: it has one, for the quiet buttons it hides (a Nav with a show=phone line of its own keeps yours instead). They hold on a line under an if too: the condition counts only where the size shows the line.
     A part's lines on a phone go in a block after its own: at phone, with ...#brand under it placing the part's Text#brand line again.
     A Row of two Columns that grow, each a heading and its text, stacks where they no longer fit; a Row of controls with choices (filters) wraps whole controls onto the next line.''' : ''}
@@ -857,7 +875,7 @@ String _openPrompt(String taught, {bool define = true}) {
         .replaceFirst(' A sidebar\'s item: Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}, an Icon and a Text grow under it. A link:', ' A link:')
         .replaceFirst(' (state cart=[], state plan="pro", state draft="" saved)', '')
         // A table is a word a writer writes, not rows of boxes.
-        .replaceFirst(' A table\'s row is a Row whose cells have widths (Text "Status" w=90) and one cell that grows, its header written the same way.', '')
+        .replaceFirst(' A table is a Table: a header Row over rows of fixed-width cells runs off a tablet\'s edge.', '')
         .replaceFirst(' (shown on hover, focus or a touch hold)', '')
         .replaceFirst(' It reads and sets the page\'s values: a form in a dialog sets them and closes (onTap={saved=true; close}).', '')
         .replaceFirst(': swiped or stepped with its arrows, with a count and thumbnails, opened at the one tapped', ', swiped or stepped, opened at the one tapped')

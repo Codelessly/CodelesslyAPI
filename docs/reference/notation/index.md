@@ -15,7 +15,7 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 3937 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 2350 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 13801 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 9840 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 9963 |
 | [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 4074 |
 | [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 6767 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3663 |
