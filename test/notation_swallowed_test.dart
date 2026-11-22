@@ -17,10 +17,10 @@ void main() {
     final r = _parse('''
 state checklist:list=[{"id":"a"}]
 Column
-  each k in checklist reorder gap=2 onReorder={checklist=result}
+  each k in checklist reorder gap=2 onSwipe={checklist=[]}
     Text "{k.id}"
 ''');
-    expect(r.issues.single.message, allOf(contains('gap=2 onReorder={checklist=result} are not read there'), contains('Column gap=2 reorder onReorder={…}')));
+    expect(r.issues.single.message, allOf(contains('gap=2 onSwipe={checklist=[]} are not read there'), contains('Column gap=2 reorder onReorder={…}')));
     final list = _node(r, 'listView1');
     expect((list['bind'] as Map)['data'], r'${checklist}');
     // reorder, written before the others, is still the each's own.

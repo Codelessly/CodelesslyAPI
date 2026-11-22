@@ -3816,7 +3816,9 @@ Page
         if (o['op'] == 'set' && o['slot'] != null && o['parent'] == 't') o['slot'],
     ], ['cell', 'columnHeader']);
     expect(_parsePage('Page\n  DataTable columns=[{"key":"a","label":"A"}]').issues.single.message, contains('DataTable rows={orders} columns=['));
-    expect(_parsePage('state rows=[]\nPage\n  DataTable rows=rows columns=[{"key":"a","label":"A"}]').issues.first.message, contains('written in braces: rows={rows}'));
+    // (The bare name of a list of the state can only be that list.)
+    expect(_parsePage('state rows=[]\nPage\n  DataTable rows=rows columns=[{"key":"a","label":"A"}]').issues, isEmpty);
+    expect(_parsePage('state n=2\nPage\n  DataTable rows=n columns=[{"key":"a","label":"A"}]').issues.single.message, contains('written in braces: rows={n}'));
     expect(_pagePrompt(), contains('DataTable rows={orders} columns=[{"key":"name","label":"Customer"}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('DataTable')));
   });

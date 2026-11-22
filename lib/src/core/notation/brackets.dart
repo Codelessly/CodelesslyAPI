@@ -13,14 +13,19 @@
 // said there).
 import 'notation.dart' show NotationIssue;
 
+/// How many lines a list or a call left open at the end of a line goes on
+/// over (`state rows=[` and a record a line): the parser's limit, and so
+/// the limit of what is checked here as one line.
+const notationOpenLineLimit = 400;
+
 /// The issues of [text]'s brackets, at most one per line, each at its line
 /// and column (1-based).
 ///
 /// Lines are joined as the parser joins them: a `node {…}` or `document
 /// {…}` whose JSON goes on over the next lines is JSON, said where it is
 /// read, and not looked at here; a line that ends with `[`, `(` or `,` left
-/// open goes on over the next (up to 60), read as one line, its issue at
-/// its first line with the column in the joined line.
+/// open goes on over the next (up to [notationOpenLineLimit]), read as one
+/// line, its issue at its first line with the column in the joined line.
 List<NotationIssue> notationBracketIssues(String text) {
   final out = <NotationIssue>[];
   final lines = [for (final l in text.split('\n')) l.endsWith('\r') ? l.substring(0, l.length - 1) : l];
@@ -36,7 +41,7 @@ List<NotationIssue> notationBracketIssues(String text) {
     }
     final start = i;
     if (RegExp(r'[\[(,]\s*$').hasMatch(raw) && _opened(raw) > 0) {
-      while (i + 1 < lines.length && i - start < 60 && _opened(raw) > 0) {
+      while (i + 1 < lines.length && i - start < notationOpenLineLimit && _opened(raw) > 0) {
         raw = '${raw.trimRight()} ${lines[++i].trim()}';
       }
     }

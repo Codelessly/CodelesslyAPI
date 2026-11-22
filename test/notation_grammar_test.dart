@@ -291,7 +291,10 @@ void main() {
     });
 
     test('a list holding expressions without braces, an anchor after the line, an expression where the text goes', () {
-      expect(_said('state a=1\nColumn\n  BarChart values=[a+1,2]\n').single, 'Not a list of values. One that is worked out is written in braces: values={[a+1,2]}.');
+      // (A list that reads the state in each place can only be one worked out: it is read as in braces.)
+      expect(_said('state a=1\nColumn\n  BarChart values=[a+1,2]\n'), isEmpty);
+      expect(_said('Column\n  Select items=[Apple, Banana]\n').single,
+          'Not a list of values: a text in a list is quoted (items=["One","Two"]), and a list read from the state is its name in braces (items={names}). items=[Apple, Banana] is left out.');
       expect(_said('Column\n  Text "Why" #why\n').single, contains('Unknown word "#why"'));
       expect(_said('state open=true\nColumn\n  Button open ? "Hide" : "Show"\n'), isNotEmpty);
     });

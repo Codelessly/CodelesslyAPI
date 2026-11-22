@@ -651,7 +651,13 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
   // use that gives its root words of its own (`#id`, `hide=phone`, `grow`)
   // gets a Column holding them ([notationSplice]).
   final firstRoot = lines.where((l) => l.indent == 0 && !_preamble(l.text)).firstOrNull;
-  final tops = lines.where((l) => l.indent == 0 && !_preamble(l.text)).length;
+  // (An overlay with an id written beside the tree, `Dialog#edit …` at the
+  // definition's margin under its `App …`, is over the page and no line of
+  // the tree: the tree is still one root.)
+  final besideTree = firstRoot == null || DefinedWords._overlayId.hasMatch(firstRoot.text)
+      ? 0
+      : lines.where((l) => l.indent == 0 && !_preamble(l.text) && !identical(l, firstRoot) && DefinedWords._overlayId.hasMatch(l.text)).length;
+  final tops = lines.where((l) => l.indent == 0 && !_preamble(l.text)).length - besideTree;
   if (firstRoot != null && (const {'if', 'each', 'for'}.contains(LineParts.of(firstRoot.text)?.word) || tops > 1)) {
     final at = lines.indexOf(firstRoot);
     lines = [
@@ -671,7 +677,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.');
     return null;
   }
-  if (roots.length > 1) {
+  if (roots.length - besideTree > 1) {
     problems.add('$file:${roots[1].line}: ${parts.word} stands for one line and the lines under it; this one is beside it (indent it under ${roots.first.text.split(' ').first}).');
     return null;
   }
@@ -1167,6 +1173,32 @@ final class DefinedWords {
       final rest = LineParts.of('X ${raw.substring(close).trim()}');
       given.replaceRange(first, first + 1, [LinePart.string('"${raw.substring(0, close)}"'), ...?rest?.parts]);
     }
+    // A bare word that reads the page: a path (`r.name`, `days[at]`), or the
+    // name of a variable or of an each's item, that the signature does not
+    // have as a word of its own.
+    bool reads(String w) {
+      if (w == 'true' || w == 'false' || w == 'null' || d.parameters.containsKey(w)) return false;
+      if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*|\[[^\[\]\s]+\])+$').hasMatch(w)) return true;
+      return _identifier.hasMatch(w) && !definedPassThroughWord(w) && ((eachItem?.call(w) ?? false) || (variable?.call(w) ?? false));
+    }
+
+    // The next parameter of the signature, in its order, that takes a value
+    // of that kind (a [text]: one whose default is a text; a [number]: one
+    // whose default is a number or that has none) and that the use neither
+    // names nor has filled.
+    final namedByUse = {for (final x in given) if (x.kind == 'pair') x.key!};
+    String? nextKey({bool text = false, bool number = false}) {
+      for (final k in d.parameters.keys) {
+        if (values.containsKey(k) || namedByUse.contains(k) || boundParams.containsKey(k) || k == d.bind || d.isFlag(k) || d.events.contains(k)) continue;
+        final start = (d.parameters[k] ?? '').trim();
+        final numeric = start.isEmpty || num.tryParse(start) != null;
+        if (text && !start.startsWith('"')) continue;
+        if (number && !numeric) continue;
+        return k;
+      }
+      return null;
+    }
+
     for (final x in given) {
       switch (x.kind) {
         case 'string':
@@ -1175,8 +1207,12 @@ final class DefinedWords {
           } else if (restAt >= 0) {
             // A further text (`when trim(draft)!=""`): the marked line's.
             root.add(x);
+          } else if (nextKey(text: true) case final String key) {
+            // `SiteNav "recipes"` for `define SiteNav tab="recipes"`: a text
+            // past the signature's own is its next parameter's value.
+            values[key] = x.raw;
           } else {
-            unknown('parameter', 'string${strings + 1}', x.raw, col(x), 'A ${d.word} takes ${d.strings.length} string${d.strings.length == 1 ? '' : 's'}. It takes: ${takes()}.');
+            unknown('parameter', 'string${strings + 1}', x.raw, col(x),'A ${d.word} takes ${d.strings.length} string${d.strings.length == 1 ? '' : 's'}. It takes: ${takes()}.');
           }
           strings++;
         case 'pair' when x.value!.startsWith('@'):
@@ -1240,6 +1276,20 @@ final class DefinedWords {
         case 'word':
           if (d.parameters.containsKey(x.raw)) {
             values[x.raw] = 'true';
+          } else if (reads(x.raw) && strings < d.strings.length) {
+            // `WeekSlot day meal`, `RouteStub r.name r.line`: a value of the
+            // page where a text goes is that text, as "{r.name}" is.
+            values[d.strings[strings]] = '"{${x.raw}}"';
+            strings++;
+          } else if (num.tryParse(x.raw) != null && strings >= d.strings.length && !d.parameters.containsKey('value') && nextKey(number: true) != null) {
+            // `StoryCard "Tides" "…" 14`: a number after the texts is the
+            // next parameter of the signature that takes one and that the
+            // use does not name.
+            values[nextKey(number: true)!] = x.raw;
+          } else if (reads(x.raw) && strings >= d.strings.length && !d.parameters.containsKey('value') && nextKey() != null) {
+            // `Pic "{p.c1}" "{p.c2}" p.id`: a value of the page after the
+            // texts is the next parameter the use does not name.
+            values[nextKey()!] = '{${x.raw}}';
           } else if (definedPassThroughWord(x.raw) && universal(x)) {
             // On its root.
           } else if (num.tryParse(x.raw) != null && (strings < d.strings.length || (d.parameters.containsKey('value') && !values.containsKey('value')))) {
@@ -1285,7 +1335,10 @@ final class DefinedWords {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*(?:~[a-z]+)?#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
-        final to = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
+        // (An overlay that is the body's root keeps the id it is written
+        // with when the use gives none: the body's own `open` of it names
+        // that id too.)
+        final to = identical(l, bodyRoot) ? (p.id.isEmpty && _overlayId.hasMatch(l.text) ? m[1]! : uid) : '${m[1]}_$uid';
         ids[m[1]!] = to;
         // An id named like one of the word's parameters (`expand=true` and
         // `Glyph#expand`) is that id only where an id is read (`#expand`, an
