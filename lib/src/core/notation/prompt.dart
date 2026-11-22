@@ -24,8 +24,11 @@ const List<String> notationFunctions = [
 ];
 
 /// The functions only the page prompt names (the card prompt has no room):
-/// a search over a list.
-const List<String> notationPageFunctions = ['fuzzy(list,query,x=>text)'];
+/// a search over a list, and the dates (a calendar numbered its days by
+/// hand because "only these functions exist" named none of them).
+const List<String> notationPageFunctions = [
+  'fuzzy(list,query,x=>text)', 'addDays(date,n)', 'addMonths(date,n)', 'diffDays(from,to)', 'weekday(date)', 'daysInMonth(date)', //
+];
 
 /// From this canvas width on the prompt teaches the page words (`Page`,
 /// `Section`, `App`, `Sidebar`…): a window, not a card.
@@ -122,7 +125,8 @@ const String notationSiteRule =
     'pages/transactions.txt): its file name is its name, in lower case with a hyphen for a space, and it has no ### line. '
     'go transactions on any page shows pages/transactions.txt.\n'
     '- components/<Word>.txt is one word of the app\'s own, shared by every page (the app\'s navigation, a row of a list, a stat): its '
-    'first line is define and the word as a line would use it, each value its default (define BudgetRow "name" spent=0 limit=100); '
+    'first line is define and the word as a line would use it, each value its default (define BudgetRow "name" spent=0 limit=100; '
+    'a string takes a default too: define SiteNav "current"=home); '
     'under it, indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on '
     'a line of its own is where the lines written under a use go. A line of its lines takes an at phone block as a page\'s does: '
     'the word\'s own design at that width, at every use. Every page and every other component then calls it as any other '
@@ -135,12 +139,18 @@ const String notationSiteRule =
     'long list is one item a line, so it shows as it is written: state txns=[ then each record on a line of its own ending in a '
     'comma, then ] on the last. State only one page uses stays a state line on that page.\n'
     '- Write pages/home.txt first, reading the shared state by name (its lists draw empty until app.txt declares them); then '
-    'app.txt; then the components that page calls; then the next page and its components.\n'
-    '- site.json is needed only for the app\'s own looks, set once so no line repeats them, or a page order (with none, home is '
-    'first and the rest follow by name): {"theme": {"primary": "#FF1B5E3F" (the accent), "surface": "#FFFBF7EF" (the page\'s '
-    'ground), "onSurface" (the text), "fontFamily", "titleFontFamily" (headings), "radius", "colors": {"ink": "#FF1F2A24"} (read as '
-    'color=ink, fill=ink), "textStyles", "dark": {…}}, "pages": ["home.json", "budgets.json"]}. A colour is "#AARRGGBB" or a name '
-    'its colors define. Write it last, and not at all when the design system\'s looks are the app\'s.';
+    'app.txt; then site.json when the request names a look; then the components that page calls; then the next page and its '
+    'components.\n'
+    '- site.json is the app\'s own looks, set once so no line repeats them: {"theme": {"primary": "#FF1B5E3F" (the accent), '
+    '"surface": "#FFFBF7EF" (the page\'s ground), "onSurface" (the text), "fontFamily", "titleFontFamily" (headings), "radius", '
+    '"colors": {"ink": "#FF1F2A24"} (read as color=ink, fill=ink), "textStyles", "dark": {…}, "mode"}, "pages": ["home.json", '
+    '"budgets.json"]} (a page order; with none, home is first and the rest follow by name). A colour is "#AARRGGBB" or a name its '
+    'colors define. When the request names colours, a font or a mood, write the theme right after the first page and app.txt, '
+    'before any other page (primary, surface, onSurface, titleFontFamily, radius): every page written after it is then seen in '
+    'the app\'s own looks, and a theme left for last is a theme not written. Only a request that names no look leaves it out. '
+    '"dark" holds the colours that differ in the dark ({"surface": "#FF0F1115", "onSurface": "#FFF2F3F5"}); an app that is '
+    'always dark also sets "mode": "dark", so that it opens dark (the preview\'s own light or dark switch changes what the person '
+    'looks at, never what the app is).';
 
 /// How the prompt teaches a computed value and a formula of the writer's own
 /// (the end of its `state` line): a model looked `computed` up before its
@@ -168,7 +178,18 @@ const List<String> notationLookedUpLines = [
   'Box onDrag={x=x+result.dx; y=y+result.dy} onDragEnd={x=0}: a node dragged by hand, each move its step (onDragEnd: result.vx, result.vy its speed).',
   'Button "Dark" onTap={setThemeMode dark}: the site in its dark colors (light, system); theme.isDark says which in a formula, and site.json\'s theme gives the colors of each.',
   'Box h=200 gradient=["#FF2563EB","#FF7C3AED"]: a gradient as a fill (two colors or more). Text "…" fontFamily="Georgia" italic sets one text\'s font; tabularFigures=true lines its digits up. screen.width in a formula is the window\'s width (if screen.width < 700), for what the phone rules below do not do.',
-  'customPaint viewBox=[240,160] fit=contain: under a Box w=240 h=160, a drawing, a line per shape under it in the viewBox\'s units, the later over the earlier: rect rect=[0,0,240,160] fill=#FFE8F1F8, circle c=[180,50] radius=24 fill=#FFF4B740, path d="M0 160 L70 60 L240 160 Z" fill=#FF2563EB, line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2 (also rrect, oval, arc, paragraph "Peak" offset=[8,8]; a number may be {an expression}; repeat count={length(list)} draws its lines for each index).',
+  'customPaint viewBox=[240,160] fit=contain: under a Box w=240 h=160, a drawing, a line per shape under it in the viewBox\'s units, the later over the earlier: rect rect=[0,0,240,160] fill=#FFE8F1F8, circle c=[180,50] radius=24 fill=#FFF4B740, path d="M0 160 L70 60 L240 160 Z" fill=#FF2563EB, line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2 (also rrect, oval, arc, paragraph "Peak" offset=[8,8]; a number may be {an expression}).',
+  'repeat count=12: under a customPaint, draws the lines under it once for each index, read by the name index and no other (line p1=[{index*20+10},{80-(index*37%50)}] p2=[{index*20+10},{80+(index*37%50)}] stroke=#FF5D6D7E strokeWidth=2 is a waveform); not i, whatever an each around the drawing calls its own (repeat count=12 indexAs=i renames it). Each item of a set (a cover, a dish, a poster, a photo) gets its own picture, its shapes and colours chosen by a field of its data: one drawing repeated, or a gradient alone, is not a picture.',
+  'if c.kind=="tree": inside a customPaint, if, else if, else and each x in list take shapes under them, so a drawing follows its data. A customPaint takes its size from the line it is under (Box w=240 h=160): no w= or h= of its own.',
+  'on load={sel=first(msgs).id; day=today()}: on its own line at the margin, beside state, every and key, runs once when the screen opens, before its first picture; never a timer made to run once (every 300 when !boot). Start a screen on its main case (the first message open, the first note chosen, a workout under way): what a picture shows first is the screen in use, not "Nothing open".',
+  'state unread=3: a state\'s name is the writer\'s own, never one the runtime gives every expression: data, route, storage, screen, theme, auth, drag, perf, script, speech, device (state themeName="light", not state theme).',
+  'Row end={m.mine}: a word of a line given a condition holds while it does (Column center={n==1}). A variant is not chosen by a formula: write the line under if s.done as Button.primary "Done" and under else as Button.outline "Done".',
+  'Column id={m.name}: a line an each repeats takes an id worked out for each copy (id="sec{m.n}"), reached by scroll {m.name} or scroll sec2.',
+  'Sheet#filters "Filters" onClose={seen=true}: what an overlay does as it closes (a Dialog, Drawer, Menu or Popover too). A press held: onPressStart={…} and onPressEnd={…} (or onRelease); hold-to-repeat is onPointerDown={held=true} onPointerUp={held=false} with every 120 when held onTick={qty=qty+1}.',
+  'Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=soft: a line drawn larger, turned or moved (scale={zoom} follows the state); shadow is sm, soft, md, lg or none.',
+  'each m in msgs follow grow pad=[24,16] gap=6: an each line takes its list\'s padding and gap. Also: setThemeMode lower(result) takes a formula; a literal brace in a text is \\{ and \\}; Handle icon="menu" is a grip with an icon of its own; menu=none takes a menu off a line.',
+  'Text "{formatDate(addDays(today(),3),\'EEE d MMM\')}": a date is "yyyy-MM-dd" text, worked out, never numbered by hand: today(), addDays(date,n), addMonths(date,n), diffDays(from,to), weekday(date) (1 Monday to 7 Sunday), daysInMonth(date); and shown through formatDate, never raw. A month\'s cell reads its day\'s events by date: each e in filter(events,e=>e.date==addDays(start,i)).',
+  'Text "{n.body}" maxLines=2: a preview is cut by lines, with its ellipsis; never slice(text,0,70), which cuts in a word.',
 ];
 
 /// The lines of the words [vocabulary]'s dictionaries define that [prompt]
@@ -807,7 +828,7 @@ String _openPrompt(String taught, {bool define = true}) {
         // A one-time code is one field (six one-digit Inputs were written).
         .replaceFirst('Input "Note" multiline is a text area.', 'Input "Note" multiline is a text area; CodeInput "Code" @code length=6 digits is a one-time code, one field drawn as boxes.')
         .replaceFirst('; Popover#bio arrow points at it', '')
-        .replaceFirst(', ${notationPageFunctions.join(', ')}', '')
+        .replaceFirst(', ${notationPageFunctions.first}', '')
         // A main string from a variable, and a text with braces of its own.
         .replaceFirst('{name} inside a string shows a variable: "Total: {total}".',
             '{name} inside a string shows a variable ("Total: {total}"), also as the whole string (Icon "{c.icon}", never Icon c.icon); a text with braces of its own is a formula\'s string: Text "{\'if (x) { y }\'}".')

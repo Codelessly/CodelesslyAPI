@@ -5607,6 +5607,18 @@ class _Parser {
       return;
     }
     if (line.startsWith('state ')) return _state(line.substring(6).trim(), column + 6);
+    // A worked-out value of no type (`state n={length(list)}`) is no variable
+    // of the document: a line of the screen that reads it (`key ArrowDown
+    // when={idx<n}`, `every 1s when left>0`, `on load={…}`) has it written
+    // out as a node's line has. (It was left as a name there, which nothing
+    // declares: the key never acted, and the name was said to be undeclared.)
+    // (Not in the key's or the trigger's own name: `key m` with a `state
+    // m={…}` beside it is the key M.)
+    if (indent == 0 && _derived.isNotEmpty) {
+      if (RegExp(r'^(key\s+\S+|on\s+[A-Za-z]+|every)(?=[\s(=])').firstMatch(line) case final head?) {
+        line = '${head[0]}${_derivedWrittenOut(line.substring(head.end))}';
+      }
+    }
     // `every 1000 onTick={elapsed=elapsed+1}`, `every 1s when running
     // onTick={…}`: what the screen does as time passes (a timer on the canvas).
     // `every {60000/bpm} onTick={…}`: an interval worked out, in milliseconds
@@ -5681,26 +5693,7 @@ class _Parser {
     if (indent == 0 && RegExp(r'^document\s+[A-Za-z]+=').hasMatch(line)) {
       if (_documentLine(line.substring(9), column + 9)) return;
     }
-    for (final d in _derived.entries) {
-      if (!line.contains(d.key)) continue;
-      // A worked-out value follows the state by itself: an action that sets
-      // it too (`onTap={votes=…; total=total+1}`) is dropped, not rewritten.
-      line = _withoutSets(line, d.key);
-      if (!line.contains(d.key)) continue;
-      // A call on the name (`total.toFixed(2)`) is rewritten while it is
-      // still a name: written out, it is a formula no call pattern follows.
-      if (line.contains('${d.key}.')) {
-        final k = RegExp.escape(d.key);
-        line = line
-            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.toFixed\\((\\d+)\\)'), (m) => 'fixed(${d.key},${m[1]})')
-            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.length\\b(?!\\()'), (m) => 'length(${d.key})')
-            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.([a-zA-Z]+)\\((\\)?)'), (m) {
-          if (!_methods.contains(m[1])) return m[0]!;
-          return m[2] == ')' ? '${m[1]}(${d.key})' : '${m[1]}(${d.key},';
-        });
-      }
-      line = _rename(line, d.key, '(${d.value})');
-    }
+    line = _derivedWrittenOut(line);
     // `slot title` under a node: the line under it is the node's child in that
     // slot (a ListTile's title, a badge's child, a block's actions), as a
     // component's head names its slots with `slot name`.
@@ -12481,6 +12474,32 @@ class _Parser {
 
   /// [line] without the assignments to [name] in its events' actions (and
   /// without an event left with none).
+  /// [line] with each worked-out value of no type it reads (a `state
+  /// name={formula}` line's) written out as its formula.
+  String _derivedWrittenOut(String line) {
+    for (final d in _derived.entries) {
+      if (!line.contains(d.key)) continue;
+      // A worked-out value follows the state by itself: an action that sets
+      // it too (`onTap={votes=…; total=total+1}`) is dropped, not rewritten.
+      line = _withoutSets(line, d.key);
+      if (!line.contains(d.key)) continue;
+      // A call on the name (`total.toFixed(2)`) is rewritten while it is
+      // still a name: written out, it is a formula no call pattern follows.
+      if (line.contains('${d.key}.')) {
+        final k = RegExp.escape(d.key);
+        line = line
+            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.toFixed\\((\\d+)\\)'), (m) => 'fixed(${d.key},${m[1]})')
+            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.length\\b(?!\\()'), (m) => 'length(${d.key})')
+            .replaceAllMapped(RegExp('(?<![A-Za-z0-9_.])$k\\.([a-zA-Z]+)\\((\\)?)'), (m) {
+          if (!_methods.contains(m[1])) return m[0]!;
+          return m[2] == ')' ? '${m[1]}(${d.key})' : '${m[1]}(${d.key},';
+        });
+      }
+      line = _rename(line, d.key, '(${d.value})');
+    }
+    return line;
+  }
+
   String _withoutSets(String line, String name) {
     final k = RegExp.escape(name);
     final out = StringBuffer();

@@ -167,11 +167,37 @@ Map<String, Json> notationSiteVariables(Object? manifestVariables, NotationAppSt
 /// It reads the expressions as text, so it is a list to go by, not a
 /// check: a loop's item, a formula's own parameter, a field after a dot, a
 /// function and the runtime's names are left out.
-List<String> notationUndeclaredNames(Json document, {required String text, Set<String> known = const {}}) {
-  final stated = <String>{
-    for (final m in RegExp(r'^[ \t]*(?:state|let|derived|const|var|project)\s+([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(text)) m[1]!,
-    for (final m in RegExp(r'^([a-z_][A-Za-z0-9_]*)\s*=(?!=)', multiLine: true).allMatches(text)) m[1]!,
-    for (final m in RegExp(r'^[ \t]*param\s+([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(text)) m[1]!,
+///
+/// With [others] (the texts of the files the page may call: its components,
+/// the site's definitions), only a name the app's own writing has is listed:
+/// one [text] or one of them mentions. A name the expansion made itself (the
+/// pane a phone shows of a list beside its detail, a component's own state
+/// kept for each call, what a row passes to its menu) is in no file, and
+/// nothing the writer can declare. A name a `state` line of [text] gives is
+/// declared whatever the document made of it (a worked-out value is written
+/// out where it is read, and is no variable of the document).
+///
+/// [drawing], when given, takes the names read only inside a drawing (a
+/// `customPaint`'s lines) in place of the list answered: what is read there
+/// by a wrong name is most often a `repeat`'s index, which is `index`.
+List<String> notationUndeclaredNames(
+  Json document, {
+  required String text,
+  Set<String> known = const {},
+  Iterable<String>? others,
+  List<String>? drawing,
+}) {
+  Set<String> statedIn(String text) => {
+        for (final m in RegExp(r'^[ \t]*(?:state|let|derived|const|var|project)\s+([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(text)) m[1]!,
+        for (final m in RegExp(r'^([a-z_][A-Za-z0-9_]*)\s*=(?!=)', multiLine: true).allMatches(text)) m[1]!,
+        for (final m in RegExp(r'^[ \t]*param\s+([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(text)) m[1]!,
+      };
+  final stated = statedIn(text);
+  // What a component states is its own, kept by the expansion.
+  final statedElsewhere = {for (final o in others ?? const <String>[]) ...statedIn(o)};
+  // The names each and its index give the lines under them.
+  final loops = <String>{
+    for (final m in RegExp(r'^[ \t]*each\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*([A-Za-z_][A-Za-z0-9_]*))?\s+in\b', multiLine: true).allMatches(text)) ...[m[1]!, ?m[2]],
   };
   final declared = <String>{};
   final made = <String>{};
@@ -184,9 +210,27 @@ List<String> notationUndeclaredNames(Json document, {required String text, Set<S
       (stated.contains(name) ? declared : made).add(name);
     }
   }
+  final mentioned = <String, bool>{};
+  // (With no [others] given, what the page's own text does not mention may
+  // be a component's, and is listed as before.)
+  bool written(String name) =>
+      mentioned[name] ??= _mentions(text, name) || (others == null ? !made.contains(name) : others.any((o) => _mentions(o, name)));
   final out = <String>{};
+  final drawn = <String>{};
+  var inDrawing = false;
   bool skip(String name) =>
-      known.contains(name) || declared.contains(name) || _notNames.contains(name) || !RegExp(r'^[a-z_]').hasMatch(name);
+      known.contains(name) ||
+      declared.contains(name) ||
+      stated.contains(name) ||
+      _notNames.contains(name) ||
+      !RegExp(r'^[a-z_]').hasMatch(name) ||
+      // In no file of the app: the expansion's own.
+      !written(name) ||
+      // Made by the expansion under the name of a loop's item (what a row
+      // hands the menu it opens): the loop declares it.
+      (made.contains(name) && loops.contains(name)) ||
+      (made.contains(name) && statedElsewhere.contains(name) && !_mentions(text, name));
+  void add(String name) => (inDrawing ? drawn : out).add(name);
   void read(String expression) {
     final code = expression.replaceAll(RegExp('"(?:[^"\\\\]|\\\\.)*"|\'(?:[^\'\\\\]|\\\\.)*\''), '""');
     final own = <String>{
@@ -200,7 +244,7 @@ List<String> notationUndeclaredNames(Json document, {required String text, Set<S
       // A record's key (`{merchant: draft}`) is a name, not a value.
       final before = code.substring(0, m.start).trimRight();
       if ((before.endsWith('{') || before.endsWith(',')) && RegExp(r'^:(?!:)').hasMatch(after) && !before.endsWith('?')) continue;
-      out.add(name);
+      add(name);
     }
   }
 
@@ -228,15 +272,27 @@ List<String> notationUndeclaredNames(Json document, {required String text, Set<S
     } else if (json is Map) {
       if (json['type'] == 'setVariable' && json['variable'] is String) {
         final name = (json['variable'] as String).split('.').first.split('[').first;
-        if (!skip(name)) out.add(name);
+        if (!skip(name)) add(name);
       }
-      json.values.forEach(walk);
+      for (final e in json.entries) {
+        // A drawing's lines (a customPaint's painter and foregroundPainter).
+        final paint = !inDrawing && (e.key == 'painter' || e.key == 'foregroundPainter') && e.value is List;
+        if (paint) inDrawing = true;
+        walk(e.value);
+        if (paint) inDrawing = false;
+      }
     }
   }
 
   walk(document['nodes']);
   for (final name in made) {
     if (!skip(name) && _mentions(text, name)) out.add(name);
+  }
+  drawn.removeAll(out);
+  if (drawing != null) {
+    drawing.addAll(drawn);
+  } else {
+    out.addAll(drawn);
   }
   return out.toList();
 }
