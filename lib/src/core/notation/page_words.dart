@@ -50,6 +50,7 @@ final class PageWords {
     this.accent = '#FF2563EB',
     this.siteHeadline,
     this.siteType = const {},
+    this.colorOf,
     this.page,
     this.selectedFill = '#FFE5E7EB',
     this.selectedRow,
@@ -115,6 +116,10 @@ final class PageWords {
   /// gives no size of its own. A website's page written with an app's sizes
   /// (a 13 px paragraph, a 24 px section heading) read as a form.
   final Map<String, num> siteType;
+
+  /// The value (`#AARRGGBB`) of a color the theme names, or null: what a
+  /// band written `fill=ink` is drawn in ([_bandInk]).
+  final String? Function(String name)? colorOf;
 
   /// The name of the page being read (what `go <name>` goes to), or null.
   final String? page;
@@ -425,6 +430,49 @@ final class PageWords {
       return;
     }
     side.railBreaks++;
+  }
+
+  /// A line that draws on a ground of its own.
+  static final _grounded = RegExp(r'(^|\s)(fill|gradient|image|fills)=');
+
+  /// The looks of a text that are a second ink (a lead, a muted line) and a
+  /// third (a caption, a label over a group).
+  static const _quietLooks = {'lead', 'muted', 'bodySecondary', 'small', 'reading', 'mono'};
+  static const _faintLooks = {'caption', 'overline', 'meta', 'helper'};
+
+  /// The inks (the first, a second, a third) of the texts on a band whose
+  /// ground is its own ([parts]: the Section's line), or null where the
+  /// theme's inks read on it (no ground of its own, a light one, a color
+  /// the theme does not name).
+  (String, String, String)? _bandInk(_Parts parts) {
+    double? luma(String hex) {
+      final m = RegExp(r'^#([0-9A-Fa-f]{2})?([0-9A-Fa-f]{6})$').firstMatch(hex);
+      if (m == null) return null;
+      // (A wash of a color over the page is the page still.)
+      if (m[1] != null && int.parse(m[1]!, radix: 16) < 0x99) return null;
+      final v = int.parse(m[2]!, radix: 16);
+      return (0.2126 * ((v >> 16) & 0xff) + 0.7152 * ((v >> 8) & 0xff) + 0.0722 * (v & 0xff)) / 255;
+    }
+
+    const onDark = ('#FFFFFFFF', '#D9FFFFFF', '#B3FFFFFF');
+    if (parts.has('image') && !const {'none', 'false'}.contains(parts.value('scrim'))) return onDark;
+    if (parts.value('gradient') case final String g) {
+      final stops = [
+        for (final m in RegExp(r'#[0-9A-Fa-f]{6,8}').allMatches(g))
+          if (luma(m[0]!) case final double l) l,
+      ];
+      return stops.isNotEmpty && stops.reduce((a, b) => a + b) / stops.length < 0.4 ? onDark : null;
+    }
+    final fill = parts.value('fill');
+    if (fill == null) return null;
+    // The accent, by its name: what the theme draws on it, in either mode.
+    if (fill == 'primary' || (fill == 'accent' && accentName == 'accent')) {
+      final on = fill == 'primary' ? 'onPrimary' : 'onAccent';
+      return colorOf?.call(on) == null ? null : (on, on, on);
+    }
+    final value = fill.startsWith('#') ? fill : colorOf?.call(fill);
+    final l = value == null ? null : luma(value);
+    return l != null && l < 0.4 ? onDark : null;
   }
 
   /// The words that draw and do nothing by themselves.
@@ -1162,7 +1210,10 @@ final class PageWords {
         ..breaksBefore = side?.railBreaks ?? 0
         // A design system's frame written `flush` (Cards' `Panel … flush`):
         // its lines run to its edges, which are their border.
-        ..flush = word != null && isComponent(word) && _flush.hasMatch(rest);
+        ..flush = word != null && isComponent(word) && _flush.hasMatch(rest)
+        // What is drawn on a ground of its own: a card, a component, a
+        // line with a fill (its texts are not the band's: [_bandInk]).
+        ..ownGround = word != null && (word == 'Card' || word == 'Panel' || isComponent(word) || _grounded.hasMatch(rest));
       _open.add(l);
       return l;
     }
@@ -1320,7 +1371,7 @@ final class PageWords {
       final bleed = parts.word('bleed');
       // A tinted band: the page's alternate ground, ruled off above and below.
       final tint = parts.word('tint') | parts.word('alt') | parts.word('band') | parts.word('muted');
-      final grounded = tint || parts.has('fill');
+      final grounded = tint || parts.has('fill') || parts.has('gradient') || parts.has('image');
       // A plain Section after a plain Section starts half its space down:
       // two sections' padding made 128 px of white between them.
       final plain = !grounded && !bleed && !footer && parent?.frame == 'Page';
@@ -1332,9 +1383,25 @@ final class PageWords {
       // a step off whatever its ground is, light or dark. With no fill at
       // all a tinted section was two sections' padding of bare page.)
       final banded = tint && !parts.has('fill') ? ' fill=${band ?? '#14808080'} border-top=$line border-bottom=$line' : '';
+      // The ink of what is written on the band's own ground: light on a
+      // dark fill, a dark gradient or a picture, the theme's `onPrimary` on
+      // its accent ([_bandInk]). Read before the picture is taken off.
+      final inks = _bandInk(parts);
+      // `image="…"`: a picture as the band's ground, under a scrim its
+      // text reads on (`scrim=#66000000`, or `scrim=none`), from edge to
+      // edge and top to bottom whatever the picture's shape.
+      var picture = '';
+      if (parts.take('image') case final String image) {
+        final scrim = parts.take('scrim') ?? '#73000000';
+        final over = scrim == 'none' || scrim == 'false' ? '' : ',{"color":"$scrim"}';
+        final bound = image.startsWith('{');
+        picture = ' fills=[{"image":{"url":${bound ? '""' : image},"fit":"cover"}}$over]${bound ? ' fills[0].image.url=$image' : ''}';
+      }
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
-      final section = open(frame: 'Section', shift: 2)..foot = footer;
+      final section = open(frame: 'Section', shift: 2)
+        ..foot = footer
+        ..inks = inks;
       // A plain Section straight under the page's bar: whether it holds the
       // page's headline is known once its lines are read ([underBarHeroes]).
       if (plain && afterBar && !ownPad) {
@@ -1346,7 +1413,7 @@ final class PageWords {
       if (footer && parent?.frame == 'Page') out.add((indent: at, text: 'Spacer'));
       if (footer) out.add((indent: at, text: 'Divider'));
       return out
-        ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded${parts.all}'))
+        ..add((indent: at, text: 'Column${_role('section')}$mark w=fill center pad=$pad$banded$picture${parts.all}'))
         ..add((indent: at + 2, text: 'Column w=fill${bleed ? '' : ' maxw=$width'} gap=$gap${inner.isEmpty ? '' : ' ${inner.join(' ')}'}'));
     }
     if (_bars.contains(word) && !isComponentCall(word, parts)) {
@@ -1594,6 +1661,19 @@ final class PageWords {
         (mark.startsWith('.pageTitle') || mark.startsWith('.heading1') || mark.startsWith('.display') || (double.tryParse(parts.value('size') ?? '') ?? 0) >= 32)) {
       _open.lastWhere((l) => l.frame == 'Section').hero = true;
     }
+    // A text on a band with a ground of its own (a dark fill, a picture,
+    // the accent) is in the ink that reads on it, unless it says its color
+    // or is on a ground of its own further in (a card on the band).
+    var onBand = '';
+    if (word == 'Text' && !parts.has('color') && !mark.startsWith('.{')) {
+      final from = _open.lastIndexWhere((l) => l.frame == 'Section' && l.inks != null);
+      if (from >= 0 && !_open.skip(from + 1).any((l) => l.ownGround)) {
+        final inks = _open[from].inks!;
+        final name = mark.startsWith('.') ? mark.substring(1).split('#').first : 'body';
+        onBand = ' color=${_faintLooks.contains(name) ? inks.$3 : _quietLooks.contains(name) ? inks.$2 : inks.$1}';
+        text = '$text$onBand';
+      }
+    }
     // A website's text is a website's size: its headline a display size,
     // the headings under it in proportion, its running text 16, wherever it
     // is written under the Page (a Section, a column of the page's own, a
@@ -1610,7 +1690,7 @@ final class PageWords {
       if (textVariants.contains('${name}Page') && !name.endsWith('Page') && !_open.any((l) => l.frame == 'Section' && l.foot)) {
         open(frame: null);
         final id = mark.contains('#') ? mark.substring(mark.indexOf('#')) : '';
-        return out..add((indent: at, text: 'Text.${name}Page$id$rest'));
+        return out..add((indent: at, text: 'Text.${name}Page$id$rest$onBand'));
       }
       if (siteType[name] case final num size) {
         open(frame: null);
@@ -1930,6 +2010,13 @@ class _Line {
 
   /// Whether this Section is the page's Footer.
   bool foot = false;
+
+  /// A Section with a ground of its own on which the theme's inks do not
+  /// read: the inks of its texts (the first, a second, a third).
+  (String, String, String)? inks;
+
+  /// Whether the line draws on a ground of its own (a card, a fill).
+  bool ownGround = false;
   ///
   /// Each is a link (a quiet button) or, with its [mark] (`.outline`, empty
   /// for a plain one), another labelled button of the bar.

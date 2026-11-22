@@ -306,6 +306,7 @@ final class NotationOptions {
     this.fieldText,
     this.reflow = true,
     this.displaySizes = const {},
+    this.colorValues = const {},
     this.themeTextStyles = const {},
     this.quietInks,
     this.projectVariables = const {},
@@ -411,6 +412,7 @@ final class NotationOptions {
         fieldText: fieldText,
         reflow: reflow ?? this.reflow,
         displaySizes: displaySizes,
+        colorValues: colorValues,
         themeTextStyles: themeTextStyles,
         quietInks: quietInks,
         projectVariables: projectVariables,
@@ -482,6 +484,7 @@ final class NotationOptions {
       fieldText: base.fieldText,
       reflow: base.reflow,
       displaySizes: base.displaySizes,
+      colorValues: base.colorValues,
       themeTextStyles: base.themeTextStyles,
       quietInks: base.quietInks,
       projectVariables: projectVariables,
@@ -743,6 +746,10 @@ final class NotationOptions {
         for (final e in textStyles.entries)
           if (readMap(e.value) case final Json s) e.key: s,
       },
+      colorValues: {
+        for (final n in {...colors.keys, ...ThemeTokens.roleNames})
+          if (hexOf(n) case final String v) n: v,
+      },
       displaySizes: {
         for (final e in textStyles.entries)
           if (readMap(e.value)?['fontSize'] case final num size when size >= 32) e.key: size,
@@ -840,6 +847,7 @@ final class NotationOptions {
         // nothing else of it is laid out again.
         reflow: reflow && width < 700,
         displaySizes: displaySizes,
+        colorValues: colorValues,
         themeTextStyles: themeTextStyles,
         quietInks: quietInks,
         openVocabulary: openVocabulary,
@@ -1004,6 +1012,11 @@ final class NotationOptions {
   /// The theme's text styles of a headline's size (32 and up), by name →
   /// font size: a text in one of them is smaller on a phone.
   final Map<String, num> displaySizes;
+
+  /// The theme's colors and roles by name → `#AARRGGBB`, as its light side
+  /// has them: what a page's band written `fill=<name>` is drawn in, for
+  /// the ink of the texts on it.
+  final Map<String, String> colorValues;
 
   /// The inks of a sidebar's or a bar's items at rest, of their icons and of
   /// what is fainter still, on a dark ground: its ink at 80, 60 and 40 %.
@@ -3530,6 +3543,7 @@ class _Parser {
     accent: options.accent.startsWith('#') ? options.accent : '#FF2563EB',
     // A website's headline at a display size, unless the theme gives its
     // own headline one (a heading1 or pageTitle of 32 and up).
+    colorOf: (name) => options.colorValues[name],
     siteHeadline: options.displaySizes['heading1'] != null || options.displaySizes['pageTitle'] != null ? null : notationSiteType['heading1'],
     siteType: () {
       bool sized(String name) => options.themeTextStyles[name]?['fontSize'] is num;
