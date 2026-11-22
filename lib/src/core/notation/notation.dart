@@ -2508,6 +2508,16 @@ class _Parser {
     return '$from=updateWhere($from,$pick,${lambda[1]}=>with(${lambda[1]},"${field[1]}",result))';
   }
 
+  /// Whether [raw], a value written without braces, is one call of a formula
+  /// function or of a function of the state (`map(rows,r=>r.id)`), or a
+  /// formula in brackets (`(filter(rows,r=>r.on))`): all of it, to its end.
+  bool _callsFormula(String raw) {
+    if (raw.startsWith('(')) return _closes(raw, 0) == raw.length - 1 && RegExp(r'[A-Za-z_]').hasMatch(raw);
+    final call = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\(').firstMatch(raw);
+    if (call == null || _closes(raw, call.end - 1) != raw.length - 1) return false;
+    return notationFormulaFunctionNames.contains(call[1]) || readList(variables[call[1]]?['parameters']) != null;
+  }
+
   /// Where the bracket at [open] of [s] closes (texts skipped); -1 when it
   /// does not.
   static int _closes(String s, int open) {
@@ -5923,10 +5933,13 @@ class _Parser {
         }
       }
       if (reorders && !isVariable) {
-        return _issue(column,
-            'reorder writes the new order to a list variable, and this each repeats a list that is worked out. Say on the same line how a move is stored: '
+        // (Said, and the list is drawn without it: what is under the each
+        // is read as it is.)
+        _issue(column,
+            'reorder writes the new order to a list variable, and this each repeats a list that is worked out: reorder is left out. Say on the same line how a move is stored: '
             'each row in <list> reorder onReorder={<variable>=…} (in it, result is the list in its new order; result.item, result.from and result.to say what moved). '
             'Rows moved between lists (a board) are a ListView\x27s: ListView reorder.group=board reorder.listKey={…} onReorder={…}.');
+        reorders = false;
       }
       // The universal words of the line the list is under (docs/design/21
       // section 4.1): reorder, selectable, their events, a handle.
@@ -6606,10 +6619,21 @@ class _Parser {
           // `@find(clips,c=>c.id==sel).name` (a field of the record a
           // find picks): shown as read, and a change writes it back.
           final next = list ? 'result[0]' : 'result';
+          // (A state worked out is written out in brackets where it is read:
+          // `@p.name` for `state p={plans[at]}` is `@(plans[at]).name`.)
+          var picked = expr;
+          if (RegExp(r'\)\.[A-Za-z_][A-Za-z0-9_]*$').hasMatch(expr) && expr.startsWith('(') && _closes(expr, 0) == expr.lastIndexOf(').')) {
+            picked = '${expr.substring(1, expr.lastIndexOf(').'))}${expr.substring(expr.lastIndexOf(').') + 1)}';
+          }
           final entry = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]$').firstMatch(expr);
-          final found = RegExp(r'^find\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=>\s*(.+)\)\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(expr);
+          final entryField = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\[(.+)\]\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(picked);
+          final found = RegExp(r'^find\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=>\s*(.+)\)\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(picked);
           final String? write;
-          if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
+          if (entryField != null && variables[entryField[1]]?['value'] is List && _closing(picked, entryField[1]!.length) == picked.lastIndexOf('].')) {
+            // `@rows[at].name`: a field of the record at a place of a list.
+            final (v, at, field) = (entryField[1]!, entryField[2]!, entryField[3]!);
+            write = '$v = setAt($v,$at,with($v[$at],"$field",$next))';
+          } else if (entry != null && variables.containsKey(entry[1]) && _closing(expr, entry[1]!.length) == expr.length - 1) {
             final v = entry[1]!;
             write = variables[v]!['value'] is Map ? '$v = with($v,${entry[2]},$next)' : '$v = setAt($v,${entry[2]},$next)';
           } else if (found != null && variables[found[1]]?['value'] is! Map) {
@@ -7541,6 +7565,11 @@ class _Parser {
             }
             raw = '=$raw';
           }
+        } else if (key != 'drag' && key != 'drop' && _callsFormula(raw)) {
+          // `items=map(shows,x=>x.id)`: a call of a formula function (or a
+          // formula written out in brackets) is no word and no text, so it
+          // is the value worked out, as in braces.
+          raw = '=$raw';
         } else if (raw != 'fill' && raw != 'hug' && !sizeWord && key != 'drag' && key != 'drop' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
           // A bare word is the word itself (tone=quiet). One that names a
           // variable was meant as its value: said, not guessed.
@@ -7563,8 +7592,15 @@ class _Parser {
           // a bare word is a word, braces read the variable.
           final themeWord = options.palette.containsKey(raw) || options.themeColors.contains(raw) || (options.textStyles.containsKey(raw) && (key == 'style' || key == 'from'));
           if (known && !ownValue && !wordKeys.contains(key) && !namesVariable && !themeWord) {
-            _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
-            continue;
+            // `items=rooms`, `tabs=rooms`: a list or a record of the state
+            // is never a word, so the bare name can only be its value.
+            final holds = variables[raw]?['type'];
+            if (holds == 'list' || holds == 'map') {
+              raw = '=$raw';
+            } else {
+              _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
+              continue;
+            }
           }
         }
         // Flutter's names for a Grid's words (test 10: Grid crossAxisCount=,
@@ -9329,8 +9365,28 @@ class _Parser {
     if (sliderEnd != null) {
       final low = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${bind['props.value']}')?.group(1);
       final high = sliderEnd!;
-      if (low == null || !_identifier.hasMatch(high) || high.contains('.')) {
-        _issue(sliderEndColumn, 'A range is a slider with a variable for each end: Slider @low @high min=0 max=100.');
+      // `Slider @d.heat @d.cool` under an each (or two fields of a record):
+      // each end is shown from its field, and one change writes both.
+      final lowField = valueMark != null && low == null && _identifier.hasMatch(valueMark!) && valueMark!.contains('.') ? _fieldWrite(valueMark!, 'result.low') : null;
+      final highField = lowField is! String && lowField != null && _identifier.hasMatch(high) && high.contains('.') ? _fieldWrite(high, 'result.high') : null;
+      if (lowField case (final String lowVariable, final String lowNext, _) when highField is! String && highField != null) {
+        final (highVariable, highNext, _) = highField as (String, String, String);
+        final single = _fieldWrite(valueMark!, 'result');
+        final made = single is String ? null : _formula((single as (String, String, String)).$2);
+        bind['props.rangeEnd'] = _read(high);
+        reactions.removeWhere((r) =>
+            readMap(r['trigger'])?['type'] == 'changed' &&
+            (r['actions'] as List?)?.any((a) => readMap(a)?['type'] == 'setVariable' && readMap(a)?['variable'] == lowVariable && readMap(a)?['value'] == made) == true);
+        reactions.insert(0, {
+          'trigger': {'type': 'changed'},
+          'actions': [
+            {'type': 'setVariable', 'variable': lowVariable, 'value': _formula(lowNext)},
+            {'type': 'setVariable', 'variable': highVariable, 'value': _formula(highNext)},
+          ],
+        });
+      } else if (low == null || !_identifier.hasMatch(high) || high.contains('.')) {
+        _issue(sliderEndColumn,
+            'A range is a slider with a variable for each end, or under an each a field of its item for each: Slider @low @high min=0 max=100, Slider @row.low @row.high min=0 max=100.');
       } else {
         bind['props.rangeEnd'] = _read(high);
         _bindsVariable(high, sliderEndColumn, () => props['max'] is num ? props['max'] : 1);
@@ -11808,9 +11864,13 @@ class _Parser {
     }
     nodes.keys.skip(before).toList().forEach(_emit);
     if (_host == null) _readDefinedOverlays();
-    for (final scroll in _scrolls) {
-      if (_anchors[scroll['node']] case final String id) {
-        scroll['node'] = id;
+    // (An overlay's scroll goes to the page's line too: a sidebar's item,
+    // read again in the drawer made of it, scrolls to the same `id=`.)
+    for (final p in [this, if (_host == null) ..._overlays]) {
+      for (final scroll in p._scrolls) {
+        if ((p._anchors[scroll['node']] ?? _anchors[scroll['node']]) case final String id) {
+          scroll['node'] = id;
+        }
       }
     }
     // With an open vocabulary the page renders whatever it names: an
@@ -12047,6 +12107,33 @@ class _Parser {
   /// (of the validator's runtimeScopes, those no node gives).
   static const _screenScopes = {'data', 'route', 'storage', 'screen', 'theme', 'auth', 'drag', 'perf', 'script', 'speech'};
 
+  /// The names other languages give a variable's type, each as the type to
+  /// write for it (what is said of one names that type).
+  static const _typeNames = {
+    'record': 'map', 'object': 'map', 'dict': 'map', 'json': 'map', 'any': 'map', //
+    'array': 'list', 'number': 'decimal', 'double': 'decimal', 'num': 'decimal', 'float': 'decimal', //
+    'int': 'integer', 'string': 'text', 'str': 'text', 'bool': 'boolean',
+  };
+
+  /// The type of what [formula] gives, as far as how it starts says: a
+  /// record, a list, a test, a text, else a number.
+  static String _formulaType(String formula) {
+    var f = formula.trim();
+    // (What a choice gives is what its first side gives.)
+    final choice = RegExp(r'^[^?"\x27]*\?\s*').firstMatch(f);
+    if (choice != null && !f.startsWith('{') && !f.startsWith('[')) f = f.substring(choice.end);
+    while (f.startsWith('(')) {
+      f = f.substring(1).trimLeft();
+    }
+    if (RegExp(r'^(\{|with\(|merge\(|obj\(|object\(|find\(|set\(|unset\(|pick\(|toMap\(|groupBy\(|maxBy\(|minBy\()').hasMatch(f)) return 'map';
+    if (RegExp(r'^(\[|map\(|filter\(|where\(|sortBy\(|sortByDesc\(|append\(|prepend\(|concat\(|range\(|take\(|skip\(|slice\(|unique\(|reverse\(|without\(|updateWhere\(|removeWhere\(|removeAt\(|insertAt\(|setAt\(|move\(|keys\(|values\(|split\()').hasMatch(f)) return 'list';
+    if (RegExp(r'^(!|contains\(|any\(|all\(|isEmpty\(|isNotEmpty\(|startsWith\(|endsWith\(|matches\(|isToday\(|isPast\(|isFuture\(|isAfter\(|isBefore\(|isSameDay\(|true\b|false\b)').hasMatch(f)) return 'boolean';
+    if (RegExp(r'^("|\x27|join\(|upper\(|lower\(|trim\(|text\(|formatDate\(|money\(|replace\(|substring\(|titleCase\(|slug\(|pad\(|padLeft\(|padRight\(|timeAgo\(|plural\()').hasMatch(f)) return 'text';
+    final code = formula.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
+    if (!code.contains('?') && RegExp(r'==|!=|<=|>=|&&|\|\||(?<![=-])[<>](?!=)').hasMatch(code.replaceAll('=>', ''))) return 'boolean';
+    return 'decimal';
+  }
+
   /// The line each state of the text was written on.
   final _stateLines = <String, int>{};
 
@@ -12092,7 +12179,7 @@ class _Parser {
       final name = typed[1]!, type = typed[3]!.toLowerCase(), value = typed[4]?.trim();
       final params = [for (final p in (typed[2] ?? '').split(',')) if (p.trim().isNotEmpty) p.trim()];
       if (!const {'integer', 'text', 'decimal', 'boolean', 'color', 'list', 'map', 'image', 'choice'}.contains(type)) {
-        return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null: state $name:${type == 'bool' ? 'boolean' : type == 'number' || type == 'double' || type == 'num' ? 'decimal' : type == 'int' ? 'integer' : type == 'string' ? 'text' : 'decimal'}=${value ?? '0'}.');
+        return _issue(column, 'A variable\x27s type is one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null ("$type" is not one): state $name${typed[2] == null ? '' : '(${typed[2]})'}:${_typeNames.containsKey(type) ? _typeNames[type]! : value != null && _bracedExpression(value) ? _formulaType(value.substring(1, value.length - 1)) : value == null ? 'text' : switch (_value(value)) { bool _ => 'boolean', int _ => 'integer', num _ => 'decimal', List _ => 'list', Map _ => 'map', _ => 'text' }}=${value ?? '""'}.');
       }
       final formula = value != null && _bracedExpression(value);
       if (typed[2] != null && !formula) return _issue(column, 'A function is a formula in braces: state $name(${typed[2]}):$type={…}.');
@@ -12132,10 +12219,15 @@ class _Parser {
       };
       return;
     }
-    // A function with no type: what it gives is not known from its formula.
+    // A function with no type (`state slot(day,meal)={with({},"day",day)}`):
+    // its type is what its formula starts as (a record, a list, a test, a
+    // text, else a number). A call gives what the formula gives whatever
+    // the type says, so the function is read as written.
+    if (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\(([^()]*)\)\s*=\s*(\{.*\})$').firstMatch(rest) case final untyped? when _bracedExpression(untyped[3]!)) {
+      return _state('${untyped[1]}(${untyped[2]}):${_formulaType(untyped[3]!.substring(1, untyped[3]!.length - 1))}=${untyped[3]}${saved ? ' saved' : ''}', column);
+    }
     if (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\(([^()]*)\)\s*=').firstMatch(rest) case final untyped?) {
-      return _issue(column,
-          'A function says the type of what it gives, after its parameters: state ${untyped[1]}(${untyped[2]}):boolean={…} (one of integer, decimal, text, boolean, list, map).');
+      return _issue(column, 'A function is a formula in braces: state ${untyped[1]}(${untyped[2]})={…}.');
     }
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');

@@ -71,11 +71,14 @@ Box#b w=200 h=60
     });
   });
 
-  test('a function with no type is said, with the line to write', () {
+  test('a function with no type is read: its type is what its formula starts as; one with no formula says the line to write', () {
     final r = _parse('state rows:list=[]\nstate fits(c)={c.minutes > 3}\nColumn\n  Text "{count(rows, c => fits(c))}"\n');
-    expect(_said(r).where((m) => m.contains('state fits(c):boolean={…}')), hasLength(1));
-    expect(r.issues.first.line, 2);
-    expect(_said(r).join('\n'), isNot(contains('State is written: state name=value')));
+    expect(_said(r), isEmpty);
+    final fits = (r.document['variables'] as Map).values.expand((l) => l as List).cast<Map>().firstWhere((v) => v['name'] == 'fits');
+    expect((fits['type'], fits['formula']), ('boolean', 'c.minutes > 3'));
+    expect(fits['parameters'], ['c']);
+    final bare = _parse('state fits(c)=c.minutes\nColumn\n  Text "a"\n');
+    expect(_said(bare).single, 'A function is a formula in braces: state fits(c)={…}.');
   });
 
   test('a painter\'s own key that is worked out is said and left out; its ops\' are read', () {

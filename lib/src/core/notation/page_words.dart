@@ -1132,7 +1132,14 @@ final class PageWords {
     if (word == 'Section' || (word == 'Footer' && !inApp) || (word == 'Hero' && !isComponent('Hero'))) {
       if (!framed) {
         open();
-        return out..add((indent: at, text: 'Column$mark w=fill${parts.has('gap') ? '' : ' gap=16'}${parts.all}'));
+        // (Out of a page's frame its own words still hold: narrow is its
+        // width; wide, compact and tight say nothing there.)
+        final narrow = parts.word('narrow') && !parts.has('maxw') ? ' maxw=${_n(narrowWidth)}' : '';
+        parts
+          ..word('wide')
+          ..word('compact')
+          ..word('tight');
+        return out..add((indent: at, text: 'Column$mark w=fill${parts.has('gap') ? '' : ' gap=16'}$narrow${parts.all}'));
       }
       final footer = word == 'Footer';
       final width = parts.take('maxw') ?? (parts.word('narrow') ? _n(narrowWidth) : _n(contentWidth));
