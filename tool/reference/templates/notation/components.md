@@ -43,6 +43,23 @@ as a line uses it. The notation's shorthand words of earlier versions (`Heading`
 such definitions now: a dictionary that has them reads pages written with them.
 
 <!-- shorthand -->
+## Values a word of your own is given
+
+A word written with `define` takes its strings in the order its signature names them, then its parameters by name.
+A string may have a default, written after it: `define SiteNav "current"=home` (also `"current"=""`, `"id"=0`) is
+read as the parameter `current="home"`, which a use's string fills (`SiteNav "menu"`) and a use with none leaves at
+its default (`SiteNav`).
+
+Past its strings, what a use writes with no key is the next parameter of the signature in order: a number
+(`StoryCard "Tides" "A walk" 14` for `define StoryCard "title" "dek" minutes=0`), a further text, or a value of the
+page (`Pic "a" p.seed`).
+
+An item of an `each` is passed whole: `define ProductCard p={}` reads `{p.name}` and `{p.price}` in its lines, and a
+use under `each p in products` writes `ProductCard p={p}` (`p=p` is read the same: a whole item is never a word).
+
+A parameter that is a choice (a tone, a size) takes another word for one of its values as that value: `tone="error"`
+where the tones are `info`, `success`, `warning`, `danger`; `warn`, `ok`, `small`, `medium`, `large` likewise.
+
 ## The shorthand words of earlier versions
 
 Up to 37.x the notation had shorthand words of its own (`Heading`, `NavItem`, `Link`, `Brand` …). They are plain

@@ -1455,6 +1455,7 @@ final class ScrollToAction extends CoreAction {
   const ScrollToAction({
     this.node = '',
     this.item = '',
+    this.index = '',
     this.durationMs = 400,
     this.curve = 'easeInOut',
     this.alignment = 0,
@@ -1476,6 +1477,11 @@ final class ScrollToAction extends CoreAction {
   /// key of the item whose copy to reveal (an expression; the list's item
   /// key, `id` by default, or else its index). Empty: the first copy.
   final String item;
+
+  /// When [node] repeats: the position (from 0) of the copy to reveal, an
+  /// expression, whatever the items' keys are. It wins over [item]. A
+  /// position no item has reveals nothing.
+  final String index;
   final int durationMs;
 
   /// A `Curves` name.
@@ -1491,6 +1497,7 @@ final class ScrollToAction extends CoreAction {
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
     node: _s(m, 'node'),
     item: _s(m, 'item'),
+    index: m['index'] is num ? '${m['index']}' : _s(m, 'index'),
     durationMs: _i(m, 'durationMs', 400),
     curve: _s(m, 'curve', 'easeInOut'),
     alignment: _d(m, 'alignment', 0),
@@ -1506,6 +1513,7 @@ final class ScrollToAction extends CoreAction {
   Json get _fields => {
     'node': node,
     if (item.isNotEmpty) 'item': item,
+    if (index.isNotEmpty) 'index': index,
     if (durationMs != 400) 'durationMs': durationMs,
     if (curve != 'easeInOut') 'curve': curve,
     if (alignment != 0) 'alignment': writeDouble(alignment),

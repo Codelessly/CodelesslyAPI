@@ -102,7 +102,30 @@ ListView h=300 onRefresh={posts=posts}
     Text "{item.text}"
 ```
 
+## A name for each copy
+
+Under an `each`, `id={m.name}` (or a text with a value in it, `id="sec{m.n}"`) on the repeated line names each copy
+by its item. A scroll to that name reaches the copy whose item gives it: `scroll {m.name}` from a row of a sidebar,
+`scroll sec2`, `scroll {"sec" + tab}`; a copy its list has not built yet is built first. A name no copy has is a
+line's own id, as before (`Section#pricing`, `id=pricing`). The name reads the item alone (not its `index`), and
+the each is not inside another each: there, name the line (`Row#msg`) and write `scrollTo node=msg item={x}` (the
+copy of the item whose `id` is `x`) or `scrollTo node=msg index={i}` (the copy at position `i`, from 0).
+
+## A list put in order by hand
+
+`each stop in trip reorder` lets its rows be dragged by their `Handle` (or moved with Alt and the arrows) and writes
+the new order to `trip`. `Handle icon="menu"` is the grip with another glyph. Over a list that is worked out
+(`each x in day.items reorder`), the each's line says how a move is stored: `each x in day.items reorder
+onReorder={days=updateWhere(days,d=>d.id==day.id,d=>with(d,"items",result))}`; in it `result` is the list in its new
+order, and `result.item`, `result.from` and `result.to` say what moved. Over a field of a record a `find` picks, or of
+the item of an each around it, the order is written back into that record with nothing more to write.
+
 ## A table of records
+
+A table's records may be written on its line: `DataTable rows=[{"n":"path","t":"string"},{"n":"depth","t":"number"}]
+columns=[{"key":"n","label":"Name"},{"key":"t","label":"Type"}]`. `rows=orders`, the bare name of a list of the state,
+is that list.
+
 
 Rows of records with the same fields are a `Table`: `Table o in orders columns=[…]` writes a finished table, the
 way a careful hand would: a frame on the theme's surface with a hairline on every side and rounded corners that
@@ -289,6 +312,10 @@ Column h=300
   each m in msgs follow grow
     Text#msg "{m.text}" pad=12
 ```
+
+On the line of an each that follows its end, `pad=` and `gap=` are the room around the rows of the list it makes and
+the gap between them: `each m in messages follow grow pad=[24,16] gap=6`. `follow` is a word of the each's line
+only; on a Column it is said, with the line to write.
 
 ## A list chosen from and swiped
 

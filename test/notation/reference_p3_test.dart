@@ -162,7 +162,8 @@ void main() {
     test('form, pan, motion, reorderHandle and a text style field by name print as written', () {
       _same('Column\n  Column form=true\n    Input "A"');
       _same('Column\n  box w=40 h=40 pan.axis=horizontal');
-      _same('Column\n  box w=40 h=40 motion.scale=1.2');
+      _same('Column\n  box w=40 h=40 scale=1.2');
+      _same('Column\n  box w=40 h=40 motion.shiftX=0.5');
       _same('Column\n  Row reorderHandle=true\n    Text "x"');
       _same('Column\n  Text "t" letterSpacing=0.4');
       // A text style field by its path prints as its word.

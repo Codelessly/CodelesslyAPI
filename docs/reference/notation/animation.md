@@ -73,6 +73,9 @@ Column gap=12 center
       Text "Copy" grow
 ```
 
+A motion may hold only while a condition does: `animate={reduced ? "" : "slide-up"}` plays the entrance unless
+`reduced` holds (the empty text is no motion), and its `duration=` and `delay=` may be worked out too.
+
 <a id="animation-animation-lines"></a>
 ## Animation lines
 

@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5157
+      "words": 5351
     },
     {
       "topic": "layout-sizes",
@@ -118,6 +118,13 @@
       "anchor": "layout-place",
       "title": "Place",
       "words": 212
+    },
+    {
+      "topic": "layout-a-word-given-a-condition",
+      "file": "layout.md",
+      "anchor": "layout-a-word-given-a-condition",
+      "title": "A word given a condition",
+      "words": 186
     },
     {
       "topic": "layout-scrolling",
@@ -217,14 +224,14 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 3879
+      "words": 3937
     },
     {
       "topic": "decoration-fills-borders-and-corners",
       "file": "decoration.md",
       "anchor": "decoration-fills-borders-and-corners",
       "title": "Fills, borders and corners",
-      "words": 160
+      "words": 218
     },
     {
       "topic": "decoration-pictures-and-icons",
@@ -302,7 +309,7 @@
       "anchor": "page-paint",
       "title": "Custom paint",
       "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
-      "words": 2114
+      "words": 2311
     },
     {
       "topic": "paint-the-lines",
@@ -310,6 +317,13 @@
       "anchor": "paint-the-lines",
       "title": "The lines",
       "words": 379
+    },
+    {
+      "topic": "paint-conditions-and-lists-in-a-drawing",
+      "file": "paint.md",
+      "anchor": "paint-conditions-and-lists-in-a-drawing",
+      "title": "Conditions and lists in a drawing",
+      "words": 188
     },
     {
       "topic": "paint-glows-soft-shadows-and-gradients-in-a-drawing",
@@ -423,7 +437,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 9481
+      "words": 9813
     },
     {
       "topic": "lists-a-list-over-data",
@@ -433,11 +447,25 @@
       "words": 781
     },
     {
+      "topic": "lists-a-name-for-each-copy",
+      "file": "lists.md",
+      "anchor": "lists-a-name-for-each-copy",
+      "title": "A name for each copy",
+      "words": 121
+    },
+    {
+      "topic": "lists-a-list-put-in-order-by-hand",
+      "file": "lists.md",
+      "anchor": "lists-a-list-put-in-order-by-hand",
+      "title": "A list put in order by hand",
+      "words": 111
+    },
+    {
       "topic": "lists-a-table-of-records",
       "file": "lists.md",
       "anchor": "lists-a-table-of-records",
       "title": "A table of records",
-      "words": 1035
+      "words": 1060
     },
     {
       "topic": "lists-a-list-of-its-own-line",
@@ -458,7 +486,7 @@
       "file": "lists.md",
       "anchor": "lists-a-list-that-follows-its-newest-entry",
       "title": "A list that follows its newest entry",
-      "words": 902
+      "words": 959
     },
     {
       "topic": "lists-a-list-chosen-from-and-swiped",
@@ -508,7 +536,7 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3756
+      "words": 3884
     },
     {
       "topic": "state-variables",
@@ -516,6 +544,13 @@
       "anchor": "state-variables",
       "title": "Variables",
       "words": 306
+    },
+    {
+      "topic": "state-values-in-a-text",
+      "file": "state.md",
+      "anchor": "state-values-in-a-text",
+      "title": "Values in a text",
+      "words": 121
     },
     {
       "topic": "state-bindings",
@@ -558,7 +593,7 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 6423
+      "words": 6709
     },
     {
       "topic": "events-an-event",
@@ -568,11 +603,25 @@
       "words": 2137
     },
     {
+      "topic": "events-once-the-page-opens-and-once-an-overlay-closes",
+      "file": "events.md",
+      "anchor": "events-once-the-page-opens-and-once-an-overlay-closes",
+      "title": "Once the page opens, and once an overlay closes",
+      "words": 96
+    },
+    {
+      "topic": "events-a-press-as-it-starts-and-as-it-ends",
+      "file": "events.md",
+      "anchor": "events-a-press-as-it-starts-and-as-it-ends",
+      "title": "A press as it starts and as it ends",
+      "words": 98
+    },
+    {
       "topic": "events-actions",
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 4209
+      "words": 4277
     },
     {
       "topic": "interaction",
@@ -630,14 +679,14 @@
       "anchor": "page-animation",
       "title": "Motion",
       "summary": "Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys.",
-      "words": 4693
+      "words": 4729
     },
     {
       "topic": "animation-the-animate-words",
       "file": "animation.md",
       "anchor": "animation-the-animate-words",
       "title": "The animate words",
-      "words": 331
+      "words": 367
     },
     {
       "topic": "animation-animation-lines",
@@ -780,7 +829,7 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 4936
+      "words": 4978
     },
     {
       "topic": "navigation-page-frames",
@@ -794,7 +843,7 @@
       "file": "navigation.md",
       "anchor": "navigation-over-the-page",
       "title": "Over the page",
-      "words": 1396
+      "words": 1438
     },
     {
       "topic": "navigation-screens",
@@ -837,7 +886,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2922
+      "words": 3112
     },
     {
       "topic": "components-calling-one",
@@ -845,6 +894,13 @@
       "anchor": "components-calling-one",
       "title": "Calling one",
       "words": 593
+    },
+    {
+      "topic": "components-values-a-word-of-your-own-is-given",
+      "file": "components.md",
+      "anchor": "components-values-a-word-of-your-own-is-given",
+      "title": "Values a word of your own is given",
+      "words": 179
     },
     {
       "topic": "components-the-shorthand-words-of-earlier-versions",

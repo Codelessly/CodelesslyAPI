@@ -31,9 +31,17 @@ final class _PaintFrame {
   final String kind;
   final Json target;
   final String? list;
+
+  /// The condition of the `if` last written among this block's lines (what
+  /// an `else` after it is the opposite of); null: none.
+  String? lastIf;
 }
 
 final _paintFrames = Expando<List<_PaintFrame>>();
+
+/// The repeats of the text's drawings, each with where it is written: read
+/// once the text is whole ([_PaintWords._paintRepeatsRead]).
+final _paintRepeats = Expando<List<({Json op, int line, int column, String? from})>>();
 
 /// The stroke paint's own fields, written beside `stroke=` on an op's line.
 const notationStrokeWords = {'strokeWidth', 'strokeCap', 'strokeJoin', 'strokeMiterLimit', 'dashPattern', 'scaleStroke'};
@@ -71,6 +79,10 @@ Json? readPaintRecord(
   issues?.addAll(p.issues);
   return out;
 }
+
+/// The name the item of a drawing's repeat has where the drawing is in an
+/// `each` (whose own item is `item` there).
+const _repeated = 'repeated';
 
 extension _PaintWords on _Parser {
   List<_PaintFrame> get _paintStack => _paintFrames[this] ??= [];
@@ -169,6 +181,10 @@ extension _PaintWords on _Parser {
     ];
     final word = RegExp(r'^\S+').stringMatch(text) ?? '';
     var rest = text.substring(word.length);
+    // Under a repeat of the drawing, `item` is the repeat's own: where the
+    // drawing is itself in an each, the repeat's item has a name of its own
+    // ([_repeated]), so the each's item, read as `item`, is not hidden by it.
+    if (_paintStack.any((f) => f.kind == 'op' && f.target['as'] == _repeated)) rest = _rename(rest, 'item', _repeated);
     for (var k = 0; k < eaches.length; k++) {
       final around = eaches.length - 1 - k;
       final to = around == 0 ? 'item' : '${'parent.' * (around - 1)}parent.item';
@@ -207,6 +223,10 @@ extension _PaintWords on _Parser {
         frames.add(_PaintFrame(indent, frame.node, 'none', track));
         _paintChanged(frame.node, 'animations');
         return;
+      case 'customPaint' || 'ops' when _paintControl(indent, text, frame, frame.target, frame.kind == 'ops' ? frame.list! : 'painter', column):
+        return;
+      case 'op' when const {'group', 'repeat'}.contains(DrawOp.opName(frame.target['op'])) && _paintControl(indent, text, frame, frame.target, 'ops', column):
+        return;
       case 'customPaint':
         if (RegExp(r'^foregroundPainter(?=\s|$)').hasMatch(text)) {
           if (text.trim() != 'foregroundPainter') _issue(column, 'A foregroundPainter line holds only the ops under it.');
@@ -232,12 +252,109 @@ extension _PaintWords on _Parser {
     }
   }
 
+  /// `if cond`, `else if cond`, `else` and `each x in list` among a
+  /// drawing's lines, as on a page: the shapes under an `if` are drawn while
+  /// it holds (a group with that `when`), those under an `each` once for
+  /// each item of the list (a repeat that names its item, and its position
+  /// with `each x, i in list`). False: [text] is none of them.
+  bool _paintControl(int indent, String text, _PaintFrame frame, Json into, String list, int column) {
+    final t = text.trim();
+    Json? op;
+    if (RegExp(r'^if\s+\S').hasMatch(t)) {
+      final cond = t.substring(2).trim();
+      frame.lastIf = cond;
+      op = {'op': 'group', 'when': _read(cond)};
+    } else if (t == 'else' || RegExp(r'^else\s+if\s+\S').hasMatch(t)) {
+      final before = frame.lastIf;
+      if (before == null) {
+        _issue(column, 'An else follows an if at its indent: there is none before this line.');
+        _paintStack.add(_PaintFrame(indent, frame.node, 'skip', {}));
+        return true;
+      }
+      if (t == 'else') {
+        frame.lastIf = null;
+        op = {'op': 'group', 'when': _read('!($before)')};
+      } else {
+        final cond = t.replaceFirst(RegExp(r'^else\s+if\s+'), '').trim();
+        frame.lastIf = '($before) || ($cond)';
+        op = {'op': 'group', 'when': _read('!($before) && ($cond)')};
+      }
+    } else if (_Parser._eachHead.firstMatch(t) case final each?) {
+      frame.lastIf = null;
+      final items = t.substring(each.end).trim();
+      if (items.isEmpty) return false;
+      op = {
+        'op': 'repeat',
+        'each': _read(items),
+        if (each[1] != 'item') 'as': each[1],
+        if (each[2] != null && each[2] != 'index') 'indexAs': each[2],
+      };
+      (_paintRepeats[_top] ??= []).add((op: op, line: _line, column: column, from: _from));
+    } else {
+      frame.lastIf = null;
+      return false;
+    }
+    into[list] = [...?(into[list] as List?), op];
+    _paintStack.add(_PaintFrame(indent, frame.node, 'op', op));
+    _paintChanged(frame.node, 'customPaint');
+    return true;
+  }
+
+  /// Says, once the text is whole, each repeat that draws the same shapes
+  /// every time: a set number of times (or once an item) with nothing under
+  /// it reading the position or the item. A name its lines read that nothing
+  /// declares is named: it was meant as one of the two.
+  void _paintRepeatsRead() {
+    for (final r in _paintRepeats[_top] ?? const <({Json op, int line, int column, String? from})>[]) {
+      final count = r.op['count'], each = r.op['each'];
+      if (each == null && !(count is num && count > 1)) continue;
+      final item = '${r.op['as'] ?? 'item'}', index = '${r.op['indexAs'] ?? 'index'}';
+      final itemWritten = item == _repeated ? 'item' : item;
+      final read = <String>[];
+      void walk(Object? v) {
+        if (v is String) {
+          if (v.contains(r'${')) read.add(v);
+        } else if (v is List) {
+          v.forEach(walk);
+        } else if (v is Map) {
+          v.values.forEach(walk);
+        }
+      }
+
+      walk(r.op['ops']);
+      bool reads(String name) => read.any((e) => RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])').hasMatch(e));
+      if (reads(item) || reads(index)) continue;
+      final unknown = <String>{};
+      for (final e in read) {
+        final code = e.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '""');
+        final own = {for (final m in RegExp(r'([A-Za-z_][A-Za-z0-9_]*)\s*=>').allMatches(code)) m[1]!};
+        for (final m in RegExp(r'(?<![A-Za-z0-9_.$#])([A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_])(?!\s*\()').allMatches(code)) {
+          final name = m[1]!;
+          if (own.contains(name) || const {'true', 'false', 'null', 'item', 'index', 'parent', 'props', 'theme', 'screen', 'result', 'count'}.contains(name)) continue;
+          if (variables.containsKey(name) || _projectVariables.contains(name) || options.projectVariables.containsKey(name)) continue;
+          unknown.add(name);
+        }
+      }
+      final what = each == null ? 'the position ($index, from 0)' : 'the item ($itemWritten) or its position ($index)';
+      final named = unknown.isEmpty
+          ? ''
+          : ' ${unknown.map((n) => '"$n"').join(', ')} ${unknown.length == 1 ? 'is no name' : 'are no names'} a repeat gives: write $index${each == null ? '' : ' or $itemWritten'}, or name the position on the repeat (indexAs=${unknown.first}).';
+      final message = 'This repeat draws the same shapes every time: nothing under it reads $what.$named';
+      issues.add(NotationIssue(r.line, r.column, r.from == null ? message : '${r.from}: $message'));
+    }
+    _paintRepeats[_top] = null;
+  }
+
   /// Reads the op [text] into [into]'s list [list], and opens its block.
   void _paintAdd(int indent, String text, _PaintFrame frame, Json into, String list, int column) {
     final op = _paintOp(text, column);
     if (op == null) {
       _paintStack.add(_PaintFrame(indent, frame.node, 'skip', {}));
       return;
+    }
+    if (DrawOp.opName(op['op']) == 'repeat') {
+      if (!op.containsKey('as') && _stack.any((o) => o.each != null)) op['as'] = _repeated;
+      (_paintRepeats[_top] ??= []).add((op: op, line: _line, column: column, from: _from));
     }
     into[list] = [...?(into[list] as List?), op];
     _paintStack.add(_PaintFrame(indent, frame.node, 'op', op));
@@ -409,6 +526,12 @@ extension _PaintWords on _Parser {
           }
         case 'pair':
           final key = p.key!;
+          // A drawing is as big as the line it is under: a size written on
+          // it is that line's.
+          if (head == 'customPaint' && !keys.containsKey(key) && const {'w', 'h', 'width', 'height', 'size', 'maxw', 'maxh', 'minw', 'minh', 'grow'}.contains(key)) {
+            _issue(col, 'A customPaint is the drawing of the line it is under and is as big as that line: write $key= on that line (Box w=240 h=160, the customPaint under it), not on the customPaint. $key=${p.value} is left out.');
+            continue;
+          }
           if (!keys.containsKey(key)) {
             final near = didYouMean(key, keys.keys);
             _paintSay('parameter', key, col, 'A $head has no "$key"${near == null ? '' : ': did you mean $near?'} It takes ${keys.keys.join(', ')}.', on: head, value: p.value);

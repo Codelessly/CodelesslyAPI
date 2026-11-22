@@ -1656,6 +1656,15 @@ String _sidesName(Set<String> sides) {
 const _mainWords = {'start': 'start', 'center': 'center', 'end': 'end', 'between': 'spaceBetween', 'around': 'spaceAround', 'evenly': 'spaceEvenly'};
 /// A flag word written with `=true` or `=false` (after a size's condition or
 /// not): the condition, the word, the value.
+/// The lines an each repeats that name each copy by its item (`id={m.name}`):
+/// the line's node, the each's list and the name as a formula of the item
+/// (`anchorItem`).
+final _repeatAnchors = Expando<List<({String node, String list, String key})>>();
+
+/// What each overlay of the text runs once it has closed (its
+/// `onClose={…}`), by the overlay's id.
+final _overlayCloses = Expando<Map<String, List<Json>>>();
+
 final _flagKey = RegExp(r'^((?:[a-z][A-Za-z0-9]*\.)+)?(scroll|stretch|top|bottom|middle|center|left|right|start|end|between|around|evenly)=(true|false)$');
 
 /// The flags a line reads as bare words that no key of a type is named
@@ -5693,7 +5702,7 @@ class _Parser {
     if (indent == 0 && RegExp(r'^document\s+[A-Za-z]+=').hasMatch(line)) {
       if (_documentLine(line.substring(9), column + 9)) return;
     }
-    line = _derivedWrittenOut(line);
+    line = _derivedWrittenOut(line, ownWordsKept: true);
     // `slot title` under a node: the line under it is the node's child in that
     // slot (a ListTile's title, a badge's child, a block's actions), as a
     // component's head names its slots with `slot name`.
@@ -5881,7 +5890,7 @@ class _Parser {
     final eachEvents = <String>[];
     // `each m in rows follow grow jumpToLatest=false`: the following list's
     // own keys, as its events are.
-    final eachListKeys = <String, Object?>{};
+    final eachListKeys = <String, Object?>{}, eachListSpace = <String, Object?>{};
     if (line.startsWith('each ')) {
       line = line.trimRight();
       final trailing = RegExp(r'\s(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$');
@@ -5899,7 +5908,8 @@ class _Parser {
         final list = line.substring(eachHead.end);
         final end = _expressionEnd(list);
         if (end < list.length) {
-          final others = <String>[], events = <String>[], keys = <String>[];
+          final others = <String>[], events = <String>[], keys = <String>[], spaces = <String>[];
+          final following = eachWords.containsKey('follow') || _topLevelWords(list.substring(end)).contains('follow');
           for (final w in _topLevelWords(list.substring(end))) {
             final own = RegExp(r'^(stagger=\S+|h=\d+(?:\.\d+)?|follow|grow|handle|reorder(?:=[A-Za-z_][A-Za-z0-9_]*)?)$').firstMatch(w);
             if (own != null) {
@@ -5909,6 +5919,10 @@ class _Parser {
               events.add(w);
             } else if (RegExp(r'^(jumpToLatest|stickToStart|refreshStyle)=[A-Za-z]+$').hasMatch(w)) {
               keys.add(w);
+            } else if (following && RegExp(r'^(pad|gap)=').hasMatch(w) && _literal(w.substring(4)).$1 && (_literal(w.substring(4)).$2 is num || w.startsWith('pad=') && _literal(w.substring(4)).$2 is List)) {
+              // `each m in msgs follow grow pad=[24,16]`: the room around
+              // the rows of the list the each makes, and the gap between them.
+              spaces.add(w);
             } else {
               others.add(w);
             }
@@ -5930,16 +5944,20 @@ class _Parser {
               final v = k.substring(k.indexOf('=') + 1);
               eachListKeys[k.substring(0, k.indexOf('='))] = v == 'true' ? true : v == 'false' ? false : v;
             }
+            for (final s in spaces) {
+              eachListSpace[s.substring(0, 3)] = _literal(s.substring(4)).$2;
+            }
           } else {
             others
               ..addAll(events)
-              ..addAll(keys);
+              ..addAll(keys)
+              ..addAll(spaces);
           }
           line = line.substring(0, eachHead.end + end).trimRight();
           if (others.isNotEmpty) {
             final shown = others.map((w) => w.length > 40 ? '${w.substring(0, 37)}…' : w).join(' ');
             _issue(column + eachHead.end + end,
-                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow; with follow, the list\'s events: onScroll={…}, and its jumpToLatest=, stickToStart=, refreshStyle=): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
+                'An each line takes its list and its own words (reorder, reorder=group, stagger=80, follow, h=180, grow; with follow, the list\'s events: onScroll={…}, and its pad=, gap=, jumpToLatest=, stickToStart=, refreshStyle=): $shown ${others.length == 1 ? 'is' : 'are'} not read there. Write ${others.length == 1 ? 'it' : 'them'} on the line the each is under (Column gap=2 reorder onReorder={…} over each k in list), or on the line under the each.');
           }
         }
       }
@@ -6115,6 +6133,7 @@ class _Parser {
           'width': across && !wraps ? {'hug': 0} : {'fill': 0},
           'height': eachGrows || fillsRow ? {'fill': 0} : follows ? eachHeight : {'hug': 0},
           if (eachGrows) 'flex': 1,
+          if (eachListSpace['pad'] case final Object pad) 'padding': pad,
         },
         // Its handles are one stop of the page: arrows go from row to row
         // (and so are the rows of a list that is selected from).
@@ -6134,7 +6153,7 @@ class _Parser {
                     'scrollable': follows,
                     if (follows) 'stickToEnd': true,
                     ...eachListKeys,
-                    'spacing': (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0,
+                    'spacing': eachListSpace['gap'] ?? (nodes[parent.id]?['props'] as Map?)?['spacing'] ?? 0,
                     if (reorderNow)
                       'reorder': {
                         // A universal reorder with no handle: a long press
@@ -6632,6 +6651,17 @@ class _Parser {
         keyType = found.type;
         keyDef = found.def;
         return found.path;
+      }
+      // What is drawn moved, scaled or turned without being laid out again
+      // (the node's motion), by the names writers reach for: scale={zoom},
+      // rotate=12, translateX={panX}, on a line whose type has no key of
+      // that name.
+      if (notationMotionKeys[key] case final String motion when !component) {
+        if (resolveNotationField(motion, type, catalog: catalog)?.key case final found?) {
+          keyType = found.type;
+          keyDef = found.def;
+          return found.path;
+        }
       }
       unknownKey = true;
       return 'props.$key';
@@ -7228,25 +7258,22 @@ class _Parser {
           _issue(col, 'A value has a key: write @name for the variable a control keeps its value in, key={expression} for a value worked out.');
           continue;
         }
-        if (eq < 0) {
-          final colon = word.indexOf(':');
-          if (colon > 0 && RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(word.substring(0, colon))) {
-            _issue(col, 'A value is written with =, not a colon: ${word.substring(0, colon)}=${colon + 1 < word.length ? word.substring(colon + 1) : '…'}.');
-            if (word.endsWith(':') && t.peek == '"') t.string();
-            if (word.endsWith(':') && (t.peek == '[' || t.peek == '{')) t.balanced();
-            continue;
-          }
+        // `Row end={m.mine}`, `Column center={n==1}`: a word of the line
+        // given a condition is that word while the condition holds (what it
+        // sets is worked out: the word's value when it holds, else what the
+        // line has without it). Tried before the key is said to be unknown.
+        bool flagWord(String word, {bool trial = false}) {
           // `Grid cols=7 keep`: its columns hold at every width (a phone
           // shrinks the cells, it does not stack them).
           if (grid != null && word == 'keep') {
             _keepColumns.add(grid.id);
-            continue;
+            return true;
           }
           // `Row#window keep`: the reflow leaves it, and what is in it, as
           // written at every width (the writer lays it out by width).
           if (word == 'keep' && !component && const {'row', 'column', 'flex', 'stack', 'listView', 'gridView', 'wrap'}.contains(type)) {
             _keep.add(id);
-            continue;
+            return true;
           }
           if (written == 'Box' && (word == 'center' || word == 'middle')) {
             // A box centers what is in it: across with `center`, down with
@@ -7378,6 +7405,15 @@ class _Parser {
             // Every line takes a clip, a call and a text too: what it draws is cut
             // at its (rounded) edge.
             decoration['clip'] = 'antiAlias';
+          } else if (trial) {
+            return false;
+          } else if (RegExp(r'^[A-Za-z][A-Za-z0-9_-]*#[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(word)) {
+            // `Section tint#figures`: an id is the word's, not a flag's.
+            final at = word.indexOf('#');
+            _issue(col, 'An id is written on the first word of the line, ${_srcWord ?? written}${word.substring(at)} ${word.substring(0, at)} (or id=${word.substring(at + 1)}). "$word" is not read, and the line has no id.');
+          } else if (word == 'follow' && !component && !standIn && const {'column', 'row', 'listView'}.contains(type)) {
+            // What follows its end is the list an each makes.
+            _issue(col, 'follow is a word of an each line: each m in messages follow grow (or follow h=180) makes a list that stays at its end as items are added. Write it there, not on the $written.');
           } else if (word == 'resizable' && !component && !standIn) {
             // Round 10, R50 (6 runs): accepted and ignored, or refused as an
             // unknown word. A Splitter says it (once: a pane's line is read
@@ -7406,6 +7442,18 @@ class _Parser {
           } else {
             _issue(col, 'Unknown word "$word" on a $written. Props are written key=value.');
           }
+          return true;
+        }
+
+        if (eq < 0) {
+          final colon = word.indexOf(':');
+          if (colon > 0 && RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(word.substring(0, colon))) {
+            _issue(col, 'A value is written with =, not a colon: ${word.substring(0, colon)}=${colon + 1 < word.length ? word.substring(colon + 1) : '…'}.');
+            if (word.endsWith(':') && t.peek == '"') t.string();
+            if (word.endsWith(':') && (t.peek == '[' || t.peek == '{')) t.balanced();
+            continue;
+          }
+          flagWord(word);
           continue;
         }
         var key = word.substring(0, eq);
@@ -7559,6 +7607,41 @@ class _Parser {
         // `id={m.id}`: a line's name is written as it is, not worked out. A
         // copy a list repeats is reached by its item: the line's name and
         // the item's key (its `id`), or its index.
+        // Under an each, `id={m.name}` (or `id="sec{m.n}"`) names each copy
+        // by its item: a scroll to that name reaches the copy whose item
+        // gives it (`scroll {m.name}`, `scroll sec2`), built first when its
+        // list has not built it yet.
+        if (key == 'id' && !spec.props.any((p) => p.key == 'id') && (raw.isEmpty ? (t.peek == '{' || t.peek == '"') : (raw.startsWith('{') || raw.startsWith('"')))) {
+          final eaches = [for (final o in _stack) if (o.each != null) o];
+          final from = t.at;
+          final given = raw.isNotEmpty ? raw : (t.peek == '{' ? t.balanced() : '"${t.string()}"');
+          String? worked;
+          if (given.startsWith('{') && given.endsWith('}')) {
+            worked = given.substring(1, given.length - 1).trim();
+          } else if (given.startsWith('"')) {
+            final text = given.length > 1 && given.endsWith('"') ? given.substring(1, given.length - 1) : given.substring(1);
+            final spans = _spans(text);
+            if (spans.isNotEmpty) {
+              final parts = <String>[];
+              var at = 0;
+              for (final (start, end) in spans) {
+                if (start > at) parts.add(jsonEncode(text.substring(at, start)));
+                parts.add('(${text.substring(start + 1, end - 1)})');
+                at = end;
+              }
+              if (at < text.length) parts.add(jsonEncode(text.substring(at)));
+              worked = parts.join(' + ');
+            }
+          }
+          final list = eaches.length == 1 ? eaches.single.list : null;
+          if (worked != null && list != null && !RegExp(r'(?<![A-Za-z0-9_.])(index|parent)(?![A-Za-z0-9_])').hasMatch(worked)) {
+            (_repeatAnchors[_top] ??= []).add((node: id, list: list, key: _rename(worked, 'item', 'anchorItem')));
+            continue;
+          }
+          // Not one of those (no each repeats the line, or an each inside
+          // another does): read below, as it was.
+          t.at = from;
+        }
         if (key == 'id' && (raw.isEmpty ? t.peek == '{' : raw.startsWith('{')) && !spec.props.any((p) => p.key == 'id')) {
           if (raw.isEmpty) raw = t.balanced();
           final each = [for (final o in _stack) if (o.each != null) o.each!].lastOrNull;
@@ -7569,7 +7652,7 @@ class _Parser {
               col,
               each == null
                   ? 'An id is a name written as it is (id=$named, or $written#$named), not worked out: id={$value} is left out. A scroll may work out which line it goes to: scroll {expression} reaches the line whose id the expression gives.'
-                  : 'A copy an each repeats has no id of its own: id={$value} is left out. Name the line ($written#$named) and scroll to a copy by its item: '
+                  : 'A copy an each inside another each repeats (or one named by its position) has no id of its own: id={$value} is left out. Name the line ($written#$named) and scroll to a copy by its item: '
                       'scrollTo node=$named item={x} reveals the copy of the item whose id is x (item={i}: the item at index i, from 0), '
                       'in a list that follows its end too (an item not built yet is built and scrolled to).');
           continue;
@@ -7580,6 +7663,8 @@ class _Parser {
         // name (`MenuItem "Copy" onTap={copy "{c.name}"}` for `each c in
         // clips`): a page variable of that name is set to the row's item
         // before the menu opens (in the row its name is still the item).
+        // `menu=none`: no menu, as with no word.
+        if (key == 'menu' && (raw == 'none' || raw == 'false') && !spec.props.any((p) => p.key == 'menu') && !variables.containsKey(raw)) continue;
         if (key == 'menu' && _identifier.hasMatch(raw) && !raw.contains('.') && !spec.props.any((p) => p.key == 'menu')) {
           final eaches = [for (final o in _stack) if (o.each != null) o.each!];
           final pressed = <Json>[
@@ -7707,10 +7792,15 @@ class _Parser {
             // `items=rooms`, `tabs=rooms`: a list or a record of the state
             // is never a word, so the bare name can only be its value.
             final holds = variables[raw]?['type'];
-            if (holds == 'list' || holds == 'map') {
+            // …and so is the item an each repeats (`RestCard r=r` under
+            // `each r in shown`): the whole item is a record, never a word.
+            if (holds == 'list' || holds == 'map' || raw == 'item') {
               raw = '=$raw';
             } else {
-              _issue(col, 'A value read from the state is written in braces: $key={$raw}.');
+              // The line's x was read as `item`: say it by the name written.
+              final x = _stack.reversed.where((o) => o.each != null).firstOrNull?.each;
+              final shown = x != null && raw.startsWith('item.') ? '$x${raw.substring(4)}' : raw;
+              _issue(col, 'A value read from the state is written in braces: $key={$shown}.');
               continue;
             }
           }
@@ -8667,6 +8757,72 @@ class _Parser {
           }
           continue;
         }
+        // `Row end={m.mine}`: a word of the line given a condition. What the
+        // word sets is bound: its value while the condition holds, else the
+        // line as it is without the word.
+        // `Button "…" variant={s.done ? "primary" : "outline"}`: a variant is
+        // part of the word (it picks what the line is made of), so one that
+        // is worked out is two lines, each under its condition.
+        // `Box shadow=soft`: a shadow by its size, written out as the
+        // effect it is (sm or soft, md, lg; none takes it away).
+        if (unknownKey && !standIn && !component && key == 'shadow' && spec.decorated && !raw.startsWith('=')) {
+          final named = notationShadows[_unquoted(raw).toLowerCase()];
+          if (named == null) {
+            _issue(col, 'shadow= takes a size (sm or soft, md, lg) or none: "$raw" is none of them, and is left out. Any other shadow is written out: effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}].');
+          } else {
+            decoration['effects'] = _copyValue(named);
+          }
+          continue;
+        }
+        if (unknownKey && !standIn && key == 'variant' && raw.startsWith('=')) {
+          final choice = RegExp(r'''^(.+?)\s*\?\s*["']?([A-Za-z][A-Za-z0-9]*)["']?\s*:\s*["']?([A-Za-z][A-Za-z0-9]*)["']?$''').firstMatch(raw.substring(1).trim());
+          _issue(
+              col,
+              choice == null
+                  ? 'A variant is part of the word ($written.name), not a value worked out: write the line once for each variant, each under its condition (if … / else).'
+                  : 'A variant is part of the word, not a value worked out: write the line twice, `if ${choice[1]}` with $written.${choice[2]} … under it, then `else` with $written.${choice[3]} … under it.');
+          continue;
+        }
+        // (Given true it is the word, given false it is not written: a
+        // word's own parameter passed on, `Row end={mine}` with mine=false.)
+        final flagGiven = raw == 'true' || raw == 'false';
+        if (unknownKey && !standIn && (flagGiven || raw.startsWith('=') && raw.length > 1) && _identifier.hasMatch(key)) {
+          final was = [_copy(props), _copy(layout), _copy(decoration), _copy(node)];
+          if (flagWord(key, trial: true)) {
+            if (raw == 'true') continue;
+            final now = [props, layout, decoration, node];
+            const roots = ['props', 'layout', 'decoration', ''];
+            final changed = <String, Object?>{};
+            void differ(Object? a, Object? b, String at) {
+              if (b is Map && (a is Map || a == null) && !at.startsWith('layout.') && at.split('.').length < 3) {
+                for (final k in b.keys) {
+                  differ(a is Map ? a[k] : null, b[k], at.isEmpty ? '$k' : '$at.$k');
+                }
+              } else if (jsonEncode(a) != jsonEncode(b)) {
+                changed[at] = b;
+              }
+            }
+
+            for (var i = 0; i < 4; i++) {
+              differ(was[i], now[i], roots[i]);
+            }
+            for (var i = 0; i < 4; i++) {
+              now[i]
+                ..clear()
+                ..addAll(was[i]);
+            }
+            if (flagGiven) continue;
+            final cond = raw.substring(1).trim();
+            if (changed.isEmpty) {
+              _issue(col, '$key is on or off as the line is written, not by a value: write the line under `if $cond` with $key, and under `else` without it.');
+            } else {
+              for (final e in changed.entries) {
+                bind[e.key] = _formula('($cond) ? ${jsonEncode(e.value)} : null');
+              }
+            }
+            continue;
+          }
+        }
         if (unknownKey) {
           unknownKeys.add((key: key, value: _written(word, eq, raw), column: col));
         }
@@ -8730,6 +8886,13 @@ class _Parser {
           // parameter takes (live=polite where it is true or false,
           // size=large where it is a number) is not ours: left out, recorded.
           final declared = unknownKey ? null : keyType;
+          // A choice named by another word for one of its values
+          // (`tone="error"` where the tones are info, success, warning,
+          // danger): that value.
+          if (declared != null && !declared.isVariable && declared.kind == PropKind.enumeration && v is String && !declared.values.contains(v)) {
+            final same = notationSameValues.where((s) => s.contains(v)).expand((s) => s).where(declared.values.contains).firstOrNull;
+            if (same != null) v = same;
+          }
           if (open && declared != null && !(v is String && v.contains(r'${'))) {
             final wrong = !declared.isVariable &&
                 switch (declared.kind) {
@@ -8833,7 +8996,8 @@ class _Parser {
     // reordered by: as big as the line says, else a 44 px target on a phone
     // and a 24 px grip on a desktop (a touch still lands on it in 44 × 44).
     if (ours && written == 'Handle') {
-      props['icon'] = 'drag_indicator';
+      // (Its glyph is the grip's, or the one the line names: Handle icon="menu".)
+      if (!bind.containsKey('props.icon')) props.putIfAbsent('icon', () => 'drag_indicator');
       final grip = options.width >= 700 ? 24 : 44;
       if (!layout.containsKey('flex')) layout.putIfAbsent('width', () => grip);
       layout.putIfAbsent('height', () => grip);
@@ -9581,7 +9745,7 @@ class _Parser {
     // `grow={share}` follows a value: it grows, by 1 until the value is read
     // (a bar's segments sized by their amounts).
     if (bind.containsKey('layout.flex')) layout.putIfAbsent('flex', () => 1);
-    if (stackAlign != null) _stackAlign[id] = stackAlign;
+    if (stackAlign case final placed?) _stackAlign[id] = placed;
     // In a stack, `align=` places the child on both axes, as `x={"align":…}`
     // `y={"align":…}` do: a stack places by x and y alone, so the `align`
     // was left unread and the child sat at 0,0 (12 NOCD parts). A place
@@ -10493,7 +10657,7 @@ class _Parser {
       final at = pre?.parts.where((p) => p.kind == 'pair' && const {'x', 'y', 'layout.x', 'layout.y'}.contains(p.key)).firstOrNull;
       if (at != null) {
         _issue(column + (at.at < 0 ? 0 : at.at),
-            '${at.key} places a line only in a Stack: in this ${parent.type == 'row' ? 'Row' : 'Column'} it sits in turn. To lay it over the others, make what holds it a Stack (Stack w=… h=…, its lines at x= and y=).');
+            '${at.key} places a line only in a Stack: in this ${parent.type == 'row' ? 'Row' : 'Column'} it sits in turn. To lay it over the others, make what holds it a Stack (Stack w=… h=…, its lines at x= and y=); to draw it moved from where it sits, translateX= and translateY=.');
       }
     }
     // A child that fills the height of a box a text made that high at least
@@ -11015,6 +11179,54 @@ class _Parser {
   static final _goes = RegExp(r'(?:^|[{;?:(]|\bthen)\s*go$');
   static final _opensOrCloses = RegExp(r'(?:^|[{;?:(]|\bthen)\s*(?:open|close)$');
 
+  static final _keyLetter = RegExp(r'[A-Za-z0-9_-]');
+  static final _eachHead = RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*([A-Za-z_][A-Za-z0-9_]*))?\s+in\s');
+  static final _nodeHead = RegExp(r'^[A-Z][A-Za-z0-9_.#-]*(\s|$)');
+
+  /// [line] with each place [name] is a word of the line itself, not a value,
+  /// set aside (as a mark that [kept] restores): a bare word after the type
+  /// on a node's line (`Row end`: a flag), and the name an `each` line gives
+  /// its item or its index.
+  String _ownWordsKept(String line, String name, List<String> kept) {
+    String mark() {
+      kept.add(name);
+      return '\u0001${kept.length - 1}\u0002';
+    }
+
+    if (_eachHead.firstMatch(line) case final each? when each[1] == name || each[2] == name) {
+      final head = line.substring(0, each.end);
+      return head.replaceAll(RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])'), mark()) + line.substring(each.end);
+    }
+    if (!_nodeHead.hasMatch(line)) return line;
+    final out = StringBuffer();
+    var depth = 0, start = 0, first = true;
+    String? quote;
+    void word(int end) {
+      final w = line.substring(start, end);
+      out.write(!first && w == name ? mark() : w);
+      if (w.isNotEmpty) first = false;
+    }
+
+    for (var i = 0; i < line.length; i++) {
+      final c = line[i];
+      if (quote != null) {
+        if (c == quote && line[i - 1] != r'\') quote = null;
+      } else if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '(' || c == '[' || c == '{') {
+        depth++;
+      } else if ((c == ')' || c == ']' || c == '}') && depth > 0) {
+        depth--;
+      } else if (c == ' ' && depth == 0) {
+        word(i);
+        out.write(' ');
+        start = i + 1;
+      }
+    }
+    word(line.length);
+    return out.toString();
+  }
+
   String _rename(String line, String name, [String to = 'item']) {
     // A short loop name may also be a layout key (`each h ... Text ... h=120`).
     // A key followed by ':' is notation, not a reference to the item.
@@ -11026,8 +11238,23 @@ class _Parser {
           // In `h=120` the `h` is a prop key. In `live ? h=4` it
           // is still the loop value, despite the following colon.
           final before = part.substring(0, m.start).trimRight();
-          final key = m.end < part.length && part[m.end] == '=' && !(m.end + 1 < part.length && part[m.end + 1] == '=') &&
-              (m.start == 0 || RegExp(r'\s').hasMatch(part[m.start - 1])) &&
+          // A key may be several words joined by hyphens (`border-top=`,
+          // `top-left=`): the name is one of the key's words there, so the
+          // key is measured whole, from the space before it to its `=`.
+          var from = m.start, end = m.end;
+          while (from > 0 && _keyLetter.hasMatch(part[from - 1])) {
+            from--;
+          }
+          while (end < part.length && _keyLetter.hasMatch(part[end])) {
+            end++;
+          }
+          final whole = part.substring(from, end);
+          if (!whole.contains('-') || whole.startsWith('-') || whole.endsWith('-')) {
+            from = m.start;
+            end = m.end;
+          }
+          final key = end < part.length && part[end] == '=' && !(end + 1 < part.length && part[end + 1] == '=') &&
+              (from == 0 || RegExp(r'\s').hasMatch(part[from - 1])) &&
               !before.endsWith('?');
           // `{type: "dropShadow", color: props.color}`: a record's key (after
           // its `{` or a `,`, before a `:`) is a name, not the value.
@@ -11989,6 +12216,52 @@ class _Parser {
         }
       }
     }
+    // A scroll to a name the copies of an each give themselves (`id={m.name}`
+    // on the repeated line): the copy whose item gives that name, by its
+    // position in its list. A name worked out may be a line's own id too:
+    // then that line is scrolled to, as before.
+    if (_host == null) {
+      final repeated = _repeatAnchors[this] ?? const <({String node, String list, String key})>[];
+      _repeatAnchors[this] = null;
+      for (final p in [this, if (repeated.isNotEmpty) ..._overlays]) {
+        if (repeated.isEmpty) break;
+        // (What was sent of a node as its line was read is sent again where
+        // its actions change here.)
+        final sent = {
+          for (final e in p.nodes.entries)
+            if (e.value['actions'] != null) e.key: jsonEncode(e.value['actions']),
+        };
+        final timers = jsonEncode(p._timers);
+        for (final scroll in p._scrolls) {
+          final to = scroll['node'];
+          if (scroll['type'] != 'scrollTo' || to is! String || scroll['item'] != null || scroll['index'] != null) continue;
+          final worked = to.contains(r'${');
+          if (!worked && _taken(to)) continue;
+          final read = RegExp(r'^\$\{(?:=\s*)?(.*)\}$').firstMatch(to);
+          if (worked && read == null) continue;
+          final target = worked ? '(${read![1]})' : jsonEncode(to);
+          Json? chain;
+          for (final a in repeated.reversed) {
+            final at = 'indexOf(map(${a.list}, anchorItem => ${a.key}), $target)';
+            chain = {
+              'type': 'if',
+              'condition': {'left': _formula('$at >= 0'), 'op': 'isTrue'},
+              'then': [
+                {..._copy(scroll), 'node': a.node, 'index': _formula(at)},
+              ],
+              if (chain != null) 'else': [chain] else if (worked) 'else': [_copy(scroll)],
+            };
+          }
+          scroll
+            ..clear()
+            ..addAll(chain!);
+        }
+        for (final e in sent.entries) {
+          if (jsonEncode(p.nodes[e.key]?['actions']) != e.value) p._paintChanged(e.key, 'actions');
+        }
+        if (p._canvas && jsonEncode(p._timers) != timers) p._patches.add({'op': 'patch', 'id': p.options.screen, 'patch': {'actions': [...p._timers]}});
+      }
+    }
     // With an open vocabulary the page renders whatever it names: an
     // `open <id>` of nothing written over this page, and a `scroll <id>` to
     // no line of it, are left out, and said where they are written.
@@ -12071,6 +12344,8 @@ class _Parser {
     // A variable bound with `@name` is declared: what no state line, site
     // variable or loop gave is said where it is first bound.
     if (_host == null) {
+      _overlayClosesRead();
+      _paintRepeatsRead();
       for (final e in _unstated.entries) {
         issues.add(NotationIssue(e.value.line, e.value.column,
             '@${e.key} binds a variable nothing declares: add state ${e.key}=${jsonEncode(e.value.start())} at the top of the screen (a variable is declared before it is bound).'));
@@ -12476,9 +12751,17 @@ class _Parser {
   /// without an event left with none).
   /// [line] with each worked-out value of no type it reads (a `state
   /// name={formula}` line's) written out as its formula.
-  String _derivedWrittenOut(String line) {
+  String _derivedWrittenOut(String line, {bool ownWordsKept = false}) {
+    // A word of the line that is also the name of a worked-out value is the
+    // line's word where a word goes (`Row end`, `Column center`, the name an
+    // each gives its item): only what is written as a value reads the state.
+    final ownWords = <String>[];
     for (final d in _derived.entries) {
       if (!line.contains(d.key)) continue;
+      if (ownWordsKept) {
+        line = _ownWordsKept(line, d.key, ownWords);
+        if (!line.contains(d.key)) continue;
+      }
       // A worked-out value follows the state by itself: an action that sets
       // it too (`onTap={votes=…; total=total+1}`) is dropped, not rewritten.
       line = _withoutSets(line, d.key);
@@ -12496,6 +12779,9 @@ class _Parser {
         });
       }
       line = _rename(line, d.key, '(${d.value})');
+    }
+    for (var i = 0; i < ownWords.length; i++) {
+      line = line.replaceAll('\u0001$i\u0002', ownWords[i]);
     }
     return line;
   }
@@ -12622,9 +12908,10 @@ class _Parser {
   /// a component's `variable` parameter is given). A String instead when
   /// the field cannot be written: what to say.
   /// [head], an overlay's line (`Sheet#s "Title" onClose={x=false}`),
-  /// without an event for its closing, which no overlay has: said, naming
-  /// the overlay, with the form that runs actions once it has closed (the
-  /// actions after its `open` in the chain that opens it).
+  /// without its event for its closing: what it runs is kept for the
+  /// overlay's id, and runs once it has closed, however it closed, wherever
+  /// the page opens it (after its `open` in the chain that opens it:
+  /// [_overlayClosesRead]).
   String _overlayCloseEvent(String head) {
     final m = RegExp(r'^(Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Dropdown|Popover|Popup|Lightbox)#([A-Za-z_][A-Za-z0-9_-]*)').firstMatch(head);
     if (m == null) return head;
@@ -12635,11 +12922,50 @@ class _Parser {
       final close = _closing(head, open);
       if (close < 0) continue;
       final actions = head.substring(open + 1, close).trim();
-      _issue(e.start + 2,
-          'A ${m[1]} has no event ${e[1]}: what runs once it has closed (however it closed) is written after the open, in the chain that opens it: onTap={open ${m[2]}; $actions} (closeModal result=… is that chain\'s result). Left out here.');
+      if (!_top._quiet && actions.isNotEmpty) ((_overlayCloses[_top] ??= {})[m[2]!] ??= []).addAll(_actions(actions, e.start + 2));
       head = '${head.substring(0, e.start)}${head.substring(close + 1)}';
     }
     return head;
+  }
+
+  /// Puts what each overlay runs once it has closed (its `onClose={…}`)
+  /// after every `open` of it on the page: an open waits for its overlay to
+  /// close, so what follows it in its chain runs then.
+  void _overlayClosesRead() {
+    final closes = _overlayCloses[_top];
+    if (closes == null) return;
+    _overlayCloses[_top] = null;
+    final added = Set<Object?>.identity();
+    var changed = false;
+    void walk(Object? v) {
+      if (v is List) {
+        for (var i = 0; i < v.length; i++) {
+          final a = v[i];
+          if (a is Map && a['type'] == 'openModal' && closes[a['to']] != null && !added.contains(a)) {
+            final then = [for (final c in closes[a['to']]!) _copy(c)];
+            added
+              ..add(a)
+              ..addAll(then);
+            v.insertAll(i + 1, then);
+            changed = true;
+          }
+          if (!added.contains(a) || a is Map && a['type'] == 'openModal') walk(a);
+        }
+      } else if (v is Map) {
+        v.values.forEach(walk);
+      }
+    }
+
+    for (final p in [this, ..._overlays]) {
+      for (final e in p.nodes.entries.toList()) {
+        changed = false;
+        walk(e.value['actions']);
+        if (changed) p._paintChanged(e.key, 'actions');
+      }
+      changed = false;
+      walk(p._timers);
+      if (changed && p._canvas) p._patches.add({'op': 'patch', 'id': p.options.screen, 'patch': {'actions': [...p._timers]}});
+    }
   }
 
   /// Whether [name] is a variable parameter (`param @name=…`) of the
@@ -12954,9 +13280,36 @@ class _Parser {
     };
   }
 
+  static final _themeModeWorked = RegExp(r'^setThemeMode\s+(.+)$');
+  // (The action written with its fields: setThemeMode mode=dark persist=false.)
+  static final _themeModeFields = RegExp(r'(^|\s)[A-Za-z][A-Za-z0-9]*=(?!=)');
+  static final _themeModeWord = RegExp(r'^(\{.*\}|"[^"]*"|[A-Za-z_][A-Za-z0-9_.]*)$');
+
+  /// [text] with [code] applied to what is outside its quoted texts.
+  static String _outsideQuotes(String text, String Function(String code) code) {
+    final out = StringBuffer();
+    var at = 0;
+    for (final q in RegExp('"(?:[^"\\\\]|\\\\.)*"|\'(?:[^\'\\\\]|\\\\.)*\'').allMatches(text)) {
+      out
+        ..write(code(text.substring(at, q.start)))
+        ..write(q[0]);
+      at = q.end;
+    }
+    out.write(code(text.substring(at)));
+    return out.toString();
+  }
+
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
     for (final part in _split(text, ';')) {
+      // `setThemeMode lower(result)`, `setThemeMode result ? dark : light`:
+      // the mode worked out, written after the verb with no braces (light,
+      // dark and system in it are the modes, where no state has that name).
+      if (_themeModeWorked.firstMatch(part.trim()) case final m? when !_themeModeWord.hasMatch(m[1]!.trim()) && !_themeModeFields.hasMatch(_outsideQuotes(m[1]!, (code) => code))) {
+        final mode = _outsideQuotes(m[1]!.trim(), (code) => code.replaceAllMapped(RegExp(r'(?<![A-Za-z0-9_."])(dark|light|system)(?![A-Za-z0-9_(.])'), (w) => variables.containsKey(w[1]) || _derived.containsKey(w[1]) ? w[0]! : '"${w[1]}"'));
+        out.add({'type': 'setThemeMode', 'mode': _formula(mode)});
+        continue;
+      }
       // A choice between actions: an `if` action, its branches read as
       // actions are (`dirty ? open leave : go members`).
       if (_choice(part.trim()) case (final cond, final yes, final no)) {
@@ -12982,7 +13335,10 @@ class _Parser {
       if (RegExp(r'^setThemeMode\s+(\{.*\}|"[^"]*"|[A-Za-z_][A-Za-z0-9_.]*)$').firstMatch(a) case final m?) {
         final v = m[1]!.trim();
         final braced = v.startsWith('{') && v.endsWith('}');
-        out.add({'type': 'setThemeMode', 'mode': braced ? _formula(v.substring(1, v.length - 1).trim()) : _unquoted(v)});
+        // A name that is no mode (`setThemeMode result`, `setThemeMode
+        // prefs.mode`) is the value read.
+        final word = !braced && !v.startsWith('"') && !const {'dark', 'light', 'system'}.contains(v);
+        out.add({'type': 'setThemeMode', 'mode': braced ? _formula(v.substring(1, v.length - 1).trim()) : word ? _read(v) : _unquoted(v)});
         continue;
       }
       // An action of the catalog by its type and fields (design 22 section 2.3).
@@ -13641,17 +13997,26 @@ class _Parser {
   String _interpolate(String s) {
     if (_writtenRead.hasMatch(s)) return s;
     s = s.replaceAll(r'\$', r'$');
+    // A number alone in braces among the words of a text ("Count {0}") is
+    // that number, as any value in braces is (a count after a pattern's
+    // part, `\d{3}`, has no space before it and stays).
+    s = s.replaceAllMapped(_bracedNumber, (m) => '${m[1]}${m[2]}');
+    // `\{` and `\}` are the braces themselves ("Use \{name\} for the
+    // name"): text, read as no value.
+    String plain(String text) => text.replaceAll(r'\{', '{').replaceAll(r'\}', '}');
     final out = StringBuffer();
     var at = 0;
     for (final (start, end) in _spans(s)) {
       out
-        ..write(s.substring(at, start))
+        ..write(plain(s.substring(at, start)))
         ..write(_read(_quotedBreaks(s.substring(start + 1, end - 1))));
       at = end;
     }
-    out.write(s.substring(at));
+    out.write(plain(s.substring(at)));
     return out.toString();
   }
+
+  static final _bracedNumber = RegExp(r'(^|\s)\{(-?\d+(?:\.\d+)?)\}(?=$|[\s.,;:!?)])');
 
   /// Whether the field at [path] of a node of [type] holds an expression it
   /// works out itself, so a string with `${…}` in it is its value as written
@@ -13678,11 +14043,14 @@ class _Parser {
     final out = <(int, int)>[];
     for (var i = 0; i < s.length; i++) {
       if (s[i] != '{') continue;
+      // `\{`: the brace itself, which opens nothing.
+      if (i > 0 && s[i - 1] == r'\') continue;
       var depth = 0, quoted = false, end = -1;
       for (var j = i; j < s.length; j++) {
         final c = s[j];
         if (c == '"' && s[j - 1] != r'\') quoted = !quoted;
         if (quoted) continue;
+        if ((c == '{' || c == '}') && j > 0 && s[j - 1] == r'\') continue;
         if (c == '{') depth++;
         if (c == '}' && --depth == 0) {
           end = j + 1;

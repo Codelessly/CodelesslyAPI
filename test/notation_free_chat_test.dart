@@ -67,10 +67,15 @@ void main() {
   group('an id worked out on a repeated line', () {
     const rows = 'state rows=[{"id":"m1"},{"id":"m2"}]\nstate pinId="m2"\n';
 
-    test('is said, with the way to scroll to a copy: the line\'s name and the item', () {
-      final r = _read('${rows}Column\n  Row onTap={scroll {pinId}}\n    Text "pin"\n  each m in rows follow grow\n    Row#msg id={m.id}\n      Text "{m.id}"\n');
-      final message = r.issues.single.message;
-      expect(message, allOf(contains('id={m.id} is left out'), contains('scrollTo node=msg item={x}'), contains('follows its end')));
+    test('names each copy by its item: a scroll to that name reaches the copy, by its position in the list', () {
+      final r = _read('${rows}Column\n  Row#bar onTap={scroll {pinId}}\n    Text "pin"\n  each m in rows follow grow\n    Row#msg id={m.id}\n      Text "{m.id}"\n');
+      expect(r.issues, isEmpty);
+      expect(jsonEncode(_node(r, 'bar')['actions']), allOf(contains('"node":"msg"'), contains(r'"index":"${= indexOf(map(rows, anchorItem => anchorItem.id), (pinId))}"')));
+    });
+
+    test('under an each inside another each it is said, with the way to scroll to a copy', () {
+      final r = _read('state groups=[{"rows":[{"id":"m1"}]}]\nColumn\n  each g in groups\n    each m in g.rows\n      Row#msg id={m.id}\n        Text "{m.id}"\n');
+      expect(r.issues.single.message, allOf(contains('id={m.id} is left out'), contains('scrollTo node=msg item={x}')));
     });
 
     test('scroll {expression} reads the expression as the action runs', () {

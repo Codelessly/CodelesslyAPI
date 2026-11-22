@@ -11,6 +11,54 @@ import '../value_fields.dart' show DecorationFields, LayoutFields, NodeFields;
 /// The short keys the notation has for a field, on every type.
 const notationShortKeys = {'gap': 'props.spacing', 'pad': 'layout.padding', 'w': 'layout.width', 'h': 'layout.height', 'grow': 'layout.flex'};
 
+/// The fields of a node's motion (what is drawn moved, scaled or turned,
+/// with nothing laid out again) by the names read for them on a line whose
+/// type has no key of that name.
+const notationMotionKeys = {
+  'scale': 'motion.scale',
+  'rotate': 'motion.rotate',
+  'translateX': 'motion.translateX',
+  'translateY': 'motion.translateY',
+};
+
+/// Words that name one value of a choice (a tone, a size): a parameter that
+/// takes one of them takes another of its set as that one (`tone="error"`
+/// where the choice is `danger`).
+const List<Set<String>> notationSameValues = [
+  {'danger', 'error', 'destructive', 'critical'},
+  {'warning', 'warn', 'caution'},
+  {'success', 'ok', 'positive'},
+  {'info', 'information', 'note'},
+  {'neutral', 'default', 'muted'},
+  {'sm', 'small'},
+  {'md', 'medium'},
+  {'lg', 'large'},
+];
+
+/// The shadows `shadow=` names by size, each the effects it is written out
+/// as (`effects=[…]`).
+const Map<String, List<Map<String, Object?>>> notationShadows = {
+  'none': [],
+  'false': [],
+  'sm': _shadowSmall,
+  'small': _shadowSmall,
+  'soft': _shadowSmall,
+  'true': _shadowSmall,
+  'md': _shadowMedium,
+  'medium': _shadowMedium,
+  'lg': _shadowLarge,
+  'large': _shadowLarge,
+};
+const _shadowSmall = [
+  {'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 2], 'blurRadius': 8},
+];
+const _shadowMedium = [
+  {'type': 'dropShadow', 'color': '#1F000000', 'offset': [0, 6], 'blurRadius': 18},
+];
+const _shadowLarge = [
+  {'type': 'dropShadow', 'color': '#29000000', 'offset': [0, 14], 'blurRadius': 36},
+];
+
 /// Keys a model reaches for that a type spells otherwise.
 const Map<String, Map<String, List<String>>> notationTypeKeys = {
   'textField': {

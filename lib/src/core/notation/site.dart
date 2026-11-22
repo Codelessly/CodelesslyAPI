@@ -216,11 +216,36 @@ List<String> notationUndeclaredNames(
   bool written(String name) =>
       mentioned[name] ??= _mentions(text, name) || (others == null ? !made.contains(name) : others.any((o) => _mentions(o, name)));
   final out = <String>{};
+  // The pressed row of a list with a menu (`menu=rowMenu` under `each m in
+  // …`): the reader keeps it in a variable of the each's name, set to the
+  // row's item before the menu opens, so the menu's lines read `m`. That
+  // variable is the reader's own: the text declared the name with its each.
+  final eaches = <String>{
+    for (final m in RegExp(r'^[ \t]*each\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s*,\s*([A-Za-z_][A-Za-z0-9_]*))?\s+in\s', multiLine: true).allMatches(text)) ...[m[1]!, ?m[2]],
+  };
+  final rows = <String>{};
+  void pressed(Object? json) {
+    if (json is List) {
+      json.forEach(pressed);
+    } else if (json is Map) {
+      if (json['type'] == 'setVariable' && eaches.contains(json['variable']) && RegExp(r'^\$\{= (parent\.)*item\}$').hasMatch('${json['value']}')) {
+        rows.add(json['variable'] as String);
+      }
+      // The names a drawing's repeat gives its item and its position.
+      if (json['op'] == 'repeat') {
+        rows.addAll([for (final k in const ['as', 'indexAs']) if (json[k] case final String name) name]);
+      }
+      json.values.forEach(pressed);
+    }
+  }
+
+  pressed(document['nodes']);
   final drawn = <String>{};
   var inDrawing = false;
   bool skip(String name) =>
       known.contains(name) ||
       declared.contains(name) ||
+      rows.contains(name) ||
       stated.contains(name) ||
       _notNames.contains(name) ||
       !RegExp(r'^[a-z_]').hasMatch(name) ||
@@ -557,7 +582,9 @@ final class NotationSiteFiles {
   void _checkDefinitions(String path, String text) {
     final read = readPageDefinitions(text);
     for (final p in read.problems) {
-      problems.add((path: path, line: p.line, message: p.message));
+      // (Said of this file at its line: the "page:1: " a definition's line is
+      // named by in a text read alone says nothing here.)
+      problems.add((path: path, line: p.line, message: p.message.replaceFirst(RegExp(r'^page:\d+: '), '')));
     }
     final lines = const LineSplitter().convert(text);
     for (var i = 0; i < lines.length; i++) {

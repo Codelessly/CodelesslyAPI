@@ -200,7 +200,7 @@ void main() {
 
     test('a key that is none of these is said with the nearest name, never a silent prop', () {
       for (final (line, message) in [
-        ('Column#n rotate=45', 'A Column has no "rotate": left out.'),
+        ('Column#n spin=45', 'A Column has no "spin": left out.'),
         ('Text#n letterSpaceing=0.4', 'A Text has no "letterSpaceing" (did you mean letterSpacing?): left out.'),
         ('Column#n squeezeable=false', 'A Column has no "squeezeable" (did you mean squeezable?): left out.'),
         ('Column#n pan.axs=horizontal', 'A Column has no "pan.axs" (did you mean pan.axis?): left out.'),
@@ -210,15 +210,15 @@ void main() {
         final r = parseNotation(line, catalog: catalog);
         expect(r.issues.map((i) => i.message), [message], reason: line);
         final n = _node(r, 'n');
-        expect(jsonEncode(n), isNot(contains(RegExp(r'rotate|letterSpaceing|squeezeable|axs|"with"|spacing'))), reason: line);
+        expect(jsonEncode(n), isNot(contains(RegExp(r'spin|letterSpaceing|squeezeable|axs|"with"|spacing'))), reason: line);
       }
     });
 
     test('in the open vocabulary an unknown key is recorded, not said', () {
-      final r = parseNotation('Column#n rotate=45 pan.axs=horizontal textAlign=centre', catalog: catalog, options: const NotationOptions().open());
+      final r = parseNotation('Column#n spin=45 pan.axs=horizontal textAlign=centre', catalog: catalog, options: const NotationOptions().open());
       expect(r.issues, isEmpty);
-      expect(r.vocabulary.map((u) => '${u.kind} ${u.word}'), containsAll(['parameter rotate', 'parameter pan.axs']));
-      expect(jsonEncode(_node(r, 'n')), isNot(contains(RegExp(r'rotate|axs'))));
+      expect(r.vocabulary.map((u) => '${u.kind} ${u.word}'), containsAll(['parameter spin', 'parameter pan.axs']));
+      expect(jsonEncode(_node(r, 'n')), isNot(contains(RegExp(r'spin|axs'))));
     });
 
     test('the notation\'s own words still come first, and a word of several paths is no key of one', () {

@@ -243,7 +243,7 @@ void main() {
     });
 
     test('motion, a field of the node', () {
-      _word('Column#a phone.motion.translateX=10', [
+      _word('Column#a phone.translateX=10', [
         {'maxWidth': 699, 'patch': {'motion': {'translateX': 10}}},
       ]);
     });
