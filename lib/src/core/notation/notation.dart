@@ -3494,6 +3494,8 @@ class _Parser {
         _lineAt(l.indent, role == null ? l.text : role[2] == 'splice' ? notationSplice : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
         _railRead(role);
+        _railShownRead();
+        _underBarRead(role);
         // The lines a defined word stands for: each line's nodes are sent
         // before the next line's, which may patch them.
         if (from != null && nodes.length > before) {
@@ -4215,29 +4217,97 @@ class _Parser {
     _railSides.add((id: id, rules: [...?(nodes[id]?['media'] as List?)]));
   }
 
-  /// A sidebar written as a rail whose lines do not all fold by themselves
-  /// (a row of an icon and a text written by hand) is as wide as written at
-  /// a tablet's width, as with no rail: the rail's rules come off its line.
-  /// Whether they fold is known once the lines under it are read.
+  /// The plain Sections straight under a page's bar (PageWords.underBarHeroes,
+  /// in the same order): each one's node.
+  final _underBarSections = <String?>[];
+
+  void _underBarRead(RegExpMatch? role) {
+    if (role?[2] != 'section' || !_pages.underBarWritten) return;
+    _pages.underBarWritten = false;
+    _underBarSections.add(_lastNode);
+  }
+
+  /// A Section straight under the page's bar that does not hold the page's
+  /// headline starts half a section's space down.
+  void _underBarSpace() {
+    final heroes = _pages.underBarHeroes;
+    for (var i = 0; i < _underBarSections.length && i < heroes.length; i++) {
+      final n = nodes[_underBarSections[i]];
+      if (heroes[i] || n == null) continue;
+      final layout = readMap(n['layout']);
+      final pad = layout?['padding'];
+      if (layout == null || pad is! List || pad.length != 4 || pad[1] is! num || pad[3] is! num || pad[1] != pad[3]) continue;
+      final padding = [pad[0], ((pad[3] as num) / 2).roundToDouble(), pad[2], pad[3]];
+      n['layout'] = {...layout, 'padding': padding};
+      if (_canvas) ops.add({'op': 'patch', 'id': _underBarSections[i], 'patch': {'layout': {'padding': padding}}});
+    }
+    _underBarSections.clear();
+  }
+
+  /// The lines under a sidebar written as a rail that only show something
+  /// (PageWords.railShownWritten): each one's node, by its sidebar's place
+  /// among [_railSides].
+  final _railShown = <({int side, String id})>[];
+
+  void _railShownRead() {
+    if (!_pages.railShownWritten) return;
+    _pages.railShownWritten = false;
+    if (_lastNode case final String id) _railShown.add((side: _pages.railCount - 1, id: id));
+  }
+
+  /// Once the lines under a sidebar written as a rail are read, whether
+  /// they fold is known (PageWords.railFolds):
+  ///
+  /// * they do: it is the rail, and a line under it that only shows
+  ///   something (a note in a box) is hidden where the sidebar is a rail;
+  /// * they do not (a row of an icon and a text written by hand, a field, a
+  ///   list of the writer's own): a rail has no room for them, and as wide
+  ///   as written the sidebar took a third of a tablet's window. It is the
+  ///   drawer there, as on a phone: hidden, and opened by the bar's button
+  ///   (PageWords shows it at a tablet's width too).
   void _unrail() {
     final folds = _pages.railFolds;
     for (var i = 0; i < _railSides.length && i < folds.length; i++) {
       final side = _railSides[i];
       final n = nodes[side.id];
-      if (folds[i] || n == null) continue;
-      final media = [...?(n['media'] as List?)];
-      for (final r in side.rules) {
-        final at = media.indexWhere((m) => jsonEquality.equals(m, r));
-        if (at >= 0) media.removeAt(at);
+      if (n == null) continue;
+      // The rail's rule: the one that makes the sidebar narrow.
+      bool narrows(Object? r) => r is Map && readMap(readMap(r['patch'])?['layout'])?['width'] is num;
+      if (folds[i]) {
+        final rule = side.rules.where(narrows).firstOrNull;
+        if (rule is! Map) continue;
+        for (final shown in _railShown.where((s) => s.side == i)) {
+          final node = nodes[shown.id];
+          if (node == null) continue;
+          final media = [
+            ...?(node['media'] as List?),
+            {
+              for (final c in rule.entries)
+                if (c.key != 'patch') '${c.key}': c.value,
+              'patch': {'visible': false},
+            },
+          ];
+          node['media'] = media;
+          if (_canvas) ops.add({'op': 'patch', 'id': shown.id, 'patch': {'media': media}});
+        }
+        continue;
       }
-      if (media.isEmpty) {
-        n.remove('media');
-      } else {
-        n['media'] = media;
-      }
-      if (_canvas) ops.add({'op': 'patch', 'id': side.id, 'patch': {'media': media.isEmpty ? null : media}});
+      final media = [
+        for (final m in [...?(n['media'] as List?)])
+          if (side.rules.any((r) => jsonEquality.equals(m, r)) && narrows(m))
+            {
+              for (final c in (m as Map).entries)
+                if (c.key != 'patch') '${c.key}': c.value,
+              'patch': {'visible': false},
+            }
+          else
+            m,
+      ];
+      n['media'] = media;
+      if (_canvas) ops.add({'op': 'patch', 'id': side.id, 'patch': {'media': media}});
     }
     _railSides.clear();
+    _railShown.clear();
   }
 
   /// A sidebar narrower than this at a width is a rail there (what
@@ -4302,6 +4372,7 @@ class _Parser {
     _rejoinWraps();
     _unrail();
     _foldInRails();
+    _underBarSpace();
     // The slim bar made for a sidebar's button before the page's own bar or
     // button was read (PageWords.slimBarSuperseded) is not drawn; with a
     // button of the writer's own, neither is the one made in Main's bar.
@@ -9642,11 +9713,16 @@ class _Parser {
     // press, as wide as its place, sorted from its headers, 320 tall unless
     // it says (it scrolls in that).
     if (ours && written == 'DataTable') {
-      props.putIfAbsent('rowHeight', () => 48);
-      props.putIfAbsent('headerHeight', () => 48);
+      // Under a theme that has a table's looks (a design system's header
+      // band): the rows, the header and the lines of its `Table`, so the
+      // two tables of one app are one look.
+      final themed = options.band != null;
+      props.putIfAbsent('rowHeight', () => themed ? 44 : 48);
+      props.putIfAbsent('headerHeight', () => themed ? 40 : 48);
       props.putIfAbsent('fillWidth', () => true);
       props.putIfAbsent('sortable', () => true);
-      props.putIfAbsent('gridLineColor', () => options.track);
+      props.putIfAbsent('gridLineColor', () => themed ? options.line : options.track);
+      if (themed) props.putIfAbsent('headerColor', () => options.band);
       layout.putIfAbsent('height', () => 320);
       // (Rows or columns that were written and refused are said where they
       // are written: the line is not said a second time to want them.)
@@ -10564,7 +10640,9 @@ class _Parser {
     }
     // A DataTable's cell and header are texts of the theme (item.value, item.label).
     if (ours && written == 'DataTable') {
-      final body = options.textStyles['body'], strong = options.textStyles['strong'] ?? body;
+      final body = options.textStyles['body'];
+      // (A theme's own style for a column's head, where it has a table's looks.)
+      final strong = (options.band != null ? options.textStyles['columnHead'] : null) ?? options.textStyles['strong'] ?? body;
       Json text(String read, Object? style) => {
             'type': 'text',
             'layout': {'width': {'fill': 0}, 'height': {'hug': 0}, 'padding': [12, 0, 12, 0]},
@@ -11970,6 +12048,8 @@ class _Parser {
         _lineAt(l.indent, role == null ? l.text : '${role[1]}${l.text.substring(role.end)}', l.indent + 1);
         if (role != null && _lastNode != null) _roles[_lastNode!] = role[2]!;
         _railRead(role);
+        _railShownRead();
+        _underBarRead(role);
         nodes.keys.skip(sent).toList().forEach(_emit);
         sent = nodes.length;
       }

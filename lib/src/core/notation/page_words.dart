@@ -133,6 +133,19 @@ final class PageWords {
   /// Whether the page's bar (its first `Nav`) was written.
   bool _pageBar = false;
 
+  /// While the last line written straight under the Page is its bar.
+  bool _afterBar = false;
+
+  /// The plain Sections written straight under the page's bar, in order;
+  /// [underBarWritten] while the last line [rewrite] read is one of them.
+  /// One that holds the page's headline (a hero) keeps a section's full
+  /// space above it; one that does not (a list, a form, a board: a page
+  /// that is a tool) starts half of it down, as a Section after a Section
+  /// does. It left 64 px of bare ground under the bar.
+  final _underBar = <_Line>[];
+  bool underBarWritten = false;
+  List<bool> get underBarHeroes => [for (final l in _underBar) l.hero];
+
   /// Whether the text is a website's (its top is a `Page`): its controls are
   /// a page's size ([NotationOptions.controlHeight] else 40).
   bool site = false;
@@ -314,7 +327,9 @@ final class PageWords {
   /// where it is hidden there, else as written (what a table beside it has
   /// no room for).
   double get _sideAtTablet => switch (_sideRail) {
-        final _Line l when l.railBreaks == 0 => sidebarRail!,
+        final _Line l when l.isRail => sidebarRail!,
+        // One whose lines do not fold is the drawer there.
+        final _Line _ => 0,
         _ => _sideWritten,
       };
   double _sideWritten = 0;
@@ -339,7 +354,10 @@ final class PageWords {
   /// word's lines hold lines, and fold when theirs do. An `at` block that
   /// holds at a tablet's width is what its part shows there: its lines are
   /// the ones read, in place of the part's own.
-  List<bool> get railFolds => [for (final l in _rails) l.railBreaks == 0];
+  List<bool> get railFolds => [for (final l in _rails) l.isRail];
+
+  /// How many sidebars were written as a rail so far.
+  int get railCount => _rails.length;
 
   /// The windows a tablet has: a rule that holds at neither says nothing of
   /// a tablet's width (`phone.…`, `desktop.…`).
@@ -367,6 +385,15 @@ final class PageWords {
       if (indent >= from) return;
       side.railSkip = null;
     }
+    // Under a line that only shows something (below): it stays one while
+    // nothing under it does anything.
+    if (side.railShown case final int from) {
+      if (indent > from) {
+        if (word == null ? _doesSomething(text) && !RegExp(r'^(if|each|for|else)\b').hasMatch(text) : !_onlyShows(word, rest)) side.railBreaks++;
+        return;
+      }
+      side.railShown = null;
+    }
     if (word == null) {
       // What is no node (an `if`, an `each`, a state, a defined word's
       // lines written where it is used) holds lines or draws nothing.
@@ -378,12 +405,42 @@ final class PageWords {
       side.railSkip = indent + 1;
       return;
     }
-    if (folds(word) || _noWidth.contains(word)) return;
+    if (folds(word) || _noWidth.contains(word)) {
+      if (folds(word)) side.railFolded = true;
+      return;
+    }
     if (parent?.frame == 'Sidebar' && _feet.contains(word) && !isComponent(word)) return;
     // A column is as wide as its place: its lines are what has a width.
     if (word == 'Column' && !isComponent(word) && !parts.has('pad') && const {null, 'fill'}.contains(parts.value('w'))) return;
+    // A line that only shows something (a note in a box, a tip, a figure):
+    // a rail has no room for it and loses nothing without it, so it is
+    // hidden there ([railShownWritten] tells the reader which node), and
+    // the sidebar is a rail still. One that does something (a field, a row
+    // that is tapped, a list of the writer's own links) is not left out:
+    // the sidebar is not a rail ([railFolds]).
+    if (_onlyShows(word, rest)) {
+      side.railShown = indent;
+      side.railHides = true;
+      railShownWritten = true;
+      return;
+    }
     side.railBreaks++;
   }
+
+  /// The words that draw and do nothing by themselves.
+  static const _shows = {'Box', 'Card', 'Column', 'Row', 'Stack', 'Grid', 'Text', 'Icon', 'Image', 'Badge', 'Progress', 'Ring', 'Avatar'};
+
+  /// Whether a line's text does something: an event, a value it holds, a
+  /// drag or a drop, a link.
+  static bool _doesSomething(String text) => RegExp(r'(^|\s)(on[A-Z][A-Za-z]*=|@[A-Za-z_]|drag=|drop=|href=|to=|reorder\b)').hasMatch(text);
+
+  /// Whether [word]'s line only shows something: a plain word that draws
+  /// (not a component, whose inside is its own), with nothing it does.
+  bool _onlyShows(String word, String rest) => _shows.contains(word) && !isComponent(word) && !_doesSomething(rest);
+
+  /// While the last line [rewrite] read is one hidden in its sidebar's rail
+  /// (a line that only shows something): the reader keeps its node.
+  bool railShownWritten = false;
   bool _mainSeen = false;
   int? _mainAt;
 
@@ -416,8 +473,12 @@ final class PageWords {
   /// folding, or the writer's own `tablet.w=64`) is not dropped there: it
   /// has its own rule for that width, and a button beside a rail that shows
   /// opened a drawer of the same items.
-  String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 && !_firstIsRail ? 'tablet' : 'phone';
-  bool get _firstIsRail => _firstOwnRail || (_firstRail != null && _firstRail!.railBreaks == 0);
+  String get _menuSize => (_panesBefore >= 2 && _widthBefore > 420 && !_firstIsRail) || _firstIsDrawer ? 'tablet' : 'phone';
+  bool get _firstIsRail => _firstOwnRail || (_firstRail != null && _firstRail!.isRail);
+
+  /// Whether the first pane is a design system's sidebar whose lines do not
+  /// fold: no rail, so on a tablet it is the drawer, as on a phone.
+  bool get _firstIsDrawer => !_firstOwnRail && _firstRail != null && !_firstRail!.isRail;
   _Line? _firstRail;
   bool _firstOwnRail = false;
 
@@ -1166,6 +1227,9 @@ final class PageWords {
     }
     final parts = _Parts(rest);
     if (parent?.frame == 'Page' && word != 'Section') _plainSectionAt = null;
+    // What follows the page's bar: only the line straight after it.
+    final afterBar = _afterBar;
+    if (parent?.frame == 'Page' || indent == 0) _afterBar = false;
     // `TopBar "…" type=TopBar`: the design system's component, by its own
     // name (design 22, 4.2), no page word.
     if ((isComponent(word) || declares(word)) && parts.value('type') == word) {
@@ -1261,6 +1325,7 @@ final class PageWords {
       // two sections' padding made 128 px of white between them.
       final plain = !grounded && !bleed && !footer && parent?.frame == 'Page';
       final top = plain && _plainSectionAt == indent ? _n((sectionPad / 2).roundToDouble()) : v;
+      final ownPad = parts.has('pad');
       _plainSectionAt = plain && !parts.has('pad') ? indent : null;
       final pad = parts.take('pad') ?? (bleed ? (grounded ? '[0,$v,0,$v]' : '0') : footer ? '[$g,40,$g,40]' : '[$g,$top,$g,$v]');
       // (A theme with no band of its own: a tenth of mid grey over the page,
@@ -1269,7 +1334,13 @@ final class PageWords {
       final banded = tint && !parts.has('fill') ? ' fill=${band ?? '#14808080'} border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
-      open(frame: 'Section', shift: 2).foot = footer;
+      final section = open(frame: 'Section', shift: 2)..foot = footer;
+      // A plain Section straight under the page's bar: whether it holds the
+      // page's headline is known once its lines are read ([underBarHeroes]).
+      if (plain && afterBar && !ownPad) {
+        _underBar.add(section);
+        underBarWritten = true;
+      }
       // A page's Footer sits at the window's foot when the page is short: what
       // is left goes above it (nothing, on a page longer than the window).
       if (footer && parent?.frame == 'Page') out.add((indent: at, text: 'Spacer'));
@@ -1332,6 +1403,7 @@ final class PageWords {
           ..add((indent: at + 2, text: 'Row w=fill maxw=$width between middle gap=$gap phone.scroll=true'));
       }
       _pageBar = true;
+      _afterBar = true;
       open(frame: 'Nav', shift: 2, after: 'Divider').pageNav = true;
       return out
         ..add((indent: at, text: 'Column$mark w=fill center pad=$pad$sticky${parts.all}'))
@@ -1515,7 +1587,11 @@ final class PageWords {
         ..add((indent: at + 2, text: '$text w=40 h=40'));
     }
     // A website's headline written as its text style: the same size.
-    if (word == 'Text' && !inApp && (mark.startsWith('.pageTitle') || mark.startsWith('.heading1')) && _inSiteSection) {
+    // (Or as a text of a headline's size: `Text "…" size=56`.)
+    if (word == 'Text' &&
+        !inApp &&
+        _inSiteSection &&
+        (mark.startsWith('.pageTitle') || mark.startsWith('.heading1') || mark.startsWith('.display') || (double.tryParse(parts.value('size') ?? '') ?? 0) >= 32)) {
       _open.lastWhere((l) => l.frame == 'Section').hero = true;
     }
     // A website's text is a website's size: its headline a display size,
@@ -1869,6 +1945,16 @@ class _Line {
   bool rail = false;
   int railBreaks = 0;
   int? railSkip;
+
+  /// The indent of the line under it that only shows something (hidden in
+  /// the rail), while its lines are read; whether a line under it folds.
+  int? railShown;
+  bool railFolded = false, railHides = false;
+
+  /// Whether the sidebar is a rail at a tablet's width: nothing under it
+  /// breaks one, and where a line is hidden in it something else folds
+  /// into it (a rail of nothing but hidden lines would be empty).
+  bool get isRail => railBreaks == 0 && (railFolded || !railHides);
 
   /// Under such a sidebar: how many of its lines did not fold when this
   /// line was read (an `at` block that takes this line's place at a

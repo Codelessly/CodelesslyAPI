@@ -48,6 +48,9 @@ extension PageWordsAt on PageWords {
       ..rail = l.rail
       ..railBreaks = l.railBreaks
       ..railSkip = l.railSkip
+      ..railShown = l.railShown
+      ..railFolded = l.railFolded
+      ..railHides = l.railHides
       ..breaksBefore = l.breaksBefore;
     if (l.table case final _Table t) {
       // Its lines go in its frame, beside its header and its rows.

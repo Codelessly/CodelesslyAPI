@@ -156,11 +156,12 @@ App
       expect(jsonEncode(s['media']), contains('{"maxWidth":699,"patch":{"visible":false'));
     });
 
-    test('a sidebar whose items are rows written by hand (a defined word of an icon and a text) is as wide as written: at 64 its labels stood a letter a line', () {
+    test('a sidebar whose items are rows written by hand (a defined word of an icon and a text) is no rail (at 64 its labels stood a letter a line): the drawer at a tablet, as on a phone', () {
       const items = '    NavItem "Inbox" icon="inbox"\n';
       final s = side('Sidebar', lines: items);
       expect(jsonEncode(s['media']), isNot(contains('"width":64')));
-      expect(s['media'], side('Sidebar', rail: null, lines: items)['media']);
+      expect(jsonEncode(s['media']), contains('{"maxWidth":1023,"patch":{"visible":false}}'));
+      expect(jsonEncode(s['media']), contains('{"maxWidth":699,"patch":{"visible":false'));
     });
 
     test("a sidebar with rules of the writer's, or a system with no rail, is as written", () {
