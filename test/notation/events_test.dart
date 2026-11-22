@@ -257,7 +257,7 @@ void main() {
     test('writes the shortest verbs, the choice for an if, and the type and fields for the rest', () {
       const text = 'state n=0\nstate ok=false\n'
           'Box#b onTap={n=n+1; toast "Saved {n}"; ok ? {go home; close} : announce "Not yet"; emit done n; link https://example.com; scroll top; open sheet; '
-          'copy n; confirm "Sure?" then {n=0}; animate node=hero command=reverse; haptic kind=heavy}';
+          'copy "{n}"; confirm "Sure?" then {n=0}; animate node=hero command=reverse; haptic kind=heavy}';
       final printed = _roundTrip(text);
       // (A Box is a column.)
       expect(printed.split('\n').last, 'Column#b ${text.split('\n').last.substring('Box#b '.length)}');

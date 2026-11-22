@@ -337,9 +337,20 @@ Column
       expect(_said(r), [
         endsWith('write (concat(["All"],map(filter(secs,x=>x.on),x=>x.name)))'),
         endsWith('write contains(secs,1)'),
+        endsWith('write length(secs)'),
+        endsWith('write length(filter(secs,x=>x.on))'),
+        endsWith('write filter(secs,x=>x.on)'),
       ]);
-      // What a name takes after a dot is read, as it was.
-      expect((_node(r, 'u')['props'] as Map)['text'], r'${= length(secs)} ${= length(filter(secs,x=>x.on))} ${= filter(secs,x=>x.on)}');
+      // and, or, not; another name of a function.
+      expect(_said(_page('state a=true\nstate b=false\nstate s=75\nColumn\n  Text "x" visible={a and not b or b}\n  Text "{formatTime(s)} {s.toFixed(1)}"\n')), [
+        endsWith('write a && !b || b'),
+        endsWith('write duration(s)'),
+        endsWith('write fixed(s,1)'),
+      ]);
+      // The formulas they name read.
+      final named = _page('state secs=[{"on":true,"name":"A"}]\nstate a=true\nstate s=75\nColumn\n  Text#u "{length(secs)} {length(filter(secs,x=>x.on))} {duration(s)} {fixed(s,1)}" visible={a && !a || a}\n');
+      expect(_said(named), isEmpty);
+      expect((_node(named, 'u')['props'] as Map)['text'], r'${= length(secs)} ${= length(filter(secs,x=>x.on))} ${= duration(s)} ${= fixed(s,1)}');
     });
 
     test('a flag given a width\'s name', () {
@@ -366,6 +377,57 @@ Column
       expect(_node(named, 'r')['actions'], hasLength(2));
       // The screen's own shortcut is a line of its own, as it was.
       expect(_said(_page('state g=""\nkey ArrowRight onPress={g="b"}\nColumn\n  Text "{g}"\n')), isEmpty);
+    });
+  });
+
+  group('one name for each key, word and line', () {
+    test('a line\'s keys: maxw, the border words, a Text\'s size, weight and fontFamily', () {
+      final r = _page('''
+Column
+  Column max-width=720
+    Text "a"
+  Box borderBottom=#FF111111 border-t=#FF111111
+  Box border=#FF111111 borderWidth=2
+  Box borderColor=#FF222222 border-width=3
+  Text "a" fontSize=20 fontWeight=700 font="Georgia"
+''');
+      expect(_said(r), [
+        'A Column\'s max-width is written maxw: maxw=720.',
+        'A Box\'s borderBottom is written border-bottom: border-bottom=#FF111111.',
+        'A Box\'s border-t is written border-top: border-top=#FF111111.',
+        'A Box\'s borderWidth is written strokeWidth: strokeWidth=2.',
+        'A Box\'s borderColor is written border: border=#FF222222.',
+        'A Box\'s border-width is written strokeWidth: strokeWidth=3.',
+        'A Text\'s fontSize is written size: size=20.',
+        'A Text\'s fontWeight is written weight: weight=700.',
+        'A Text\'s font is written fontFamily: fontFamily="Georgia".',
+      ]);
+      final named = _page('Column\n  Column#c maxw=720\n    Text "a"\n  Box#b border-bottom=#FF111111 border-top=#FF111111\n  Box#d border=#FF222222 strokeWidth=3\n  Text#t "a" size=20 weight=700 fontFamily="Georgia"\n');
+      expect(_said(named), isEmpty);
+      expect(((_node(named, 'c')['layout'] as Map)['constraints'] as Map)['maxWidth'], 720);
+      expect(_node(named, 'd')['decoration'], {'strokes': [{'color': '#FF222222'}], 'strokeWidth': 3});
+      expect(((_node(named, 't')['props'] as Map)['style'] as Map), allOf(containsPair('fontSize', 20), containsPair('fontWeight', 700), containsPair('fontFamily', 'Georgia')));
+      // What prints is what reads.
+      final printed = printNotation(named.document, catalog: standardCatalog);
+      expect(printed, allOf(contains('maxw=720'), contains('border=#FF222222 strokeWidth=3'), contains('fontFamily=Georgia')));
+      expect(_said(_page(printed)), isEmpty);
+    });
+
+    test('a Table\'s words', () {
+      const state = 'state people=[{"id":1,"name":"a"}]\nstate s="name"\nstate c=[]\n';
+      expect(_said(_page('${state}Column\n  Table p in people cols=["Name"] sortBy=@s selected=@c dense\n')), [
+        'A Table\'s cols is written columns: columns=["Name"].',
+        'A Table\'s selected is written select: select=@c.',
+        'A Table\'s sortBy is written sort: sort=@s.',
+        'A Table with denser rows is written compact.',
+      ]);
+      expect(_said(_page('${state}Column\n  Table rows={people} columns=["Name"]\n')).first, startsWith('A Table names its record and its list, as an each does: write Table row in people columns=[…]'));
+      expect(_said(_page('${state}Column\n  Table p in people columns=["Name"] sort=@s select=@c compact\n')), isEmpty);
+    });
+
+    test('an every\'s unit', () {
+      expect(_said(_page('state n=0\nevery 1min onTick={n=n+1}\nColumn\n  Text "{n}"\n')).single, endsWith(': write every 1m onTick={n=n+1}'));
+      expect(_said(_page('state n=0\nevery 1m onTick={n=n+1}\nColumn\n  Text "{n}"\n')), isEmpty);
     });
   });
 }

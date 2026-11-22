@@ -76,9 +76,11 @@ void main() {
       expect((text['props'] as Map)['text'], contains('props.session.length'));
     });
 
-    test('of a list is still its count', () {
+    test('of a list is not its count: the count is length(rows), and it is said', () {
       final r = _expand('state rows=[1,2]\nColumn\n  Text "{rows.length}"\n');
-      expect(((_nodes(r).values.singleWhere((n) => (n! as Map)['type'] == 'text')! as Map)['props'] as Map)['text'], contains('length(rows)'));
+      expect(_said(r).single, endsWith(': write length(rows)'));
+      expect(((_nodes(r).values.singleWhere((n) => (n! as Map)['type'] == 'text')! as Map)['props'] as Map)['text'], contains('rows.length'));
+      expect(_said(_expand('state rows=[1,2]\nColumn\n  Text "{length(rows)}"\n')), isEmpty);
     });
   });
 

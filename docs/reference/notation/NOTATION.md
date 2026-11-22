@@ -208,7 +208,7 @@ big as its content. Write a size only where the design needs one.
 - `w`, `h`: a number (fixed), `fill` (the room the parent gives), `hug` (the content's size). `grow` on a child of a
   Row or Column takes the room left (shared by every child with `grow`).
 - `pad`: one number, `[x,y]` (`[14,12]`: 14 left and right, 12 top and bottom), or `[left,top,right,bottom]`. `gap`: the room between children. `margin` as `pad`.
-- `maxWidth=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
+- `maxw=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
 - On a Row, Column or Stack: `center` is across the page and `middle` down it; `center middle` is both (a
   Column starts its children at the left unless a word says otherwise). Along a Row or Column: `start`,
   `end`, `between`, `around`, `evenly`. `left` and `right` are across the page and `top` and `bottom` down it, as
@@ -431,9 +431,9 @@ are on [site.md](site.md).
 
 | Page | What is in it | Open it when | Words |
 |---|---|---|---|
-| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 5351 |
+| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | a size, a place or a scroll is more than `w`, `h`, `gap`, `pad`, `grow` and the alignment words. | 5352 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | a text needs a size, weight, font, line height or a theme color, or the page has a dark mode. | 1933 |
-| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`: a shadow, a gradient, a picture placed in its box. | 3937 |
+| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | a box needs more than `fill`, `border` and `radius`: a shadow, a gradient, a picture placed in its box. | 3935 |
 | [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | a UI needs an illustration, a chart of its own, a dial or any shape the boxes cannot make. | 2350 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | a UI takes input, or a control needs a key beyond its text and its `@name`. | 13801 |
 | [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | a UI repeats a row per element, lays out a grid, shows a table or pages through items. | 9963 |
@@ -444,11 +444,11 @@ are on [site.md](site.md).
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | a UI shows numbers as a picture. | 9162 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | a page must work on a phone, a tablet and a desktop, or a line looks different while hovered or pressed. | 4198 |
 | [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | a UI has more than one screen, a frame, or anything over the page. | 5287 |
-| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 3112 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | a UI reuses a part, or you write a component for a site or a design system. | 3114 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | a session gives you a design system, or an answer needs a word the notation does not have. | 1001 |
 | [site.md](site.md) | A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries. | you lay out a site's folder, share state between pages, or write or change `site.json`. | 1529 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | a document needs a canvas name, path, size or fill, a site's variables, or a field every node has. | 985 |
-| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17536 |
+| [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | you need the form of a value (a color, an alignment, a size, an edge inset) or the words an enum takes. | 17526 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | a UI loads or saves data beyond its own state. | 1660 |
 | [auth.md](auth.md) | The accounts layer: signing app users in, up and out, and managing their account, with `{auth}` to show who is signed in. | a UI has accounts. | 282 |
 | [commerce.md](commerce.md) | The commerce layer: a paywall's actions (buy, restore, select a product, close, open a legal link). | a UI sells something. | 300 |

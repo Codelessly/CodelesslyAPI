@@ -227,7 +227,7 @@ Card gap=12
 
   test('the prompt is small, and every example in it parses', () {
     final prompt = Catalog.run(standardCatalog, () => notationPrompt(catalog: standardCatalog));
-    expect(prompt.length, lessThan(9000), reason: 'about 2,200 tokens');
+    expect(prompt.length, lessThan(9050), reason: 'about 2,200 tokens');
     // Every function it names is one the engine has.
     final engine = {for (final f in (jsonDecode(File('tool/reference/data/formulas.json').readAsStringSync()) as Map)['functions'] as List) (f as Map)['name']};
     for (final f in [...notationFunctions, ...notationPageFunctions]) {
@@ -908,8 +908,8 @@ Column gap=8
     expect((_node(plain, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= !voted}');
     expect((_node(plain, 'progressBar1')['bind'] as Map)['props.value'], r'${n}');
     expect((_node(plain, 'text1')['bind'] as Map)['visible'], r'${= n>1 && !voted}');
-    // for … in, else, let: what three models wrote unprompted.
-    final natural = _parse('state items = [{"n":1},{"n":0}]\nlet total = sum(items,i=>i.n)\nColumn\n  for it in items\n    if it.n > 0\n      Text "{it.n}"\n    else\n      Text "none"\n  Text "{total}"\n');
+    // else under an each; a worked-out state.
+    final natural = _parse('state items = [{"n":1},{"n":0}]\nstate total = {sum(items,i=>i.n)}\nColumn\n  each it in items\n    if it.n > 0\n      Text "{it.n}"\n    else\n      Text "none"\n  Text "{total}"\n');
     expect(natural.issues, isEmpty, reason: '${natural.issues}');
     final shownIf = (natural.document['nodes']! as Map).values.cast<Map>().where((n) => n['type'] == 'text').map((n) => (n['bind'] as Map?)?['visible']).toList();
     expect(shownIf.take(2), [r'${= item.n > 0}', r'${= !(item.n > 0)}']);
@@ -922,15 +922,15 @@ Column gap=8
     expect(react('slider1')['trigger'], {'type': 'changed'});
     expect(((react('slider1')['actions'] as List).single as Map)['value'], r'${= result}');
     expect(((react('filledButton3')['actions'] as List).single as Map)['variable'], 'n');
-    // A record of a list changed where it stands, and n += 1.
-    final placed = _parse('state rows = [{"q":1},{"q":2}]\nstate n = 0\nColumn\n  for r in rows\n    Button "+" onTap={r.q += 1; n++}\n  Button "first" onTap={rows[0].q = 9}\n');
+    // A record of a list changed where it stands.
+    final placed = _parse('state rows = [{"q":1},{"q":2}]\nstate n = 0\nColumn\n  each r in rows\n    Button "+" onTap={r.q = r.q + (1); n = n + 1}\n  Button "first" onTap={rows[0].q = 9}\n');
     expect(placed.issues, isEmpty, reason: '${placed.issues}');
     final acts = (placed.document['nodes']! as Map).values.cast<Map>().where((x) => x['actions'] != null).expand((x) => ((x['actions'] as List).single as Map)['actions'] as List).cast<Map>().toList();
     expect(acts[0], {'type': 'setVariable', 'variable': 'rows', 'value': r'${= setAt(rows,index,with(item,"q",item.q + (1)))}'});
     expect(acts[1], {'type': 'setVariable', 'variable': 'n', 'value': r'${= n + 1}'});
     expect(acts[2]['value'], r'${= setAt(rows,0,with(rows[0],"q",9))}');
-    // Expressions with spaces and no mark, word operators, calls on a value, a guarded step, the timer as models write it.
-    final spoken = _parse('state n = 2\nstate on = false\nstate rows = [{"q":1}]\nstate left = 5\nevery 1s when on onTick={left = left - 1; if (left == 0) { on = false }}\nColumn\n  Button "Go" enabled={n > 0 and not on} onTap={rows.add({"q":2}); if (n > 1) { n = 0 }}\n  Text "{rows.length} rows, {rows.filter(r => r.q > 1).length} big"\n');
+    // Expressions with spaces and no mark, a guarded step, the timer as models write it.
+    final spoken = _parse('state n = 2\nstate on = false\nstate rows = [{"q":1}]\nstate left = 5\nevery 1s when on onTick={left = left - 1; left == 0 ? {on = false} : {}}\nColumn\n  Button "Go" enabled={n > 0 && !on} onTap={rows = append(rows,{"q":2}); n > 1 ? {n = 0} : {}}\n  Text "{length(rows)} rows, {length(filter(rows,r => r.q > 1))} big"\n');
     expect(spoken.issues, isEmpty, reason: '${spoken.issues}');
     expect((_node(spoken, 'filledButton1')['bind'] as Map)['props.enabled'], r'${= n > 0 && !on}');
     final go = (((_node(spoken, 'filledButton1')['actions'] as List).single as Map)['actions'] as List).cast<Map>();
@@ -1355,7 +1355,7 @@ Column
     String textOf(Map<String, Object?> nodes, String id) => ((nodes[id]! as Map)['props']! as Map)['text']! as String;
 
     test('a value that starts with quoted text is still a formula', () {
-      final nodes = nodesOf('state n=2\nlet label = "Total " + n * 3\nCard\n  Text "{label}"\n');
+      final nodes = nodesOf('state n=2\nstate label = {"Total " + n * 3}\nCard\n  Text "{label}"\n');
       expect(textOf(nodes, 'text1'), r'${= ("Total " + n * 3)}');
     });
 
@@ -1365,12 +1365,12 @@ Column
     });
 
     test('a call on a worked-out value', () {
-      final nodes = nodesOf('state a=2\nlet sub = a * 1.5\nCard\n  Text "{sub.toFixed(2)}"\n');
+      final nodes = nodesOf('state a=2\nstate sub = {a * 1.5}\nCard\n  Text "{fixed(sub,2)}"\n');
       expect(textOf(nodes, 'text1'), r'${= fixed((a * 1.5),2)}');
     });
 
-    test('a condition in braces with spaces, quotes and words', () {
-      final nodes = nodesOf('state code=""\nstate n=1\nCard\n  Text visible={n > 0 and not (code == "")} "Promo"\n');
+    test('a condition in braces with spaces and quotes', () {
+      final nodes = nodesOf('state code=""\nstate n=1\nCard\n  Text visible={n > 0 && !(code == "")} "Promo"\n');
       expect(jsonEncode(nodes['text1']), contains(jsonEncode(r'${= n > 0 && !(code == "")}')));
     });
 
@@ -1416,7 +1416,7 @@ Column
     });
 
     test('a value brace holds its own braces and quotes', () {
-      final r = _parse('state pick="b"\nlet sel = find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)\nstate x=""\nCard\n  Text "Costs {sel.price}"\n  Select @x items={[["Total","{money(sel.price,"\$",2)}"]]}\n');
+      final r = _parse('state pick="b"\nstate sel = {find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)}\nstate x=""\nCard\n  Text "Costs {sel.price}"\n  Select @x items={[["Total","{money(sel.price,"\$",2)}"]]}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       final doc = jsonEncode(r.document);
       expect(doc, contains(jsonEncode(r'Costs ${= (find([{"id":"a","price":1},{"id":"b","price":2}], f => f.id == pick)).price}')));

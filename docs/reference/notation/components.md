@@ -354,7 +354,7 @@ From [`site/pages/home.json`](../components.md).
 canvas "Home" path="/" h=844 fill=paper
 Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
   Header#header type=Header w={"fill":390} h=56 savedCount={length(saved)}
-  Column#main gap=16 pad=20 w={"fill":390} h={"hug":300} maxWidth=960
+  Column#main gap=16 pad=20 w={"fill":390} h={"hug":300} maxw=960 align=null
     Text#title "Trips by rail" w={"fill":350} h={"hug":34} style=title
     ListView#tripList w={"fill":350} h={"hug":200} scrollable=false gap=12
       each item in trips
@@ -380,7 +380,7 @@ state isSaved:boolean={contains(saved, trip.id)}
 canvas "Trip" path="/trip" h=844 fill=paper
 Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
   Header#header type=Header w={"fill":390} h=56 savedCount={length(saved)}
-  Column#main gap=16 pad=20 w={"fill":390} h={"hug":400} maxWidth=960
+  Column#main gap=16 pad=20 w={"fill":390} h={"hug":400} maxw=960 align=null
     Text#back "Back" w={"hug":120} h={"hug":22} style=link onTap={navigate mode=pop}
     Text#title "{trip.name}" w={"fill":350} h={"hug":34} style=title
     Button.outline#save "Save trip" w=160 h=40 label={isSaved ? 'Saved' : 'Save trip'} onTap={if condition={"left":"${isSaved}","op":"isTrue"} then={setVariable variable=saved op=remove value={trip.id}} else={setVariable variable=saved op=add value={trip.id}}; setStorage key=saved valueType=list value={saved}; toast "{isSaved ? 'Saved' : 'Removed'}"}

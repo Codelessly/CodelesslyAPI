@@ -147,8 +147,11 @@ void main() {
 
     test('a dotted key is the path from the field; the full path from the node always reads', () {
       word('Column', 'pan.axis', 'horizontal', 'pan.axis', 'horizontal');
-      // (A bound of the constraints is a layout field by its own name.)
-      word('Column', 'maxWidth', '720', 'layout.constraints.maxWidth', 720);
+      // (A bound of the constraints is a layout field by its own name; the
+      // greatest width has the notation's word, maxw.)
+      word('Column', 'minHeight', '40', 'layout.constraints.minHeight', 40);
+      expect(_at(read('Column#n maxw=720'), 'layout.constraints.maxWidth'), 720);
+      expect(parseNotation('Column#n maxWidth=720', catalog: catalog).issues.single.message, 'A Column\'s maxWidth is written maxw: maxw=720.');
       expect(_at(read('Column#n constraints.maxWidth=720'), 'layout.constraints.maxWidth'), 720);
       word('Column', 'dropTarget.accepts', '["clips"]', 'dropTarget.accepts', ['clips']);
       word('Column', 'fills[0].color', '"#FF123457"', 'decoration.fills[0].color', '#FF123457');

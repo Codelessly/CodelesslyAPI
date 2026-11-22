@@ -110,7 +110,7 @@ big as its content. Write a size only where the design needs one.
 - `w`, `h`: a number (fixed), `fill` (the room the parent gives), `hug` (the content's size). `grow` on a child of a
   Row or Column takes the room left (shared by every child with `grow`).
 - `pad`: one number, `[x,y]` (`[14,12]`: 14 left and right, 12 top and bottom), or `[left,top,right,bottom]`. `gap`: the room between children. `margin` as `pad`.
-- `maxWidth=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
+- `maxw=720` (also `minWidth`, `minHeight`, `maxHeight`) bounds a size.
 - On a Row, Column or Stack: `center` is across the page and `middle` down it; `center middle` is both (a
   Column starts its children at the left unless a word says otherwise). Along a Row or Column: `start`,
   `end`, `between`, `around`, `evenly`. `left` and `right` are across the page and `top` and `bottom` down it, as

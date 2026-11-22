@@ -64,7 +64,7 @@ state orders=[{"name":"Ada","total":3}]
 canvas layout.height.hug=0 layout.height.fill=null
 Column stretch scroll h=fill
   Column center pad=[24,64,24,64]
-    Column gap=32 w=fill maxWidth=1120
+    Column gap=32 w=fill maxw=1120
       Column fill=#FFFFFFFF border=#FFE5E7EB radius=8 clip=antiAlias
         Row gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky
           Row gap=4 grow
@@ -254,7 +254,7 @@ state chosenAnchor:decimal=-1
 canvas layout.height.hug=0 layout.height.fill=null
 Column stretch scroll h=fill
   Column center pad=[24,64,24,64]
-    Column gap=32 w=fill maxWidth=1120
+    Column gap=32 w=fill maxw=1120
       Row gap=8
         Input "" hint=Search w=280 h=40.0 @search
         Select w=140 h=40.0 @status items=["All","Paid","Due"]
@@ -391,7 +391,7 @@ Column h=360 gap=8
     Column w=fill h=fill
       each m in msgs follow grow onScroll={away = result.max - result.offset > 80; unread = away ? unread : 0}
         Text#msg "{m.text}" pad=12
-    Row#latest visible={away and unread > 0} x={"align":0} y={"end":12} pad=[12,6,12,6] radius=16 fill=#FF2563EB onTap={scrollTo node=msg item={length(msgs) - 1}; unread=0}
+    Row#latest visible={away && unread > 0} x={"align":0} y={"end":12} pad=[12,6,12,6] radius=16 fill=#FF2563EB onTap={scrollTo node=msg item={length(msgs) - 1}; unread=0}
       Text "{unread} new" color=#FFFFFFFF
   Button "Receive" onTap={msgs=append(msgs, {"id": "m" + (length(msgs) + 1), "text": "New message"}); unread = away ? unread + 1 : 0}
 ```

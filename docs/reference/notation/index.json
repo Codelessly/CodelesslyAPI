@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5351
+      "words": 5352
     },
     {
       "topic": "layout-sizes",
@@ -166,7 +166,7 @@
       "file": "layout.md",
       "anchor": "layout-examples",
       "title": "Examples",
-      "words": 946
+      "words": 947
     },
     {
       "topic": "theme",
@@ -224,14 +224,14 @@
       "anchor": "page-decoration",
       "title": "Decoration",
       "summary": "Fills, gradients, borders, corners, shadows, blurs, clipping and pictures.",
-      "words": 3937
+      "words": 3935
     },
     {
       "topic": "decoration-fills-borders-and-corners",
       "file": "decoration.md",
       "anchor": "decoration-fills-borders-and-corners",
       "title": "Fills, borders and corners",
-      "words": 218
+      "words": 216
     },
     {
       "topic": "decoration-pictures-and-icons",
@@ -886,7 +886,7 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 3112
+      "words": 3114
     },
     {
       "topic": "components-calling-one",
@@ -935,7 +935,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 940
+      "words": 942
     },
     {
       "topic": "design-systems",
@@ -1044,7 +1044,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17536
+      "words": 17526
     },
     {
       "topic": "values-writing-a-value",
@@ -1058,7 +1058,7 @@
       "file": "values.md",
       "anchor": "values-other-spellings-also-read",
       "title": "Other spellings (also read)",
-      "words": 314
+      "words": 304
     },
     {
       "topic": "values-value-types",

@@ -525,7 +525,7 @@ final class _Printer {
     if (a.length != 2) return null;
     final text = a['text'];
     if (text is! String) return null;
-    if (_whole(text) case final String name when RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$').hasMatch(name)) return 'copy $name';
+
     return _quoted(text) == null ? null : 'copy ${_quoted(text)}';
   }
 

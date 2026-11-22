@@ -275,7 +275,7 @@ Column h=360 gap=8
     Column w=fill h=fill
       each m in msgs follow grow onScroll={away = result.max - result.offset > 80; unread = away ? unread : 0}
         Text#msg "{m.text}" pad=12
-    Row#latest visible={away and unread > 0} x={"align":0} y={"end":12} pad=[12,6,12,6] radius=16 fill=#FF2563EB onTap={scrollTo node=msg item={length(msgs) - 1}; unread=0}
+    Row#latest visible={away && unread > 0} x={"align":0} y={"end":12} pad=[12,6,12,6] radius=16 fill=#FF2563EB onTap={scrollTo node=msg item={length(msgs) - 1}; unread=0}
       Text "{unread} new" color=#FFFFFFFF
   Button "Receive" onTap={msgs=append(msgs, {"id": "m" + (length(msgs) + 1), "text": "New message"}); unread = away ? unread + 1 : 0}
 ```

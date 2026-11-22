@@ -700,11 +700,11 @@ Page
 
     test('is smaller than the taught page prompt; the taught prompts are as they were', () {
       expect(plain(1280).length, lessThan(taught(1280).length - 2000));
-      expect(plain(1280).length, lessThan(19500), reason: 'about 4,800 tokens (round 11 added four lines of what the notation has)');
+      expect(plain(1280).length, lessThan(19550), reason: 'about 4,800 tokens (round 11 added four lines of what the notation has; a branch in braces, never parentheses)');
       // (With definitions: the preface, and a word's own design at a width.)
       expect(open(1280).length, plain(1280).length + notationDefinePreface.length + notationAtDefinedLines.length + 1);
       expect(open(390).length, plain(390).length + notationDefinePreface.length);
-      expect(taught(390).length, lessThan(9000));
+      expect(taught(390).length, lessThan(9050));
       expect(plain(390).length, lessThan(taught(390).length + notationOpenPreface.length));
     });
 

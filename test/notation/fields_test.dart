@@ -203,8 +203,8 @@ void main() {
       ('Column\n  Text "x" order=2', 'text', 'layout.order', 2),
       ('Column\n  Text "x" basis=280', 'text', 'layout.basis', 280),
       ('Column\n  box h=40 aspectRatio=1.5', 'box', 'layout.aspectRatio', 1.5),
-      ('Column\n  Column maxWidth=720', 'column', 'layout.constraints.maxWidth', 720),
-      ('Column\n  Column minHeight=40 maxWidth=720', 'column', 'layout.constraints.minHeight', 40),
+      ('Column\n  Column maxw=720', 'column', 'layout.constraints.maxWidth', 720),
+      ('Column\n  Column minHeight=40 maxw=720', 'column', 'layout.constraints.minHeight', 40),
     ]);
   });
 
@@ -409,7 +409,7 @@ void main() {
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'dashPattern': [6, 4]}}, 'dashPattern=[6,4]'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'strokes': [{'color': '#FF000000'}], 'strokeAlign': 'outside'}}, 'strokeAlign=outside'),
       ({'type': 'box', 'layout': {'width': 40, 'height': 40}, 'decoration': {'blendMode': 'multiply'}}, 'blendMode=multiply'),
-      ({'type': 'box', 'layout': {'width': 40, 'height': 40, 'constraints': {'minHeight': 40, 'maxWidth': 720}}}, 'minHeight=40 maxWidth=720'),
+      ({'type': 'box', 'layout': {'width': 40, 'height': 40, 'constraints': {'minHeight': 40, 'maxWidth': 720}}}, 'minHeight=40 maxw=720'),
       // A behavior (ignorePointer, floating, inkWell…) is the states family's,
       // written by the keys' names with or without fieldNames: states_test.dart.
       ({'type': 'progressBar', 'layout': {'width': {'fill': 0}, 'height': {'hug': 0}}, 'props': {'max': 1, 'borderRadius': 2, 'color': '#FF2563EB', 'backgroundColor': '#FFE5E7EB', 'animate': true}}, 'props.animate=true'),

@@ -279,11 +279,11 @@ state lo=1
 state hi=9
 state items=[1,2]
 Column
-  Image#i url="https://x/y.png" w=100 h=100
-  Image#j url={images[frame]} h=300
+  Image#i "https://x/y.png" w=100 h=100
+  Image#j "{images[frame]}" h=300
   Input#q "Search" prefixIcon="search"
   RangeSlider#rs @lo end=@hi min=0 max=10
-  Grid#g crossAxisCount=3 crossAxisSpacing=12 mainAxisExtent=30
+  Grid#g cols=3 gap=12 mainAxisExtent=30
     each i in items
       Text "{i}"
 ''');
@@ -298,7 +298,15 @@ Column
       expect(grid['props'], containsPair('crossAxisCount', 3));
       expect(grid['props'], containsPair('crossAxisSpacing', 12));
       expect(grid['props'], containsPair('mainAxisExtent', 30));
-      expect(aliases(r), containsAll(['url', 'prefixIcon', 'RangeSlider', 'crossAxisCount', 'crossAxisSpacing', 'mainAxisExtent']));
+      expect(aliases(r), containsAll(['prefixIcon', 'RangeSlider', 'mainAxisExtent']));
+      // One name for each: the picture is an Image's string, a Grid has cols and gap.
+      final said = _parse('Column\n  Image url="https://x/y.png"\n  Grid crossAxisCount=3 crossAxisSpacing=12 columns=2\n    Text "a"\n');
+      expect([for (final i in said.issues) i.message], [
+        'An Image\'s picture is its string, the first thing after the word: Image "https://x/y.png".',
+        'A Grid\'s crossAxisCount is written cols: cols=3.',
+        'A Grid\'s crossAxisSpacing is written gap: gap=12.',
+        'A Grid\'s columns is written cols: cols=2.',
+      ]);
     });
 
     test('semanticLabel on a Toggle, a Slider, a Checkbox: the name a screen reader says', () {

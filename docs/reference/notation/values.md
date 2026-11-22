@@ -53,7 +53,6 @@ says them instead). They are listed so you know them when you read them, not as 
 | `onEnter={…}`, `onSubmitted={…}` | event | `onSubmit={…}` | `Input` |
 | `onSaved={…}` | event | `onBlur={…}` | `Input` |
 | `onSelect={…}` | event | `onChange={…}` | `Calendar` |
-| `unfocus` | verb | `blur` | an action |
 
 <a id="values-value-types"></a>
 ## Value types

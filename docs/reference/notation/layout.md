@@ -23,11 +23,11 @@ Column gap=8
     Column h=40 grow fill=#FFBFDBFE
 ```
 
-`maxWidth=720` keeps a column from stretching; `minWidth`, `minHeight`, `maxHeight` likewise (`minWidth`, `maxWidth`, `minHeight`, `maxHeight` are
+`maxw=720` keeps a column from stretching; `minWidth`, `minHeight`, `maxHeight` likewise (`minWidth`, `maxWidth`, `minHeight`, `maxHeight` are
 the bounds of `constraints`).
 
 ```notation
-Column maxWidth=720
+Column maxw=720
   Text "Capped"
 ```
 
@@ -411,7 +411,7 @@ Column#page scroll w={"fill":1440} h={"fill":900} crossAxisAlignment=null
       Text#nav-2 "Pricing" size=15 color=#FFFFFFFF w={"hug":60} h={"hug":20}
       Text#nav-3 "Docs" size=15 color=#FFD1D5DB w={"hug":60} h={"hug":20}
     Icon#menu "menu" w=28 h=28 color=#FFFFFFFF minDesktop.hidden
-  Column#content gap=24 stretch pad=[16,24,16,24] w={"fill":1440} h={"hug":800} maxWidth=1200 minTablet.gap=32 minTablet.pad=[32,48,32,48]
+  Column#content gap=24 stretch pad=[16,24,16,24] w={"fill":1440} h={"hug":800} maxw=1200 align=null minTablet.gap=32 minTablet.pad=[32,48,32,48]
     Text.heading2#title "Plans that scale with your team" size=32 lineHeight=1.1 w={"fill":1136} h={"hug":64} minTablet.size=40 minDesktop.size=56
     gridView#plans w={"fill":1136} h={"hug":200} physics=never minCrossAxisExtent=280 crossAxisSpacing=24 mainAxisSpacing=24
       each item in plans
@@ -433,7 +433,7 @@ state rows=[{"label":"Seats","values":["5","25","Unlimited"]},{"label":"SSO","va
 canvas h=900
 Column#page scroll w={"fill":1440} h={"fill":900} crossAxisAlignment=null
   Column#band pad=[24,48,24,48] w={"fill":1440} h={"hug":200} fill=#FF1F2937 crossAxisAlignment=null
-    Column#rail gap=16 stretch w={"fill":1200} h={"hug":160} maxWidth=1200
+    Column#rail gap=16 stretch w={"fill":1200} h={"hug":160} maxw=1200
       Text.heading2#title "Compare plans" size=28 color=#FFFFFFFF w={"fill":1200} h={"hug":34}
       ListView#table w={"fill":1200} h={"hug":120} physics=never
         each row in rows
@@ -453,10 +453,10 @@ From [`gutter.json`](../layout.md).
 canvas h=900
 Column#page scroll w={"fill":1440} h={"fill":900} crossAxisAlignment=null
   Column#hero pad=[16,48,16,48] w={"fill":1440} h={"hug":200} fill=#FF0F172A crossAxisAlignment=null min600.pad=[32,64,32,64] desktop.pad=[64,96,64,96]
-    Column#heroRail w={"fill":1200} h={"hug":60} maxWidth=1200 crossAxisAlignment=null
+    Column#heroRail w={"fill":1200} h={"hug":60} maxw=1200 crossAxisAlignment=null
       Text.heading2#heroTitle "Every section starts on one line" size=32 color=#FFFFFFFF w={"fill":1200} h={"hug":40}
   Column#features pad=[16,48,16,48] w={"fill":1440} h={"hug":200} crossAxisAlignment=null min600.pad=[32,64,32,64] desktop.pad=[64,96,64,96]
-    Row#featuresRail gap=24 w={"fill":1200} h={"hug":120} maxWidth=1200 crossAxisAlignment=null wrap=true runSpacing=24
+    Row#featuresRail gap=24 w={"fill":1200} h={"hug":120} maxw=1200 crossAxisAlignment=null wrap=true runSpacing=24
       Text#f1 "The band holds the color and the gutter." size=16 color=#FF334155 w={"fill":400} h={"hug":48} basis=300
 ```
 
@@ -471,11 +471,11 @@ state mostRead=["Where the marsh moves, the town follows","Counting eels by moon
 canvas h=844 fill=#FFFAF7F2
 Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
   Column#masthead pad=[20,20,20,20] w={"fill":390} h={"hug":72} fill=#FF1F2A44 crossAxisAlignment=null
-    Row#mastheadInner between w={"fill":350} h={"hug":32} maxWidth=1200 crossAxisAlignment=null
+    Row#mastheadInner between w={"fill":350} h={"hug":32} maxw=1200 crossAxisAlignment=null
       Text.heading2#title "The Long Tide" color=#FFFAF7F2 w={"hug":140} h={"hug":32}
       Text#edition "Saturday edition" color=#FFCBD5E1 w={"hug":120} h={"hug":18} max599.hidden
   Column#main pad=[20,24,20,40] w={"fill":390} h={"hug":1200} crossAxisAlignment=null
-    Flex#split w={"fill":350} h={"hug":1200} maxWidth=1200 direction=vertical gap=32 crossAxisAlignment=start min834.direction=horizontal
+    Flex#split w={"fill":350} h={"hug":1200} maxw=1200 direction=vertical gap=32 crossAxisAlignment=start min834.direction=horizontal
       gridView#river w={"fill":350} h={"hug":900} cols=1 physics=never mainAxisSpacing=28 crossAxisSpacing=24 min834.crossAxisCount=2 min1200.crossAxisCount=3
         each item in stories
           Column#story gap=8 h={"hug":300} columnSpan={index == 0 ? 2 : 1} w={"fill":350}

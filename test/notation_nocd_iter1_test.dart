@@ -140,8 +140,9 @@ void main() {
   });
 
   group('a nullable type', () {
-    test('state p:Map?=null is a map that starts as null', () {
-      final r = _read('state deletePayload:Map?=null\nText "{deletePayload == null ? \'none\' : deletePayload.id}"\n');
+    test('state p:map=null is a map that starts as null; the type as Dart writes it is said', () {
+      expect(_read('state deletePayload:Map?=null\nText "x"\n').issues.single.message, contains('state deletePayload:map=null ("Map?" is not one)'));
+      final r = _read('state deletePayload:map=null\nText "{deletePayload == null ? \'none\' : deletePayload.id}"\n');
       expect(r.issues, isEmpty);
       final v = ((r.document['variables'] as Map).values.expand((l) => l as List).cast<Map>()).firstWhere((v) => v['name'] == 'deletePayload');
       expect(v['type'], 'map');

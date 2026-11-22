@@ -35,6 +35,11 @@ typedef PageLine = ({int indent, String text});
 /// Rewrites page words into plain notation lines, a line at a time (the
 /// notation is read as it streams).
 final class PageWords {
+  /// What a word said of the line just rewritten (a spelling it does not
+  /// read, with the one to write): the reader says each as an issue of
+  /// that line, and empties the list.
+  final List<String> notes = [];
+
   PageWords({
     this.contentWidth = 1120,
     this.narrowWidth = 720,

@@ -1169,9 +1169,15 @@ final class _NodeLine {
       if (_value(layout[k], _vars) case final String w) words.add('$k=$w');
     }
     if (readMap(layout['constraints']) case final Json box when box.isNotEmpty) {
-      // Each limit by its own name (`maxWidth=720`, design 22, 2.1).
+      // Each limit by its own name (`minWidth=200`), the greatest width
+      // by the notation's word for it (`maxw=720`).
       for (final e in box.entries) {
-        if (e.value is num && notationKeyPath(e.key, type, catalog: c.catalog) == 'layout.constraints.${e.key}') words.add('${e.key}=${jsonEncode(e.value)}');
+        if (e.value is! num) continue;
+        if (e.key == 'maxWidth') {
+          words.add('maxw=${jsonEncode(e.value)}');
+        } else if (notationKeyPath(e.key, type, catalog: c.catalog) == 'layout.constraints.${e.key}') {
+          words.add('${e.key}=${jsonEncode(e.value)}');
+        }
       }
     }
     // The rest of the layout's fields are written by name (`columnSpan=2`).

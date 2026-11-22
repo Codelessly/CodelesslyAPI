@@ -1571,7 +1571,7 @@ List<String> notationChartShades(String accent) {
 const Set<String> notationVerbs = {..._Parser._verbs, 'blur', 'confirm'};
 
 /// A verb's other spelling the parser reads, by the verb it is.
-const Map<String, String> notationVerbAliases = {'unfocus': 'blur'};
+const Map<String, String> notationVerbAliases = {};
 
 /// An `animate=` value written as a formula (`{still ? "" : "pulse"}`, read
 /// as `=still ? …`): a name is read, not worked out.
@@ -1972,23 +1972,47 @@ NotationAppState readNotationAppState(String text, {Catalog? catalog, bool parti
   // A formula reads the formulas written after it too.
   final formulas = parser._derived;
   final ringed = <String>{};
-  for (var round = 0; round < formulas.length; round++) {
-    var changed = false;
-    for (final a in formulas.keys.toList()) {
-      for (final b in formulas.entries.toList()) {
-        if (ringed.contains(a)) break;
-        final now = formulas[a]!;
-        final next = parser._rename(' $now', b.key, '(${b.value})').substring(1);
-        if (next == now) continue;
-        if (a == b.key || next.length > 20000) {
-          ringed.add(a);
-          break;
-        }
-        formulas[a] = next;
-        changed = true;
+  // Each after the ones it reads (whichever is written first), so that one
+  // is written out in another once: one that has others written out in it
+  // and is read again (twice by one formula, or by a second) is kept by
+  // its name, a variable with its formula, as on a page. No formula grows
+  // past what was written; one that reads itself is a ring.
+  final visiting = <String>{}, resolved = <String>{};
+  void resolve(String a) {
+    if (resolved.contains(a) || !formulas.containsKey(a) || !visiting.add(a)) return;
+    for (final b in formulas.keys.toList()) {
+      final now = formulas[a];
+      if (now == null) break;
+      if (!formulas.containsKey(b) || !now.contains(b)) continue;
+      final marked = parser._rename(' $now', b, '\u0001').substring(1);
+      final times = '\u0001'.allMatches(marked).length;
+      if (times == 0) continue;
+      if (b == a || visiting.contains(b)) {
+        ringed
+          ..add(a)
+          ..add(b);
+        continue;
       }
+      resolve(b);
+      if (ringed.contains(b)) {
+        ringed.add(a);
+        continue;
+      }
+      if (!formulas.containsKey(b)) continue;
+      if (parser._derivedGrown.contains(b) && (times > 1 || parser._derivedRead.contains(b))) {
+        parser._derivedKept(b);
+        continue;
+      }
+      formulas[a] = marked.replaceAll('\u0001', '(${formulas[b]})');
+      parser._derivedRead.add(b);
+      parser._derivedGrown.add(a);
     }
-    if (!changed) break;
+    visiting.remove(a);
+    resolved.add(a);
+  }
+
+  for (final a in formulas.keys.toList()) {
+    resolve(a);
   }
   // (One that still reads a formula's name after every round is in a ring.)
   for (final a in formulas.keys) {
@@ -2884,6 +2908,12 @@ class _Parser {
       }
       final lines = _pages.rewrite(d.indent, d.text);
       _shadowed(d.text, lines);
+      // (What a page word says of its own line: a Table's word under
+      // another spelling.)
+      for (final note in _pages.notes) {
+        _issue(d.indent + 1, note);
+      }
+      _pages.notes.clear();
       for (final l in lines) {
         yield (l, d.from);
       }
@@ -5821,18 +5851,24 @@ class _Parser {
     // the name is the same without it. A price ("$24") and an interpolation
     // already written (`${…}`) keep their sign.
     if (line.contains(r'$')) line = line.replaceAllMapped(RegExp(r'(?<!\\)\$(?=[A-Za-z_])'), (_) => '');
-    // …and declares what the card remembers as `name = value` on a line of
-    // its own, before the card.
+    // A state is declared with the word state, a list repeated with each:
+    // what a language writes for them (`name = value` on a line of its own
+    // before the page, `let total = …`, `for r in rows`) is said with the
+    // line to write, and left out.
+    String stated(String name, String value) => 'state $name=${_literal(value.trim()).$1 || _bracedExpression(value.trim()) ? value.trim() : '{${value.trim()}}'}';
     if (_root == null && indent == 0) {
       final bare = RegExp(r'^([a-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(line);
-      if (bare != null && !const {'state', 'let', 'derived', 'const', 'var'}.contains(bare[1])) line = 'state ${bare[1]}=${bare[2]}';
+      if (bare != null && !const {'state', 'let', 'derived', 'const', 'var', 'key', 'every', 'on'}.contains(bare[1])) {
+        return _issue(column, 'A value the page keeps is declared with the word state: write ${stated(bare[1]!, bare[2]!)}');
+      }
     }
-    // What models write unprompted for these (SDK tool/values, three models):
-    // `let` or `derived` for a worked-out value, `for x in list`, `else`.
-    final declared = RegExp(r'^(?:let|derived|const|var)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(line);
-    if (declared != null) line = 'state ${declared[1]}=${declared[2]}';
-    final loop = RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line);
-    if (loop != null) line = 'each ${loop[1]} in ${loop[2]}';
+    if (RegExp(r'^(let|derived|const|var)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(line) case final declared?) {
+      return _issue(column, 'A value the page keeps or works out is declared with the word state (a formula in braces): write ${stated(declared[2]!, declared[3]!)}');
+    }
+    if (RegExp(r'^for\s+(?:[A-Za-z_][A-Za-z0-9_]*\s*,\s*)?([A-Za-z_][A-Za-z0-9_]*)\s+in\s+(.+)$').firstMatch(line) case final loop?) {
+      _issue(column, 'A list is repeated with each: write each ${loop[1]} in ${loop[2]}');
+      line = 'each ${loop[1]} in ${loop[2]}';
+    }
     // `project cart=[]` (or `project cart`): a variable of the whole site
     // (site.json's `variables`), read and set here as any other, with no
     // copy of its own on this screen to hide it.
@@ -5912,8 +5948,11 @@ class _Parser {
     }
     // `every 1m` and `every 1h` too (round 10, R22: `every 1m` was refused).
     final every = RegExp(r'^every\s+(\d+(?:\.\d+)?)(ms|s|m|min|h)?(?:\s+when\s+(.+?))?\s+onTick=\{(.+)\}\s*$').firstMatch(line);
+    if (every != null && every[2] == 'min') {
+      return _issue(column, 'An every\x27s time is milliseconds, or a number with s, m or h: write ${line.replaceFirst(RegExp(r'^every\s+(\d+(?:\.\d+)?)min'), 'every ${every[1]}m')}');
+    }
     if (every != null) {
-      final unit = switch (every[2]) { 's' => 1000, 'm' || 'min' => 60000, 'h' => 3600000, _ => 1 };
+      final unit = switch (every[2]) { 's' => 1000, 'm' => 60000, 'h' => 3600000, _ => 1 };
       final ms = (double.parse(every[1]!) * unit).round();
       if (ms < 16) return _issue(column, 'An "every" runs at most once a frame: every 16 or more (milliseconds), or every 1s.');
       _timers.add({
@@ -6147,7 +6186,10 @@ class _Parser {
       line = 'each ${two[1]} in ${two[3]}';
     }
     final bare = RegExp(r'^each\s+(\S+)$').firstMatch(line);
-    if (bare != null) line = 'each row in ${bare[1]}';
+    if (bare != null) {
+      _issue(indent + 1, 'An each names its element and its list: write each row in ${bare[1]} (the lines under it read row).');
+      line = 'each row in ${bare[1]}';
+    }
     // `each a in list stagger=80`: the row under it arrives that much after
     // the one before (its own animate=, or a fade up).
     // …and the other words an each takes after its list, in any order:
@@ -7729,6 +7771,28 @@ class _Parser {
           continue;
         }
         var key = word.substring(0, eq);
+        // One name for each thing: a key under another spelling, a flag
+        // given a condition, a named width before `hidden`, are said with
+        // the key to write and left out.
+        if (withFields == null && !standIn) {
+          String valueHere() => word.length > eq + 1
+              ? word.substring(eq + 1)
+              : t.peek == '"'
+                  ? jsonEncode(t.string())
+                  : (t.peek == '{' || t.peek == '[')
+                      ? t.balanced()
+                      : '';
+          if (_oneKey(key, spec, type: type, grid: grid != null, component: component) case final String to) {
+            _issue(col, 'A $written\x27s $key is written $to: $to=${valueHere()}.');
+            continue;
+          }
+          if (const {'hide', 'show', 'hidden'}.contains(key) && !spec.props.any((p) => p.key == key) && word.length == eq + 1 && t.peek == '{') {
+            final braced = t.balanced();
+            final cond = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length).trim();
+            _issue(col, 'A line shown by a condition is written visible={…} ($key= takes a size: hide=phone, show=phone; hidden, alone, hides it always): visible={${key == 'show' ? cond : (RegExp(r'^[A-Za-z_][A-Za-z0-9_.]*$').hasMatch(cond) ? '!$cond' : '!($cond)')}}.');
+            continue;
+          }
+        }
         // `type=Button` said which type the line is (above).
         if (named && (key == 'type' || key == 'node.type') && _unquoted(word.substring(eq + 1)) == written) continue;
         // A key written twice (`Progress value={x} value=0.5`): one of the
@@ -7761,16 +7825,6 @@ class _Parser {
         // `show=phone` is where a node shows (a screen's size), never a
         // condition, which is visible={…}.
         final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(eq + 1));
-        // `hide={!running}`, `show={open}`: a condition, which is what
-        // visible= says (hide the opposite). Models write them often.
-        if ((key == 'show' || key == 'hide') && !sizeWord && !spec.props.any((p) => p.key == key) && word.length == eq + 1 && t.peek == '{') {
-          final braced = t.balanced();
-          final cond = braced.substring(1, braced.endsWith('}') ? braced.length - 1 : braced.length).trim();
-          if (cond.isNotEmpty) {
-            bind['visible'] = _formula(key == 'hide' ? '!($cond)' : cond);
-            continue;
-          }
-        }
         if ((key == 'show' || key == 'hide') && !sizeWord && !spec.props.any((p) => p.key == key)) {
           _issue(col, '$key= takes a size (phone, tablet): a condition is written visible={condition}.');
           if (t.peek == '{' || t.peek == '[') t.balanced();
@@ -7908,6 +7962,11 @@ class _Parser {
           // A name that reads nothing once it is read (`id="ch{n}"`,
           // `id={slug}` in a definition, n and slug its parameters: each
           // use has its own, `ch0`, `intro`) is the name written as it is.
+          if (given.startsWith('"') && worked != null) {
+            final each = eaches.lastOrNull?.each;
+            _issue(col, 'An id that is worked out is the expression in braces, not a text with a value in it: id={${each == null ? worked : _rename(worked, 'item', each)}}.');
+            continue;
+          }
           final fixed = given.startsWith('"')
               ? _interpolate(given.length > 1 && given.endsWith('"') ? given.substring(1, given.length - 1) : given.substring(1))
               : switch (worked == null ? (false, null) : _literal(worked)) { (true, final String v) => v, (true, final num v) => '$v', _ => null };
@@ -8163,12 +8222,11 @@ class _Parser {
           }
           continue;
         }
-        // `Image url="…"` (test 10: 6 runs), `Image src={…}`: the picture,
-        // as the string after the word is.
+        // `Image url="…"`, `Image src={…}`: the picture is the string after
+        // the word. Said with that line, and left out.
         if ((key == 'url' || key == 'src') && written == 'Image' && !component && !spec.props.any((p) => p.key == key)) {
-          if (key == 'url') _use('alias', key, col, of: 'parameter', to: 'src', on: written);
-          given++;
-          _main(type, spec, raw.startsWith('=') ? '{${raw.substring(1)}}' : _unquoted(raw), props, decoration);
+          final v = raw.startsWith('=') ? '"{${raw.substring(1)}}"' : (raw.startsWith('"') ? raw : '"$raw"');
+          _issue(col, 'An Image\x27s picture is its string, the first thing after the word: Image $v.');
           continue;
         }
         if (grid != null && (key == 'gap' || key == 'spacing')) {
@@ -8522,7 +8580,7 @@ class _Parser {
           continue;
         }
         // The widest a node gets (a page's column of content): maxw=720.
-        if (const {'maxw', 'maxWidth', 'max-width', 'maxwidth'}.contains(key) && num.tryParse(raw) != null) {
+        if (key == 'maxw' && num.tryParse(raw) != null) {
           layout['constraints'] = {...?readMap(layout['constraints']), 'maxWidth': num.parse(raw)};
           continue;
         }
@@ -9082,7 +9140,8 @@ class _Parser {
         if (unknownKey && !standIn && !component && key == 'shadow' && spec.decorated && !raw.startsWith('=')) {
           final named = notationShadows[_unquoted(raw).toLowerCase()];
           if (named == null) {
-            _issue(col, 'shadow= takes a size (sm or soft, md, lg) or none: "$raw" is none of them, and is left out. Any other shadow is written out: effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}].');
+final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 'large': 'lg', 'false': 'none'}[_unquoted(raw).toLowerCase()];
+            _issue(col, 'shadow= takes a size (sm, md, lg) or none: ${meant == null ? '"$raw" is none of them, and is left out' : 'write shadow=$meant'}. Any other shadow is written out: effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}].');
           } else {
             decoration['effects'] = _copyValue(named);
           }
@@ -9096,7 +9155,7 @@ class _Parser {
           final line = choice == null
               ? 'shadow=md selected={<condition>} selected.shadow=lg'
               : '${const {'none', 'false'}.contains(choice[3]!.toLowerCase()) ? '' : 'shadow=${choice[3]} '}selected={${choice[1]}} selected.shadow=${choice[2]}';
-          _issue(col, 'A shadow is a size (sm or soft, md, lg, none), and a look that follows the state is the look of a state of the line: $line. $key=${_written(word, eq, raw)} is left out.');
+          _issue(col, 'A shadow is a size (sm, md, lg, none), and a look that follows the state is the look of a state of the line: $line. $key=${_written(word, eq, raw)} is left out.');
           continue;
         }
         if (unknownKey && !standIn && key == 'variant' && raw.startsWith('=')) {
@@ -10467,7 +10526,7 @@ class _Parser {
         readMap(layout['constraints'])?['maxWidth'] is num &&
         // (The word `maxw`: a bound written by its field's name, `maxWidth=`,
         // as a printed document writes it, is that bound and no more.)
-        (pre?.parts.any((p) => p.kind == 'pair' && const {'maxw', 'max-width', 'maxwidth'}.contains(p.key)) ?? false) &&
+        (pre?.parts.any((p) => p.kind == 'pair' && p.key == 'maxw') ?? false) &&
         layout['width'] is! num &&
         !layout.containsKey('align') &&
         !layout.containsKey('flex')) {
@@ -13016,7 +13075,9 @@ class _Parser {
     // `state draft="" saved`: its value is kept on the device and is there
     // again after a reload (Variable.persist).
     // (`saved=true` and `persist=true` say the same as a key.)
-    rest = rest.replaceFirst(RegExp(r'\s+(saved|persist|persisted)=true$'), ' saved');
+    if (RegExp(r'^(.*?)\s+(?:saved|persist|persisted)=true$').firstMatch(rest) case final m?) {
+      return _issue(column, 'A state kept on the device is written with the word saved after it, alone: state ${m[1]} saved');
+    }
     final saved = rest.endsWith(' saved');
     if (saved) rest = rest.substring(0, rest.length - 6).trimRight();
     // `state count:decimal=2`: a type the value does not say; `state
@@ -13028,11 +13089,11 @@ class _Parser {
     // as in Dart (`state payload:Map?=null`, NOCD parts 07, 21, 24) is that
     // type. It was "State is written: state name=value", which said nothing
     // of the type.
-    final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([A-Za-z]+)\??(?:\s*=\s*(.+))?$').firstMatch(rest);
+    final typed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\(([^()]*)\))?:([a-z]+)(?:\s*=\s*(.+))?$').firstMatch(rest);
     if (typed == null) {
       if (RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\([^()]*\))?:(\S+?)(?:\s*=.*)?$').firstMatch(rest) case final odd?) {
         return _issue(column,
-            'A variable\x27s type is one word, one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null: state ${odd[1]}:${odd[2]!.toLowerCase().startsWith('list') ? 'list=[]' : 'map=null'} ("${odd[2]}" is not one).');
+            'A variable\x27s type is one word in small letters, one of integer, text, decimal, boolean, color, list, map, image, choice, and any of them may start as null: state ${const {'integer', 'text', 'decimal', 'boolean', 'color', 'list', 'map', 'image', 'choice'}.contains(odd[2]!.replaceAll('?', '').toLowerCase()) ? rest.replaceFirst(':${odd[2]}', ':${odd[2]!.replaceAll('?', '').toLowerCase()}') : '${odd[1]}:${odd[2]!.toLowerCase().startsWith('list') ? 'list=[]' : 'map=null'}'} ("${odd[2]}" is not one).');
       }
     }
     if (typed != null) {
@@ -13111,9 +13172,26 @@ class _Parser {
     // a key first: {"a": 1}).
     final braced = _bracedExpression(written);
     if (braced) written = written.substring(1, written.length - 1).trim();
-    // One formula may read another (`state total=subtotal-discount`).
-    for (final d in _derived.entries) {
-      if (written.contains(d.key)) written = _rename(' $written', d.key, '(${d.value})').substring(1);
+    // One formula may read another (`state total=subtotal-discount`): the
+    // one read is written out in it, once. One that has others written out
+    // in it already and is read again (twice here, or by a formula before)
+    // is kept by its name instead, a variable with its formula, which the
+    // runtime works out once: a chain where each reads the one before
+    // twice (`state q1={q0*q0}` … `state q10={q9*q9}`) doubled every step
+    // (a formula of 600,000 characters from twelve short lines).
+    var pasted = false;
+    for (final d in _derived.entries.toList()) {
+      if (!written.contains(d.key)) continue;
+      final marked = _rename(' $written', d.key, '\u0001').substring(1);
+      final times = '\u0001'.allMatches(marked).length;
+      if (times == 0) continue;
+      if (_top._derivedGrown.contains(d.key) && (times > 1 || _top._derivedRead.contains(d.key)) && !_top._projectFormulas.contains(d.key)) {
+        _derivedKept(d.key);
+        continue;
+      }
+      written = marked.replaceAll('\u0001', '(${d.value})');
+      _top._derivedRead.add(d.key);
+      pasted = true;
     }
     // Text in quotes is not an operator: `"a + b"` is a value, `"Total " + n` a formula.
     final code = written.replaceAll(RegExp('"[^"]*"|\'[^\']*\''), '');
@@ -13131,6 +13209,7 @@ class _Parser {
     // "cur%12", and `{a}` copied what a started as.)
     if (!_literal(written).$1 && (braced || RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads)) {
       _derived[m[1]!] = written;
+      if (pasted) _top._derivedGrown.add(m[1]!);
       // A formula variable or a function written before it reads it too.
       for (final v in variables.values) {
         if (v['formula'] case final String f when f.contains(m[1]!) && !(readList(v['parameters'])?.contains(m[1]) ?? false)) {
@@ -13156,6 +13235,20 @@ class _Parser {
       'value': value,
       if (saved) 'persist': true,
     };
+  }
+
+  /// The worked-out states that have another written out in them, and
+  /// those written out in another: one that is both, read again, is kept
+  /// by its name ([_derivedKept]).
+  final Set<String> _derivedGrown = {}, _derivedRead = {};
+
+  /// Keeps the worked-out state [name] by its name from here on: a variable
+  /// with its formula (the runtime works it out once, whoever reads it),
+  /// no longer written out where it is read.
+  void _derivedKept(String name) {
+    final formula = _derived.remove(name);
+    if (formula == null) return;
+    variables[name] = {'name': name, 'type': _formulaType(formula), 'formula': formula};
   }
 
   /// A Select whose items are written with a value and what each shows
@@ -13305,30 +13398,13 @@ class _Parser {
   (String, String, String)? _choice(String a) {
     String unwrap(String s) {
       s = s.trim();
-      // `{a; b}`, `(a; b)` as code writes it; `null` is no action.
-      if ((s.startsWith('{') && s.endsWith('}') || s.startsWith('(') && s.endsWith(')')) && _closing(s, 0) == s.length - 1) {
+      // `{a; b}`; `null` is no action.
+      if (s.startsWith('{') && s.endsWith('}') && _closing(s, 0) == s.length - 1) {
         return s.substring(1, s.length - 1).trim();
       }
       return s == 'null' ? '' : s;
     }
 
-    // if (cond) { … } [else { … } | else if …]
-    final code = RegExp(r'^if\s*\(').firstMatch(a);
-    if (code != null) {
-      final close = _closing(a, code.end - 1);
-      if (close < 0) return null;
-      final cond = a.substring(code.end, close).trim();
-      final rest = a.substring(close + 1).trim();
-      if (!rest.startsWith('{')) return null;
-      final end = _closing(rest, 0);
-      if (end < 0) return null;
-      final yes = rest.substring(1, end).trim();
-      final tail = rest.substring(end + 1).trim();
-      if (tail.isEmpty) return (cond, yes, '');
-      final orElse = RegExp(r'^else\b\s*').firstMatch(tail);
-      if (orElse == null) return null;
-      return (cond, yes, unwrap(tail.substring(orElse.end)));
-    }
     if (RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])?=(?!=)').hasMatch(a)) return null;
     if (RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm|focus|copy)\b').hasMatch(a) || a.startsWith('{') || startsTyped(a)) return null;
     // The first ? at the top level (not ?. or ??), then the : that closes it
@@ -13513,6 +13589,9 @@ class _Parser {
       if (root == 'props' && !variables.containsKey('props') && _top._widget != null) {
         return '@$expr: this component has no variable parameter "${parts.length > 1 ? parts[1] : ''}" to bind. A control binds one of its own as @props.name (or @name) under param @name=…: param @${parts.length > 1 ? parts[1] : 'name'}="".';
       }
+      if (variables[root]?['formula'] != null) {
+        return '@$expr: "$root" is worked out (state $root={${variables[root]!['formula']}}), so a change has nowhere to be written. Show it and write the change to what its formula reads: value={$expr} onChange={<list>=updateWhere(<list>,x=>x.id==…,x=>with(x,"${parts.last}",result))}.';
+      }
       if (!variables.containsKey(root) || _derived.containsKey(root)) {
         return '@$expr: "$root" is no variable of this page. Declare the record first (state $root={"${parts[1]}":""}), or bind a variable of its own (@${parts.last}).';
       }
@@ -13611,18 +13690,25 @@ class _Parser {
     return '$list=updateWhere($list,${args[1].trim()},$x=>${withAt(x, fields, value)})';
   }
 
+  /// The action that says what [a] means, a change written as code has it
+  /// (`n++`, `n += 1`, `tasks.add(x)`, `tasks.remove(x)`): a variable is
+  /// set to its new value (`n=n+1`, `tasks=append(tasks,x)`). Null when [a]
+  /// is not one of those.
+  static String? _asSet(String a) {
+    final call = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\.(add|push|append|remove)\((.+)\)$').firstMatch(a);
+    if (call != null) return '${call[1]}=${call[2] == 'remove' ? 'without' : 'append'}(${call[1]},${call[3]})';
+    var m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*(\+\+|--)$').firstMatch(a);
+    if (m != null) return '${m[1]}=${m[1]}${m[2] == '++' ? '+' : '-'}1';
+    m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])=\s*(.+)$').firstMatch(a);
+    if (m != null) return '${m[1]}=${m[1]}${m[2]}${RegExp(r'^[A-Za-z0-9_."]+$').hasMatch(m[3]!.trim()) ? m[3]!.trim() : '(${m[3]!.trim()})'}';
+    return null;
+  }
+
   /// A change written where the value stands, as the list rebuilt that the
   /// engine needs: `n += 1`, `n++`, a field of the repeated item
   /// (`item.qty = 2` under an each over a list variable) and a field of an
   /// element by its place (`rows[i].qty = 2`).
   String _inPlace(String a) {
-    // tasks.add(x), tasks.push(x), tasks.remove(x): the list with it, the list without it.
-    final call = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\.(add|push|append|remove)\((.+)\)$').firstMatch(a);
-    if (call != null) return '${call[1]} = ${call[2] == 'remove' ? 'without' : 'append'}(${call[1]},${call[3]})';
-    var m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*(\+\+|--)$').firstMatch(a);
-    if (m != null) a = '${m[1]} = ${m[1]} ${m[2] == '++' ? '+' : '-'} 1';
-    m = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])=\s*(.+)$').firstMatch(a);
-    if (m != null) a = '${m[1]} = ${m[1]} ${m[2]} (${m[3]})';
     final field = RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)\s*(.+)$').firstMatch(a);
     if (field != null) {
       final over = _stack.reversed.where((o) => o.each != null).firstOrNull?.list;
@@ -13919,6 +14005,52 @@ class _Parser {
         'For a value that starts there and then changes, give it a start and set it when the page opens: state $n=$start and on load={$n=$formula}; or set what its formula reads.');
   }
 
+  /// `if (c) { a } else { b }` (an `else if` its else branch) as the choice
+  /// that says it, `c ? {a} : {b}`; null when [a] is not written so.
+  static String? _codeChoice(String a) {
+    final code = RegExp(r'^if\s*\(').firstMatch(a);
+    if (code == null) return null;
+    final close = _closing(a, code.end - 1);
+    if (close < 0) return null;
+    final cond = a.substring(code.end, close).trim();
+    final rest = a.substring(close + 1).trim();
+    if (!rest.startsWith('{')) return null;
+    final end = _closing(rest, 0);
+    if (end < 0) return null;
+    final yes = rest.substring(1, end).trim();
+    final tail = rest.substring(end + 1).trim();
+    if (tail.isEmpty) return '$cond ? {$yes} : {}';
+    final orElse = RegExp(r'^else\b\s*').firstMatch(tail);
+    if (orElse == null) return null;
+    final no = tail.substring(orElse.end).trim();
+    return '$cond ? {$yes} : ${_codeChoice(no) ?? no}';
+  }
+
+  /// The key that says what [key] means on this line, where [key] is another
+  /// spelling of it (a document's field by its own name where the notation
+  /// has a word, CSS's or Flutter's name): `maxw`, `border-bottom`,
+  /// `border`, `strokeWidth`; a Text's `size`, `weight`, `fontFamily`; a
+  /// Grid's `cols` and `gap`. Null when [key] is no such spelling, or the
+  /// line's type has a parameter of that name.
+  static String? _oneKey(String key, WidgetSpec spec, {required String type, required bool grid, required bool component}) {
+    if (spec.props.any((p) => p.key == key)) return null;
+    if (grid) {
+      if (key == 'columns' || key == 'crossAxisCount') return 'cols';
+      if (key == 'spacing' || key == 'crossAxisSpacing' || key == 'mainAxisSpacing') return 'gap';
+    }
+    if (component) return null;
+    if (type == 'text') {
+      if (const {'fontSize': 'size', 'fontWeight': 'weight', 'font': 'fontFamily'}[key] case final String to) return to;
+    }
+    return const {
+      'max-width': 'maxw', 'maxwidth': 'maxw', 'maxWidth': 'maxw', //
+      'borderBottom': 'border-bottom', 'borderTop': 'border-top', 'borderLeft': 'border-left', 'borderRight': 'border-right',
+      'border-b': 'border-bottom', 'border-t': 'border-top', 'border-l': 'border-left', 'border-r': 'border-right',
+      'borderColor': 'border', 'border-color': 'border', 'strokeColor': 'border', 'stroke': 'border',
+      'borderWidth': 'strokeWidth', 'border-width': 'strokeWidth', 'borderSize': 'strokeWidth',
+    }[key];
+  }
+
   /// What is said of an action the notation does not have.
   String _unknownAction(String verb) =>
       'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, '
@@ -13932,7 +14064,8 @@ class _Parser {
       // choice among other actions needs neither. Said with the line, and
       // left out.
       if (part.trim() case final String whole when whole.startsWith('(') && _closing(whole, 0) == whole.length - 1) {
-        _issue(column, 'Actions are not written in parentheses (a branch of several actions is in braces, a choice among other actions stands as it is): write ${whole.substring(1, whole.length - 1).trim()}');
+        final inner = whole.substring(1, whole.length - 1).trim();
+        _issue(column, 'Actions are not written in parentheses (a branch of several actions is in braces, a choice among other actions stands as it is): write ${_split(inner, ';').length > 1 ? '{$inner}' : inner}');
         continue;
       }
       // `setThemeMode lower(result)`, `setThemeMode result ? dark : light`:
@@ -13945,7 +14078,19 @@ class _Parser {
       }
       // A choice between actions: an `if` action, its branches read as
       // actions are (`dirty ? open leave : go members`).
-      if (_choice(part.trim()) case (final cond, final yes, final no)) {
+      if (_choice(part.trim()) case (final cond, var yes, var no)) {
+        // A branch in parentheses (`ok ? (a=1; close) : (dirty ? x : y)`):
+        // a branch of several actions, or one that chooses again, is in
+        // braces. Said with the branch to write, and left out.
+        String braced(String branch) {
+          final b = branch.trim();
+          if (!b.startsWith('(') || _closing(b, 0) != b.length - 1) return branch;
+          _issue(column, 'A branch of a choice is in braces, not parentheses: write {${b.substring(1, b.length - 1).trim()}}');
+          return '';
+        }
+
+        yes = braced(yes);
+        no = braced(no);
         final then = _actions(yes, column), orElse = _actions(no, column);
         if (then.isEmpty && orElse.isEmpty) continue;
         out.add({
@@ -13954,6 +14099,12 @@ class _Parser {
           'then': then,
           if (orElse.isNotEmpty) 'else': orElse,
         });
+        continue;
+      }
+      // A change as code writes it (`n++`, `n += 1`, `rows.add(x)`): a
+      // variable is set to its new value. Said with that action, left out.
+      if (_asSet(part.trim()) case final String set) {
+        _issue(column, 'An action sets a variable to its new value, name=value: write $set');
         continue;
       }
       final a = _inPlace(part.trim());
@@ -14066,12 +14217,17 @@ class _Parser {
           // `scroll pricing`, `scroll to pricing`, `scroll #pricing`: the page
           // moves to that part, named by its id (`Section#pricing`) or by an
           // anchor (`id=pricing` on a line).
-          var target = s.replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim();
+          // (`scroll to pricing`, `scroll #pricing`: the id alone names the line.)
+          if (RegExp(r'^(?:to\s+#?|#)(\S.*)$').firstMatch(s.trim()) case final m?) {
+            _issue(column, 'A scroll names the line by its id alone: scroll ${m[1]}');
+            continue;
+          }
+          var target = s.trim();
           // `scroll {"step-" + n}`: the id the expression gives as the
           // action runs (it was kept as the text "{…}", which names no line).
           if (target.length > 2 && target.startsWith('{') && target.endsWith('}')) {
             target = _read(target.substring(1, target.length - 1));
-          } else if ((arg.startsWith('"') ? _Tokens(arg).string() : arg).replaceFirst(RegExp(r'^to\s+'), '').replaceFirst(RegExp(r'^#'), '').trim() case final String written when _spans(written).isNotEmpty) {
+          } else if ((arg.startsWith('"') ? _Tokens(arg).string() : arg).trim() case final String written when _spans(written).isNotEmpty) {
             // `scroll sec{index}`: an id that is worked out is the
             // expression in braces. Said with that line, and left out.
             var source = _formulaSource(written);
@@ -14106,9 +14262,13 @@ class _Parser {
           // `go result` (a Tabs' or a SiteNav's choice), `go tab`, `go item.slug`:
           // a name the state has is the page it holds, as go {result} says.
           final root = s.split('.').first;
-          if (!braced && _identifier.hasMatch(s) && (const {'result', 'item', 'parent', 'index'}.contains(root) || variables.containsKey(root))) {
-            s = '{$s}';
-            braced = true;
+          if (!braced && _identifier.hasMatch(s) && (const {'result', 'item', 'parent', 'index'}.contains(root) || (variables[root]?['type'] == 'text' && options.screens.isNotEmpty))) {
+            // (`go tab` with a text called tab, which may hold a page's id: a
+            // bare word is a page's id. A list or a number of that name
+            // holds no page: `go tickets` beside `state tickets=[…]` is the
+            // page tickets, written yet or not.)
+            _issue(column, 'A page that is worked out is written in braces: go {$s}. A bare word after go is the id of a page, and no page is called $s.');
+            continue;
           }
           final fixed = arg.startsWith('"') || _identifier.hasMatch(s) || RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(s) || (s.startsWith(r'${') && s.endsWith('}'));
           if (!braced && !fixed) {
@@ -14135,7 +14295,10 @@ class _Parser {
           // `focus search` puts the caret in that field (its id), `focus`
           // or `blur` alone takes it away.
           final target = s.replaceFirst(RegExp(r'^#'), '').trim();
-          if (verb != 'focus' || target.isEmpty) {
+          if (verb == 'unfocus' || verb == 'focus' && target.isEmpty || verb == 'blur' && target.isNotEmpty) {
+            // (Taking the focus away is one word, with nothing after it.)
+            _issue(column, 'focus search puts the caret in that field (its id); blur, alone, takes the focus away: write blur');
+          } else if (verb == 'blur') {
             out.add({'type': 'focus', 'unfocus': true});
           } else if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*(?:/[A-Za-z_][A-Za-z0-9_-]*)*$').hasMatch(target)) {
             _issue(column, 'A focus names the field by its id: focus search (Input#search "Search" …), or a component\'s field by the call\'s id and its own: focus filters/search.');
@@ -14143,15 +14306,14 @@ class _Parser {
             out.add({'type': 'focus', 'node': target});
           }
         case 'copy':
-          // `copy "{link}"`, `copy link`, `copy {code}`: that text to the clipboard.
+          // `copy "{link}"`: that text to the clipboard.
           if (arg.isEmpty) {
-            _issue(column, 'A copy says what to copy: copy "{link}" or copy link.');
-          } else {
+            _issue(column, 'A copy says what to copy: copy "{link}".');
+          } else if (!arg.startsWith('"')) {
             final braced = arg.startsWith('{') && arg.endsWith('}');
-            out.add({
-              'type': 'copyToClipboard',
-              'text': arg.startsWith('"') ? s : _read(braced ? arg.substring(1, arg.length - 1) : arg),
-            });
+            _issue(column, 'A copy\'s text is in quotes, a value it reads in braces inside them: copy "${braced ? arg : '{$arg}'}".');
+          } else {
+            out.add({'type': 'copyToClipboard', 'text': s});
             out.add({'type': 'showToast', 'message': 'Copied'});
           }
         default:
@@ -14179,6 +14341,11 @@ class _Parser {
           // choice written as in a language. It said "Unknown action "if"
           // … Did you mean "if"?" (NOCD parts 07, 10, 13, 17, 26).
           if (verb == 'if' || verb.startsWith('if(') || verb == 'when' || verb.startsWith('when(')) {
+            // (`if (c) { a } else { b }`: the choice it is, written out.)
+            if (_codeChoice(a) case final String choice) {
+              _issue(column, 'An action that chooses is written cond ? {actions} : {actions}: write $choice');
+              continue;
+            }
             _issue(column,
                 'An action that chooses is written cond ? {actions} : {actions} (onTap={ready ? {a=1; go next} : toast "Fill it in"}), or as the if action with its fields: if condition={ready} then={a=1; go next} else={toast "Fill it in"}.');
             continue;
@@ -14624,8 +14791,6 @@ class _Parser {
           }
         }
         final value = expr.substring(from, i);
-        // (The count of one call's list is read: `filter(rows,r=>r.on).length`.)
-        if (length && RegExp(r'^[A-Za-z_][A-Za-z0-9_.\[\]]*\([^()]*\)$').hasMatch(value)) continue;
         final call = length
             ? 'length($value)'
             : '${fixed ? 'fixed' : name}($value${m[2] == '(' ? ',' : ')'}';
@@ -14708,18 +14873,6 @@ class _Parser {
 
   String _natural(String expr) {
     expr = _bracesRead(expr);
-    // A call on a list written out, a call's result or a group, and one
-    // under another language's name (`["All"].concat(xs)`, `tags.includes(t)`):
-    // said with the function to write. The formula is left as written.
-    if (expr.contains('.')) {
-      final functions = _outsideQuotes(_groupMethods(expr), (code) => code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
-            final name = _methodNames[m[2]] ?? (_saidMethods.contains(m[2]) ? m[2]! : null);
-            return name == null ? m[0]! : (m[3] == ')' ? '$name(${m[1]})' : '$name(${m[1]},');
-          }));
-      if (functions != expr && _top._methodsSaid.add('$_line $expr')) {
-        _issue(1, 'A formula calls functions, and only a name takes a call after a dot (rows.filter(…)): write $functions');
-      }
-    }
     // `theme.accent` in an expression of the page, where the theme has a
     // color called accent: that color (`theme.colors.accent`), as the name
     // alone is after a color key. (It read nothing: the theme's colors are
@@ -14750,11 +14903,25 @@ class _Parser {
         }
       }
     }
-    // Minutes and seconds from seconds, under the names models reach for.
-    if (expr.contains('formatTime(') || expr.contains('formatSeconds(')) {
-      expr = expr.replaceAll(RegExp(r'\bformat(Time|Seconds)\('), 'duration(');
+    // A formula is written one way: its functions take what they work on as
+    // their first value (no call after a dot, no `.length`), and its tests
+    // are joined with && || and !. One written as another language has it
+    // (`rows.filter(…).length`, `a and not b`, `n.toFixed(2)`,
+    // `formatTime(s)`) is said with the formula to write, and left as it is.
+    final functions = _asFunctions(expr);
+    if (functions != expr && _top._methodsSaid.add('$_line $expr')) {
+      _issue(1, 'A formula has functions that take what they work on as their first value (never a call or .length after a dot), and && || ! between tests: write $functions');
     }
-    if (!expr.contains(RegExp(r'\b(and|or|not)\b|\.[a-zA-Z]+\(|\.length\b'))) return expr;
+    return expr;
+  }
+
+  /// [expr] as the formula language writes it, for what is said of one
+  /// written with calls on a value, `and`/`or`/`not`, or another name of a
+  /// function: `length(filter(rows,…))`, `a && !b`, `fixed(n,2)`,
+  /// `duration(s)`. Text in quotes is left as it is.
+  String _asFunctions(String expr) {
+    if (!expr.contains(RegExp(r'\b(and|or|not)\b|\.[a-zA-Z]+\(|\.length\b|\bformat(Time|Seconds)\('))) return expr;
+    expr = _groupMethods(expr);
     final out = StringBuffer();
     final parts = expr.split(RegExp(r'''(?=["'])|(?<=["'])'''));
     var quote = '';
@@ -14773,19 +14940,21 @@ class _Parser {
         continue;
       }
       var code = part
+          .replaceAll(RegExp(r'\bformat(Time|Seconds)\('), 'duration(')
           .replaceAllMapped(RegExp(r'\band\b'), (_) => '&&')
           .replaceAllMapped(RegExp(r'\bor\b'), (_) => '||')
           .replaceAllMapped(RegExp(r'\bnot\s+'), (_) => '!');
-      // `clip.length` of a record is the record's: its length field when it
-      // has one, else its count, as the page reads it; so is it of a value
-      // not known here (a component's record parameter, a row of a list
-      // worked out). Of a list or a text it is the count.
+      // `clip.length` of a record is the record's length field, and so is
+      // it of a value not known here (a component's record parameter, a row
+      // of a list worked out): a field read, as it is written. Of a list or
+      // a text it is the count, which is length(…).
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.length\b(?!\()'),
           (m) => switch (_sample(m[1]!)) { null || Map() => m[0]!, _ => 'length(${m[1]})' });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.toFixed\((\d+)\)'), (m) => 'fixed(${m[1]},${m[2]})');
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_.\[\]]*?)\.([a-zA-Z]+)\((\)?)'), (m) {
-        if (!_methods.contains(m[2])) return m[0]!;
-        return m[3] == ')' ? '${m[2]}(${m[1]})' : '${m[2]}(${m[1]},';
+        final name = _methodNames[m[2]] ?? (_methods.contains(m[2]) || _saidMethods.contains(m[2]) ? m[2]! : null);
+        if (name == null) return m[0]!;
+        return m[3] == ')' ? '$name(${m[1]})' : '$name(${m[1]},';
       });
       code = code.replaceAllMapped(RegExp(r'([A-Za-z_][A-Za-z0-9_]*\([^()]*\))\.length\b'), (m) => 'length(${m[1]})');
       out.write(code);

@@ -35,7 +35,7 @@ Column
   Button#a "Recipes" onTap={go recipes}
   Button#b "Cook" onTap={go cook}
   Button#c "Worked out" onTap={go {recipes}}
-  Button#d "Tab" onTap={go tab}
+  Button#d "Tab" onTap={go {tab}}
 ''';
 
     test('even beside a variable of its name; go {…} is still worked out', () {
@@ -51,15 +51,18 @@ Column
       expect(_firstActions(r, 'c'), [
         {'type': 'navigate', 'to': r'${= recipes}'},
       ]);
-      // A variable no screen is named after is the page it holds.
+      // The page a variable holds is read in braces; a bare word that is no
+      // screen's name and a variable's is said with that.
+      expect(_parse(text.replaceFirst('go {tab}', 'go tab'), const NotationOptions().withScreens(['recipes', 'cook-mode', 'favourites'])).issues.single.message,
+          startsWith('A page that is worked out is written in braces: go {tab}.'));
       expect(_firstActions(r, 'd'), [
         {'type': 'navigate', 'to': r'${= tab}'},
       ]);
     });
 
-    test('alone (no screens known) a name the state has is read as before', () {
+    test('alone (no screens known) a bare word is the id of a page, whatever the state is called', () {
       expect(_firstActions(_parse(text), 'a'), [
-        {'type': 'navigate', 'to': r'${= recipes}'},
+        {'type': 'navigate', 'to': 'recipes'},
       ]);
     });
 

@@ -327,11 +327,12 @@ Column
     Card id={m.name}
       Text "{m.sig}"
   each c in cats
-    Column gap=10 id="sec{indexOf(cats,c)}"
+    Column gap=10 id={"sec"+indexOf(cats,c)}
       Text "{c}"
 ''';
 
-    test('id={m.name} and id="sec{…}" on a repeated line are read with nothing said', () {
+    test('id={m.name} and id={"sec"+…} on a repeated line are read with nothing said; a text with a value in it is said', () {
+      expect(_said(_parse('state cats=["a"]\nColumn\n  each c in cats\n    Column id="sec{c}"\n      Text "{c}"\n')).single, endsWith('id={"sec" + (c)}.'));
       final r = _parse(page);
       expect(_said(r), isEmpty);
       expect(_standIns(r), isEmpty);
@@ -352,7 +353,7 @@ Column
     test('scroll sec1 reaches the copy named sec1, and a line\'s own id is scrolled to as before', () {
       final r = _parse(page);
       final buttons = _nodes(r).where((n) => n['type'] == 'filledButton').toList();
-      expect(jsonEncode(buttons[1]['actions']), contains(r'indexOf(map(cats, anchorItem => \"sec\" + (indexOf(cats,anchorItem))), \"sec1\")'));
+      expect(jsonEncode(buttons[1]['actions']), contains(r'indexOf(map(cats, anchorItem => \"sec\"+indexOf(cats,anchorItem)), \"sec1\")'));
       expect(((_reactions(buttons[2]).single as Map)['actions'] as List).single, {'type': 'scrollTo', 'node': 'top', 'durationMs': 400, 'offset': 72});
     });
 
@@ -408,12 +409,13 @@ Sheet#story "{cur.head}" stops=[0.5,0.9] onClose={readIds=append(readIds,cur.id)
       expect(_said(r).single, contains('translateX= and translateY='));
     });
 
-    test('Box shadow=soft is a small drop shadow; another word says the sizes', () {
-      final r = _parse('Column\n  Box shadow=soft pad=8\n    Text "s"\n  Card shadow=lg\n    Text "c"\n  Box shadow=glow\n    Text "g"\n');
+    test('Box shadow=sm is a small drop shadow; another word says the sizes, another name of one the size to write', () {
+      expect(_said(_parse('Column\n  Box shadow=soft\n    Text "s"\n')).single, startsWith('shadow= takes a size (sm, md, lg) or none: write shadow=sm.'));
+      final r = _parse('Column\n  Box shadow=sm pad=8\n    Text "s"\n  Card shadow=lg\n    Text "c"\n  Box shadow=glow\n    Text "g"\n');
       expect(_standIns(r), isEmpty);
       expect(((_node(r, 'column2')['decoration'] as Map)['effects'] as List).single, {'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 2], 'blurRadius': 8});
       expect((((_node(r, 'column3')['decoration'] as Map)['effects'] as List).single as Map)['blurRadius'], 36);
-      expect(_said(r).single, contains('shadow= takes a size (sm or soft, md, lg) or none'));
+      expect(_said(r).single, contains('shadow= takes a size (sm, md, lg) or none'));
     });
 
     test('follow on a Column says it is an each line\'s', () {

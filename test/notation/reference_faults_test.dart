@@ -124,8 +124,10 @@ void main() {
     expect(ok.issues, isEmpty);
   });
 
-  test('10: not, and, or in a state\'s formula read as in every other formula', () {
-    final r = _read('state x=false\nstate g:boolean={not x}\nstate f(t):text={not t ? "a" : "b"}\nColumn\n  Text "{g}{f(true)}"\n');
+  test('10: not, and, or in a state\'s formula are said as in every other formula, with the formula to write', () {
+    final said = _said(_read('state x=false\nstate g:boolean={not x}\nstate f(t):text={not t ? "a" : "b"}\nColumn\n  Text "{g}{f(true)}"\n'));
+    expect(said, [endsWith(': write !x'), endsWith(': write !t ? "a" : "b"')]);
+    final r = _read('state x=false\nstate g:boolean={!x}\nstate f(t):text={!t ? "a" : "b"}\nColumn\n  Text "{g}{f(true)}"\n');
     expect(r.issues, isEmpty);
     expect(_variable(r, 'g')['formula'], '!x');
     expect(_variable(r, 'f')['formula'], '!t ? "a" : "b"');

@@ -65,7 +65,6 @@ String notationPrompt({
   NotationOptions options = const NotationOptions(),
   DesignSystem? designSystem,
   Set<String>? only,
-  bool natural = false,
   bool wanted = false,
   bool open = false,
   bool define = true,
@@ -75,7 +74,7 @@ String notationPrompt({
   bool site = false,
 }) {
   var text = _prompt(
-      catalog: catalog, options: options, designSystem: designSystem, only: only, natural: natural, wanted: wanted, open: open, define: define, glossary: glossary, signatures: signatures);
+      catalog: catalog, options: options, designSystem: designSystem, only: only, wanted: wanted, open: open, define: define, glossary: glossary, signatures: signatures);
   if (pages) {
     // After the rule on ids. The open prompt's line on several screens is
     // this rule's first sentence, so it gives way to the whole of it.
@@ -202,9 +201,9 @@ const List<String> notationLookedUpLines = [
   'on load={sel=first(msgs).id; day=today()}: on its own line at the margin, beside state, every and key, runs once when the screen opens, before its first picture; never a timer made to run once (every 300 when !boot). Start a screen on its main case (the first message open, the first note chosen, a workout under way): what a picture shows first is the screen in use, not "Nothing open".',
   'state unread=3: a state\'s name is the writer\'s own, never one the runtime gives every expression: data, route, storage, screen, theme, auth, drag, perf, script, speech, device (state themeName="light", not state theme).',
   'Row end={m.mine}: a word of a line given a condition holds while it does (Column center={n==1}). A variant is not chosen by a formula: write the line under if s.done as Button.primary "Done" and under else as Button.outline "Done".',
-  'Column id={m.name}: a line an each repeats takes an id worked out for each copy (id="sec{m.n}"), reached by scroll {m.name} or scroll sec2.',
+  'Column id={m.name}: a line an each repeats takes an id worked out for each copy (id={"sec"+m.n}), reached by scroll {m.name} or scroll sec2.',
   'Sheet#filters "Filters" onClose={seen=true}: what an overlay does as it closes (a Dialog, Drawer, Menu or Popover too). A press held: onPressStart={…} and onPressEnd={…} (or onRelease); hold-to-repeat is onPointerDown={held=true} onPointerUp={held=false} with every 120 when held onTick={qty=qty+1}.',
-  'Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=soft: a line drawn larger, turned or moved (scale={zoom} follows the state); shadow is sm, soft, md, lg or none.',
+  'Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=sm: a line drawn larger, turned or moved (scale={zoom} follows the state); shadow is sm, md, lg or none.',
   'each m in msgs follow grow pad=[24,16] gap=6: an each line takes its list\'s padding and gap. Also: setThemeMode lower(result) takes a formula; a literal brace in a text is \\{ and \\}; Handle icon="menu" is a grip with an icon of its own; menu=none takes a menu off a line.',
   'Text "{formatDate(addDays(today(),3),\'EEE d MMM\')}": a date is "yyyy-MM-dd" text, worked out, never numbered by hand: today(), addDays(date,n), addMonths(date,n), diffDays(from,to), weekday(date) (1 Monday to 7 Sunday), daysInMonth(date); and shown through formatDate, never raw. A month\'s cell reads its day\'s events by date: each e in filter(events,e=>e.date==addDays(start,i)).',
   'Text "{n.body}" maxLines=2: a preview is cut by lines, with its ellipsis; never slice(text,0,70), which cuts in a word.',
@@ -225,7 +224,6 @@ String _prompt({
   NotationOptions options = const NotationOptions(),
   DesignSystem? designSystem,
   Set<String>? only,
-  bool natural = false,
   bool wanted = false,
   bool open = false,
   bool define = true,
@@ -246,7 +244,7 @@ String _prompt({
   // paragraph, as the glossary experiment's answers were written.
   // [glossary] false leaves it out.
   if (open) {
-    final text = _openPrompt(_prompt(catalog: catalog, options: options, natural: natural), define: define);
+    final text = _openPrompt(_prompt(catalog: catalog, options: options), define: define);
     if (glossary && signatures && designSystem != null) {
       final lines = notationGlossaryLines(designSystem, options.vocabulary, prompt: text);
       if (lines.isEmpty) return text;
@@ -468,14 +466,14 @@ LINE
 
 - "text" is the node's main string: a Text's text, a Button's or Toggle's label, an Input's label (a second string is its hint), an Icon's name, an Image's URL. {name} inside a string shows a variable: "Total: {total}".
 - key=value sets a prop by its name. Common keys: gap (space between children), pad (padding: one number or [left,top,right,bottom]), w, h (a number, fill or hug), fill (background color #AARRGGBB), radius. Quote a value with spaces: hint="you@example.com". Lists are JSON: items=["S","M","L"]. A value that follows the state is an expression in braces: visible={count > 0}, selected={tab == "all"}.
-- Words on a Row, Column or Stack: center is across the page and middle down it, on all three (Column center centers its children side to side). Also start, end, between (along a Row or Column); top, bottom, left, right, stretch (across it). grow on a child takes the remaining room. hidden hides a node.
+- Words on a Row, Column or Stack: center is across the page and middle down it, on all three (Column center centers its children side to side). Also start, end, between (along a Row or Column); top, bottom, left, right, stretch (across it). grow on a child takes the remaining room. hidden hides a node (by a condition: visible={c}).
 - @name is the variable itself, both ways: bare, the control's value; selected=@picked binds another property. Declare it with state.
-- What a node does is an event, its actions in braces: onTap={…}, or onChange={…} on a control (result is its new value). ${natural ? '''Actions are statements as you would write them in code: count += 1; liked = !liked; step = valid ? 3 : 2; if (qty > 0) { qty -= 1 }. Also''' : '''Actions: name=value sets a variable;'''} emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal${options.width >= notationPageWidth ? r'''; go screen opens a page of the site (go case-study: an id may have hyphens; go {replace(lower(result)," ","_")} works the page out, in braces, as from a SiteNav's link); scroll pricing moves the page to the line with that id (Section#pricing, or id=pricing on a line); confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text''' : ''''''}. Separate several with ;
+- What a node does is an event, its actions in braces: onTap={…}, or onChange={…} on a control (result is its new value). Actions: name=value sets a variable; emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal${options.width >= notationPageWidth ? r'''; go screen opens a page of the site (go case-study: an id may have hyphens; go {replace(lower(result)," ","_")} works the page out, in braces, as from a SiteNav's link); scroll pricing moves the page to the line with that id (Section#pricing, or id=pricing on a line); confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text''' : ''''''}. Separate several with ;
 - drag=group(value) on a node lets it be dragged carrying a value; drop=groupA,groupB on a node takes those drops, and its onDrop={…} runs on a drop with result.data the value carried: Card drag=todo(card.id), then Column drop=todo onDrop={done=append(done,result.data)}.
-${natural ? '''- state name=value on its own line (top level, before the card) declares a variable with a starting value: state qty=1, state liked=false, state lines=[{"name":"Milk","price":3.2,"qty":2}]. let name = expression on its own line names a value worked out from the state, kept up to date as the state changes: let subtotal = sum(map(lines, l => l.qty * l.price)); let total = subtotal + 4.99. Never work a total out yourself and write it as text: write the expression, so it follows the state.''' : '''- state name=value on its own line (top level) declares a variable with a starting value.${options.width >= notationPageWidth ? ' $notationComputedRule' : ''}'''}
+- state name=value on its own line (top level) declares a variable with a starting value.${options.width >= notationPageWidth ? ' $notationComputedRule' : ''}
 - every 1000 onTick={name=value} on its own line (top level) runs as time passes (milliseconds, or 1s): a clock, a countdown. every 1s when running onTick={…} runs only while the condition holds.
 - if expression on its own line shows the lines indented under it only while it holds.
-${natural ? '''- each row in rows on its own line repeats the lines indented under it once per element of a list variable; inside, {row.name} reads the element, a control bound to one of its fields (Input @row.name, Toggle @row.done) changes that element, and so does an action: row.qty += 1; row.done = !row.done; rows.remove(row). Outside it, rows.add({"name":"Eggs","qty":1}) adds one.''' : '''- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element, and a control bound to one of its fields (Input @row.name, Toggle @row.done) changes that element in the list.'''}
+- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element, and a control bound to one of its fields (Input @row.name, Toggle @row.done) changes that element in the list.
 - #id only when something else names the node.
 - Beyond these words: a {…} at the end of a line is merged into that node as JSON ({"props": {"size": 18}}). A whole node the notation has no word for is written as node {"type": "…", …} on its own line (its JSON may run over several lines); lines indented under it are its children, written as usual.
 - Sizes are worked out: in a Column a child is as wide as the column and as tall as its content; in a Row a child is as big as its content. Do not write sizes unless the design needs one.
@@ -498,8 +496,8 @@ TYPES
 FORMULAS (in {…} and in an action's name=…)
   Operators: + - * / % == != < <= > >= && || ! and cond ? a : b. Text in "double quotes" or 'single'. Lists [1,2], fields a.b, items list[0].
   Only these functions exist: ${[...notationFunctions, if (options.width >= notationPageWidth) ...notationPageFunctions].join(', ')}.
-${natural ? '''  A list or a record changes as in code (rows.add(x), rows.remove(row), row.qty += 1); for anything else set the variable to a new list (rows = filter(rows, r => r.qty > 0)). Money is "{fixed(total,2)}"; a count is "{length(rows)} items"; minutes and seconds are "{duration(elapsed)}" (74 gives 1:14).''' : '''  Lists never change in place: set the variable to a new list (cart=append(cart,item); rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).'''}
-${natural ? '''  Every value shown that depends on the state is written as an expression in {…} (or a let name), never as a number you worked out: after a tap it must show the new value.''' : '''  To choose between actions: onTap={ok ? close : toast "Fill it in"} (a branch may be {a; b}, or empty).'''}
+  Lists never change in place: set the variable to a new list (cart=append(cart,item); rows=updateWhere(rows,r=>r.id==row.id,r=>with(r,"qty",r.qty+1))).
+  To choose between actions: onTap={ok ? close : toast "Fill it in"} (a branch: {a; b}, {c ? x : y}, never (…), or empty).
 
 BEYOND THESE WORDS
   The full vocabulary has more. Write that part as a node {…} line or a {…} tail; its reference page says how (ask for the page with ui_docs when you have that tool):

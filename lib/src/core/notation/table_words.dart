@@ -125,11 +125,17 @@ extension on PageWords {
       item = tokens[0];
       list = tokens[2];
       tokens.removeRange(0, 3);
-    } else if (parts.take('rows') case final String rows) {
-      list = rows.startsWith('{') && rows.endsWith('}') ? rows.substring(1, rows.length - 1) : rows;
+    } else if (parts.value('rows') case final String rows) {
+      // (`Table rows={people}`: a table names its record and its list.)
+      notes.add('A Table names its record and its list, as an each does: write Table row in ${rows.startsWith('{') && rows.endsWith('}') ? rows.substring(1, rows.length - 1) : rows} columns=[…] (its cells read row).');
     }
     if (list == null) return null;
-    final written = parts.take('columns') ?? parts.take('cols');
+    // One name for each of a table's words: another spelling is said.
+    for (final (other, word) in const [('cols', 'columns'), ('selected', 'select'), ('sortBy', 'sort')]) {
+      if (parts.take(other) case final String v) notes.add('A Table\'s $other is written $word: $word=$v.');
+    }
+    if (parts.word('dense')) notes.add('A Table with denser rows is written compact.');
+    final written = parts.take('columns');
     final columns = <_TableColumn>[];
     if (written != null) {
       try {
@@ -139,15 +145,15 @@ extension on PageWords {
         // Left empty: the cells written still lay out, as columns that grow.
       }
     }
-    final compact = parts.word('compact') | parts.word('dense');
+    final compact = parts.word('compact');
     flush = parts.word('flush') || parts.take('flush') == 'true' || flush;
     final comfortable = parts.word('comfortable');
     String? variable(String? v) => v == null ? null : (v.startsWith('@') ? v.substring(1) : v);
-    final select = variable(parts.take('select') ?? parts.take('selected'));
+    final select = variable(parts.take('select'));
     // A page written for a desktop: the columns a tablet's or a phone's row
     // has no room for are left out there (reflow leaves a table as written).
     if (menu && !parts.has('w')) _fitColumns(columns, select: select != null);
-    final sort = variable(parts.take('sort') ?? parts.take('sortBy'));
+    final sort = variable(parts.take('sort'));
     final empty = parts.take('empty');
     final height = parts.take('h');
     final stickyOff = parts.take('sticky') == 'false';

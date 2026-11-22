@@ -20,11 +20,11 @@ Column gap=8
     Column h=40 grow fill=#FFBFDBFE
 ```
 
-`maxWidth=720` keeps a column from stretching; `minWidth`, `minHeight`, `maxHeight` likewise ({{constraintKeys}} are
+`maxw=720` keeps a column from stretching; `minWidth`, `minHeight`, `maxHeight` likewise ({{constraintKeys}} are
 the bounds of `constraints`).
 
 ```notation
-Column maxWidth=720
+Column maxw=720
   Text "Capped"
 ```
 

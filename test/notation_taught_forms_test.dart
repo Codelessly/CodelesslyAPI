@@ -141,7 +141,7 @@ Column
   each m in msgs
     Column id={m.name}
       Text "{m.body}"
-    Column id="sec{m.n}"
+    Column id={"sec"+m.n}
       Button "Here" onTap={scroll {m.name}}
 ''');
     taken('what an overlay does as it closes', '''
@@ -167,7 +167,7 @@ Column
 ''');
     taken('a line drawn larger, turned or moved, and its shadow', '''
 Column
-  Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=soft
+  Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=sm
   Box scale={zoom} shadow=sm
   Box shadow=md
   Box shadow=lg

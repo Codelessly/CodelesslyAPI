@@ -596,7 +596,7 @@ define Guide visible=true steer=0
     });
 
     test('a border\'s width and colour together, as models write them', () {
-      final r = read('Column\n  Ring2 on=true\ndefine Ring2 on=false\n  Column gap=4\n    Box#a w=40 h=40 border=2 borderColor=#FF2563EB\n    Box#b w=40 h=40 border="#FF2563EB 2"\n    Box#c w=40 h=40 border-width=3 border=#FF2563EB\n    Box#d w=40 h=40 border={on ? 2 : 0} stroke=#FF2563EB\n    Box#e w=40 h=40 border=1\n');
+      final r = read('Column\n  Ring2 on=true\ndefine Ring2 on=false\n  Column gap=4\n    Box#a w=40 h=40 border=#FF2563EB strokeWidth=2\n    Box#b w=40 h=40 border="#FF2563EB 2"\n    Box#c w=40 h=40 strokeWidth=3 border=#FF2563EB\n    Box#d w=40 h=40 border=#FF2563EB strokeWidth={on ? 2 : 0}\n    Box#e w=40 h=40 border=1\n');
       expect(r.issues, isEmpty);
       Map<String, Object?> deco(String id) => (_node(r, '${id}_ring21')['decoration'] as Map).cast();
       for (final (id, w) in [('a', 2), ('b', 2), ('c', 3)]) {

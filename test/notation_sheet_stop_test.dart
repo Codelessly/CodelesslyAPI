@@ -88,7 +88,7 @@ void main() {
         'Column\n'
         '  Button#pick "Attach" onTap={pickFile accept="image/*,.pdf" multiple=true content=none maxSizeMB=25; files=result}\n'
         '  Button#one "Photo" onTap={pickFile; files=append(files, result)}\n'
-        '  Button#share "Share" onTap={share title="Trip notes" text={files.length + " files"} url={screen.url}; result.copied ? toast "Link copied"}\n';
+        '  Button#share "Share" onTap={share title="Trip notes" text={length(files) + " files"} url={screen.url}; result.copied ? toast "Link copied"}\n';
 
     test('are written by their type and fields', () {
       final r = _parse(page);

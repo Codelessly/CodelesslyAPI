@@ -29,7 +29,7 @@ Row gap=8
 
 Shadows and blurs are `effects=[…]` ([Effect](@type-Effect)); `clip=true` clips the content to the corners. Its
 numbers are pixels: `offset` `[x, y]`, `blurRadius`, `spreadRadius` (CSS `box-shadow: 0 4px 16px` is
-`"offset":[0,4],"blurRadius":16`). `shadow=sm` (or `soft`), `shadow=md` and `shadow=lg` on a box are a drop shadow
+`"offset":[0,4],"blurRadius":16`). `shadow=sm`, `shadow=md` and `shadow=lg` on a box are a drop shadow
 of that size, read as the effect it is (and printed as `effects=`); `shadow=none` is no shadow. Any other shadow is
 written out as an effect.
 
@@ -42,7 +42,7 @@ Column w=120 h=80 fill=#FFFFFFFF effects=[{"type":"dropShadow","color":"#3300000
 
 ## Pictures and icons
 
-`Image "url"` is a picture (an image fill on a box; `Image url="…"` and `url={…}` the same; a path is read from
+`Image "url"` is a picture (an image fill on a box; one worked out is `Image "{p.url}"`; a path is read from
 the document's folder, in a site the site's: `Image "assets/card.png"`); `fit=` is how it fills its box (`cover`, `contain`…). Its paint's other
 fields ([ImagePaint](@type-ImagePaint): `alignment`, `tint`, `repeat`) are written on a box's fill:
 `box w=fill h=180 fills=[{"image":{"url":"…","fit":"cover","alignment":"topCenter"}}]`. `Icon "name"` is a

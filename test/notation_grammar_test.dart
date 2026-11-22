@@ -70,11 +70,16 @@ void main() {
       expect((_node(r, 'a')['layout'] as Map?)?['padding'], isNotNull);
     });
 
-    test('hide={…} and show={…} are visible; hide=phone is still the size', () {
-      final r = _parse('state on=false\nColumn\n  Text#a "a" hide={!on}\n  Text#b "b" show={on}\n  Text#c "c" hide=phone\n', width: 1280);
+    test('hide={…}, show={…} and hidden={…} are said with visible={…}; hide=phone is the size', () {
+      expect(_said('state on=false\nColumn\n  Text "a" hide={!on}\n  Text "b" show={on}\n  Text "c" hidden={on}\n'), [
+        endsWith('visible={!(!on)}.'),
+        endsWith('visible={on}.'),
+        endsWith('visible={!on}.'),
+      ]);
+      final r = _parse('state on=false\nColumn\n  Text#a "a" visible={!(!on)}\n  Text#b "b" visible={on}\n  Text#c "c" hide=phone\n', width: 1280);
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(_node(r, 'a')['bind'], {'visible': r'${= !(!on)}'});
-      expect(_node(r, 'b')['bind'], {'visible': r'${= on}'});
+      expect(_node(r, 'b')['bind'], {'visible': r'${on}'});
       expect(_node(r, 'c')['media'], isNotNull);
       expect(_node(r, 'c')['bind'], isNull);
     });
@@ -301,12 +306,19 @@ void main() {
   });
 
   group('read, though the prompt does not teach it', () {
-    test('let, for … in, else, += and .add(), a bare each, single quotes, a name = value line, sticky=true', () {
-      final r = _parse('rows = [{"n":1}]\nlet total = sum(rows, r => r.n)\nstate tab="a"\nColumn\n'
-          '  for r in rows\n    Text "{r.n}"\n'
-          '  each rows\n    Text "{row.n}"\n'
+    test('else, single quotes, sticky=true; let, for … in, a bare each and a name = value line are said with the line to write', () {
+      expect(_said('rows = [{"n":1}]\nlet total = sum(rows, r => r.n)\nvar k = 2\nColumn\n  for r in rows\n    Text "{r.n}"\n  each rows\n    Text "{row.n}"\n'), [
+        'A value the page keeps is declared with the word state: write state rows=[{"n":1}]',
+        'A value the page keeps or works out is declared with the word state (a formula in braces): write state total={sum(rows, r => r.n)}',
+        'A value the page keeps or works out is declared with the word state (a formula in braces): write state k=2',
+        'A list is repeated with each: write each r in rows',
+        'An each names its element and its list: write each row in rows (the lines under it read row).',
+      ]);
+      final r = _parse('state rows=[{"n":1}]\nstate total={sum(rows, r => r.n)}\nstate tab="a"\nColumn\n'
+          '  each r in rows\n    Text "{r.n}"\n'
+          '  each row in rows\n    Text "{row.n}"\n'
           '  if tab==\'a\'\n    Text "A"\n  else\n    Text "B {total}"\n'
-          '  Button#b "Add" onTap={rows.add({"n":2}); tab += "b"}\n'
+          '  Button#b "Add" onTap={rows=append(rows,{"n":2}); tab=tab+"b"}\n'
           '  Column sticky=true\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       expect(jsonEncode(_node(r, 'b')['actions']), contains('append(rows,{'));
@@ -319,16 +331,14 @@ void main() {
   group('the natural line works', () {
     List<Object?> run(NotationResult r, String id) => ((_actions(r, id).single! as Map)['actions'] as List<Object?>);
 
-    test('a choice between actions: cond ? action(s) : action(s), a branch empty or braced, nested once; if (c) {…} else {…} is the same', () {
+    test('a choice between actions: cond ? action(s) : action(s), a branch empty or braced, nested once; the forms of code are said with it', () {
       final r = _parse('state dirty=false\nstate pendingRemove=""\nstate n=0\nColumn\n'
           '  Button#a "A" onTap={dirty ? open leave : close}\n'
           '  Button#b "B" onTap={n=n+1; pendingRemove==""?close:open leave}\n'
           '  Button#c "C" onTap={dirty ? close :}\n'
           '  Button#d "D" onTap={dirty ? {n=1; toast "x"} : n > 2 ? close : toast "y"}\n'
-          '  Button#e "E" onTap={if (n > 1) { n = 0; toast "reset" } else { n += 1 }}\n'
-          '  Button#f "F" onTap={n > 1 ? {n = 0; toast "reset"} : n += 1}\n'
+          '  Button#f "F" onTap={n > 1 ? {n = 0; toast "reset"} : n = n + 1}\n'
           '  Button#g "G" onTap={n = dirty ? 3 : 2}\n'
-          '  Button#h "H" onTap={n > 1 ? (n = 0; toast "reset") : n += 1}\n'
           '  Button#i "I" onTap={dirty ? close : null}\n'
           'Dialog#leave "Leave?"\n  Text "Unsaved changes"\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
@@ -347,8 +357,15 @@ void main() {
       final d = run(r, 'd').single! as Map;
       expect(d['then'], hasLength(2));
       expect((d['else'] as List).single, containsPair('type', 'if'));
-      expect(run(r, 'e'), run(r, 'f'), reason: 'if (c) {…} else {…} is the same choice');
-      expect(run(r, 'h'), run(r, 'f'), reason: 'a branch in parentheses, as code writes it');
+      // As code writes them: each is said with the action to write.
+      expect(_said('state n=0\nColumn\n  Button "E" onTap={if (n > 1) { n = 0; toast "reset" } else { n += 1 }}\n'),
+          ['An action that chooses is written cond ? {actions} : {actions}: write n > 1 ? {n = 0; toast "reset"} : { n += 1 }']);
+      expect(_said('state n=0\nColumn\n  Button "H" onTap={n > 1 ? (n = 0; toast "reset") : n += 1}\n'), [
+        endsWith(': write {n = 0; toast "reset"}'),
+        'An action sets a variable to its new value, name=value: write n=n+1',
+      ]);
+      expect(_said('state n=0\nstate rows=[]\nColumn\n  Button "I" onTap={n++; n -= 2; rows.add(n); rows.remove(n)}\n'),
+          [for (final line in ['n=n+1', 'n=n-2', 'rows=append(rows,n)', 'rows=without(rows,n)']) 'An action sets a variable to its new value, name=value: write $line']);
       expect(run(r, 'i'), run(r, 'c'), reason: 'null is no action');
       expect(run(r, 'g').single, {'type': 'setVariable', 'variable': 'n', 'value': r'${= dirty ? 3 : 2}'}, reason: 'a value chosen is a formula');
       final doc = r.document;
@@ -413,10 +430,10 @@ void main() {
 
     test('lines that did nothing: project on a page alone, go to a name the state has, open of no overlay, .length of a record with a length', () {
       final r = _parse('project cart=[]\nstate view="home"\nstate clips=[{"id":1,"length":9,"name":"a"}]\nColumn\n'
-          '  Text#t "{cart.length} items"\n'
-          '  Button#b "B" onTap={go view}\n'
-          '  Select#s @view items=["home","result"] onChange={go result}\n'
-          '  each c in clips\n    Text#c "{c.length}s, {c.name.length} letters"\n');
+          '  Text#t "{length(cart)} items"\n'
+          '  Button#b "B" onTap={go {view}}\n'
+          '  Select#s @view items=["home","result"] onChange={go {result}}\n'
+          '  each c in clips\n    Text#c "{c.length}s, {length(c.name)} letters"\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
       // Expanded alone, the page declares the project's variable itself.
       expect(((r.document['variables']! as Map)['screen']! as List).map((v) => (v as Map)['name']), contains('cart'));
@@ -455,8 +472,9 @@ void main() {
       expect(sets('n'), r'clips = ${= updateWhere(clips,c=>c.id==first(sel),c=>with(c,"name",result))}');
       expect(sets('c'), r'colAll = ${= with(colAll,item,result)}');
       expect(sets('t'), r'draft = ${= with(draft,"title",(""))}');
-      // `saved=true` after a state is the saved flag, not part of its value.
-      final kept = _parse('state clips=[{"id":1}] saved=true\nColumn\n  Text "{length(clips)}"\n');
+      // `saved=true` after a state is said: the word alone.
+      expect(_said('state clips=[{"id":1}] saved=true\nColumn\n  Text "{length(clips)}"\n').single, endsWith(': state clips=[{"id":1}] saved'));
+      final kept = _parse('state clips=[{"id":1}] saved\nColumn\n  Text "{length(clips)}"\n');
       expect(kept.issues, isEmpty);
       expect(((kept.document['variables']! as Map)['screen']! as List).single, {'name': 'clips', 'type': 'list', 'value': [{'id': 1}], 'persist': true});
     });
@@ -537,7 +555,7 @@ void main() {
           '  IconButton#shuffle "shuffle" selected={shuffle} size=large onTap={shuffle=!shuffle}\n'
           '  Input#search "Search" @q\n'
           '  Button#f "Find" onTap={focus search}\n'
-          '  Button#c "Copy" onTap={copy link}\n'
+          '  Button#c "Copy" onTap={copy "{link}"}\n'
           '  Button#c2 "Copy" onTap={copy "{link}?ref=1"}\n'
           '  Button#b "Done" onTap={blur}\n');
       expect(r.issues, isEmpty, reason: '${r.issues}');
@@ -562,6 +580,15 @@ void main() {
       expect(run(r, 'c2').first, {'type': 'copyToClipboard', 'text': r'${link}?ref=1'});
       expect(run(r, 'b'), [
         {'type': 'focus', 'unfocus': true},
+      ]);
+      // One way to write each: the text in quotes, blur alone.
+      expect(_said('state link=""\nColumn\n  Button "C" onTap={copy link}\n  Button "D" onTap={copy {link}}\n  Button "E" onTap={focus}\n  Button "F" onTap={unfocus}\n  Button "G" onTap={scroll to top}\n  Button "H" onTap={scroll #top}\n'), [
+        'A copy\'s text is in quotes, a value it reads in braces inside them: copy "{link}".',
+        'A copy\'s text is in quotes, a value it reads in braces inside them: copy "{link}".',
+        endsWith('write blur'),
+        endsWith('write blur'),
+        'A scroll names the line by its id alone: scroll top',
+        'A scroll names the line by its id alone: scroll top',
       ]);
     });
 

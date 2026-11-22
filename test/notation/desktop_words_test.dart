@@ -37,8 +37,8 @@ Object? _sorted(Object? v) => switch (v) {
 };
 
 void main() {
-  test('tablet.hidden=true and phone.hidden=true hide a Row, a Column, a Text at that width', () {
-    final r = _read('Column#root\n  Row#a tablet.hidden=true\n    Text "a"\n  Column#b phone.hidden=true\n    Text "b"\n  Text#c "c" hidden=false');
+  test('tablet.hidden and phone.hidden hide a Row, a Column, a Text at that width', () {
+    final r = _read('Column#root\n  Row#a tablet.hidden\n    Text "a"\n  Column#b phone.hidden\n    Text "b"\n  Text#c "c" hidden=false');
     expect(_node(r, 'a')['media'], [
       {
         'maxWidth': 1023,

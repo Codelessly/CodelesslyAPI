@@ -174,13 +174,16 @@ Column
       expect((actions.first as Map)['value'], contains('item.id'));
     });
 
-    test('with no page of the name the item is what go reads, as before', () {
-      final r = _parse('''
+    test('with no page of the name: a bare word is a page\'s id, the item is read in braces', () {
+      const page = '''
 state tabs=["home","library"]
 Column
   each tab in tabs
     Button#b "{tab}" onTap={go tab}
-''', options: const NotationOptions().withScreens(const ['home', 'library']));
+''';
+      final said = _parse(page, options: const NotationOptions().withScreens(const ['home', 'library']));
+      expect(said.issues.single.message, startsWith('A page that is worked out is written in braces: go {item}.'));
+      final r = _parse(page.replaceFirst('go tab', 'go {tab}'), options: const NotationOptions().withScreens(const ['home', 'library']));
       expect(r.issues, isEmpty);
       expect(_action(r, 'b')['to'], r'${= item}');
     });

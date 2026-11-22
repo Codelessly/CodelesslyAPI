@@ -22,7 +22,7 @@ state left={income-spent}
 state spent=sum(txns,t=>t.amount)
 state rate:decimal={left/12}
 state clamp01(v):decimal={min(1, max(0, v))}
-count = 2
+state count=2
 ''', catalog: standardCatalog);
     expect(app.issues, isEmpty, reason: '${app.issues.map((i) => i.message)}');
     expect(app.variables['income'], {'type': 'integer', 'value': 4800, 'persist': true});

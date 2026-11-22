@@ -39,15 +39,9 @@ const List<Set<String>> notationSameValues = [
 /// as (`effects=[…]`).
 const Map<String, List<Map<String, Object?>>> notationShadows = {
   'none': [],
-  'false': [],
   'sm': _shadowSmall,
-  'small': _shadowSmall,
-  'soft': _shadowSmall,
-  'true': _shadowSmall,
   'md': _shadowMedium,
-  'medium': _shadowMedium,
   'lg': _shadowLarge,
-  'large': _shadowLarge,
 };
 const _shadowSmall = [
   {'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 2], 'blurRadius': 8},
@@ -73,9 +67,7 @@ const Map<String, Map<String, List<String>>> notationTypeKeys = {
   },
   'gridView': {
     'cols': ['props.crossAxisCount'],
-    'columns': ['props.crossAxisCount'],
     'gap': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
-    'spacing': ['props.mainAxisSpacing', 'props.crossAxisSpacing'],
   },
   'pageView': {
     // The share of the width one page takes: under 1, the next page shows at the edge.
@@ -85,8 +77,8 @@ const Map<String, Map<String, List<String>>> notationTypeKeys = {
 
 /// Keys written on a Text that belong to its style.
 const notationTextStyleKeys = {
-  'color': 'color', 'size': 'fontSize', 'fontSize': 'fontSize', 'weight': 'fontWeight', 'fontWeight': 'fontWeight',
-  'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'font': 'fontFamily', 'lineHeight': 'height',
+  'color': 'color', 'size': 'fontSize', 'weight': 'fontWeight',
+  'bold': 'fontWeight', 'fontFamily': 'fontFamily', 'lineHeight': 'height',
   'fontFamilyFallback': 'fontFamilyFallback',
 };
 
@@ -107,16 +99,14 @@ const notationConstraintKeys = {'minWidth', 'maxWidth', 'minHeight', 'maxHeight'
 /// parser says so ([_ownFirst]).
 const _words = {
   'bind', 'id', 'menu', 'preview', 'fill', 'gradient', 'animate', 'animation', 'enter', 'duration', 'delay', 'stagger', 'after', //
-  'drag', 'drop', 'border', 'borderWidth', 'border-width', 'strokeWidth', 'borderSize', 'borderColor', 'border-color',
-  'strokeColor', 'stroke', 'selected', 'hidden', 'show', 'hide', 'swipe', 'maxw', 'max-width', 'maxwidth',
-  'border-bottom', 'border-top', 'border-left', 'border-right', 'borderBottom', 'borderTop', 'borderLeft', 'borderRight',
-  'border-b', 'border-t', 'border-l', 'border-r',
+  'drag', 'drop', 'border', 'strokeWidth',
+  'selected', 'hidden', 'show', 'hide', 'swipe', 'maxw',
+  'border-bottom', 'border-top', 'border-left', 'border-right',
 };
 
 /// Of [_words], those that are the type's prop when it has one.
 const _ownFirst = {
-  'menu', 'preview', 'swipe', 'show', 'hide', 'selected', 'borderWidth', 'border-width', 'strokeWidth', 'borderSize', //
-  'borderColor', 'border-color', 'strokeColor', 'stroke', 'bind', 'id',
+  'menu', 'preview', 'swipe', 'show', 'hide', 'selected', 'strokeWidth', 'bind', 'id',
 };
 
 /// Keys the parser reads as words of its own on one type.

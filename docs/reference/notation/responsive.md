@@ -208,13 +208,13 @@ word then has that design at that width, with nothing written where it is used.
 ```notation expands
 define Product "title" "price" photo
   Column gap=8
-    Image#photo src={photo} h=160 w=fill radius=8
+    Image#photo "{photo}" h=160 w=fill radius=8
     Column#words gap=2
       Text.strong "{title}"
       Text.muted "{price}"
     at phone
       Row gap=12 middle
-        Image src={photo} w=72 h=72 radius=8
+        Image "{photo}" w=72 h=72 radius=8
         ...#words
 Grid cols=3 gap=16 phone.cols=1
   Product "Kettle" "$48" photo="https://picsum.photos/seed/kettle/400"

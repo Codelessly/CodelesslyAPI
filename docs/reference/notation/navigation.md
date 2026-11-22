@@ -31,17 +31,17 @@ It reads as:
 canvas layout.height.hug=0 layout.height.fill=null
 Column stretch scroll h=fill
   Column center pad=[24,14,24,14]
-    Row gap=24 between maxWidth=1120
+    Row gap=24 between maxw=1120
       Text.strong "Tidewater"
       Button.ghost "Pricing" style={"textStyle":{"fontSize":15,"fontWeight":600}} h=40.0 onTap={scroll pricing}
   Divider
   Column#pricing center pad=[24,64,24,64]
-    Column gap=32 w=fill maxWidth=1120
+    Column gap=32 w=fill maxw=1120
       Text.heading2 "Fill every room" size=64
   Spacer grow
   Divider
   Column center pad=[24,40,24,40]
-    Column gap=24 w=fill maxWidth=1120
+    Column gap=24 w=fill maxw=1120
       Text.muted "© 2026" size=16
 ```
 
@@ -249,7 +249,7 @@ It reads as:
 Column gap=12
   Button "Join" onTap={open signup}
 Dialog#signup "Join the waitlist"
-  Button "Close" maxWidth=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
+  Button "Close" maxw=240 onTap={close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
 ```
 
 An overlay's id is one of the page's ids, so the line that opens it has another (`IconButton#openFilters …
@@ -316,7 +316,7 @@ Canvas#compose "compose" w=480 fill=surface blockBack={draft != ""} decoration.r
       IconButton "close" color=onSurface onTap={close}
     Input "Message" @draft minLines=3 maxLines=6
     Row#column2Actions gap=8 end
-      Button "Send" maxWidth=240 onTap={draft=""; close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
+      Button "Send" maxw=240 onTap={draft=""; close} max479.w={"fill":0,"hug":null} max479.grow max479.layout.constraints.maxWidth=null
   on backPressed={confirm title="Discard the draft?" confirmLabel=Discard cancelLabel="Keep editing" destructive=true actions={draft=""; close}}
 ```
 
