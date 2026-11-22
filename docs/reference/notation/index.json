@@ -737,7 +737,7 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 4106
+      "words": 4198
     },
     {
       "topic": "responsive-keys-at-other-widths",
@@ -758,7 +758,7 @@
       "file": "responsive.md",
       "anchor": "responsive-what-reflow-does",
       "title": "What reflow does",
-      "words": 1670
+      "words": 1762
     },
     {
       "topic": "responsive-breakpoints",
@@ -780,14 +780,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 4936
+      "words": 5181
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 1146
+      "words": 1391
     },
     {
       "topic": "navigation-over-the-page",
@@ -916,7 +916,7 @@
       "anchor": "page-site",
       "title": "The site",
       "summary": "A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries.",
-      "words": 1272
+      "words": 1472
     },
     {
       "topic": "site-the-files",
@@ -944,7 +944,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 568
+      "words": 768
     },
     {
       "topic": "document",

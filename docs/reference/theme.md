@@ -231,7 +231,9 @@ dark mode; everything naming `ink` follows the mode: fills, strokes, named text 
 change: name the color.
 
 Which mode shows is the theme's `mode` (Flutter's `ThemeMode`, as `MaterialApp.themeMode`): `system` (the default:
-the device's setting), `light` or `dark`. A site's own switch is one action:
+the device's setting), `light` or `dark`. A site that is dark by design says `"mode": "dark"` in its theme and
+opens dark everywhere: in an app, in a session's view, in a render and in the editor, whatever the device's
+setting. A site's own switch is one action:
 
 ```json
 {"type": "setThemeMode", "mode": "${= theme.isDark ? 'light' : 'dark'}"}

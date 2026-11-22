@@ -192,7 +192,7 @@ Column#example
 <a id="theme-example-theme-md-setthememode"></a>
 ### theme.md: setThemeMode
 
-From [theme.md](../theme.md) (the block at line 91 of its template, pages/theme.md); the action on a button's tap.
+From [theme.md](../theme.md) (the block at line 93 of its template, pages/theme.md); the action on a button's tap.
 
 ```notation
 Button#run "Run" onTap={setThemeMode mode={theme.isDark ? 'light' : 'dark'}}
@@ -215,7 +215,7 @@ Column#col gap=12 pad=24 w={"fill":390} h={"fill":844} crossAxisAlignment=null
 <a id="theme-example-theme-md-schema-pages"></a>
 ### theme.md: schema, pages
 
-From [theme.md](../theme.md) (the block at line 130 of its template, pages/theme.md). It is a site's manifest (`site.json`), not a page. It is written as JSON:
+From [theme.md](../theme.md) (the block at line 132 of its template, pages/theme.md). It is a site's manifest (`site.json`), not a page. It is written as JSON:
 
 ```json
 {

@@ -21,11 +21,11 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3663 |
 | [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 4693 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 9162 |
-| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 4106 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 4936 |
+| [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 4198 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 5181 |
 | [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 2922 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 1001 |
-| [site.md](site.md) | A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries. | 1272 |
+| [site.md](site.md) | A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries. | 1472 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 985 |
 | [values.md](values.md) | How each value type and enum is written, and the records no other page shows. | 17536 |
 | [data.md](data.md) | The data layer: HTTP APIs, cloud documents and files, storage on the device, and form submission. | 1660 |
