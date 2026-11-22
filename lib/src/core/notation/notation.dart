@@ -2552,17 +2552,16 @@ class _Parser {
   /// written), is an overlay's head or under one, and so kept for the end
   /// of the text rather than read into the page's tree.
   bool _overlayOfDefinition(PageLine l, String? from) {
-    if (from == null || !_ownDefinitionFiles.contains(from.substring(0, from.lastIndexOf(':') < 0 ? from.length : from.lastIndexOf(':')))) {
-      _definedOverlayAt = null;
-      return false;
-    }
+    // Under one: every line a word stands for there, whichever word it is
+    // (a field of the design system's in the dialog of the app's word).
     if (_definedOverlayAt case final int at) {
-      if (l.indent > at) {
+      if (from != null && l.indent > at) {
         _top._definedOverlays.last.lines.add((indent: l.indent - at, text: l.text));
         return true;
       }
       _definedOverlayAt = null;
     }
+    if (from == null || !_ownDefinitionFiles.contains(from.substring(0, from.lastIndexOf(':') < 0 ? from.length : from.lastIndexOf(':')))) return false;
     if (!_definedOverlayHead.hasMatch(l.text)) return false;
     _definedOverlayAt = l.indent;
     _top._definedOverlays.add((head: l.text, lines: [], line: _line));

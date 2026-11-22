@@ -540,7 +540,13 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
   // use that gives its root words of its own (`#id`, `hide=phone`, `grow`)
   // gets a Column holding them ([notationSplice]).
   final firstRoot = lines.where((l) => l.indent == 0 && !_preamble(l.text)).firstOrNull;
-  final tops = lines.where((l) => l.indent == 0 && !_preamble(l.text)).length;
+  // (An overlay with an id written beside the tree, `Dialog#edit …` at the
+  // definition's margin under its `App …`, is over the page and no line of
+  // the tree: the tree is still one root.)
+  final besideTree = firstRoot == null || DefinedWords._overlayId.hasMatch(firstRoot.text)
+      ? 0
+      : lines.where((l) => l.indent == 0 && !_preamble(l.text) && !identical(l, firstRoot) && DefinedWords._overlayId.hasMatch(l.text)).length;
+  final tops = lines.where((l) => l.indent == 0 && !_preamble(l.text)).length - besideTree;
   if (firstRoot != null && (const {'if', 'each', 'for'}.contains(LineParts.of(firstRoot.text)?.word) || tops > 1)) {
     final at = lines.indexOf(firstRoot);
     lines = [
@@ -560,7 +566,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     problems.add('$file:${roots.isEmpty ? line : roots.first.line}: the first line ${parts.word} stands for is a node (Column, Row, Card…), with the others under it: write the lines indented under a Column.');
     return null;
   }
-  if (roots.length > 1) {
+  if (roots.length - besideTree > 1) {
     problems.add('$file:${roots[1].line}: ${parts.word} stands for one line and the lines under it; this one is beside it (indent it under ${roots.first.text.split(' ').first}).');
     return null;
   }

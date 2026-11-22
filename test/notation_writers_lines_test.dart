@@ -131,6 +131,38 @@ Shell "Week"
       expect(dialog, startsWith('event_'));
       expect(jsonEncode(_node(r, 'new')['actions']), contains('"to":"$dialog"'), reason: 'the page opens it by the id it is written with');
       expect(jsonEncode(r.document), contains('Discard what you typed?'));
+      // The tree is the word's one root, not a column around it and its dialogs.
+      expect((_node(r, 'home')['slots'] as Map)['body'], 'shell1');
+      expect(_node(r, 'shell1')['type'], 'column');
+    });
+
+    test('a field of the design system\'s in a dialog a word of the app writes stays in that dialog', () {
+      const fields = 'Field2 "label"\n  Column gap=4\n    Text.caption "{label}"\n    ...\n';
+      const word = 'define AddTxn\n  Dialog#addTxn "Add"\n    Field2 "Category"\n      Text#inside "Chips"\n  Sheet#addSheet "Add"\n    Text "Form"\n';
+      final r = parseNotation(
+        'Column#page\n  Button "Add" onTap={open addTxn}\n  AddTxn\n',
+        catalog: standardCatalog,
+        definitions: word,
+        options: NotationOptions(openVocabulary: true, width: 1440, screen: 'home', vocabulary: const NotationVocabulary().define({'Field2.txt': fields})),
+      );
+      expect(_said(r), isEmpty);
+      expect(_standIns(r), isEmpty);
+      // Nothing of the dialog is in the page's tree.
+      final page = <String>{};
+      void under(String id) {
+        if (!page.add(id)) return;
+        final n = _node(r, id);
+        for (final c in (n['children'] as List? ?? const [])) {
+          under(c as String);
+        }
+        for (final c in ((n['slots'] as Map?) ?? const {}).values) {
+          under(c as String);
+        }
+      }
+
+      under('home');
+      expect(page.where((id) => id.startsWith('inside')), isEmpty);
+      expect(jsonEncode(r.document), contains('Chips'));
     });
 
     test('a word whose body is a key and an overlay: its own open names the overlay the page opens', () {
