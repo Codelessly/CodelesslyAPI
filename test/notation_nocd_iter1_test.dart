@@ -150,9 +150,8 @@ void main() {
 
     test('a type that is not one of the notation\'s says the types and that any may be null', () {
       final r = _read('state flag:bool=true\nstate items:List<String>=[]\nText "x"\n');
-      // (bool is read as boolean: a type by another language's name.)
-      expect(r.issues, hasLength(1));
-      expect(r.issues.last.message, contains('may start as null'));
+      expect(r.issues, hasLength(2));
+      expect(r.issues.first.message, allOf(contains('state flag:boolean=true'), contains('may start as null')));
       expect(r.issues.last.message, allOf(contains('state items:list=[]'), contains('"List<String>" is not one')));
     });
   });

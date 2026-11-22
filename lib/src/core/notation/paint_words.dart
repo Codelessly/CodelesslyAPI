@@ -502,7 +502,11 @@ extension _PaintWords on _Parser {
       'Rect' => ' $near is a rectangle in one key: $near=[left,top,width,height].',
       _ => '',
     };
-    _paintSay(kind, key, column, 'A $on has no "$key"${near == null ? '' : ': did you mean $near?'}$whole It takes ${[...keys, 'fill', 'stroke'].join(', ')}.', on: on, value: value);
+    // (A rectangle with round corners is its own shape.)
+    if (on == 'rect' && key == 'radius') {
+      return _paintSay(kind, key, column, 'A rect has no "radius": a rectangle with round corners is rrect, with the same fields: rrect rect=[left,top,width,height] radius=${value ?? '8'} fill=….', on: on, value: value);
+    }
+    _paintSay(kind, key, column, 'A${RegExp(r'^[aeiou]').hasMatch(on) ? 'n' : ''} $on has no "$key"${near == null ? '.' : ': did you mean $near?'}$whole It takes ${[...keys, 'fill', 'stroke'].join(', ')}.', on: on, value: value);
   }
 
   /// A word the record does not take: said, or with the open vocabulary

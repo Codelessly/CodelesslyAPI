@@ -1,3 +1,57 @@
+## 42.1.0
+
+A `Table`'s rows take an action and a caption, a few lines lay out differently, and many refusals now say the exact
+line to write. Read "Reads differently" before upgrading. With CodelesslySDK 42.1.0.
+
+### Reads differently
+
+- **Events and `menu=` on a `Table` line act on each row**, with the row's record in scope by the table's item name
+  (`Table m in members … onTap={selId=m.id} menu=rowMenu`), as on an `each` row. They went to the table's frame.
+  A control in a cell keeps its own tap.
+- **An `each` directly under a design system's block takes the spacing of the block's children.** Where the row
+  or column that holds a block's children has a gap (Cards' `BoardColumn`, 10), the copies of an `each` written
+  under the block are spaced by it, as copies under a plain `Column gap=10` are; they touched. Where that holder
+  is a row, the copies run across. A `gap=` on the `each` line wins (`NotationOptions.frameGaps`, `frameRows`).
+- **An `else` in a `Grid` takes its `if`'s cell.** It was a cell of its own, so the cells after it move up by one.
+- **A cell of repeated copies in a table-like row wraps.** In a row whose fixed cells share its width, a cell that
+  repeats a list (`Row w=150` over `each t in m.teams`) wraps its copies; they reached over the next cell.
+- **A pane with its own `screen.width` condition is not hidden on a phone** by the phone's rules: it shows as its
+  condition says.
+- **Seven columns keep seven on a phone** (a week): a row of seven growing copies, or `Grid cols={n}` at 7, was
+  three to a line.
+- **`grow=phone` and `w=40%` are refused with the line to write** (`phone.grow`, `widthFactor=0.4`). They were kept
+  silently as a value that did nothing.
+
+### New
+
+- **A `Table`'s caption**: `slot caption` as the first line under a `Table`, with its lines under it, is a row
+  between the header and the rows.
+- **An id from a definition's parameter**: `id="ch{n}"` or `id={slug}` on a line of a definition is each use's own
+  id, which a `scroll` reaches.
+- **Read as written**: a `follow grow` list with a height of its own (the height is used); `color`, `size`,
+  `weight` and `fontFamily` on a drawing's text; `\{` and `\}` inside a state list's text; a list given to a
+  list-typed key by its bare name (`Select items=teamNames`); a reorder stored in the record a worked-out state
+  finds; a range slider on two fields of that record.
+- **Refusals that say the line to write**, with the writer's own values in it: an `each` that names its index
+  (`index`), `every … when={c}` (`when c`), a flag given a width's name (`phone.grow`), a percent width
+  (`widthFactor=`), a text joined with `+` after `toast`, `announce` or `copy` (`"Removed {id}"`), an action in
+  parentheses, a shortcut on a node's line (`onKeyDown(key=ArrowRight)=`), a shadow chosen by a condition
+  (`selected={c} selected.shadow=lg`), a field set on a found record (the `updateWhere` line), a type by another
+  language's name (`:map`, `:text`, `:integer`), a method called on a list written out (`concat([…],…)`), an id
+  from a copy's place (`scrollTo node=row item={index}`), a worked-out state that an action sets (its start value
+  and `on load`), a theme colour read as a variable (`theme.colors.<name>`), `rect … radius=` (`rrect`), and an
+  unknown key with a near name.
+- **`notationPrompt`** teaches `Table` (sorting, selection, a row's action, a caption, columns hidden at a width)
+  where it taught a table written by hand, a design system's sidebar words where the system has them, and how a
+  reorder is stored.
+
+### Fixed
+
+- A `key` line in a definition that also repeats a list kept its key's name; it was renamed with the list's item.
+- A definition's parameter with an empty default (`rec={}`) left unset is `null`; it was written out as `()`.
+- `open`, `close`, `focus` and `scroll` in a definition keep their id when a parameter has the same name.
+- A range slider whose list is not declared yet says so; it said the form just written.
+
 ## 42.0.0
 
 A major version: a site's theme now reaches every part of its design system, a website's page has its own type

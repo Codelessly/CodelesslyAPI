@@ -23,30 +23,6 @@ List<String> _said(NotationResult r) => [for (final i in r.issues) i.message];
 
 void main() {
   group('a state line', () {
-    test('a type by another language\'s name is the notation\'s; any is what the value says', () {
-      final r = _page('''
-state cells=[{"c":1,"v":"x"}]
-state photos=[{"id":1}]
-state cellAt(c):record={coalesce(find(cells,x=>x.c==c),{"v":""})}
-state ph(id):any={find(photos,p=>p.id==id)}
-state names(a):any={map(photos,p=>p.id)}
-state n:int=3
-state on:bool=true
-state label:string="a"
-state k:any=2
-Column
-  Text "{cellAt(1).v} {ph(1).id} {n} {on} {label} {k} {length(names(1))}"
-''');
-      expect(_said(r), isEmpty);
-      final v = _variables(r);
-      expect(v['cellAt'], allOf(containsPair('type', 'map'), containsPair('parameters', ['c'])));
-      expect(v['ph'], containsPair('type', 'map'));
-      expect(v['names'], containsPair('type', 'list'));
-      expect(v['n'], containsPair('type', 'integer'));
-      expect(v['on'], containsPair('type', 'boolean'));
-      expect(v['label'], containsPair('type', 'text'));
-      expect(v['k'], containsPair('type', 'integer'));
-    });
 
     test('a list whose texts write their own braces \\{ and \\} is that list, the braces plain', () {
       final r = _page(r'''
@@ -64,95 +40,8 @@ Column
     });
   });
 
-  test('every: its condition written as a key, in either place', () {
-    for (final line in ['every 1s when={playing} onTick={prog=prog+1}', 'every 1s onTick={prog=prog+1} when={playing}']) {
-      final r = _page('state playing=false\nstate prog=0\n$line\nColumn\n  Text "{prog}"\n');
-      expect(_said(r), isEmpty, reason: line);
-      final timer = ((_node(r, 'screen')['actions'] as List).single as Map);
-      expect(timer['trigger'], {'type': 'timer', 'intervalMs': 1000, 'when': r'${= playing}'});
-    }
-  });
-
   group('an action', () {
-    test('in parentheses is grouped: a choice inside a sequence', () {
-      final r = _page('''
-state done=[]
-state sel=0
-state score=0
-state answered=false
-Column
-  Button#b "Go" onTap={sel==0 ? toast "Pick" : (sel==2 ? {done=append(done,2); sel=0; (length(done)==4 ? {score=score+1; answered=true} : {})} : {sel=0})}
-''');
-      expect(_said(r), isEmpty);
-      final inner = (((_tap(r, 'b').single as Map)['else'] as List).single as Map)['then'] as List;
-      expect(inner, hasLength(3));
-      expect(inner.last, {
-        'type': 'if',
-        'condition': {'left': r'${= length(done)==4}', 'op': 'isTrue'},
-        'then': [
-          {'type': 'setVariable', 'variable': 'score', 'value': r'${= score+1}'},
-          {'type': 'setVariable', 'variable': 'answered', 'value': r'${= true}'},
-        ],
-      });
-    });
 
-    test('a verb\'s text may be worked out: joined to a text, a call, braces, a variable', () {
-      final r = _page('''
-state curId="A-1"
-state xs=[{"name":"a"}]
-state say(a,b):text={"Seat "+a+"-"+b}
-Column
-  Button#b "Say" onTap={announce "Removed "+curId; announce say(1,2); toast {curId}; toast curId; toast Saved; toast curId+" saved"; copy "x"+curId}
-  each x in xs
-    Button#c "Say" onTap={toast x.name}
-''');
-      expect(_said(r), isEmpty);
-      expect([for (final a in _tap(r, 'b')) (a as Map)['message'] ?? a['text']], [
-        r'${= "Removed "+curId}',
-        r'${= say(1,2)}',
-        r'${curId}',
-        r'${curId}',
-        'Saved',
-        r'${= curId+" saved"}',
-        r'${= "x"+curId}',
-        'Copied',
-      ]);
-      expect((_tap(r, 'c').single as Map)['message'], r'${item.name}');
-      // What follows the text that is no formula is still said.
-      expect(_said(_page('Column\n  Button "A" onTap={toast "Bad" style=error}\n')).single, startsWith('toast takes its text only: "style=error" is left out.'));
-    });
-
-    test('a field of the record a worked-out state finds is that record changed in its list', () {
-      final r = _page('''
-state rules=[{"id":1,"conds":["a"],"n":1}]
-state selR=1
-state r={find(rules,x=>x.id==selR)}
-Column
-  each c in r.conds
-    IconButton#x "close" tooltip="Remove" onTap={r.conds=without(r.conds,c)}
-  Button#add "Add" onTap={r.conds=append(r.conds,"night")}
-  Button#inc "More" onTap={r.n+=1}
-''');
-      expect(_said(r), isEmpty);
-      expect(_tap(r, 'x').single, {
-        'type': 'setVariable',
-        'variable': 'rules',
-        'value': r'${= updateWhere(rules,x=>x.id==selR,rec=>with(rec,"conds",without((find(rules,x=>x.id==selR)).conds,item)))}',
-      });
-      expect((_tap(r, 'add').single as Map)['value'], r'${= updateWhere(rules,x=>x.id==selR,rec=>with(rec,"conds",append((find(rules,x=>x.id==selR)).conds,"night")))}');
-      expect((_tap(r, 'inc').single as Map)['value'], r'${= updateWhere(rules,x=>x.id==selR,rec=>with(rec,"n",(find(rules,x=>x.id==selR)).n + (1)))}');
-      expect(_variables(r).keys, isNot(contains('r')));
-    });
-
-    test('a field of a value with nowhere to be written says the line to write', () {
-      final r = _page('''
-state rules=[{"id":1,"done":false}]
-state top={first(filter(rules,x=>!x.done))}
-Column
-  Button "Do" onTap={top.done=true}
-''');
-      expect(_said(r).single, allOf(startsWith('A field is set on a variable'), contains('<list>=updateWhere(<list>,x=>x.id==<id>,x=>with(x,"done",<value>))')));
-    });
   });
 
   group('a range', () {
@@ -176,19 +65,6 @@ Column
   });
 
   group('an each', () {
-    test('a second name is its index, parent.index from an each inside', () {
-      final r = _page('''
-state cities=[{"name":"Oslo","spots":[{"n":"a"}]}]
-Column
-  each x,i in cities
-    Text#a "{i+1}. {x.name}"
-    each (s, j) in x.spots
-      Text#b "{i}.{j} {s.n}"
-''');
-      expect(_said(r), isEmpty);
-      expect((_node(r, 'a')['props'] as Map)['text'], r'${= index+1}. ${item.name}');
-      expect((_node(r, 'b')['props'] as Map)['text'], r'${parent.index}.${index} ${item.n}');
-    });
 
     test('follow grow with a height: the height is the list\'s', () {
       final r = _page('state shown=[{"t":"a"}]\nstate following=true\nColumn h=600\n  each e in shown follow grow h=520 gap=8 onScroll={following=result.fraction>0.97}\n    Text "{e.t}"\n');
@@ -248,63 +124,6 @@ Column
       expect(to0, isNot('ch1'));
     });
 
-    test('from a copy\'s place, and a scroll that writes a value in its id', () {
-      final r = _page('''
-state secs=[{"n":"a"},{"n":"b"}]
-Column
-  each s in secs
-    Button#go "{s.n}" onTap={scroll sec{index}}
-  each s in secs
-    Column#row id={"sec"+index}
-      Text "{s.n}"
-''');
-      expect(_said(r), isEmpty);
-      final at = r'indexOf(map(secs, (anchorItem, anchorIndex) => "sec"+anchorIndex), (("sec" + (index))))';
-      final chosen = _tap(r, 'go').single as Map;
-      expect(chosen['condition'], {'left': '\${= $at >= 0}', 'op': 'isTrue'});
-      expect((chosen['then'] as List).single, {'type': 'scrollTo', 'node': 'row', 'durationMs': 400, 'offset': 72, 'index': '\${= $at}'});
-    });
-
-    test('in an each inside another is refused with a line that reads', () {
-      final r = _page('state a=[{"b":[{"id":1}]}]\nColumn\n  each x in a\n    each y in x.b\n      Column id={"s"+y.id}\n        Text "a"\n');
-      expect(_said(r).single, allOf(startsWith('A copy an each inside another each repeats has no id of its own'), contains('scrollTo node=row item={x}')));
-      final advised = _page('state a=[{"b":[{"id":1}]}]\nColumn\n  each x in a\n    each y in x.b\n      Column#row\n        Text "a"\n      Button "Go" onTap={scrollTo node=row item={index}}\n');
-      expect(_said(advised), isEmpty);
-    });
-  });
-
-  test('a percent is a share of the width or the height, written or worked out', () {
-    final r = _page('''
-state frac=0.4
-Column w=400 h=200
-  Box#a w=40% h=3
-  Box#b h=3 w={frac*100}% fill=#FFE8702A
-  Box#c w="{frac*100}%" h=3
-  Box#d w={frac*100+"%"} h=3
-  Box#e h=50% w=10
-''');
-    expect(_said(r), isEmpty);
-    expect((_node(r, 'a')['layout'] as Map)['widthFactor'], 0.4);
-    for (final id in ['b', 'c', 'd']) {
-      expect((_node(r, id)['bind'] as Map)['layout.widthFactor'], r'${= (frac*100)/100}', reason: id);
-      expect((_node(r, id)['layout'] as Map)['width'], {'fill': 0}, reason: id);
-    }
-    expect((_node(r, 'e')['layout'] as Map)['heightFactor'], 0.5);
-  });
-
-  test('a call on a list written out, a call\'s result or a group is the function of that name', () {
-    final r = _page('''
-state secs=[{"on":true,"name":"A"}]
-state chips={["All"].concat(map(filter(secs,x=>x.on),x=>x.name))}
-Column
-  each f in chips
-    Text "{f}"
-  Text#t "{filter(secs,x=>x.on).length} {["a"].includes("a")} {map(secs,x=>x.name).join(", ")} {(1+2).toFixed(1)} {secs.map(x=>x.name).length} {secs.some(x=>x.on)}"
-''');
-    expect(_said(r), isEmpty);
-    expect(jsonEncode(r.document), contains(r'concat([\"All\"],map(filter(secs,x=>x.on),x=>x.name))'));
-    expect((_node(r, 't')['props'] as Map)['text'],
-        r'${= length(filter(secs,x=>x.on))} ${= contains(["a"],"a")} ${= join(map(secs,x=>x.name),", ")} ${= fixed((1+2),1)} ${= length(map(secs,x=>x.name))} ${= any(secs,x=>x.on)}');
   });
 
   test('a key that takes a list reads a bare name nothing declares yet as its value', () {
@@ -392,38 +211,159 @@ Page
     expect(_said(r).single, allOf(contains(say), contains('hovered.fill=')));
   });
 
-  group('the round replayed', () {
-    test('a percent after braces in a definition\'s line, as it is written out where it is used', () {
-      final r = _page('define G "current"=home\n  Box h=3 fill=#FFDCEBF3\n    Box#bar h=3 w={frac*100}% fill=#FFE8702A\nstate frac=0.4\nColumn\n  G "a"\n');
-      expect(_said(r), isEmpty);
-      expect(jsonEncode(r.document), contains(r'"layout.widthFactor":"${= (frac*100)/100}"'));
+  // One way to write a thing: what an existing form already says is not
+  // read under another spelling; the refusal names the line to write, with
+  // the writer's own values in it.
+  group('a form another form already says is refused with that line', () {
+    test('a type by another language\'s name', () {
+      final r = _page('state cells=[]\nstate cellAt(c):record={find(cells,x=>x.c==c)}\nstate ph(id):any={find(cells,p=>p.id==id)}\nstate n:int=3\nColumn\n  Text "{n}"\n');
+      expect(_said(r), [
+        endsWith('("record" is not one): state cellAt(c):map={find(cells,x=>x.c==c)}.'),
+        endsWith('("any" is not one): state ph(id):map={find(cells,p=>p.id==id)}.'),
+        endsWith('("int" is not one): state n:integer=3.'),
+      ]);
     });
 
-    test('a flag given a width\'s name is the flag at that width', () {
-      final r = _page('state listW=300\nRow\n  Column#c w={listW} grow=phone\n    Text "a"\n  Column#d w=200 grow=tablet\n    Text "b"\n');
-      final same = _page('state listW=300\nRow\n  Column#c w={listW} phone.grow\n    Text "a"\n  Column#d w=200 tablet.grow\n    Text "b"\n');
-      expect(_said(r), isEmpty);
-      for (final id in ['c', 'd']) {
-        expect((_node(r, id)['layout'] as Map).containsKey('flex'), isFalse, reason: id);
-        expect(_node(r, id)['media'], isNotNull, reason: id);
-        expect(jsonEncode(_node(r, id)), jsonEncode(_node(same, id)), reason: id);
+    test('every: its condition written as a key', () {
+      for (final line in ['every 1s when={playing} onTick={prog=prog+1}', 'every 1s onTick={prog=prog+1} when={playing}']) {
+        final r = _page('state playing=false\nstate prog=0\n$line\nColumn\n  Text "{prog}"\n');
+        expect(_said(r).single, endsWith(': every 1s when playing onTick={prog=prog+1}'), reason: line);
+        expect(_node(r, 'screen')['actions'], isNull);
       }
     });
 
-    test('a shadow that follows the state: a choice between two sizes is bound, anything else says the form', () {
-      final r = _page('state playing=false\nColumn\n  Box#b radius=30 shadow={playing ? "lg" : "none"}\n    Text "a"\n');
-      expect(_said(r), isEmpty);
-      expect((_node(r, 'b')['bind'] as Map)['decoration.effects'], allOf(startsWith(r'${= (playing) ? [{"type":"dropShadow"'), endsWith(': []}')));
-      expect(_said(_page('state playing=false\nColumn\n  Box shadow={playing}\n    Text "a"\n')).single, contains('shadow={on ? "lg" : "none"}'));
+    test('an action in parentheses', () {
+      final r = _page('state done=[]\nstate score=0\nColumn\n  Button#b "Go" onTap={done=append(done,2); (length(done)==4 ? {score=score+1} : {})}\n');
+      expect(_said(r).single, endsWith(': write length(done)==4 ? {score=score+1} : {}'));
+      expect(_tap(r, 'b'), hasLength(1));
+      // The line it names reads.
+      final named = _page('state done=[]\nstate score=0\nColumn\n  Button#b "Go" onTap={done=append(done,2); length(done)==4 ? {score=score+1} : {}}\n');
+      expect(_said(named), isEmpty);
+      expect((_tap(named, 'b').last as Map)['type'], 'if');
     });
 
-    test('a shortcut written on a node\'s line is that key while the line has the focus', () {
-      final r = _page('state g=""\nColumn\n  Row#r gap=8 onTap={g="a"} key ArrowRight onPress={g="b"}\n    Text "x"\n');
-      expect(_said(r), isEmpty);
-      expect([for (final a in _node(r, 'r')['actions'] as List) (a as Map)['trigger']], [
-        {'type': 'click'},
-        {'type': 'keyDown', 'key': 'ArrowRight'},
+    test('a verb\'s text worked out beside its quotes, or with none', () {
+      final r = _page('''
+state curId="A-1"
+state say(a,b):text={"Seat "+a+"-"+b}
+Column
+  Button#b "Say" onTap={announce "Removed "+curId; announce say(1,2); toast {curId}; toast Saved}
+''');
+      expect(_said(r), [
+        'announce takes one text, a value it reads in braces inside it: announce "Removed {curId}". "+curId" is left out.',
+        'A announce\'s text is in quotes, a value it reads in braces inside them: announce "{say(1,2)}".',
+        'A toast\'s text is in quotes, a value it reads in braces inside them: toast "{curId}".',
       ]);
+      // The lines they name read; words with no quotes are the text.
+      final named = _page('state curId="A-1"\nstate say(a,b):text={"Seat "+a+"-"+b}\nColumn\n  Button#b "Say" onTap={announce "Removed {curId}"; announce "{say(1,2)}"; toast "{curId}"; toast Saved}\n');
+      expect(_said(named), isEmpty);
+      expect([for (final a in _tap(named, 'b')) (a as Map)['message']], [r'Removed ${curId}', r'${= say(1,2)}', r'${curId}', 'Saved']);
+    });
+
+    test('a field set on the record a worked-out state finds', () {
+      final r = _page('''
+state rules=[{"id":1,"conds":["a"],"n":1}]
+state selR=1
+state r={find(rules,x=>x.id==selR)}
+Column
+  Button#add "Add" onTap={r.conds=append(r.conds,"night")}
+''');
+      expect(_said(r).single, endsWith('Write the change to its list: rules=updateWhere(rules,x=>x.id==selR,x=>with(x,"conds",append(x.conds,"night")))'));
+      final named = _page('state rules=[{"id":1,"conds":["a"]}]\nstate selR=1\nColumn\n  Button#add "Add" onTap={rules=updateWhere(rules,x=>x.id==selR,x=>with(x,"conds",append(x.conds,"night")))}\n');
+      expect(_said(named), isEmpty);
+      // Of any other worked-out value: the shape of the line.
+      final other = _page('state rules=[{"id":1,"done":false}]\nstate top={first(filter(rules,x=>!x.done))}\nColumn\n  Button "Do" onTap={top.done=true}\n');
+      expect(_said(other).single, endsWith('<list>=updateWhere(<list>,x=>x.id==<id>,x=>with(x,"done",<value>))'));
+    });
+
+    test('an each that names its index', () {
+      final r = _page('state cities=[{"name":"Oslo"}]\nColumn\n  each x,i in cities\n    Text#a "{x.name}"\n');
+      expect(_said(r).single, endsWith('Write each x in cities, and read i as index.'));
+      expect((_node(r, 'a')['props'] as Map)['text'], r'${item.name}');
+    });
+
+    test('an id from a copy\'s place, and a scroll whose id has a value in it', () {
+      final r = _page('''
+state secs=[{"n":"a"},{"n":"b"}]
+Column
+  each s in secs
+    Button#go "{s.n}" onTap={scroll sec{index}}
+  each s in secs
+    Column#row id={"sec"+index}
+      Text "{s.n}"
+''');
+      expect(_said(r), [
+        'A scroll to an id that is worked out is the expression in braces, not a text with a value in it: scroll {"sec" + (index)}. scroll sec{index} is left out.',
+        allOf(startsWith('A copy an each inside another each repeats (or one named by its position) has no id of its own'), contains('scrollTo node=row item={x}')),
+      ]);
+      final named = _page('state secs=[{"n":"a"}]\nColumn\n  each s in secs\n    Button#go "{s.n}" onTap={scrollTo node=row item={index}}\n  each s in secs\n    Column#row\n      Text "{s.n}"\n');
+      expect(_said(named), isEmpty);
+    });
+
+    test('a percent, written or worked out, in a definition too; none is kept as a text', () {
+      final r = _page('''
+state frac=0.4
+Column w=400 h=200
+  Box#a w=40% h=3
+  Box#b h=3 w={frac*100}% fill=#FFE8702A
+  Box#c w="{frac*100}%" h=3
+  Box#e h=50% w=10
+''');
+      expect(_said(r), [
+        endsWith('not a percent: widthFactor=0.4. w=40% is left out.'),
+        endsWith('not a percent: widthFactor={(frac*100)/100}. w={frac*100}% is left out.'),
+        endsWith('not a percent: widthFactor={(frac*100)/100}. w="{frac*100}%" is left out.'),
+        endsWith('not a percent: heightFactor=0.5. h=50% is left out.'),
+      ]);
+      expect(jsonEncode(r.document), isNot(contains('40%')));
+      final inWord = _page('define G "t"\n  Box h=3\n    Box h=3 w={frac*100}% fill=#FFE8702A\nstate frac=0.4\nColumn\n  G "a"\n');
+      expect(_said(inWord).single, contains('widthFactor={(frac*100)/100}'));
+      final named = _page('state frac=0.4\nColumn w=400\n  Box#a widthFactor=0.4 h=3\n  Box#b widthFactor={(frac*100)/100} h=3\n');
+      expect(_said(named), isEmpty);
+      expect((_node(named, 'a')['layout'] as Map)['widthFactor'], 0.4);
+      expect((_node(named, 'b')['bind'] as Map)['layout.widthFactor'], r'${= (frac*100)/100}');
+    });
+
+    test('a call on a list written out, a call\'s result or a group, and one by another language\'s name', () {
+      final r = _page('''
+state secs=[{"on":true,"name":"A"}]
+state chips={["All"].concat(map(filter(secs,x=>x.on),x=>x.name))}
+Column
+  each f in chips
+    Text "{f}"
+  Text#t "{secs.includes(1)}"
+  Text#u "{secs.length} {filter(secs,x=>x.on).length} {secs.filter(x=>x.on)}"
+''');
+      expect(_said(r), [
+        endsWith('write (concat(["All"],map(filter(secs,x=>x.on),x=>x.name)))'),
+        endsWith('write contains(secs,1)'),
+      ]);
+      // What a name takes after a dot is read, as it was.
+      expect((_node(r, 'u')['props'] as Map)['text'], r'${= length(secs)} ${= length(filter(secs,x=>x.on))} ${= filter(secs,x=>x.on)}');
+    });
+
+    test('a flag given a width\'s name', () {
+      final r = _page('state listW=300\nRow\n  Column#c w={listW} grow=phone\n    Text "a"\n');
+      expect(_said(r).single, 'What a line is at a width is written with the width first: phone.grow. grow=phone is left out.');
+      expect((_node(r, 'c')['layout'] as Map).containsKey('flex'), isFalse);
+      expect(_said(_page('state listW=300\nRow\n  Column#c w={listW} phone.grow\n    Text "a"\n')), isEmpty);
+    });
+
+    test('a shadow that follows the state', () {
+      final r = _page('state playing=false\nColumn\n  Box#b radius=30 shadow={playing ? "lg" : "none"}\n    Text "a"\n');
+      expect(_said(r).single, contains('is the look of a state of the line: selected={playing} selected.shadow=lg. shadow={playing ? "lg" : "none"} is left out.'));
+      final named = _page('state playing=false\nColumn\n  Box#b radius=30 selected={playing} selected.shadow=lg\n    Text "a"\n');
+      expect(_said(named), isEmpty);
+      expect(jsonEncode(_node(named, 'b')['states']), contains('dropShadow'));
+    });
+
+    test('a shortcut written on a node\'s line', () {
+      final r = _page('state g=""\nColumn\n  Row#r gap=8 onTap={g="a"} key ArrowRight onPress={g="b"}\n    Text "x"\n');
+      expect(_said(r).single, startsWith('A key pressed while a line has the focus is that line\'s event: onKeyDown(key=ArrowRight)={g="b"}.'));
+      expect(_node(r, 'r')['actions'], hasLength(1));
+      final named = _page('state g=""\nColumn\n  Row#r gap=8 onTap={g="a"} onKeyDown(key=ArrowRight)={g="b"}\n    Text "x"\n');
+      expect(_said(named), isEmpty);
+      expect(_node(named, 'r')['actions'], hasLength(2));
       // The screen's own shortcut is a line of its own, as it was.
       expect(_said(_page('state g=""\nkey ArrowRight onPress={g="b"}\nColumn\n  Text "{g}"\n')), isEmpty);
     });

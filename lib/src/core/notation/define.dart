@@ -1846,6 +1846,9 @@ final class _Substitution {
     // A record written as JSON (`center={"lat":44.9,"lng":-93.1}`) is that
     // record, not an expression in braces.
     if (RegExp(r'^\{\s*"').hasMatch(v) && v.endsWith('}')) return v;
+    // (`rec={}`, a record with nothing in it yet: no value, not an empty
+    // pair of brackets, which no formula reads.)
+    if (v.startsWith('{') && v.endsWith('}') && v.substring(1, v.length - 1).trim().isEmpty) return 'null';
     if (v.startsWith('{') && v.endsWith('}')) return '(${v.substring(1, v.length - 1).trim()})';
     if (v.startsWith('"')) {
       if (!v.contains('{')) return v;
@@ -1961,13 +1964,20 @@ final class _Substitution {
         // named like a parameter keeps its name; its value is the use's.
         b.write(word);
       } else if (_isParameter(word)) {
-        b.write(_expression(word));
+        // After a verb that names a node (`open card` beside a parameter
+        // `card={c}`), a bare word is that node's id: only a parameter
+        // given an id (a word) names another.
+        final value = _expression(word);
+        final names = _nodeVerb.hasMatch(text.substring(0, m.start));
+        b.write(names && !RegExp(r'^"?[A-Za-z_][A-Za-z0-9_-]*"?$').hasMatch(value) ? word : value);
       } else {
         b.write(word);
       }
     }
     return foldCalls(b.toString());
   }
+
+  static final _nodeVerb = RegExp(r'(?:^|[;{?:]\s*|\s)(focus|scroll|open|close)\s+$');
 
   /// A string `"…"`: its `{p}` the use's value, its other `{…}` read.
   String _string(String s) {
@@ -2124,7 +2134,14 @@ final class _Substitution {
       return 'on ${_fields(m[1]!)}={${actionsOf(m[2]!)}}';
     }
     if (RegExp(r'^(every|key)\s+(.*?)\s+(on[A-Z][A-Za-z0-9]*)=\{(.*)\}\s*$').firstMatch(text) case final m?) {
-      return '${m[1]} ${_statementWords(m[2]!)} ${m[3]}={${actionsOf(m[4]!)}}';
+      // (A key's name is the key, whatever the word's lines call an item
+      // or a state: `key w onPress={…}` beside `each w in days` was read as
+      // the key "w_shell1".)
+      final words = m[2]!, space = words.indexOf(' ');
+      final chord = space < 0 ? words : words.substring(0, space);
+      final named = m[1] == 'key' && renamed.containsKey(chord.split('+').last) && !_isParameter(chord.split('+').last) ? chord : '';
+      final rest = named.isEmpty ? words : (space < 0 ? '' : words.substring(space + 1));
+      return '${m[1]} ${[if (named.isNotEmpty) named, if (rest.isNotEmpty) _statementWords(rest)].join(' ')} ${m[3]}={${actionsOf(m[4]!)}}';
     }
     if (RegExp(r'^([A-Z][A-Za-z0-9]*)\.\{').firstMatch(text) case final m?) {
       final close = _braceEnd(text, m.end - 1);
