@@ -406,7 +406,16 @@ final class ThemeTokens {
           if (regrounds && groundNames.contains(e.key)) {
             colors[e.key] = toG.toJson();
           } else if (_neutral(c, g, i)) {
-            colors[e.key] = _regrounded(c, g, i, toG, toI).toJson();
+            var to = _regrounded(c, g, i, toG, toI);
+            // An ink that read on the design system's ground (4.5 to 1)
+            // reads on the site's: nearer the site's ink where the two are
+            // closer together than the design system's were.
+            if (c.alpha == 0xFF && _contrast(c, g) >= 4.5) {
+              for (var t = .1; t <= 1.0001 && _contrast(to, toG) < 4.5; t += .1) {
+                to = Color(0xFF000000 | _mix(_rgb(to), _rgb(toI), t));
+              }
+            }
+            colors[e.key] = to.toJson();
           }
         }
       } else if (regrounds) {
@@ -446,7 +455,15 @@ final class ThemeTokens {
       final was = cur.color('onAccent');
       if (was != null) {
         final c = on(accent, was);
-        if (c.value != was.value) colors['onAccent'] = c.toJson();
+        if (c.value != was.value) {
+          colors['onAccent'] = c.toJson();
+          // Its washes and lines (`onAccentWash`: the same color, fainter).
+          for (final e in cur.colors.entries) {
+            if (e.key.length > 8 && e.key.startsWith('onAccent') && e.value.name == null && _rgb(e.value) == _rgb(was) && !given.colors.containsKey(e.key)) {
+              colors[e.key] = Color((e.value.alpha << 24) | _rgb(c)).toJson();
+            }
+          }
+        }
       }
     }
     return {...roles, if (colors.isNotEmpty) 'colors': colors};
