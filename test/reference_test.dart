@@ -17,7 +17,7 @@ import '../tool/reference/src/reference.dart';
 void main() {
   final root = Directory.current.path;
   final dir = '$root/docs/reference';
-  String read(String f) => File('$dir/$f').readAsStringSync();
+  String read(String f) => File('$dir/$f').readAsStringSync().replaceAll('\r\n', '\n');
   final mdFiles = [
     for (final f in Directory(dir).listSync().whereType<File>())
       if (f.path.endsWith('.md')) f.uri.pathSegments.last,
@@ -28,7 +28,7 @@ void main() {
     final files = buildReference(root);
     final stale = [
       for (final e in files.entries)
-        if (!File('$root/${e.key}').existsSync() || File('$root/${e.key}').readAsStringSync() != e.value) e.key,
+        if (!File('$root/${e.key}').existsSync() || File('$root/${e.key}').readAsStringSync().replaceAll('\r\n', '\n') != e.value) e.key,
     ];
     expect(stale, isEmpty, reason: 'Regenerate: dart run tool/reference/generate.dart');
     // Nothing generated earlier and no longer is lingers.

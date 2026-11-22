@@ -222,6 +222,15 @@ The theme's `media` rules patch the theme as a node's rules patch a node: `{"min
 node's own media rule may switch its style (`"patch": {"props": {"style": "caption"}}`, which replaces the style)
 or change some fields (`{"style": {"fontSize": 20}}`, merged over the named style).
 
+<a id="theme-what-the-notation-s-page-words-read"></a>
+### What the notation's page words read
+
+A theme may name what the notation's words draw in, beside its roles: a text style `<look>Page` beside `<look>`
+(`heading1Page`, `leadPage`, `bodyPage`) is what a text of that look takes on a website's page (under `Page`),
+its size, line height and spacing; `colors.card` is the ground of a card and `colors.selectedRow` the fill of a
+chosen row (the accent's tint without it); a band of a page takes a picture as its ground (`Section image="…"`,
+under a scrim). [Design systems](design-systems.md#page-design-systems) says how a site's roles reach them.
+
 <a id="theme-dark-mode"></a>
 ### Dark mode
 

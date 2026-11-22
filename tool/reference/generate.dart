@@ -27,11 +27,10 @@ void main(List<String> args) {
   for (final e in files.entries) {
     final f = File('$root/${e.key}');
     var current = f.existsSync() ? f.readAsStringSync() : null;
-    // The notation reference is compared by its content and written in the
-    // line endings the checkout has (CRLF on a Windows one).
-    final notation = e.key.startsWith('$notationDir/');
-    final crlf = notation && (current?.contains('\r\n') ?? false);
-    if (notation) current = current?.replaceAll('\r\n', '\n');
+    // A file is compared by its content and written in the line endings the
+    // checkout has (CRLF on a Windows one with core.autocrlf).
+    final crlf = current?.contains('\r\n') ?? false;
+    current = current?.replaceAll('\r\n', '\n');
     if (current == e.value) continue;
     stale.add(e.key);
     if (!check) {

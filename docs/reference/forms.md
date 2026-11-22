@@ -466,7 +466,7 @@ A pane divider. Its value is the width (in logical pixels) of the pane before it
 <a id="node-calendar"></a>
 ### `calendar`
 
-An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.
+An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd; weekStart (monday ... sunday) is the day its weeks start on (default: that of the locale). A changed event returns {start, end}, or with range false the day picked.
 
 A month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.
 
@@ -478,6 +478,7 @@ A month calendar in the page. A pick chooses the range's start, then its end; di
 | `start` | String | `""` |  |  |
 | `end` | String | `""` |  |  |
 | `range` | bool | `true` |  | Whether it picks a range (a start, then an end) or one day. |
+| `weekStart` | String | `""` |  | The day a week starts on (`monday` ... `sunday`); empty: the locale's (Sunday in English). |
 | `firstDate` | String | unset |  |  |
 | `lastDate` | String | unset |  |  |
 | `disabledDates` | List<String> | `[]` |  |  |

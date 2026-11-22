@@ -238,6 +238,7 @@ Flutter's `TableView` (two_dimensional_scrollables): a table that scrolls on bot
 | `pinHeaderColumn` | bool | `true` |  |  |
 | `gridLineColor` | [Color](values.md#type-Color) | `"#FFE0E2E8"` |  | The lines between cells; transparent for none. |
 | `gridLineWidth` | double | `1` | ≥ 0 |  |
+| `columnLines` | bool | `true` |  | Whether the lines between columns are drawn (false: only the rules under rows, a ruled list). |
 | `stripeColor` | [Color](values.md#type-Color) | unset |  | Every other body row's background. |
 | `headerColor` | [Color](values.md#type-Color) | unset |  | The header row's and column's background. |
 | `cacheExtent` | double | unset | ≥ 0 |  |

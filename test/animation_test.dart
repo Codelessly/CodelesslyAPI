@@ -137,7 +137,7 @@ void main() {
   });
 
   test('the guide\'s JSON samples read and write back as shown', () {
-    final text = File('docs/guide/08-animation.md').readAsStringSync();
+    final text = File('docs/guide/08-animation.md').readAsStringSync().replaceAll('\r\n', '\n');
     final blocks = RegExp(r'```json\n([\s\S]*?)```').allMatches(text).toList();
     expect(blocks.length, greaterThanOrEqualTo(10));
     Json written(Json j) {

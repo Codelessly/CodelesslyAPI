@@ -1,0 +1,3 @@
+# Text is stored and checked out with LF on every platform, so the generated
+# reference and the tests that read docs see the same bytes everywhere.
+* text=auto eol=lf

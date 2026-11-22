@@ -598,7 +598,7 @@ Drag to resize adjacent panes. Arrows resize; Home and End collapse a pane.
 <a id="node-calendar"></a>
 ### `Calendar` (`calendar`)
 
-An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.
+An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd; weekStart (monday ... sunday) is the day its weeks start on (default: that of the locale). A changed event returns {start, end}, or with range false the day picked.
 
 - Written `Calendar`. Level 1 (Widget catalog).
 - `Calendar "…"` sets `props.label`; it takes one quoted string (a second is said).
@@ -610,6 +610,7 @@ An inline month calendar that picks a start and end date (range false: one day, 
 | `start` | text | `""` | 1 |  |
 | `end` | text | `""` | 1 |  |
 | `range` | `true`/`false` | `true` | 1 | Whether it picks a range (a start, then an end) or one day. |
+| `weekStart` | text | `""` | 1 | The day a week starts on (`monday` ... `sunday`); empty: the locale's (Sunday in English). |
 | `firstDate` | text |  | 1 |  |
 | `lastDate` | text |  | 1 |  |
 | `disabledDates` | list of text | `[]` | 1 |  |
