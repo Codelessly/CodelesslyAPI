@@ -9639,15 +9639,22 @@ class _Parser {
       props.putIfAbsent('borderRadius', () => options.progress['borderRadius'] ?? 2);
     }
     // A DataTable is a table of the theme: rows and headers a finger can
-    // press, as wide as its place, sorted from its headers, 320 tall unless
-    // it says (it scrolls in that).
+    // press, as wide as its place, sorted from its headers, as tall as its
+    // rows up to 320 unless it says (more rows scroll in that; it was 320
+    // whatever its rows, so a table of three had 130 px of nothing under
+    // them: test 17, docs and nonprofit).
     if (ours && written == 'DataTable') {
       props.putIfAbsent('rowHeight', () => 48);
       props.putIfAbsent('headerHeight', () => 48);
       props.putIfAbsent('fillWidth', () => true);
       props.putIfAbsent('sortable', () => true);
       props.putIfAbsent('gridLineColor', () => options.track);
-      layout.putIfAbsent('height', () => 320);
+      if (!layout.containsKey('height')) {
+        layout['height'] = {'hug': 0};
+        if (readMap(layout['constraints'])?['maxHeight'] == null) {
+          layout['constraints'] = {...?readMap(layout['constraints']), 'maxHeight': 320};
+        }
+      }
       // (Rows or columns that were written and refused are said where they
       // are written: the line is not said a second time to want them.)
       final wroteBoth = RegExp(r'(^|\s)rows=').hasMatch(line) && RegExp(r'(^|\s)columns=').hasMatch(line);
