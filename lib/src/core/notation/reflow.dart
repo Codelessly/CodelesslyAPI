@@ -307,6 +307,9 @@ final class PageReflow {
       }
     }
     if (found != null) _listDetailRules(found);
+    for (final e in roles.entries) {
+      if (e.value == 'nav' && nodes[e.key] != null) _navOnTablet(e.key, nodes[e.key]!);
+    }
     for (final e in nodes.entries) {
       if (_type(e.value) == 'row' && !_handled.contains(e.key)) _stacksWhereAChildFills(e.key, e.value);
     }
@@ -734,6 +737,52 @@ final class PageReflow {
         _ => 0,
       };
 
+  /// A tablet's width as the rules count it (the middle of 700 to 1023).
+  static const num _tabletWide = 834;
+
+  /// About the width [id] is given on a tablet: the window's, less the
+  /// padding of what holds it and what is beside it of a width of its own
+  /// (a sidebar, a rail, a summary of a fixed width in its row) that a
+  /// tablet still shows, and no more than a width or a most-width above it.
+  num _tabletRoom(String id) {
+    num room = _tabletWide;
+    String at = id;
+    for (var p = _parents[id]; p != null; at = p, p = _parents[p]) {
+      final holder = nodes[p]!;
+      if (_fixedWidth(holder) case final num w) room = math.min(room, w);
+      if (readMap(_layout(holder)['constraints'])?['maxWidth'] case final num most) room = math.min(room, most);
+      room -= _sidesPadding(holder);
+      if (_type(holder) != 'row') continue;
+      for (final k in _kids(holder)) {
+        if (k == at) continue;
+        if (_rules[k]?[reflowTabletMax]?['visible'] == false || _hiddenAtTablet(k, p) || nodes[k]!['visible'] == false) continue;
+        final w = _tabletWidth(k);
+        if (w > 0) room -= w + _spacing(holder);
+      }
+    }
+    return math.max(0, room);
+  }
+
+  /// A bar that has no room for its line on a tablet (a brand, four links,
+  /// a select and two buttons beside a sidebar: its right group ran 41 to 65
+  /// px past the window's edge, test 17) wraps there: what does not fit goes
+  /// to a second line, nothing is hidden. A bar that says what it does
+  /// there, or whose links a tablet hides, is left.
+  void _navOnTablet(String id, Json n) {
+    if (_type(n) != 'row' || _own.contains(id) || _underKept(id) || _props(n)['wrap'] == true) return;
+    if (_rules[id]?[reflowTabletMax]?['props'] case final Map p when p.containsKey('wrap')) return;
+    final shown = [
+      for (final k in _kids(n))
+        if (_rules[k]?[reflowTabletMax]?['visible'] != false && _need(k) > 0) k,
+    ];
+    if (shown.length < 2) return;
+    final need = _sidesPadding(n) + _spacing(n) * (shown.length - 1) + shown.fold<num>(0, (s, k) => s + _need(k));
+    if (need <= _tabletRoom(id)) return;
+    _add(id, reflowTabletMax, {
+      'props': {'wrap': true, 'runSpacing': 8},
+    });
+  }
+
   /// Whether an app's pane [k] is one a tablet hides, as [_app] decides it.
   bool _hiddenAtTablet(String k, String parent) {
     if (roles[parent] != 'app') return false;
@@ -1011,7 +1060,16 @@ final class PageReflow {
     }
     if (cols is! num || cols < 2) return;
     if (_keeps(id, cols.toInt(), _kids(n), repeated: true)) return;
-    final tablet = cols >= 6 ? 3 : cols >= 4 ? 2 : cols;
+    var tablet = cols >= 6 ? 3 : cols >= 4 ? 2 : cols.toInt();
+    // Beside something of a width of its own (a summary, a sidebar a
+    // tablet keeps) it has less than the window: a column fewer while its
+    // cells would be under 160 (three cards of 120 beside an order summary,
+    // a stepper 14 px past its card: test 17).
+    final gap = switch (_props(n)['crossAxisSpacing']) { final num g => g, _ => 0 };
+    final room = _tabletRoom(id) - _sidesPadding(n);
+    while (tablet > 1 && (room - gap * (tablet - 1)) / tablet < 160) {
+      tablet--;
+    }
     if (tablet != cols) _add(id, reflowTabletMax, {'props': {'crossAxisCount': tablet}});
     _add(id, reflowPhoneMax, {'props': {'crossAxisCount': cols >= 5 ? 2 : 1}});
   }
@@ -1262,9 +1320,10 @@ final class PageReflow {
     final growing = [for (final k in kids) if (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null && _type(nodes[k]!) != 'spacer') k];
     if (growing.isNotEmpty) return _crowded(id, n);
     if (kids.any((k) => _type(nodes[k]!) == 'spacer')) return;
+    // (Buttons alone too: three of them in a card of a grid, the last 44 px
+    // past its row.)
     final texts = [for (final k in kids) if (_type(nodes[k]!) == 'text') k];
-    if (texts.isEmpty) return;
-    num held = 0;
+    num held = _spacing(n) * math.max(0, kids.length - texts.length - 1);
     for (final k in kids) {
       if (!texts.contains(k)) held += _need(k);
     }

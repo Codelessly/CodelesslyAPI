@@ -23,6 +23,9 @@ String _at(NotationResult r, String id, int max) => jsonEncode([
         if ((m as Map)['maxWidth'] == max) m['patch'],
     ]);
 
+/// The id of the page's repeated grid.
+String _grid(NotationResult r) => (r.document['nodes'] as Map).entries.firstWhere((e) => (e.value as Map)['type'] == 'gridView').key as String;
+
 const _stories = 'state stories=[{"title":"The last salt marsh","dek":"For three hundred years the village farmed the tide.","c":"#FF336699"}]\n';
 
 void main() {
@@ -115,6 +118,58 @@ Page
 ''');
       expect(_at(r, 'head', 1023), '[]');
       expect(_at(r, 'head', 699), '[]');
+    });
+  });
+
+  group('what a tablet gives less than its window', () {
+    test('a grid of three cards beside a summary of a fixed width has a column fewer there', () {
+      final r = _read('''
+state tiers=[{"name":"Standard","price":290},{"name":"Pro","price":490},{"name":"Patron","price":890}]
+Page
+  Section
+    Row gap=24 top
+      Grid#tiers cols=3 gap=16
+        each t in tiers
+          Card
+            Text "{t.name}"
+            Row#step gap=8 middle
+              Button.outline "-"
+              Text "0"
+              Button.outline "+"
+      Card#sum w=320
+        Text "Order summary"
+''');
+      expect(_at(r, _grid(r), 1023), contains('"crossAxisCount":2'));
+    });
+
+    test('a grid that has the window keeps its three columns there', () {
+      final r = _read('''
+state tiers=[{"name":"Standard"},{"name":"Pro"},{"name":"Patron"}]
+Page
+  Section
+    Grid#tiers cols=3 gap=16
+      each t in tiers
+        Card
+          Text "{t.name}"
+''');
+      expect(_at(r, _grid(r), 1023), '[]');
+    });
+
+    test('three buttons in a card of a list wrap where their place is narrower than they are', () {
+      final r = _read('''
+state decks=[{"name":"Spanish basics"}]
+Page
+  Section
+    Grid cols=3 gap=16
+      each d in decks
+        Card
+          Text "{d.name}"
+          Row#acts gap=8
+            Button "Study"
+            Button.outline "Quiz"
+            Button.ghost "Cards"
+''');
+      expect(_at(r, 'acts', 1023), contains('"wrap":true'));
     });
   });
 
