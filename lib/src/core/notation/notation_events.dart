@@ -28,6 +28,17 @@ const Map<String, String> _eventAliases = {
   'onPress': 'click',
   'onPressed': 'click',
   'onContextMenu': 'secondaryClick',
+  // A press as it starts and as it ends (press and hold: a story paused
+  // while a finger is down, a before/after shown while a button is held).
+  'onPressStart': 'pointerDown',
+  'onPressDown': 'pointerDown',
+  'onMouseDown': 'pointerDown',
+  'onTouchStart': 'pointerDown',
+  'onPressEnd': 'pointerUp',
+  'onPressUp': 'pointerUp',
+  'onRelease': 'pointerUp',
+  'onMouseUp': 'pointerUp',
+  'onTouchEnd': 'pointerUp',
 };
 
 /// The names of one event a block may have under another name (design 13

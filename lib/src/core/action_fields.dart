@@ -453,6 +453,9 @@ abstract final class ScrollToFields {
           'screen when the action runs is reported as an action error, not skipped silently.');
   static const item = PropDef<String>('item', Codecs.string, '',
       doc: 'For a repeated node: the key (or index) of the list item whose copy to reveal.');
+  static const index = PropDef<String>('index', Codecs.string, '',
+      doc: 'For a repeated node: the position (from 0) of the copy to reveal, an expression, whatever the items\' keys '
+          'are (it wins over item).');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
   static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
   static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
@@ -461,7 +464,7 @@ abstract final class ScrollToFields {
           'negative offset scrolls past it. The view never scrolls past its start or its end.');
   static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
       doc: 'Only the scroll views along this axis; null: every one.');
-  static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];
+  static const List<PropDef<Object?>> all = [node, item, index, durationMs, curve, alignment, offset, axis];
 }
 
 /// [AnimateAction]: an `AnimationController` method on a node's animation

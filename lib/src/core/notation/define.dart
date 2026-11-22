@@ -535,6 +535,22 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
     final p = parts.parts[i];
     if (p.kind == 'word' && p.raw.startsWith('@') && p.raw.endsWith('=') && i + 1 < parts.parts.length && parts.parts[i + 1].kind == 'string') {
       signed.add(LinePart.word('${p.raw}${parts.parts[++i].raw}'));
+    } else if (p.kind == 'string' && _identifier.hasMatch(p.raw.replaceAll('"', '')) && i + 1 < parts.parts.length && parts.parts[i + 1].kind == 'word' && parts.parts[i + 1].raw.startsWith('=')) {
+      // `"current"=home`, `"lid"=0`, `"current"=""`: a string given what it
+      // is when a use writes none is a parameter with that default, which
+      // a use's string fills as it fills any parameter that takes a text
+      // (the same as current="home").
+      final name = p.raw.replaceAll('"', '');
+      var value = parts.parts[++i].raw.substring(1);
+      if (value.isEmpty && i + 1 < parts.parts.length && parts.parts[i + 1].kind == 'string') value = parts.parts[++i].raw;
+      // A word is the text it spells (`"current"=home`): the string's default.
+      if (RegExp(r'^[A-Za-z][A-Za-z0-9_-]*$').hasMatch(value) && !const {'true', 'false', 'null'}.contains(value)) value = '"$value"';
+      if (value.isEmpty) {
+        problems.add('$file:$line: "$name"= has no default after it: write "$name" for a string every use gives, or $name="…" for one with a default.');
+        signed.add(p);
+      } else {
+        signed.add(LinePart.pair(name, value));
+      }
     } else {
       signed.add(p);
     }
@@ -585,7 +601,7 @@ NotationDefinition? definitionOf(String file, int line, String signature, List<(
           required.add(w);
         }
         if (!_identifier.hasMatch(w)) {
-          problems.add('$file:$line: "$w" is not a name of a parameter.');
+          problems.add('$file:$line: "$w" is not a name of a parameter: a signature is the word, then its strings by name ("title") and its parameters, each with what it is when a use gives none (size=12 tone="quiet").');
           continue;
         }
         if (w == 'bind') {

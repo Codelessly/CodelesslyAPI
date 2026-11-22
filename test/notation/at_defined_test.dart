@@ -280,7 +280,7 @@ Column
         'components/Tile.txt': 'define Tile "title"\n  Column gap=4\n    Text#t "{title}"\n    at phone\n      Row\n        ...#zz\n',
       }, catalog: standardCatalog);
       expect([for (final p in wrong.problems) (p.path, p.line, p.message)], [
-        ('components/Tile.txt', 6, 'page:6: ...#zz: no line under Column (line 2) has the id "zz" (its lines with ids: t). A block names a line of the part by its id.'),
+        ('components/Tile.txt', 6, '...#zz: no line under Column (line 2) has the id "zz" (its lines with ids: t). A block names a line of the part by its id.'),
       ]);
     });
 

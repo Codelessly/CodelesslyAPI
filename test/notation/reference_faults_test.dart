@@ -152,9 +152,12 @@ void main() {
       expect(_actions(r, 'o').single, allOf(containsPair('sheetRadius', 10), containsPair('showDragHandle', false)));
     });
 
-    test('onClose is said naming the overlay, with the open chain that runs after it closes', () {
+    test('onClose runs once the overlay has closed: after its open, in the chain that opens it', () {
       final r = _read('state x=true\nColumn\n  Button#o "o" onTap={open s}\nSheet#s "Title" onClose={x=false}\n  Text "in"\n');
-      expect(_said(r).single, allOf(startsWith('A Sheet has no event onClose'), contains('onTap={open s; x=false}')));
+      expect(_said(r), isEmpty);
+      final chain = (((_node(r, 'o')['actions']! as List).single as Map)['actions'] as List).cast<Map>();
+      expect([for (final a in chain) a['type']], ['openModal', 'setVariable']);
+      expect(chain[1], containsPair('variable', 'x'));
     });
   });
 

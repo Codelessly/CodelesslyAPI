@@ -56,6 +56,22 @@ box h=160
 For a bar, line or donut chart with axes and a legend, the chart words (`BarChart`, `LineChart`, `Donut`) on
 [charts.md](charts.md) are shorter.
 
+<a id="paint-conditions-and-lists-in-a-drawing"></a>
+## Conditions and lists in a drawing
+
+`if`, `else if`, `else` and `each` are written among a drawing's lines as on a page, with the op lines they hold
+indented under them. The shapes under an `if kind=="pie"` are drawn while the condition holds (it is a `group` with
+that `when`); those under `each b in bars` are drawn once for each item of the list, which they read by its name
+(`rect=[{index*10},0,6,{b.v}]`), with `index` its position from 0.
+
+`repeat count=50` draws its lines 50 times: in them `index` is the position (from 0) and `item` the same number;
+`indexAs=i` names the position `i` (`as=` names the item). A repeat whose lines read neither draws the same shapes
+every time, which is said on its line with the names they read that nothing declares. A drawing under an `each` of
+the page reads that each's item by its name under a `repeat` too.
+
+A drawing is as big as the line it is under: its size is written on that line (`Box w=240 h=160`, the `customPaint`
+under it), never on the `customPaint` line, whose `viewBox` and `fit` say how its units map onto that box.
+
 <a id="paint-glows-soft-shadows-and-gradients-in-a-drawing"></a>
 ## Glows, soft shadows and gradients in a drawing
 

@@ -237,6 +237,10 @@ other pages write differing ones is said, with what to write. A render step name
 (`--tap nav/close` on the board page), the outline shows `canvas nav--board (#nav as written on page board …)`, and
 `print` gives the page back as written (`nav`).
 
+A row's own menu: `menu=rowMenu` on a line under an `each` opens that Menu on a right click or a long press, and the
+Menu's lines read the pressed row by the each's name (`MenuItem "Copy" onTap={copy "{m.text}"}`). `menu=none` is no
+menu.
+
 ## Screens
 
 Another canvas of the document is a `Canvas#id` block at the margin after the page, its tree under it; `go id`

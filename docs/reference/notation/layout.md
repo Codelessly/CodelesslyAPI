@@ -58,6 +58,22 @@ Row gap=8 wrap=true runSpacing=8
   Text "Two"
 ```
 
+<a id="layout-a-word-given-a-condition"></a>
+## A word given a condition
+
+A word of a line (`end`, `center`, `middle`, `between`, `bold` on a type that has it…) may be given a condition in
+braces: `Row w=fill end={m.mine}` is at its end while `m.mine` holds and as the line is without the word while it
+does not; `Column center={count==1}`, `Text "…" center={wide}`. `word=true` is the word and `word=false` is the line
+without it, so a word of your own can pass a parameter on (`define Bubble mine=false`, then `Row end={mine}`). A
+word that sets nothing a value can follow (`keep`, a Stack's place for its children) says so: write the line under
+`if` with the word and under `else` without it. A variant is part of the word (`Button.outline`): one chosen by a
+condition is the line written twice, under `if` and under `else`.
+
+`scale={zoom}`, `rotate=12`, `translateX={panX}` and `translateY={panY}` draw a line scaled, turned (degrees) or moved
+(pixels) from where it is laid out, with nothing around it moved: they are its `motion.scale`, `motion.rotate`,
+`motion.translateX` and `motion.translateY` ([animation.md](animation.md)), on a line whose type has no key of that
+name. `x=` and `y=` place a line in a Stack.
+
 <a id="layout-scrolling"></a>
 ## Scrolling
 

@@ -30,9 +30,14 @@ Row gap=8
     box w=40 h=40 gradient={[item.c1, item.c2]} shape=circle
 ```
 
-Shadows and blurs are `effects=[…]` ([Effect](#type-Effect)); `clip=true` clips the content to the corners. A
-shadow is written only so: there is no `shadow=` or `shadows=` key. Its numbers are pixels: `offset` `[x, y]`,
-`blurRadius`, `spreadRadius` (CSS `box-shadow: 0 4px 16px` is `"offset":[0,4],"blurRadius":16`).
+Shadows and blurs are `effects=[…]` ([Effect](#type-Effect)); `clip=true` clips the content to the corners. Its
+numbers are pixels: `offset` `[x, y]`, `blurRadius`, `spreadRadius` (CSS `box-shadow: 0 4px 16px` is
+`"offset":[0,4],"blurRadius":16`). `shadow=sm` (or `soft`), `shadow=md` and `shadow=lg` on a box are a drop shadow
+of that size, read as the effect it is (and printed as `effects=`); `shadow=none` is no shadow. Any other shadow is
+written out as an effect.
+
+A gradient may be worked out from the state: `gradient={p.colors}` (a list of colors, spread from the first to the
+last), `gradient=[p.c1,p.c2]` (colors read from the item), `gradient={dark ? [a,b] : [b,a]}`.
 
 ```notation
 Column w=120 h=80 fill=#FFFFFFFF effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}]

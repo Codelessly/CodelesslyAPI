@@ -10,20 +10,20 @@ Every page, then every name A to Z with the page it is on. [NOTATION.md](NOTATIO
 | Page | What is in it | Words |
 |---|---|---|
 | [NOTATION.md](NOTATION.md) | The compact notation writes a Codelessly document one node per line. | 4623 |
-| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5157 |
+| [layout.md](layout.md) | Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words. | 5351 |
 | [theme.md](theme.md) | Text, its looks and its style keys, the theme's names for colors and styles, and text direction. | 1843 |
-| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 3879 |
-| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 2114 |
+| [decoration.md](decoration.md) | Fills, gradients, borders, corners, shadows, blurs, clipping and pictures. | 3937 |
+| [paint.md](paint.md) | Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines. | 2311 |
 | [forms.md](forms.md) | Buttons, inputs, toggles, choices, pickers, chips, and forms that validate. | 13760 |
-| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 9481 |
-| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3756 |
-| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 6423 |
+| [lists.md](lists.md) | Lists over data, grids, tables, paged views, reordering and swipe actions. | 9813 |
+| [state.md](state.md) | Variables, formula variables and functions, bindings, and every formula function. | 3884 |
+| [events.md](events.md) | Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb. | 6709 |
 | [interaction.md](interaction.md) | Gestures, hover and press looks, focus, tooltips, drag and drop, swipes and pinches. | 3663 |
-| [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 4693 |
+| [animation.md](animation.md) | Entrances and loops (`animate=`), animations with tracks, transitions of a changing value, and the motion keys. | 4729 |
 | [charts.md](charts.md) | Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes. | 9162 |
 | [responsive.md](responsive.md) | A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states. | 4106 |
-| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 4936 |
-| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 2922 |
+| [navigation.md](navigation.md) | Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs. | 4978 |
+| [components.md](components.md) | Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree. | 3112 |
 | [design-systems.md](design-systems.md) | A design system's components and words, and words defined in the text (`define`). | 1001 |
 | [site.md](site.md) | A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries. | 1272 |
 | [document.md](document.md) | What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples. | 985 |

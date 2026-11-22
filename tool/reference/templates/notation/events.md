@@ -41,7 +41,32 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 
 {{triggers}}
 
+## Once the page opens, and once an overlay closes
+
+`on load={…}` on a line of its own at the margin (beside the `state`, `every` and `key` lines) runs its actions once
+when the page appears: `on load={day=todayNumber; view="month"}` sets what a formula cannot (a state that is also
+set by hand later). It has run when the page is first shown.
+
+`onClose={…}` on an overlay's line (`Sheet#story "Story" onClose={read=append(read,cur.id)}`, a Dialog, a Drawer, a
+Menu, a Popover) runs once it has closed, however it was closed, wherever the page opens it: it is what follows
+`open story` in the chain that opens it, written once.
+
+## A press as it starts and as it ends
+
+`onPointerDown={…}` runs as a press starts on a line and `onPointerUp={…}` as it ends; `onPressStart`, `onPressDown`
+and `onMouseDown` are read as the first, `onPressEnd`, `onPressUp`, `onRelease` and `onMouseUp` as the second (a
+story paused while a finger is down: `Stack onPressStart={paused=true} onPressEnd={paused=false}`). `onHold={…}`
+runs once a press has been held; `onLongPress` is the platform's long press.
+
+Hold to repeat (a stepper that keeps counting while its button is held) is a press that sets a state and a timer
+that runs while it holds: `Button "+" onPointerDown={held=true} onPointerUp={held=false} onTap={n=n+1}` with
+`every 120 when held onTick={n=n+1}` at the margin.
+
 ## Actions
+
+`setThemeMode dark` (`light`, `system`) sets the site's colors; the mode may be worked out, with or without braces:
+`setThemeMode result ? dark : light` on a Toggle, `setThemeMode lower(result)` on a Select of "Light" and "Dark".
+
 
 Actions are separated by `;`. A verb says a common action in a word; any action is its type and its fields by
 name, each value as on a line (a number, a word, `"text"` in which `{x}` reads a value, `{expression}`, JSON).

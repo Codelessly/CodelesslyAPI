@@ -566,7 +566,7 @@ void main() {
         ({'ignorePointer': true}, 'ignorePointer=true'),
         ({'floating': true}, 'floating=true'),
         ({'reorderHandle': true}, 'reorderHandle=true'),
-        ({'motion': {'rotate': 90, 'translateX': -5}}, 'motion.rotate=90 motion.translateX=-5'),
+        ({'motion': {'rotate': 90, 'translateX': -5}}, 'rotate=90 translateX=-5'),
         ({'focusGroup': {'typeAhead': true}}, 'focusGroup.typeAhead=true'),
         ({'form': {'autovalidateMode': 'onUnfocus'}}, 'form.autovalidateMode=onUnfocus'),
       ]) {

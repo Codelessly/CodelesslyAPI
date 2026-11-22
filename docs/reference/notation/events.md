@@ -117,8 +117,35 @@ Every trigger takes these fields (each one's doc says which triggers read it):
 | <a id="trigger-actionError"></a>`onActionError` | `actionError` | 2 | On the current canvas: a failed action chain or cloud subscription. `${result.error}` is `{type, message, action, nodeId}` (no stack or raw service objects). A failure in this reaction reports to the host without recursively firing another actionError reaction. |
 | <a id="trigger-event"></a>`onEvent` | `event` | 3 | On a component call: the component fired its event `Trigger.event` (a `componentEvent` action inside its definition); `${result}` is the event's payload. Flutter: the callback passed to a widget's `onChanged`-style parameter. The handler runs in the caller's scope. |
 
+<a id="events-once-the-page-opens-and-once-an-overlay-closes"></a>
+## Once the page opens, and once an overlay closes
+
+`on load={…}` on a line of its own at the margin (beside the `state`, `every` and `key` lines) runs its actions once
+when the page appears: `on load={day=todayNumber; view="month"}` sets what a formula cannot (a state that is also
+set by hand later). It has run when the page is first shown.
+
+`onClose={…}` on an overlay's line (`Sheet#story "Story" onClose={read=append(read,cur.id)}`, a Dialog, a Drawer, a
+Menu, a Popover) runs once it has closed, however it was closed, wherever the page opens it: it is what follows
+`open story` in the chain that opens it, written once.
+
+<a id="events-a-press-as-it-starts-and-as-it-ends"></a>
+## A press as it starts and as it ends
+
+`onPointerDown={…}` runs as a press starts on a line and `onPointerUp={…}` as it ends; `onPressStart`, `onPressDown`
+and `onMouseDown` are read as the first, `onPressEnd`, `onPressUp`, `onRelease` and `onMouseUp` as the second (a
+story paused while a finger is down: `Stack onPressStart={paused=true} onPressEnd={paused=false}`). `onHold={…}`
+runs once a press has been held; `onLongPress` is the platform's long press.
+
+Hold to repeat (a stepper that keeps counting while its button is held) is a press that sets a state and a timer
+that runs while it holds: `Button "+" onPointerDown={held=true} onPointerUp={held=false} onTap={n=n+1}` with
+`every 120 when held onTick={n=n+1}` at the margin.
+
 <a id="events-actions"></a>
 ## Actions
+
+`setThemeMode dark` (`light`, `system`) sets the site's colors; the mode may be worked out, with or without braces:
+`setThemeMode result ? dark : light` on a Toggle, `setThemeMode lower(result)` on a Select of "Light" and "Dark".
+
 
 Actions are separated by `;`. A verb says a common action in a word; any action is its type and its fields by
 name, each value as on a line (a number, a word, `"text"` in which `{x}` reads a value, `{expression}`, JSON).
@@ -544,6 +571,7 @@ Written `scrollTo node=… item=…`; the verb: `scroll pricing`. Level 2.
 |---|---|---|---|
 | `node` | text | `""` | The node to reveal: its id, or an expression giving one (`"cmp-col-${cmpCol + 1}"`). A node that is not on screen when the action runs is reported as an action error, not skipped silently. |
 | `item` | text | `""` | For a repeated node: the key (or index) of the list item whose copy to reveal. |
+| `index` | text | `""` | For a repeated node: the position (from 0) of the copy to reveal, an expression, whatever the items' keys are (it wins over item). |
 | `durationMs` | whole number | `400` |  |
 | `curve` | text | `"easeInOut"` | A Curves name. |
 | `alignment` | number | `0` | 0: at the start of the view, 1: at the end. |

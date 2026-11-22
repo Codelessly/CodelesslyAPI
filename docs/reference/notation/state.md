@@ -45,6 +45,19 @@ state usd(n):text={'$' + round(n)}
 Text "{usd(total)}"
 ```
 
+<a id="state-values-in-a-text"></a>
+## Values in a text
+
+A text reads a value in braces: `Text "{count} of {total}"`, `Text "Hello {user.name}"`, a formula
+(`"{length(items)} items"`). A number alone in braces among the words is that number (`"Count {0}"` shows
+`Count 0`). `\{` and `\}` are the braces themselves, read as no value: `Text "Write \{name\} where the name
+goes"` shows `Write {name} where the name goes`.
+
+A state is not named `data`, `route`, `storage`, `screen`, `theme`, `auth`, `drag`, `perf`, `script`, `speech` or
+`device`: the runtime gives every formula those names. A state may have the name of a word of a line (`top`, `end`,
+`center`): the word keeps its meaning where a word goes (`Row end`, `border-top=`), and the state is read where a
+value is (`{end}`, `w={top}`).
+
 <a id="state-bindings"></a>
 ## Bindings
 
