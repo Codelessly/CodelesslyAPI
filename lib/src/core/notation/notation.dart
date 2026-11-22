@@ -7450,8 +7450,13 @@ class _Parser {
             // contents beside an article, an order summary).
             // A bar across the top (SiteNav, a TopBar, a Header, a site's
             // Masthead or Mast: test 10, a 16 px gap above it) stays at the
-            // very top.
-            node['sticky'] = {'offset': RegExp(r'(Nav|Bar|Header|Head|Mast|Masthead)$').hasMatch(written) ? 0 : 16};
+            // very top. So does what is stacked in a column or a list over
+            // what scrolls under it (a month's heading over its grid of
+            // photos: 16 px down from the top it covered the first row's top
+            // and drew its hairline across the tiles, test 17). What is
+            // beside the content (a rail in a row) keeps 16 px of air.
+            final stacked = parent?.type == 'column' || parent?.type == 'listView';
+            node['sticky'] = {'offset': stacked || RegExp(r'(Nav|Bar|Header|Head|Mast|Masthead)$').hasMatch(written) ? 0 : 16};
           } else if (word == 'disabled' && component && spec.props.any((p) => p.key == 'disabled' && p.type.kind == PropKind.list)) {
             // `ChoiceChips disabled`: off as a whole (its own disabled lists the options that are off).
             bind['disabled'] = _formula('true');
@@ -9881,8 +9886,10 @@ class _Parser {
       props.putIfAbsent('borderRadius', () => options.progress['borderRadius'] ?? 2);
     }
     // A DataTable is a table of the theme: rows and headers a finger can
-    // press, as wide as its place, sorted from its headers, 320 tall unless
-    // it says (it scrolls in that).
+    // press, as wide as its place, sorted from its headers, as tall as its
+    // rows up to 320 unless it says (more rows scroll in that; it was 320
+    // whatever its rows, so a table of three had 130 px of nothing under
+    // them: test 17, docs and nonprofit).
     if (ours && written == 'DataTable') {
       // Under a theme that has a table's looks (a design system's header
       // band): the rows, the header and the lines of its `Table`, so the
@@ -9894,7 +9901,12 @@ class _Parser {
       props.putIfAbsent('sortable', () => true);
       props.putIfAbsent('gridLineColor', () => themed ? options.line : options.track);
       if (themed) props.putIfAbsent('headerColor', () => options.band);
-      layout.putIfAbsent('height', () => 320);
+      if (!layout.containsKey('height')) {
+        layout['height'] = {'hug': 0};
+        if (readMap(layout['constraints'])?['maxHeight'] == null) {
+          layout['constraints'] = {...?readMap(layout['constraints']), 'maxHeight': 320};
+        }
+      }
       // (Rows or columns that were written and refused are said where they
       // are written: the line is not said a second time to want them.)
       final wroteBoth = RegExp(r'(^|\s)rows=').hasMatch(line) && RegExp(r'(^|\s)columns=').hasMatch(line);
@@ -9989,6 +10001,27 @@ class _Parser {
       final along = vertical ? 'width' : 'height';
       final across = (vertical && parent.type == 'column') || (!vertical && parent.type == 'row');
       if (across && (layout[along] == null || (layout[along] is Map && (layout[along] as Map).containsKey('hug')))) layout[along] = {'fill': 0};
+    }
+    // A pane of a row that has a height of its own (a row that grows, fills
+    // or is sized: an app's panes side by side) is as tall as the row where
+    // it says no height: under a row that says `stretch` every Column, Row,
+    // Box or Stack is (a child that hugs across a stretching row of a set
+    // height keeps its content's height, so the pane's fill and hairline
+    // stopped under its last line: test 17, mail); and under any such row a
+    // Column that scrolls is (a scroll as tall as its content never
+    // scrolls, and its hairline stopped under its last row: notes).
+    if (parent?.type == 'row' &&
+        !cell &&
+        const {'column', 'row', 'flex', 'stack', 'container'}.contains(type) &&
+        !component &&
+        (layout['height'] == null || (layout['height'] is Map && (layout['height'] as Map).containsKey('hug'))) &&
+        !namedOnLine.any((k) => k == 'h' || k == 'height' || k == 'layout.height' || k == 'ratio' || k == 'aspectRatio')) {
+      final row = nodes[parent!.id];
+      final rowHeight = (row?['layout'] as Map?)?['height'];
+      final sized = rowHeight is num || (rowHeight is Map && rowHeight.containsKey('fill'));
+      final stretches = _crossWritten.contains(parent.id) && (row?['props'] as Map?)?['crossAxisAlignment'] == 'stretch';
+      final scrolls = type == 'column' && props['scrollable'] == true;
+      if (sized && (stretches || scrolls)) layout['height'] = {'fill': 0};
     }
     // On a page, cards side by side are one row of panels: equally tall.
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
@@ -11192,7 +11225,9 @@ class _Parser {
         'type': 'text',
         // In a tile's slot a text is as wide as it is; an accordion's header fills it.
         'layout': {'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'text': texts[i], if (styled != null) 'style': styled},
+        // (A Badge's label is one line: its pill has one line's height, and a
+        // row with no room narrowed it to "★ 4." before the heading beside it.)
+        'props': {'text': texts[i], if (styled != null) 'style': styled, if (_textStyle != null) 'maxLines': 1},
         if (bound || _textColor != null) 'bind': {'props.style.color': _textColor ?? _namedIn(_read(ink!.substring(1).trim()), 'text')},
       };
       _parentOf[tid] = id;

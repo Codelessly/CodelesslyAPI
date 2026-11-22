@@ -3784,7 +3784,9 @@ Page
       {'key': 'name', 'label': 'Customer'},
       {'key': 'count', 'label': 'Incidents'},
     ]);
-    expect((table['layout'] as Map)['height'], 320);
+    // As tall as its rows, up to 320.
+    expect((table['layout'] as Map)['height'], {'hug': 0});
+    expect(((table['layout'] as Map)['constraints'] as Map)['maxHeight'], 320);
     expect(table['slots'], {'cell': 'incidentsCell', 'columnHeader': 'incidentsHeader'});
     expect(_node(r, 'incidentsCell')['props'], containsPair('text', r'${item.value}'));
     expect(_node(r, 'incidentsHeader')['props'], containsPair('text', r'${item.label}'));
