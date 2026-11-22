@@ -198,6 +198,18 @@ void main() {
     }
   });
 
+  test('an ink named after the accent (primaryText) in the accent\'s hue is the site\'s ink, with a site primary too', () {
+    final cards = ThemeTokens.fromJson({
+      'primary': '#FF2563EB',
+      'surface': '#FFFFFFFF',
+      'onSurface': '#FF111827',
+      'colors': {'page': '#FFF3F4F6', 'primaryText': '#FF111827', 'ink': '#FF111827'},
+    });
+    final t = cards.withSiteTheme(ThemeTokens.fromJson({'surface': '#FFF6EFE1', 'primary': '#FF7A4A2A', 'onSurface': '#FF2A2620'}));
+    expect(_h(t, 'primaryText'), '#FF2A2620');
+    expect(_h(t, 'ink'), '#FF2A2620');
+  });
+
   test('a color the site names itself is the site\'s', () {
     final t = _desk.withSiteTheme(ThemeTokens.fromJson({
       'surface': '#FFFAF4E6',

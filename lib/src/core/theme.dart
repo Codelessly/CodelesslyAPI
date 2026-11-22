@@ -405,6 +405,11 @@ final class ThemeTokens {
           if (c.name != null || given.colors.containsKey(e.key) || _notOfTheGround(e.key)) continue;
           if (regrounds && groundNames.contains(e.key)) {
             colors[e.key] = toG.toJson();
+          } else if (inkNames.contains(e.key) && ref.color(e.key)?.value == i.value) {
+            // The design system's ink under a name of its own is the ink,
+            // whatever the accent made of it on the way (a blue-black
+            // `primaryText` beside a blue `primary` reads as its shade).
+            colors[e.key] = toI.toJson();
           } else if (_neutral(c, g, i)) {
             var to = _regrounded(c, g, i, toG, toI);
             // An ink that read on the design system's ground (4.5 to 1)
