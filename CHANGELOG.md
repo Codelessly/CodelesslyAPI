@@ -1,3 +1,123 @@
+## 42.0.0
+
+A major version: a site's theme now reaches every part of its design system, a website's page has its own type
+scale, and a few lines size or place themselves differently. Read "Reads differently" before upgrading. New: an
+app's shared state in `app.txt`, a site with no `site.json`, a word's own design at a width, a site that is dark,
+a picture on a page's band, and many lines writers reach for that are now read as written. With CodelesslySDK
+42.0.0.
+
+### Reads differently
+
+Theme:
+
+- **A site's surface and ink reach every neutral of its design system.** A design system's cards, bands, page
+  ground, hairlines and muted inks are worked out from the site's `colors`; they kept the design system's own
+  greys under a site's accent. A site whose surface is dark takes the design system's dark side, and what is in
+  or on the accent (washes, tints, the text on a filled button) is in an ink that reads there.
+- **A text under a `Page`** takes the theme's page styles (`heading1Page` beside `heading1`, and so on) where the
+  theme has them: a website's display scale. It took the app scale.
+- **Texts on a dark band, a picture or the accent** are in the ink that reads there; they kept the page's ink.
+
+Layout:
+
+- **A `sticky` line stacked in a column or a list** is pinned at the very top; it was pinned 16 px down, over the
+  top of what follows it. What is beside the content (a rail in a row) keeps 16.
+- **A `DataTable` with no height** is as tall as its rows, up to 320; it was 320 whatever it held. In a theme
+  with table looks it takes them.
+- **A `Sidebar` at a tablet's width.** With `sizes.rail` in the theme it becomes a rail only when every line
+  under it folds by itself (a component with a `rail` parameter, a `Spacer` or `Divider`, a line with its own
+  rule at that width). A sidebar with hand-written lines that take a tap becomes the drawer; one that only shows
+  something stays as wide as written. A line that only shows something is hidden in a rail.
+- **The panes of a row that has a height** are as tall as the row: under a row that says `stretch`, every
+  `Column`, `Row`, `Box` or `Stack` with no height of its own fills it, and a `Column` that scrolls does under
+  any row with a height. A pane's fill and hairline stopped under its last line.
+- **A list's row with no room on a phone wraps**: where what keeps its width leaves what grows less than it can
+  be read at (a field at 120, a column of text at 120), the row wraps there. A table's row keeps its first
+  column, and a badge is one line. On a tablet a bar with no room for its line wraps, and a repeated grid beside
+  something of a fixed width has a column fewer while its cells would be under 160.
+- **A `Table` written directly under a component that is itself `flush`** is flush with nothing written; a
+  border inside the frame's drew two rules under its head.
+- **A section with no headline under a page's bar** has half the space above it; a grid of picture tiles folds
+  to fewer columns on a narrow width.
+- **A `DataTable` under a theme with a table's header band** draws rules under its rows only, as the theme's
+  `Table` does; `columnLines=true` brings the lines between columns back.
+- **Panes written as a row** (fixed-width columns and one that grows) whose own width rules are a phone's only:
+  on a tablet, when the pane that grows would be narrower than 320, the first pane and its splitter are hidden.
+- **Texts on a light band under a theme whose ground is dark** take a dark ink; under `"mode": "dark"` a band
+  filled by a colour name is judged by its dark-side value.
+- **A line under a word that takes none** (`Divider`, `Handle`, `Text`, `Button`) is said and drawn after it;
+  outside a design system's blocks it was kept as a child without a word.
+
+Values:
+
+- **A worked-out state named like a word of a line** (`top`, `end`, `center`) is no longer pasted into that
+  word: a key of several words (`border-top=`), a flag (`Row end`) and the name an `each` gives its item keep
+  their meaning.
+- **A worked-out value read by a `key`, an `every` or an `on load` line** is written out there; it was left as a
+  bare name, so the key never acted.
+- **A definition that writes its tree and, at its margin, overlays with ids** is one root with its overlays
+  beside it; it was several lines side by side in a column of their own.
+- **`state name={…}` is a formula for any expression in braces** (`{cur % 12}`, `{a}`, `{-a}`, `{a != b}`).
+  `state m={cur%12}` was the text "cur%12" and `state b={a}` copied a's start value; a text is written in
+  quotes (`state title={Untitled}` now reads a value named `Untitled`).
+- **Braces inside a formula group**, so a definition's parameter is read there whether written `id` or `{id}`
+  (`filter(listings, x => x.id == {id})`); it was a formula that did not parse, and the list was empty.
+- **A function's own parameter** (`top => top.a`) is the function's beside a state or an `each` item of the same
+  name, and a name that is called (`count(…)`) is the formula function beside a state of that name; both were
+  replaced by the state.
+- **`ok ? a=1; b=2 : toast "No"`** is one choice whose first branch is both actions; the second action always
+  ran and the else was not read.
+- **A function with no type whose formula starts with a date function** (`today(`, `now(`, `addDays(`) is
+  text; it was a decimal.
+
+### New
+
+- **`app.txt`: an app's shared state.** A site of notation files may hold `app.txt` beside `pages/` and
+  `components/`: state lines exactly as a page writes them, read and set by every page and component by name
+  (`readNotationAppState`, `notationBuiltManifest`). A site needs no `site.json`: its pages are shown home first,
+  then by name.
+- **A word's own design at a width.** A definition may write `at <width>` blocks under any of its node lines, as
+  a page does. Where an app's `Sidebar` is a rail, each component under it that declares a `rail` parameter has
+  it true.
+- **A site that is dark**: `"mode": "dark"` in a site's theme. `colors.selectedRow` is the fill of a chosen row
+  (a `Table` with `select=`, a selectable list's row, a line written `selected={…}`), and `colors.card` a card's
+  ground.
+- **`Section image=`**: a page's band takes a picture.
+- **A calendar's week start**: `weekStart` on `calendar` (`monday` … `sunday`; empty is the locale's). In the
+  notation, `Calendar @day weekStart=monday`.
+- **A table's column lines**: `columnLines` on `tableView` (default true); false rules the rows only.
+- **`scrollTo index=`**: an id on each copy of an `each` (`id={m.name}`) that a scroll reaches by the copy's
+  position.
+- **Read as written**: a word of a line given a condition (`Row end={m.mine}`); a string of a signature with a
+  default (`define Nav "current"=home`); `if`, `else` and `each` among a drawing's lines; an overlay's
+  `onClose`; `onPressStart`, `onPressEnd` and `onRelease`; `scale=`, `rotate=`, `translateX=` and `translateY=`
+  as a line's motion; `shadow=sm|md|lg`; `pad=` and `gap=` on a following `each`; a whole item passed bare
+  (`r=r`); `setThemeMode` with its mode worked out; a number alone in braces in a text, and `\{ \}` as the braces
+  themselves; `Handle icon=`; `menu=none`; a list with a comma after its last item, left open over many lines;
+  a braced subtraction; a function of the state with no type; a range slider on two fields of an `each`'s item;
+  a control bound to a field of the record at a place of a list; a gradient from a list of the state; a table of
+  records written on its line; a reorder stored on the `each`'s line or written back into its record; a value
+  given to a word of the writer's own after its texts, or to a word not written yet.
+- **Said with what to write**: a variant chosen by a condition, a size on a `customPaint` line, a repeat that
+  draws the same shapes every time, `follow` on a `Column`, an id written after a flag, a signature's part that
+  is no name, a reorder that cannot be stored, a type the notation has not, and what a theme cannot read, each
+  with its file and line.
+- **Refusals say the line to write**: a line under a word that takes none (`Handle icon="grip"`), a list given by
+  a key (`each r in routes` under `Pages`), a place in the Tab order, a draw op's point or rectangle in one key
+  (`c=[x,y]`), a parameter or a text a definition does not name (with the definition's first line), an action
+  the notation does not have, an overlay at the margin of a definitions file, and setting a worked-out state that
+  reads no state (`state day={today()}`: give it a start value and set it in `on load`).
+  `VocabularyUse.say` carries what to write in place of a word that stood in.
+- **`NotationOptions.darkGround`**: whether the ground a site opens on is dark.
+- **`notationUndeclaredNames`** lists only what the app's files name: not a name the page states, one the
+  expansion made itself, or an `each`'s item handed to a word. With `drawing:`, names read only inside a
+  `customPaint` are answered apart.
+- **`notationPrompt`** teaches `app.txt` and the order of an app's files, the theme after the first page, a dark
+  app, the date functions, `on load`, reserved state names, `at <width>` in a definition, and the forms above.
+  A drawing's `rect=[left,top,width,height]` example reads one way only, and a dark app is `"mode": "dark"`
+  with its dark colours.
+- **The reference generator and the package's tests run on a Windows checkout** (CRLF line endings).
+
 ## 41.1.0
 
 An app of several screens read in memory as a site of files, and each node traced back to the line that wrote it.
