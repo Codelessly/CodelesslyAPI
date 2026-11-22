@@ -28,9 +28,8 @@ every 1s onTick={count=count+1}
   included: an `if` and its `else` that each draw a close button give them two ids, or write one line whose
   values are worked out (`label={open ? "Hide" : "Show"}`).
 - **`state`** declares a variable of the screen ([state.md](state.md)); `saved` keeps it on the device.
-- **`project name=value`** reads and sets a variable of the whole site (declared in site.json) by name. The whole
-  manifest (pages, variables kept with `persist`, the theme's colors, styles, spacing and radii) is on
-  [site.md](site.md).
+- **`project name=value`** reads and sets a variable of the whole site (declared in its app.txt) by name. A
+  site's files (the shared state, the manifest's pages and theme) are on [site.md](site.md).
 - **`every <interval> [when cond] onTick={…}`** and **`key <keys> [when cond] onPress={…}`**: a timer and a
   shortcut of the screen (`mod` is Ctrl, or ⌘ on a Mac).
 

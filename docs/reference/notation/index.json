@@ -2,7 +2,7 @@
   "version": "41.1.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4611
+    "words": 4623
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4611
+      "words": 4623
     },
     {
       "topic": "notation-a-line",
@@ -95,7 +95,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-the-references",
       "title": "The references",
-      "words": 1013
+      "words": 1025
     },
     {
       "topic": "layout",
@@ -508,14 +508,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3752
+      "words": 3756
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 302
+      "words": 306
     },
     {
       "topic": "state-bindings",
@@ -837,14 +837,14 @@
       "anchor": "page-components",
       "title": "Components",
       "summary": "Calling a component, and writing one: its head (`component`, `param`, `event`, `slot`, `preview` lines) and its tree.",
-      "words": 2912
+      "words": 2922
     },
     {
       "topic": "components-calling-one",
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 583
+      "words": 593
     },
     {
       "topic": "components-the-shorthand-words-of-earlier-versions",
@@ -915,8 +915,22 @@
       "file": "site.md",
       "anchor": "page-site",
       "title": "The site",
-      "summary": "The site's manifest, `site.json`: its pages, its variables (and which are kept on the device), its theme (colors, text styles, spacing, radii, dark colors), its fonts, its design system and its dictionaries.",
-      "words": 635
+      "summary": "A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries.",
+      "words": 1272
+    },
+    {
+      "topic": "site-the-files",
+      "file": "site.md",
+      "anchor": "site-the-files",
+      "title": "The files",
+      "words": 186
+    },
+    {
+      "topic": "site-shared-state-app-txt",
+      "file": "site.md",
+      "anchor": "site-shared-state-app-txt",
+      "title": "Shared state: app.txt",
+      "words": 309
     },
     {
       "topic": "site-a-whole-manifest",
@@ -930,7 +944,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 436
+      "words": 568
     },
     {
       "topic": "document",
@@ -938,14 +952,14 @@
       "anchor": "page-document",
       "title": "The document",
       "summary": "What is not a node's line: the canvas line, variables of the screen and of the site, timers and shortcuts, other canvases, the fields of every node, and the base's examples.",
-      "words": 988
+      "words": 985
     },
     {
       "topic": "document-the-order-of-a-document",
       "file": "document.md",
       "anchor": "document-the-order-of-a-document",
       "title": "The order of a document",
-      "words": 263
+      "words": 260
     },
     {
       "topic": "document-fields-of-every-node",

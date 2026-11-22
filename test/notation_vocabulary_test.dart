@@ -742,7 +742,6 @@ ${blocks.join('\n')}
       for (final said in [
         notationPaintLines,
         notationAtPhoneLines,
-        'state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c))',
         'Icon "{c.icon}", never Icon c.icon',
         'Text "{\'if (x) { y }\'}"',
         'take items=["A","B"] and keep the chosen one in @name',
@@ -751,6 +750,12 @@ ${blocks.join('\n')}
         expect(page, contains(said), reason: said);
         expect(taught(1280), isNot(contains(said)), reason: said);
       }
+      // A function of the writer's own: the taught page says it too (a
+      // computed value was looked up before the first write, round 16).
+      const own = 'state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c))';
+      expect(page, contains(own));
+      expect(taught(1280), contains(own));
+      expect(taught(390), isNot(contains(own)));
       // The at phone lines are where rows side by side are taught.
       expect(page.indexOf(notationAtPhoneLines), greaterThan(page.indexOf('  Side by side: Row gap=32')));
       expect(page.indexOf(notationAtPhoneLines), lessThan(page.indexOf('  Tablets and phones:')));

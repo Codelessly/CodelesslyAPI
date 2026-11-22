@@ -52,6 +52,205 @@ typedef NotationSiteProblem = ({String path, int? line, String message});
 /// The path of a site's manifest as a project keeps it (at its root).
 const String notationSiteManifestPath = 'site.json';
 
+/// The path of an app's state file as a project keeps it (at its root,
+/// beside `pages/` and `components/`): the state every page and component
+/// shares, as `state` lines ([readNotationAppState]).
+const String notationAppStatePath = 'app.txt';
+
+/// The key of a manifest that says what `expand` wrote in it: `{"all":
+/// true}` for a manifest written whole (the site has none of its own), or
+/// `{"variables": [names]}` for the variables written from app.txt into the
+/// site's own manifest. What it names is not the site's source.
+const String notationBuiltKey = 'expand';
+
+/// [manifest] (a site.json as read) as the site's source: without what
+/// `expand` wrote in it ([notationBuiltKey]). Null when all of it was (the
+/// site has no manifest of its own).
+Json? notationSourceManifest(Json manifest) {
+  final built = readMap(manifest[notationBuiltKey]);
+  if (built == null) return manifest;
+  if (built['all'] == true) return null;
+  final names = readStrings(built['variables']).toSet();
+  final out = {...manifest}..remove(notationBuiltKey);
+  final variables = manifest['variables'];
+  if (variables is List) {
+    out['variables'] = [
+      for (final v in variables)
+        if (!(v is Map && names.contains(v['name']))) v,
+    ];
+  } else if (variables is Map) {
+    out['variables'] = <String, Object?>{
+      for (final e in variables.entries)
+        if (!names.contains(e.key)) '${e.key}': e.value,
+    };
+  }
+  return out;
+}
+
+/// The manifest `expand` writes for a site whose shared state is in
+/// app.txt, which a render reads its variables from: [source] (the site's
+/// own manifest; null: none, and the manifest lists [pages], the page ids in
+/// order) with [appVariables] (app.txt's, as
+/// [NotationSiteFiles.appVariables]) among its variables, marked as written
+/// ([notationBuiltKey]). Null when there is nothing to write: a manifest of
+/// the site's own and no state in app.txt.
+Json? notationBuiltManifest({required Json? source, required List<String> pages, required Map<String, Json> appVariables}) {
+  Json record(Json v) => {
+        for (final k in const ['type', 'value', 'formula', 'parameters', 'options', 'persist'])
+          if (v.containsKey(k)) k: v[k],
+        if (!v.containsKey('value') && !v.containsKey('formula')) 'value': null,
+      };
+  final declared = {
+    for (final e in appVariables.entries)
+      if (!e.value.containsKey(notationInlineFormulaKey)) e.key: record(e.value),
+  };
+  if (source == null) {
+    return {
+      'schema': 3,
+      'pages': [for (final p in pages) '$p.json'],
+      if (declared.isNotEmpty) 'variables': declared,
+      notationBuiltKey: {'all': true},
+    };
+  }
+  if (declared.isEmpty) return null;
+  final own = source['variables'];
+  return {
+    ...source,
+    'variables': own is List
+        ? [
+            ...own,
+            for (final e in declared.entries) {'name': e.key, ...e.value},
+          ]
+        : {...?readMap(own), ...declared},
+    notationBuiltKey: {'variables': declared.keys.toList()},
+  };
+}
+
+/// The page ids [names] in the order a site with no listed pages shows
+/// them: `home` first, then the others by name.
+List<String> notationPageOrder(Iterable<String> names) {
+  final rest = names.toSet().toList()..sort();
+  return [if (rest.remove('home')) 'home', ...rest];
+}
+
+/// The variables a site's pages read: the manifest's ([manifestVariables],
+/// its `variables` as written) and app.txt's ([app], null: no such file),
+/// as [NotationOptions.projectVariables] takes them. A name both declare is
+/// app.txt's, and said in [say] at its line of app.txt.
+Map<String, Json> notationSiteVariables(Object? manifestVariables, NotationAppState? app, {void Function(int line, String message)? say}) {
+  final out = <String, Json>{
+    for (final v in Variable.declarationsFromJson(manifestVariables)) v.name: {'type': v.type.name, ...v.toJson()},
+  };
+  if (app == null) return out;
+  for (final e in app.variables.entries) {
+    if (out.containsKey(e.key)) {
+      say?.call(
+        app.lines[e.key] ?? 1,
+        '${e.key} is declared here and in site.json\'s variables: one name is one value. This one is used; take "${e.key}" out of site.json.',
+      );
+    }
+    if (e.value.containsKey(notationInlineFormulaKey)) {
+      out[e.key] = e.value;
+    } else if (Variable.fromJson({...e.value, 'name': e.key}) case final v?) {
+      out[e.key] = {'type': v.type.name, ...v.toJson()};
+    }
+  }
+  return out;
+}
+
+/// The names [document] (a page or a component as expanded) reads, sets or
+/// binds in its expressions that [known] does not hold and the document
+/// does not declare with a line of its own ([text] is its notation: a name
+/// with a `state` line there is declared): what the app's state file still
+/// has to declare for the page to show it. In the order first read.
+///
+/// It reads the expressions as text, so it is a list to go by, not a
+/// check: a loop's item, a formula's own parameter, a field after a dot, a
+/// function and the runtime's names are left out.
+List<String> notationUndeclaredNames(Json document, {required String text, Set<String> known = const {}}) {
+  final stated = <String>{
+    for (final m in RegExp(r'^[ \t]*(?:state|let|derived|const|var|project)\s+([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(text)) m[1]!,
+    for (final m in RegExp(r'^([a-z_][A-Za-z0-9_]*)\s*=(?!=)', multiLine: true).allMatches(text)) m[1]!,
+    for (final m in RegExp(r'^[ \t]*param\s+([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(text)) m[1]!,
+  };
+  final declared = <String>{};
+  final made = <String>{};
+  for (final scope in (readMap(document['variables']) ?? const {}).values) {
+    for (final v in readList(scope) ?? const []) {
+      final name = readString(readMap(v)?['name']);
+      if (name == null) continue;
+      // One the document declares that no line states was made for a name
+      // the text sets or binds: it is still to be declared.
+      (stated.contains(name) ? declared : made).add(name);
+    }
+  }
+  final out = <String>{};
+  bool skip(String name) =>
+      known.contains(name) || declared.contains(name) || _notNames.contains(name) || !RegExp(r'^[a-z_]').hasMatch(name);
+  void read(String expression) {
+    final code = expression.replaceAll(RegExp('"(?:[^"\\\\]|\\\\.)*"|\'(?:[^\'\\\\]|\\\\.)*\''), '""');
+    final own = <String>{
+      for (final m in RegExp(r'([A-Za-z_][A-Za-z0-9_]*)\s*=>').allMatches(code)) m[1]!,
+      for (final m in RegExp(r'\(([A-Za-z_][A-Za-z0-9_,\s]*)\)\s*=>').allMatches(code)) ...m[1]!.split(',').map((p) => p.trim()),
+    };
+    for (final m in RegExp(r'(?<![A-Za-z0-9_.$#"])([A-Za-z_][A-Za-z0-9_]*)(?![A-Za-z0-9_])').allMatches(code)) {
+      final name = m[1]!;
+      final after = code.substring(m.end).trimLeft();
+      if (after.startsWith('(') || own.contains(name) || skip(name)) continue;
+      // A record's key (`{merchant: draft}`) is a name, not a value.
+      final before = code.substring(0, m.start).trimRight();
+      if ((before.endsWith('{') || before.endsWith(',')) && RegExp(r'^:(?!:)').hasMatch(after) && !before.endsWith('?')) continue;
+      out.add(name);
+    }
+  }
+
+  void walk(Object? json) {
+    if (json is String) {
+      var at = 0;
+      while (true) {
+        final start = json.indexOf(r'${', at);
+        if (start < 0) break;
+        var depth = 0, end = -1;
+        for (var i = start + 1; i < json.length; i++) {
+          if (json[i] == '{') depth++;
+          if (json[i] == '}' && --depth == 0) {
+            end = i;
+            break;
+          }
+        }
+        if (end < 0) break;
+        final inner = json.substring(start + 2, end).trim();
+        read(inner.startsWith('=') ? inner.substring(1) : inner);
+        at = end + 1;
+      }
+    } else if (json is List) {
+      json.forEach(walk);
+    } else if (json is Map) {
+      if (json['type'] == 'setVariable' && json['variable'] is String) {
+        final name = (json['variable'] as String).split('.').first.split('[').first;
+        if (!skip(name)) out.add(name);
+      }
+      json.values.forEach(walk);
+    }
+  }
+
+  walk(document['nodes']);
+  for (final name in made) {
+    if (!skip(name) && _mentions(text, name)) out.add(name);
+  }
+  return out.toList();
+}
+
+bool _mentions(String text, String name) => RegExp('(?<![A-Za-z0-9_.])${RegExp.escape(name)}(?![A-Za-z0-9_])').hasMatch(text);
+
+/// What an expression names that is no variable: its words, and the names
+/// the runtime gives every expression or a node gives what is in it.
+const Set<String> _notNames = {
+  'true', 'false', 'null', 'in', 'and', 'or', 'not', 'is', 'if', 'else', //
+  'data', 'route', 'storage', 'screen', 'device', 'theme', 'item', 'index', 'parent', 'result', 'loop', 'auth', 'drag', 'perf', 'track', 'dismiss',
+  'pan', 'transform', 'flip', 'tilt', 'view', 'sticky', 'script', 'speech', 'pageOffset', 'form', 'params', 'props', 'event', 'value', 'navMenu',
+};
+
 /// [path] with `/` between its parts and none before the first.
 String notationSitePath(String path) => path.replaceAll(r'\', '/').replaceFirst(RegExp(r'^(\./|/)+'), '');
 
@@ -97,17 +296,44 @@ final class NotationSiteFiles {
   /// components `components/*.txt` (and `site/components/*.txt`). Any other
   /// file is not read. [catalog] says which words the notation already has
   /// (a component of such a name is said).
-  NotationSiteFiles(Map<String, String> files, {Catalog? catalog})
+  ///
+  /// The app's shared state is `app.txt` beside the pages (`site/app.txt`
+  /// beside `site/pages/`), read with [readNotationAppState];
+  /// [appStatePartial] says more of it is coming (a stream). The manifest is
+  /// read as the site's source ([notationSourceManifest]): a site needs none.
+  ///
+  /// What of the manifest's `theme` is not read (a key a theme does not
+  /// have, a color name nothing defines: [themeProblems]) is among
+  /// [problems], at its line of the manifest. [themeColors]: the color names
+  /// of the design system the site is shown under, which its theme may name.
+  NotationSiteFiles(Map<String, String> files, {Catalog? catalog, bool appStatePartial = false, Iterable<String> themeColors = const []})
       : files = {for (final e in files.entries) notationSitePath(e.key): e.value},
         _catalog = catalog ?? Catalog.current {
     final text = this.files['site/${SiteManifest.fileName}'] ?? this.files[SiteManifest.fileName];
     if (text != null && text.trim().isNotEmpty) {
       try {
-        manifest = readMap(jsonDecode(text)) ?? const {};
+        final read = readMap(jsonDecode(text)) ?? const <String, Object?>{};
+        final source = notationSourceManifest(read);
+        hasManifest = source != null;
+        manifest = source ?? const {};
+        for (final p in themeProblems(manifest['theme'], colors: themeColors)) {
+          problems.add((path: manifestPath, line: themeKeyLine(text, p.path), message: '$manifestPath ${['theme', ...p.path].join('.')}: ${p.message}'));
+        }
       } on FormatException catch (e) {
+        hasManifest = true;
         problems.add((path: manifestPath, line: null, message: '$manifestPath is not JSON (${e.message}): its variables, theme and pages were not read'));
       }
     }
+    final appPath = appStatePath;
+    final ofApp = <NotationSiteProblem>[];
+    if (appPath != null) {
+      final app = appState = readNotationAppState(this.files[appPath]!, catalog: _catalog, partial: appStatePartial);
+      for (final i in app.issues) {
+        ofApp.add((path: appPath, line: i.line, message: i.message));
+      }
+    }
+    variables = notationSiteVariables(manifest['variables'], appState, say: (line, message) => ofApp.add((path: appPath!, line: line, message: message)));
+    problems.addAll(ofApp..sort((a, b) => (a.line ?? 0) - (b.line ?? 0)));
     _readComponents();
     _checkRings();
   }
@@ -148,9 +374,48 @@ final class NotationSiteFiles {
 
   /// The site's variables by name, as [NotationOptions.projectVariables]
   /// takes them.
-  late final Map<String, Json> variables = {
-    for (final v in Variable.declarationsFromJson(manifest['variables'])) v.name: {'type': v.type.name, ...v.toJson()},
-  };
+  ///
+  /// The manifest's `variables` and app.txt's state ([notationSiteVariables]):
+  /// a name both declare is app.txt's, and a problem at its line there. A
+  /// formula with no type of app.txt is `{"inline": formula}`.
+  late final Map<String, Json> variables;
+
+  /// Whether the site has a manifest of its own (one `expand` wrote whole is
+  /// not: [notationSourceManifest]).
+  bool hasManifest = false;
+
+  /// The path of the app's state file among [files]: `app.txt` beside the
+  /// pages read, else whichever there is; null when the site has none.
+  String? get appStatePath {
+    final beside = pageSources.isNotEmpty && pageSources.first.startsWith('site/') ? 'site/$notationAppStatePath' : notationAppStatePath;
+    for (final p in [beside, notationAppStatePath, 'site/$notationAppStatePath']) {
+      if (files.containsKey(p)) return p;
+    }
+    return null;
+  }
+
+  /// What the app's state file declares; null when the site has none.
+  NotationAppState? appState;
+
+  /// app.txt's state by name, as [variables] has it; empty with no such file.
+  Map<String, Json> get appVariables => {
+        for (final name in appState?.variables.keys ?? const <String>[])
+          if (variables[name] case final v?) name: v,
+      };
+
+  /// The variables every page shares as a view's scope declares them
+  /// (`Variable.declarationsFromJson` reads it): the manifest's and
+  /// app.txt's, without app.txt's formulas with no type (those are written
+  /// out on each page that reads them).
+  List<Json> get sharedDeclarations => [
+        for (final e in variables.entries)
+          if (!e.value.containsKey(notationInlineFormulaKey)) {...e.value, 'name': e.key},
+      ];
+
+  /// The manifest a render reads this site's variables from, when it is not
+  /// the site's own as written ([notationBuiltManifest]); null: nothing to
+  /// write.
+  Json? get builtManifest => notationBuiltManifest(source: hasManifest ? manifest : null, pages: [for (final p in orderedPageSources) _stem(p)], appVariables: appVariables);
 
   /// The site's own theme (its manifest's).
   late final ThemeTokens ownTheme = ThemeTokens.fromJson(manifest['theme']);
@@ -170,16 +435,18 @@ final class NotationSiteFiles {
   late final List<String> listedScreens = [for (final p in SiteManifest.pageRefs(manifest['pages'])) _stem(p)];
 
   /// The ids of the site's pages: the ones the manifest lists, then the
-  /// ones written that it does not.
-  late final List<String> screens = {...listedScreens, for (final p in pageSources) _stem(p)}.toList();
+  /// ones written that it does not ([notationPageOrder]: `home` first, then
+  /// by name).
+  late final List<String> screens = {...listedScreens, ...notationPageOrder(pageSources.map(_stem))}.toList();
 
   /// The pages written in the notation in the order shown: the manifest's
-  /// order, then the others in file order.
+  /// order, then the others with `home` first and the rest by name (the
+  /// whole order of a site with no manifest, or one that lists no pages).
   late final List<String> orderedPageSources = () {
     final byName = {for (final p in pageSources) _stem(p): p};
     return [
       for (final s in listedScreens) ?byName.remove(s),
-      ...byName.values,
+      for (final s in notationPageOrder(byName.keys.toList())) byName[s]!,
     ];
   }();
 

@@ -16,10 +16,11 @@ names. `onTap` on a component whose press event has another name (`onPressed`, `
 name does on any line: `TaskCard … onTap={open card}` on a card whose only event is `onMenu` opens the card on a
 press anywhere on it (its menu button keeps its own press).
 
-A site's own components are known to the expander with nothing more said: a file in a site's folder (a
-`site.json` beside it or above it, as `site.json` or `site/site.json`) calls every component written in the
-notation in its `components/*.txt` and every expanded one `site.json` lists, reads the site's variables by name
-(a component that writes one does not make its own) and takes the site's theme. `tool/notation/notation.sh expand
+A site's own components are known to the expander with nothing more said: a file in a site's folder (its
+`pages/` or `components/`, or a folder with a `site.json` or an `app.txt` beside it or above it) calls every
+component written in the notation in its `components/*.txt` and every expanded one `site.json` lists, reads the
+site's shared state by name (`app.txt`'s, [site.md](site.md); a component that writes one does not make its own)
+and takes the site's theme. `tool/notation/notation.sh expand
 <site folder>` expands the whole site, each component after the ones it calls, then every page. A component named
 like a word of the notation (`Footer`, `Sidebar`, `Card`) is not called where that word is read: the expander says
 so; write `Footer type=Footer`, or give the component a name of its own (`SiteFooter`). A `components/<Name>.txt`

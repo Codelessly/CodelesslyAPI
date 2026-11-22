@@ -183,8 +183,13 @@ final class ThemeTokens {
   ///
   /// A color the site names itself, light or dark, is the site's. A site
   /// that gives its own `fontFamily` gets the design system's text styles
-  /// of its default family in that family.
-  ThemeTokens withSiteTheme(ThemeTokens site) {
+  /// of its default family in that family. Its `surface`, `onSurface`,
+  /// `titleFontFamily` and `radius` reach what the design system draws
+  /// under names of its own (its page ground, its ink, its headings, its
+  /// scale of radii): [_withSiteRoles].
+  ThemeTokens withSiteTheme(ThemeTokens site) => site.isEmpty || isEmpty ? mergedWith(site) : _withSiteRoles(_withSiteAccent(site), site);
+
+  ThemeTokens _withSiteAccent(ThemeTokens site) {
     var merged = mergedWith(site);
     if (site.isEmpty || isEmpty) return merged;
     // The site's own font: every text style of the design system written in
@@ -256,6 +261,87 @@ final class ThemeTokens {
     }
     return fromJson(mergePatch(merged.toJson(), patch));
   }
+
+  /// [merged] (these tokens, a design system's, with [site]'s over them)
+  /// with what the design system draws under names of its own made from the
+  /// site's roles, where the site gives the role and not the name:
+  ///
+  /// * `surface`, when it is not the design system's own: the ground a page
+  ///   is drawn on ([groundNames]: Cards' `page`, `pageFill` and
+  ///   `primaryBackground`), light, and dark from the site's `dark.surface`.
+  ///   A card, a tile and a raised panel keep the design system's color;
+  /// * `onSurface`: the ink ([inkNames]) where the design system's is its
+  ///   own `onSurface`;
+  /// * `titleFontFamily` (with none, `fontFamily`), where the design system
+  ///   has no title family of its own: its title and heading styles (a
+  ///   style named for one, whatever family it is written in) that the
+  ///   site does not re-family;
+  /// * `radius`: each radius of the design system's scale, in the
+  ///   proportion the site's radius has to the design system's (a pill
+  ///   stays one; `"radius": 0` squares every corner).
+  ThemeTokens _withSiteRoles(ThemeTokens merged, ThemeTokens site) {
+    Map<String, Object?> colorsOf(ThemeTokens base, ThemeTokens? given, ThemeTokens now) {
+      final out = <String, Object?>{};
+      if (given == null) return out;
+      // A surface that is the design system's own changes nothing (its page
+      // stays the grey it draws white panes on).
+      if (given.surface != null) {
+        if (now.color('surface') case final Color to when to.value != base.color('surface')?.value) {
+          for (final n in groundNames) {
+            if (base.colors.containsKey(n) && !given.colors.containsKey(n)) out[n] = to.toJson();
+          }
+        }
+      }
+      final ink = base.color('onSurface');
+      if (given.onSurface != null && ink != null) {
+        if (now.color('onSurface') case final Color to) {
+          for (final n in inkNames) {
+            if (base.color(n) case final Color c when c.value == ink.value && !given.colors.containsKey(n)) out[n] = to.toJson();
+          }
+        }
+      }
+      return out;
+    }
+
+    final light = colorsOf(this, site, merged);
+    final d = dark;
+    final night = d == null ? const <String, Object?>{} : colorsOf(forBrightness(dark: true), site.dark, merged.forBrightness(dark: true));
+    // A design system with no title family of its own may still write its
+    // headings in a second one (Cards' Inter Display): they are the site's
+    // title family, or with none given its one family.
+    final title = site.titleFontFamily ?? site.fontFamily;
+    final styles = <String, Object?>{
+      if (title != null && titleFontFamily == null)
+        for (final e in textStyles.entries)
+          if (_titleStyle.hasMatch(e.key) && e.value.fontFamily != title && site.textStyles[e.key]?.fontFamily == null) e.key: {'fontFamily': title},
+    };
+    final was = radius, to = site.radius;
+    final corners = <String, Object?>{
+      if (was != null && to != null && was > 0 && to != was)
+        for (final e in radii.entries)
+          if (e.value < 999 && !site.radii.containsKey(e.key)) e.key: (e.value * to / was * 10).round() / 10,
+    };
+    final patch = <String, Object?>{
+      if (light.isNotEmpty) 'colors': light,
+      if (night.isNotEmpty) 'dark': {'colors': night},
+      if (styles.isNotEmpty) 'textStyles': styles,
+      if (corners.isNotEmpty) 'radii': corners,
+    };
+    return patch.isEmpty ? merged : fromJson(mergePatch(merged.toJson(), patch));
+  }
+
+  /// The names a design system gives the ground a page is drawn on: a site's
+  /// `surface` is each of them ([withSiteTheme]).
+  static const groundNames = {'page', 'pageFill', 'primaryBackground', 'background', 'paper', 'bg', 'ground'};
+
+  /// The names a design system gives its ink (the color of its text): a
+  /// site's `onSurface` is each of them that was the design system's
+  /// `onSurface` ([withSiteTheme]).
+  static const inkNames = {'primaryText', 'ink', 'text', 'foreground', 'headingText'};
+
+  /// A text style named for a title or a heading (`pageTitle`, `heading2`,
+  /// `display`): what a site's `titleFontFamily` is the family of.
+  static final _titleStyle = RegExp('title|heading|display|headline', caseSensitive: false);
 
   /// The color names that are the accent's by their role, whatever they are
   /// called next to it ([withSiteTheme]): each follows a site's accent when
@@ -675,4 +761,173 @@ enum ThemeMode {
     }
     return null;
   }
+}
+
+/// Something of a theme's JSON that [ThemeTokens.fromJson] does not read:
+/// where ([path]: the keys from the theme down, `colors.cream`,
+/// `dark.primary`) and what is accepted there.
+typedef ThemeProblem = ({List<String> path, String message});
+
+/// The keys of a theme ([ThemeTokens.toJson]).
+const themeKeys = [
+  'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', //
+  'fontFamily', 'titleFontFamily', 'radius', 'buttonRadius', 'iconStyle', 'colors', 'textStyles', 'dark', 'mode', //
+  'spacing', 'radii', 'sizes', 'shadows', 'durations', 'curves', 'media',
+];
+
+/// What a writer calls a key of a theme, and the key it is.
+const _themeKeyFor = {
+  'background': 'surface', 'bg': 'surface', 'page': 'surface', 'ground': 'surface', 'paper': 'surface', 'backgroundColor': 'surface', //
+  'accent': 'primary', 'brand': 'primary', 'primaryColor': 'primary', //
+  'text': 'onSurface', 'textColor': 'onSurface', 'ink': 'onSurface', 'foreground': 'onSurface', 'onBackground': 'onSurface', //
+  'font': 'fontFamily', 'bodyFont': 'fontFamily', 'bodyFontFamily': 'fontFamily', 'fontFamilyBody': 'fontFamily', //
+  'headingFont': 'titleFontFamily', 'headingFontFamily': 'titleFontFamily', 'titleFont': 'titleFontFamily', 'displayFont': 'titleFontFamily',
+  'fontFamilyHeading': 'titleFontFamily', 'headingFamily': 'titleFontFamily', //
+  'borderRadius': 'radius', 'cornerRadius': 'radius', 'corner': 'radius', 'corners': 'radius', 'rounding': 'radius', //
+  'fonts': 'textStyles', 'text_styles': 'textStyles', 'typography': 'textStyles', 'styles': 'textStyles', //
+  'colours': 'colors', 'palette': 'colors', 'color': 'colors', 'themeMode': 'mode', 'brightness': 'mode',
+};
+
+/// What of [theme] (a theme's JSON: a site manifest's `"theme"`) the theme
+/// does not read, each with the path of its key and what is accepted there:
+/// a key a theme does not have, a color that is neither a value
+/// (`"#AARRGGBB"`, `"#RRGGBB"`) nor a name the theme's `colors` define
+/// (`"surface": "cream"` with no `"cream"` in `colors`), a family that is
+/// not a text, a radius that is not a number, a mode that is not one.
+///
+/// [colors]: the color names the theme is laid over (a design system's), each
+/// a name a color may give too. Empty for a theme that is `null`.
+List<ThemeProblem> themeProblems(Object? theme, {Iterable<String> colors = const []}) {
+  final out = <ThemeProblem>[];
+  if (theme == null) return out;
+  final top = readMap(theme);
+  if (top == null) {
+    return [(path: const [], message: 'not read: it is an object, {"primary": "#FF2563EB", "surface": "#FFFFFFFF", "colors": {"ink": "#FF111827"}}.')];
+  }
+  String show(Object? v) {
+    final s = v is String ? '"$v"' : '$v';
+    return s.length > 40 ? '${s.substring(0, 40)}…' : s;
+  }
+
+  void read(Map<String, Object?> m, List<String> at, Set<String> outer) {
+    final own = readMap(m['colors']) ?? const <String, Object?>{};
+    final names = {...outer, ...own.keys, for (final r in ThemeTokens.roleNames) if (m[r] != null || outer.contains(r)) r};
+    void color(List<String> path, Object? v) {
+      if (v == null || Color.fromHex(v) != null) return;
+      final defined = [...own.keys, ...{...outer}..removeAll(own.keys)..removeAll(ThemeTokens.roleNames)];
+      final has = defined.isEmpty ? 'this theme\'s "colors" define none' : 'here: ${defined.take(12).join(', ')}${defined.length > 12 ? '…' : ''}';
+      if (v is String && Color.isName(v)) {
+        // A name: one the colors define, or a role that is given.
+        if (names.contains(v) && v != path.last) return;
+        out.add((
+          path: path,
+          message: 'no color of the theme is named ${show(v)}, so it is not read. '
+              'Write its value, "#AARRGGBB" (or "#RRGGBB"), or define it: "colors": {"$v": "#AARRGGBB"} ($has).',
+        ));
+        return;
+      }
+      out.add((
+        path: path,
+        message: '${show(v)} is not a color, so it is not read. '
+            'Write "#AARRGGBB" (or "#RRGGBB"), or the name of a color the theme\'s "colors" define ($has).',
+      ));
+    }
+
+    for (final e in m.entries) {
+      final key = e.key, v = e.value, path = [...at, key];
+      if (v == null) continue;
+      if (!themeKeys.contains(key) || (key == 'dark' && at.isNotEmpty)) {
+        final to = _themeKeyFor[key];
+        final what = switch (to) {
+          'surface' => ' (the ground a page is drawn on)',
+          'primary' => ' (the accent)',
+          'onSurface' => ' (the color of the text)',
+          'titleFontFamily' => ' (the family of titles and headings)',
+          _ => '',
+        };
+        final instead = to != null
+            ? ' Write "$to"$what.'
+            : Color.fromJson(v) != null
+                ? ' A color of the site\'s own goes in "colors": {"$key": ${show(v)}}.'
+                : '';
+        out.add((
+          path: path,
+          message: 'a theme has no "$key", so it is not read.$instead '
+              'A theme\'s keys: ${themeKeys.where((k) => k != 'media' && (at.isEmpty || k != 'dark')).join(', ')}.',
+        ));
+        continue;
+      }
+      switch (key) {
+        case 'primary' || 'onPrimary' || 'surface' || 'onSurface' || 'error' || 'success' || 'warning':
+          color(path, v);
+        case 'fontFamily' || 'titleFontFamily' || 'iconStyle':
+          if (v is! String || v.trim().isEmpty) {
+            out.add((path: path, message: '${show(v)} is not read: write ${key == 'iconStyle' ? 'outlined, rounded or sharp' : 'a font family\'s name'} as a text ("${key == 'iconStyle' ? 'rounded' : 'Georgia'}").'));
+          }
+        case 'radius' || 'buttonRadius':
+          if (v is! num) out.add((path: path, message: '${show(v)} is not read: write a number (8).'));
+        case 'mode':
+          if (ThemeMode.tryParse(v) == null) out.add((path: path, message: '${show(v)} is not a mode: write "system", "light" or "dark".'));
+        case 'colors':
+          if (readMap(v) == null) {
+            out.add((path: path, message: 'not read: it is an object of names and colors, {"ink": "#FF111827"}.'));
+          } else {
+            for (final c in own.entries) {
+              color([...path, c.key], c.value);
+            }
+          }
+        case 'textStyles':
+          final styles = readMap(v);
+          if (styles == null) {
+            out.add((path: path, message: 'not read: it is an object of names and text styles, {"heading1": {"fontFamily": "Georgia", "fontSize": 40, "fontWeight": 700}}.'));
+          } else {
+            for (final s in styles.entries) {
+              final style = readMap(s.value);
+              if (style == null) {
+                out.add((path: [...path, s.key], message: '${show(s.value)} is not a text style, so it is not read: write {"fontFamily": "Georgia", "fontSize": 40, "fontWeight": 700, "color": "#FF111827"}.'));
+                continue;
+              }
+              for (final k in const ['color', 'decorationColor', 'backgroundColor']) {
+                color([...path, s.key, k], style[k]);
+              }
+            }
+          }
+        case 'spacing' || 'radii' || 'sizes':
+          final scale = readMap(v);
+          if (scale == null) {
+            out.add((path: path, message: 'not read: it is an object of names and numbers, {"card": 12}.'));
+          } else {
+            for (final n in scale.entries) {
+              if (n.value is! num) out.add((path: [...path, n.key], message: '${show(n.value)} is not read: write a number.'));
+            }
+          }
+        case 'dark':
+          final d = readMap(v);
+          if (d == null) {
+            out.add((path: path, message: 'not read: it is an object of the colors that differ in dark mode, {"surface": "#FF111111", "colors": {"ink": "#FFF3F4F6"}}.'));
+          } else {
+            read(d, path, names);
+          }
+      }
+    }
+  }
+
+  // A design system has every role.
+  read(top, const [], {...colors, if (colors.isNotEmpty) ...ThemeTokens.roleNames});
+  return out;
+}
+
+/// The line (from 1) of [text] (a manifest's JSON as written) on which the
+/// key at [path] under `"theme"` is written; the `"theme"` key's when one of
+/// [path] is not found, null when that is not.
+int? themeKeyLine(String text, List<String> path) {
+  var at = 0;
+  int? found;
+  for (final key in ['theme', ...path]) {
+    final m = RegExp('"${RegExp.escape(key)}"\\s*:').allMatches(text, at).firstOrNull;
+    if (m == null) break;
+    found = m.start;
+    at = m.end;
+  }
+  return found == null ? null : '\n'.allMatches(text.substring(0, found)).length + 1;
 }

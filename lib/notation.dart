@@ -4,6 +4,7 @@ library;
 
 export 'src/core/notation/notation.dart'
     show
+        NotationAppState,
         NotationIssue,
         NotationOptions,
         NotationResult,
@@ -11,6 +12,9 @@ export 'src/core/notation/notation.dart'
         WantedBlock,
         buttonVariants,
         notationBuiltInDefinition,
+        notationInlineFormulaKey,
+        notationWithoutTrailingCommas,
+        readNotationAppState,
         notationBuiltInWord,
         notationWordOrigin,
         defaultTextVariants,

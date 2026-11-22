@@ -125,11 +125,49 @@ const String notationSiteRule =
     'under it, indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on '
     'a line of its own is where the lines written under a use go. Every page and every other component then calls it as any other '
     'word (BudgetRow "Groceries" spent=320 limit=400), with nothing more said. One word a file, its file named after it, and none of '
-    'the words taught here.\n'
-    '- site.json is the app\'s manifest: "pages", the screens in order (["home.json", "transactions.json"]); "variables", what every '
-    'page and component reads and sets by name with no state line of its own ({"plan": "pro", "cart": [], "draft": {"value": "", '
-    '"persist": true}}); "theme", the names a line uses for its looks ("colors": {"ink": "#FF1F2A24"} read as color=ink, '
-    '"textStyles", "radii", "primary", "surface"). State only one page uses stays a state line on that page.';
+    'the words taught here: a name the page has is the page\'s, never a component (not TopBar, AppBar, AppShell, Header, Footer, '
+    'Nav, NavBar, SideNav, Sidebar, Rail, Main, Section, Hero, Panel, Pane, Drawer, Modal, Card, Badge, Chip, Avatar), so give '
+    'the app\'s own bar a name of its own (LedgerNav, SiteTop).\n'
+    '- app.txt is the state every page and component shares, read and set by name with no state line of their own: state lines '
+    'as a page writes them and nothing else, one a line (state plan="pro", state income=4800 saved, state left={income-spent}). A '
+    'long list is one item a line, so it shows as it is written: state txns=[ then each record on a line of its own ending in a '
+    'comma, then ] on the last. State only one page uses stays a state line on that page.\n'
+    '- Write pages/home.txt first, reading the shared state by name (its lists draw empty until app.txt declares them); then '
+    'app.txt; then the components that page calls; then the next page and its components.\n'
+    '- site.json is needed only for the app\'s own looks, set once so no line repeats them, or a page order (with none, home is '
+    'first and the rest follow by name): {"theme": {"primary": "#FF1B5E3F" (the accent), "surface": "#FFFBF7EF" (the page\'s '
+    'ground), "onSurface" (the text), "fontFamily", "titleFontFamily" (headings), "radius", "colors": {"ink": "#FF1F2A24"} (read as '
+    'color=ink, fill=ink), "textStyles", "dark": {…}}, "pages": ["home.json", "budgets.json"]}. A colour is "#AARRGGBB" or a name '
+    'its colors define. Write it last, and not at all when the design system\'s looks are the app\'s.';
+
+/// How the prompt teaches a computed value and a formula of the writer's own
+/// (the end of its `state` line): a model looked `computed` up before its
+/// first write in 14 of 30 briefs (round 16), and `state left=income-spent`
+/// with no braces is read as a text. A `primitive` is a part, not a
+/// function: one written as a function is refused. Each example expands
+/// with no issue (a test reads them from here).
+const String notationComputedRule =
+    'A computed (derived) value is a state whose value is a formula in braces, worked out and kept up to date: '
+    'state total={price*qty}, state left={income-spent}, state due={sum(cart,x=>x.price)} (always the braces: state left=income-spent is a text); '
+    'with parameters and its type (:boolean, :text, :integer, :decimal, :list) it is your own function, not named as a listed one: '
+    'state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).';
+
+/// What the page prompt says of what a model looked up before its first
+/// write (round 16: a place in a Stack, a key's name, a click with a key
+/// held, how far a node is scrolled or dragged, the window's width, the dark
+/// mode, a gradient, a font, a drawing), a line each under "Also, on a
+/// page:". The start of each line, to its colon, expands with no issue (a
+/// test reads them from here).
+const List<String> notationLookedUpLines = [
+  'Box x=24 y={8+hour*40} w=120 h=40: a child of a Stack sits where x and y put it, from its left and top (x={"end":8}: from its right); only a Stack places its children (a block on a timeline, a seat on a plan, a badge on a corner).',
+  'key ArrowLeft when={!editing} onPress={day=day-1}: a key by its name (ArrowLeft ArrowRight ArrowUp ArrowDown Enter Escape Space Tab Delete Backspace Home End PageUp PageDown, a letter, a digit; shift+ArrowDown).',
+  'Row onTap={picked=result.shift ? append(picked,r.id) : [r.id]}: a click with a key held reads result.shift, result.meta (Ctrl, ⌘ on a Mac) and result.alt.',
+  'Column scroll h=400 onScroll={read=result.fraction}: how far a scrolling node is, 0 to 1 (result.offset: in pixels; on a Page: the page).',
+  'Box onDrag={x=x+result.dx; y=y+result.dy} onDragEnd={x=0}: a node dragged by hand, each move its step (onDragEnd: result.vx, result.vy its speed).',
+  'Button "Dark" onTap={setThemeMode dark}: the site in its dark colors (light, system); theme.isDark says which in a formula, and site.json\'s theme gives the colors of each.',
+  'Box h=200 gradient=["#FF2563EB","#FF7C3AED"]: a gradient as a fill (two colors or more). Text "…" fontFamily="Georgia" italic sets one text\'s font; tabularFigures=true lines its digits up. screen.width in a formula is the window\'s width (if screen.width < 700), for what the phone rules below do not do.',
+  'customPaint viewBox=[240,160] fit=contain: under a Box w=240 h=160, a drawing, a line per shape under it in the viewBox\'s units, the later over the earlier: rect rect=[0,0,240,160] fill=#FFE8F1F8, circle c=[180,50] radius=24 fill=#FFF4B740, path d="M0 160 L70 60 L240 160 Z" fill=#FF2563EB, line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2 (also rrect, oval, arc, paragraph "Peak" offset=[8,8]; a number may be {an expression}; repeat count={length(list)} draws its lines for each index).',
+];
 
 /// The lines of the words [vocabulary]'s dictionaries define that [prompt]
 /// does not already list (a design system's component or word of that name
@@ -262,7 +300,7 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
   Side by side: Row gap=32 with grow on each child that shares the width (Column grow gap=12), or Grid cols=3 gap=24 for equal cells; Cards side by side are equally tall by themselves; write top on a Row of other things that differ in height. Row between spreads its children end to end. Section bleed runs what is in it from edge to edge (a wide picture, a map). Nav sticky keeps the bar at the top while the page scrolls; sticky on a rail (Column w=320 sticky) keeps an enrol panel or a table of contents in view while the page scrolls. A rule on one side is border-bottom=#… (border-top, border-left, border-right).
   A block's events are on its line, each by its name: SiteNav … onNavigate={go {replace(lower(result)," ","_")}} onCta={go signup} onSecondary={go login}. SiteNav … sticky keeps it at the top.
   key mod+k onPress={open search} on its own line (top level) is a shortcut of the page (mod: Ctrl, ⌘ on a Mac; also alt, shift), key j when={!editing} onPress={…} acts only while its condition holds (a plain key never acts while a field is typed in; under a Dialog#id, only while that dialog is open); Text "Search" shortcut="mod+k" shows it as Ctrl K or ⌘K; Button "B" shortcut="mod+b" presses it.
-  A value every page of the site shares (a cart, the signed-in name) is declared once, in site.json's variables, a name and its starting value ("variables": {"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}}); a page expanded beside that site.json reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select @cart, onTap={cart=append(cart,item)}) and keeps its value from page to page. state draft="" saved keeps a value across reloads (project cart=[] saved, with "persist": true in site.json).
+  A value every page of the site shares (a cart, the signed-in name) is declared once, in the site's app.txt, a state line as on a page (state cart=[], state plan="pro", state draft="" saved); a page of that site reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select @cart, onTap={cart=append(cart,item)}) and keeps its value from page to page. state draft="" saved keeps a value across reloads.
   device.hover is true where a pointer can hover (device.pointer is "fine" there, else "coarse"), whatever the width: under if !device.hover, give what onHover={…} shows a button that does the same.
   Inside a frame everything is written as on a card: the components, Card, Text, the controls. A Card in a Grid is a tile of the page.
   Also, on a page:
@@ -275,7 +313,8 @@ PAGES (this UI is a whole window $w wide, not a card in a chat)
     each r in fuzzy(rows,q,x=>x.title): a search, the rows whose text matches q, best first (fuzzy(rows,q,x=>x.title,3,"keep"): 3 letters off a word, in list order); Text "{r.title}" mark={q} marks what matched (a block's mark={q} too).
     each stop in trip reorder: a list put in order by hand; a Handle in each row is its grip (dragged, or Alt+arrows) and trip holds the order. Lists with one reorder=group pass rows between them.
     each line in lines follow h=180: a log or a chat; it scrolls in that height, opens at its end and follows what is added (follow grow: it takes the room its column leaves, over a composer).
-    SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}, under an each: an action behind the swiped row (side=start: the other side; removes takes the row out). Give the row a menu button for the same.${options.reflow ? '''
+    SwipeAction "Book" side=end when={!row.full} onTap={picked=result.item.name}, under an each: an action behind the swiped row (side=start: the other side; removes takes the row out). Give the row a menu button for the same.
+${notationLookedUpLines.map((l) => '    $l').join('\n')}${options.reflow ? '''
 
   Tablets and phones: write the page once, for this width. It lays itself out narrower: a Grid takes fewer columns (one of 7, or written Grid cols=4 keep, keeps them), a Row of cards or of content beside a rail stacks, any other row wraps before it overflows, a table keeps the columns it has room for (the first ones: put what matters first), an App shows its Main pane (a tablet also the panes before it) and opens its Sidebar as a drawer from a menu button it adds to Main's Nav, a list beside its detail shows one at a time on a phone, with a back button (each row: onTap={sel=m.id}), a Nav hides its quiet buttons (Button.ghost) and opens them from a menu button it adds itself, sections and headlines get smaller. So that it can:
     Share a width with grow, or give the one fixed part a width (a rail: Column w=320) and let the rest grow. Do not give every child of a row a fixed width, and write no fixed width over 320 on anything but a rail or a picture.
@@ -385,7 +424,7 @@ LINE
 - @name is the variable itself, both ways: bare, the control's value; selected=@picked binds another property. Declare it with state.
 - What a node does is an event, its actions in braces: onTap={…}, or onChange={…} on a control (result is its new value). ${natural ? '''Actions are statements as you would write them in code: count += 1; liked = !liked; step = valid ? 3 : 2; if (qty > 0) { qty -= 1 }. Also''' : '''Actions: name=value sets a variable;'''} emit eventName [value] tells the app (emit pick item.id); toast "Saved"; link https://…; open id / close for a modal${options.width >= notationPageWidth ? r'''; go screen opens a page of the site (go case-study: an id may have hyphens; go {replace(lower(result)," ","_")} works the page out, in braces, as from a SiteNav's link); scroll pricing moves the page to the line with that id (Section#pricing, or id=pricing on a line); confirm "Delete 2 clips?" "They cannot be restored." ok="Delete" danger then {clips=[]} else {toast "Kept"} asks first (a line of detail under it, the word on its yes button, danger for a red one; else: what a no does); announce "{n} results" tells a screen reader (Text "{n} results" live: each change); focus search puts the caret in Input#search; copy "{link}" copies a text''' : ''''''}. Separate several with ;
 - drag=group(value) on a node lets it be dragged carrying a value; drop=groupA,groupB on a node takes those drops, and its onDrop={…} runs on a drop with result.data the value carried: Card drag=todo(card.id), then Column drop=todo onDrop={done=append(done,result.data)}.
-${natural ? '''- state name=value on its own line (top level, before the card) declares a variable with a starting value: state qty=1, state liked=false, state lines=[{"name":"Milk","price":3.2,"qty":2}]. let name = expression on its own line names a value worked out from the state, kept up to date as the state changes: let subtotal = sum(map(lines, l => l.qty * l.price)); let total = subtotal + 4.99. Never work a total out yourself and write it as text: write the expression, so it follows the state.''' : '''- state name=value on its own line (top level) declares a variable with a starting value.'''}
+${natural ? '''- state name=value on its own line (top level, before the card) declares a variable with a starting value: state qty=1, state liked=false, state lines=[{"name":"Milk","price":3.2,"qty":2}]. let name = expression on its own line names a value worked out from the state, kept up to date as the state changes: let subtotal = sum(map(lines, l => l.qty * l.price)); let total = subtotal + 4.99. Never work a total out yourself and write it as text: write the expression, so it follows the state.''' : '''- state name=value on its own line (top level) declares a variable with a starting value.${options.width >= notationPageWidth ? ' $notationComputedRule' : ''}'''}
 - every 1000 onTick={name=value} on its own line (top level) runs as time passes (milliseconds, or 1s): a clock, a countdown. every 1s when running onTick={…} runs only while the condition holds.
 - if expression on its own line shows the lines indented under it only while it holds.
 ${natural ? '''- each row in rows on its own line repeats the lines indented under it once per element of a list variable; inside, {row.name} reads the element, a control bound to one of its fields (Input @row.name, Toggle @row.done) changes that element, and so does an action: row.qty += 1; row.done = !row.done; rows.remove(row). Outside it, rows.add({"name":"Eggs","qty":1}) adds one.''' : '''- each row in rows on its own line repeats the lines indented under it once per element of a list variable (state rows=[{"name":"Ada","age":36}]); inside, {row.name} reads the element, and a control bound to one of its fields (Input @row.name, Toggle @row.done) changes that element in the list.'''}
@@ -710,8 +749,10 @@ String _openPrompt(String taught, {bool define = true}) {
       continue;
     }
     // A value worked out, and a formula of the writer's own (a `primitive`
-    // is a part, not a function: one written as a function is refused).
-    if (l.startsWith('- state name=value on its own line (top level) declares')) {
+    // is a part, not a function: one written as a function is refused): a
+    // page's taught line says it ([notationComputedRule]); a card's has no
+    // room, and the open one says it in short.
+    if (l.startsWith('- state name=value on its own line (top level) declares') && !l.contains(notationComputedRule)) {
       out.add(
           '$l state total={price*qty} is worked out and kept up to date; with parameters and its type (:boolean, :text, :integer, :decimal, :list) it is your own function, not named as a listed one: state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).');
       continue;
@@ -763,16 +804,15 @@ String _openPrompt(String taught, {bool define = true}) {
         .replaceFirst(' onSwipeLeft={…} runs on that swipe.', '')
         .replaceFirst(' (go case-study: an id may have hyphens; go {replace(lower(result)," ","_")} works the page out, in braces, as from a SiteNav\'s link)', ' (go {expression} works the page out)')
         .replaceFirst(' A sidebar\'s item: Row w=fill gap=10 middle pad=[10,7,10,7] radius=6 selected={tab=="orders"} selected.fill=#142563EB onTap={tab="orders"}, an Icon and a Text grow under it. A link:', ' A link:')
-        .replaceFirst(' ("variables": {"cart": [], "plan": "pro", "draft": {"value": "", "persist": true}})', '')
+        .replaceFirst(' (state cart=[], state plan="pro", state draft="" saved)', '')
         // A table is a word a writer writes, not rows of boxes.
         .replaceFirst(' A table\'s row is a Row whose cells have widths (Text "Status" w=90) and one cell that grows, its header written the same way.', '')
         .replaceFirst(' (shown on hover, focus or a touch hold)', '')
         .replaceFirst(' It reads and sets the page\'s values: a form in a dialog sets them and closes (onTap={saved=true; close}).', '')
         .replaceFirst(': swiped or stepped with its arrows, with a count and thumbnails, opened at the one tapped', ', swiped or stepped, opened at the one tapped')
         .replaceFirst(' (a wide picture, a map)', '')
-        .replaceFirst(' is declared once, in site.json\'s variables, a name and its starting value; a page expanded beside that site.json reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select @cart, onTap={cart=append(cart,item)}) and keeps its value from page to page.',
-            ' is declared once in site.json\'s variables, or by project cart=[] before the page: read and set like any other, it keeps its value from page to page.')
-        .replaceFirst(' (project cart=[] saved, with "persist": true in site.json)', ' (project cart=[] saved)')
+        .replaceFirst(' is declared once, in the site\'s app.txt, a state line as on a page; a page of that site reads and sets it by name with no declaration (project cart=[] before the page says so on the page itself): it is read and set like any other (Select @cart, onTap={cart=append(cart,item)}) and keeps its value from page to page.',
+            ' is declared once in the site\'s app.txt, or by project cart=[] before the page: read and set like any other, it keeps its value from page to page.')
         .replaceFirst('hide=phone leaves a node out on a phone, hide=tablet on a tablet and a phone; show=phone shows it on a phone only, show=tablet on a tablet and a phone only.', 'hide=phone leaves a node out on a phone (hide=tablet: on a tablet too); show=phone shows it on a phone only (show=tablet: a tablet too).')
         .replaceFirst(' keeps an enrol panel or a table of contents in view while the page scrolls.', ' keeps it in view.')
         .replaceFirst(' (Section#pricing, or id=pricing on a line)', ' (Section#pricing)')

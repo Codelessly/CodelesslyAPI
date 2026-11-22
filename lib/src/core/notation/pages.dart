@@ -140,6 +140,9 @@ NotationPages notationPages(String text, {String fallback = 'Page'}) {
       continue;
     }
     final l = plain(i);
+    // What closes a list written over several lines (`]`, `] saved`) is
+    // its statement's last line.
+    if (inBlock && RegExp(r'^[\])}]+(\s+saved)?\s*$').hasMatch(l)) continue;
     inBlock = _appStatement.hasMatch(l) || _appDefinition.hasMatch(l) || _appOverlay.hasMatch(l);
     if (!inBlock) appOnly = false;
   }

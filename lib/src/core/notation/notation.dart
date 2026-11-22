@@ -1488,6 +1488,10 @@ const Set<String> notationVerbs = {..._Parser._verbs, 'blur', 'confirm'};
 /// A verb's other spelling the parser reads, by the verb it is.
 const Map<String, String> notationVerbAliases = {'unfocus': 'blur'};
 
+/// An `animate=` value written as a formula (`{still ? "" : "pulse"}`, read
+/// as `=still ? …`): a name is read, not worked out.
+final _animateFormula = RegExp(r'^[{=]|[?&|<>!]|==');
+
 /// `animate:<word>`: how a node arrives or keeps moving, as a model writes
 /// it, by the animation preset and params it stands for. An entrance plays
 /// once when the node appears (from a pose to the node's own); a loop keeps
@@ -1753,6 +1757,209 @@ String notationBuiltInDefinition(String word, String builtIn, {String kind = 'de
 NotationResult parseNotation(String text, {Catalog? catalog, NotationOptions options = const NotationOptions(), String? definitions}) =>
     _Parser(catalog ?? Catalog.current, options).parse(text, definitions: definitions);
 
+/// In a site's variable as [NotationOptions.projectVariables] takes it: the
+/// key of a formula with no type (app.txt's `state left=income-spent`), a
+/// name for the formula, written out where a page reads it.
+const String notationInlineFormulaKey = 'inline';
+
+/// [raw] (a list or a record as written) without the comma after a last
+/// item (`[1, 2, ]`, `{"a": 1,}`), which JSON does not read. What is in
+/// quotes is left as it is.
+String notationWithoutTrailingCommas(String raw) {
+  if (!raw.contains(',')) return raw;
+  final out = StringBuffer();
+  String? quote;
+  for (var i = 0; i < raw.length; i++) {
+    final c = raw[i];
+    if (quote != null) {
+      out.write(c);
+      if (c == r'\' && i + 1 < raw.length) {
+        out.write(raw[++i]);
+      } else if (c == quote) {
+        quote = null;
+      }
+      continue;
+    }
+    if (c == '"') quote = c;
+    if (c == ',') {
+      var j = i + 1;
+      while (j < raw.length && raw[j].trim().isEmpty) {
+        j++;
+      }
+      if (j < raw.length && (raw[j] == ']' || raw[j] == '}')) continue;
+    }
+    out.write(c);
+  }
+  return out.toString();
+}
+
+/// What an app's state file declares ([readNotationAppState]).
+///
+/// [variables] is by name, each as [NotationOptions.projectVariables] takes
+/// it: a variable's record (`type`, and `value` or `formula` with its
+/// `parameters`, `persist` for one written `saved`), or for a formula with
+/// no type `{"inline": formula}` ([notationInlineFormulaKey]). [lines] is the
+/// line each name is declared on, [issues] what the file has that is not
+/// read.
+typedef NotationAppState = ({Map<String, Json> variables, Map<String, int> lines, List<NotationIssue> issues});
+
+/// Reads [text], an app's state file (`app.txt`): the state every page and
+/// component of the app shares, as `state` lines in the notation's own
+/// grammar (a value, a type, a formula, a function, `saved`), with comments.
+/// Never throws.
+///
+/// A line that is not state (a node, a `define`, an `every`, a `key` or an
+/// `on` line) is an issue that says where it belongs, and is not read.
+/// A formula with no type may read another whichever is written first; one
+/// that reads itself, through others or not, is an issue.
+///
+/// With [partial] (more of the file is coming: a stream), a list left open
+/// over the last lines (`state rows=[` and an item a line) is read as far
+/// as it is written.
+NotationAppState readNotationAppState(String text, {Catalog? catalog, bool partial = false}) {
+  final parser = _Parser(catalog ?? Catalog.current, const NotationOptions());
+  final rows = const LineSplitter().convert(text);
+  String shown(String line) => line.length > 50 ? '${line.substring(0, 47)}...' : line;
+  for (var i = 0; i < rows.length; i++) {
+    final raw = rows[i];
+    final line = raw.trim();
+    // A list left open on the line before goes on over this one.
+    if (parser._continues || line.isEmpty || line.startsWith('//')) {
+      parser._readLine(raw);
+      continue;
+    }
+    final String? wrong;
+    if (raw.startsWith(' ') || raw.startsWith('\t')) {
+      wrong = '`${shown(line)}` is indented under nothing, so it is not read: app.txt holds the app\'s shared state, one `state name=value` line each at the margin.';
+    } else if (_appStateLine.hasMatch(line)) {
+      wrong = null;
+    } else if (RegExp(r'^(define|primitive|component)\s').hasMatch(line)) {
+      wrong = '`${shown(line)}` defines a word, so it is not read here: app.txt holds only the app\'s shared state (`state name=value`). A word is a file of its own, components/<Word>.txt.';
+    } else if (RegExp(r'^(every|key|on)\s').hasMatch(line)) {
+      wrong = '`${shown(line)}` runs on a page, so it is not read here: app.txt holds only the app\'s shared state (`state name=value`). '
+          'Write the line on the page that should run it (pages/<screen>.txt), or in a component every page shows.';
+    } else {
+      wrong = '`${shown(line)}` is not state, so it is not read: app.txt holds only the app\'s shared state (`state name=value`). A screen\'s lines go in pages/<screen>.txt.';
+    }
+    if (wrong == null) {
+      parser._readLine(raw);
+    } else {
+      // (Read as a blank line: the lines after it keep their numbers.)
+      parser._readLine('');
+      parser.issues.add(NotationIssue(i + 1, 1, wrong));
+    }
+  }
+  // Half a list of a stream: its whole items so far.
+  var halfList = false;
+  if (partial && parser._open != null) {
+    final open = parser._open!.trimRight();
+    final closed = _closedSoFar(open.endsWith(',') ? open.substring(0, open.length - 1) : open);
+    parser._open = null;
+    halfList = true;
+    if (closed != null) parser.line(closed);
+  }
+  try {
+    parser.finish();
+  } on Object {
+    // What was read stays.
+  }
+  // (Its brackets are not closed yet: that is not a mistake of half a file.)
+  if (halfList) parser.issues.removeWhere((i) => i.message.contains('is never closed'));
+  final lines = <String, int>{
+    for (final e in parser._stateLines.entries) e.key.substring(e.key.indexOf(' ') + 1): e.value,
+  };
+  // A formula reads the formulas written after it too.
+  final formulas = parser._derived;
+  final ringed = <String>{};
+  for (var round = 0; round < formulas.length; round++) {
+    var changed = false;
+    for (final a in formulas.keys.toList()) {
+      for (final b in formulas.entries.toList()) {
+        if (ringed.contains(a)) break;
+        final now = formulas[a]!;
+        final next = parser._rename(' $now', b.key, '(${b.value})').substring(1);
+        if (next == now) continue;
+        if (a == b.key || next.length > 20000) {
+          ringed.add(a);
+          break;
+        }
+        formulas[a] = next;
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  // (One that still reads a formula's name after every round is in a ring.)
+  for (final a in formulas.keys) {
+    if (ringed.contains(a)) continue;
+    for (final b in formulas.keys) {
+      if (parser._rename(' ${formulas[a]}', b, '\u0000') != ' ${formulas[a]}') ringed.add(a);
+    }
+  }
+  for (final name in ringed) {
+    parser.issues.add(NotationIssue(lines[name] ?? 1, 1, 'state $name reads itself (through the formulas it names, or directly), so it gives nothing: a formula reads other states, never itself.'));
+    formulas.remove(name);
+  }
+  for (final v in parser.variables.values) {
+    if (v['formula'] case final String f) {
+      var next = f;
+      final own = readList(v['parameters']) ?? const [];
+      for (final d in formulas.entries) {
+        if (!own.contains(d.key)) next = parser._rename(' $next', d.key, '(${d.value})').substring(1);
+      }
+      v['formula'] = next;
+    }
+  }
+  final variables = <String, Json>{
+    for (final v in parser.variables.values)
+      if (!parser._internal.contains(v['name']))
+        v['name']! as String: {
+          for (final e in v.entries)
+            if (e.key != 'name') e.key: e.value,
+          // (A variable with no start says so: its record is then one.)
+          if (!v.containsKey('formula') && !v.containsKey('value')) 'value': null,
+        },
+    for (final d in formulas.entries) d.key: {notationInlineFormulaKey: d.value},
+  };
+  final issues = [...parser.issues]..sort((a, b) => a.line != b.line ? a.line - b.line : a.column - b.column);
+  return (variables: variables, lines: lines, issues: issues);
+}
+
+/// The lines of an app's state file that are state: `state …`, and what a
+/// page reads as one at its top (`let`, `derived`, `const`, `var`,
+/// `project`, a bare `name = value`).
+final _appStateLine = RegExp(r'^(?:(?:state|let|derived|const|var|project)\s+[A-Za-z_]|[a-z_][A-Za-z0-9_]*\s*=(?!=)\s*\S)');
+
+/// [open] (a line whose brackets are not all closed) with what closes them,
+/// in order; null when it ends inside a quoted text.
+String? _closedSoFar(String open) {
+  final closers = <String>[];
+  String? quote;
+  for (var i = 0; i < open.length; i++) {
+    final c = open[i];
+    if (quote != null) {
+      if (c == r'\') {
+        i++;
+      } else if (c == quote) {
+        quote = null;
+      }
+      continue;
+    }
+    if (c == '"') {
+      quote = c;
+    } else if (c == '[') {
+      closers.add(']');
+    } else if (c == '{') {
+      closers.add('}');
+    } else if (c == '(') {
+      closers.add(')');
+    } else if ((c == ']' || c == '}' || c == ')') && closers.isNotEmpty) {
+      closers.removeLast();
+    }
+  }
+  return quote != null ? null : '$open${closers.reversed.join()}';
+}
+
 /// The notation read as it arrives: [add] takes text in any chunks and
 /// returns the edit operations of the lines completed so far (a `set` per
 /// node under its parent, `vars` for the state a line introduced), ready
@@ -2014,6 +2221,14 @@ class _Parser {
     // The site's variables (its manifest's): known here, and never declared on the screen.
     if (_host == null) {
       for (final e in options.projectVariables.entries) {
+        // A formula with no type the app's state file names (`state left=
+        // income-spent` in app.txt): a name for the formula, written out
+        // where it is read, as a page's own is.
+        if (e.value[notationInlineFormulaKey] case final String formula) {
+          _derived.putIfAbsent(e.key, () => formula);
+          _projectFormulas.add(e.key);
+          continue;
+        }
         variables.putIfAbsent(e.key, () => {'name': e.key, 'type': e.value['type'] ?? 'text', 'value': e.value['value']});
         _projectVariables.add(e.key);
       }
@@ -3047,7 +3262,7 @@ class _Parser {
     if (_open case final String open) {
       final all = '$open ${raw.trim()}';
       _openLines++;
-      if (_opened(all) > 0 && _openLines < 60) {
+      if (_opened(all) > 0 && _openLines < 400) {
         _open = all;
         return;
       }
@@ -3216,6 +3431,11 @@ class _Parser {
 
   /// The names written `project name`: variables of the site, not of this screen.
   final Set<String> _projectVariables;
+
+  /// The names of the site's formulas with no type (app.txt's `state
+  /// left=income-spent`): a page that writes a state of one of these names
+  /// does not make its own, as with the site's variables.
+  final Set<String> _projectFormulas = {};
   final _tableRows = <String>{};
 
   /// On a page, the media rules that lay it out on a tablet and a phone.
@@ -7327,7 +7547,16 @@ class _Parser {
           // fadeIn, fade-in, "fade in" and fade are one word.
           final word = name.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]}-${m[2]}').toLowerCase().replaceAll(RegExp(r'[ _]'), '-');
           final look = notationAnimations[word] ?? notationAnimations[word.replaceAll(RegExp(r'-(in|once|loop)$'), '')];
-          if (look == null) {
+          if (look == null && _animateFormula.hasMatch(raw)) {
+            // `animate={still ? "" : "pulse"}`: the word is one name, read
+            // once; what depends on the state is which line shows.
+            final words = RegExp('["\']([A-Za-z-]+)["\']').allMatches(raw).map((m) => m[1]!).where(notationAnimations.containsKey);
+            final one = words.firstOrNull ?? 'fade';
+            _issue(
+                col,
+                'animate= takes one name, not a formula: the motion was left out. For a motion only while a condition holds, write the line '
+                'twice: under if <condition> with animate=$one, and under else without it. Names: ${notationAnimations.keys.join(', ')}.');
+          } else if (look == null) {
             _issue(col, 'No animate=$raw. Written animate=${notationAnimations.keys.join(', ')}.');
           } else {
             animation = {'id': 'a', ..._copy(look)};
@@ -8305,8 +8534,12 @@ class _Parser {
           } else {
             props[p.key] = empty;
           }
-          _use('missing', p.key, column, on: _srcWord ?? written);
-          continue;
+          // In a definition's lines it is not an answer's word to record:
+          // it is said, as below, with what to write.
+          if (_from == null) {
+            _use('missing', p.key, column, on: _srcWord ?? written);
+            continue;
+          }
         }
         _issue(column, 'A $written needs ${p.key}: write ${p.type.isVariable ? '${identical(p, mainParam) ? '@name, or ' : ''}${p.key}=@name (a variable, declared with state)' : '${p.key}=${p.type.kind == PropKind.list ? '["a","b"]' : p.type.kind == PropKind.string ? '"…"' : 'value'}'}.');
       }
@@ -11658,6 +11891,8 @@ class _Parser {
     }
     final m = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$').firstMatch(rest);
     if (m == null) return _issue(column, 'State is written: state name=value.');
+    // The site's formula of this name is the one read (as its variable is).
+    if (_top._projectFormulas.contains(m[1])) return;
     // Declared, even where it is refused below: what binds it is said once.
     _statedTwice(m[1]!, column);
     _top._stated.add(m[1]!);
@@ -11689,7 +11924,7 @@ class _Parser {
     // read it drew nothing.
     final indexed = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)(?:\.[A-Za-z_][A-Za-z0-9_]*)*\[[^\[\]"]+\](?:\.[A-Za-z_][A-Za-z0-9_]*|\[[^\[\]]+\])*$').firstMatch(code);
     final reads = indexed != null && (variables.containsKey(indexed[1]) || _derived.containsKey(indexed[1]));
-    if (!_literal(written).$1 && (RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads || (braced && code.contains('[')))) {
+    if (!_literal(written).$1 && (RegExp(r'[(+*/?<>&|]').hasMatch(code) || reads || (braced && (code.contains('[') || RegExp(r'[A-Za-z0-9_)\]]\s*-\s*[A-Za-z0-9_(]').hasMatch(code))))) {
       _derived[m[1]!] = written;
       // A formula variable or a function written before it reads it too.
       for (final v in variables.values) {
@@ -13041,6 +13276,14 @@ class _Parser {
       try {
         return (true, jsonDecode(raw));
       } catch (_) {}
+      // A comma after the last item (a list written one item a line, each
+      // ending with its comma) is not JSON's: read without it.
+      final bare = notationWithoutTrailingCommas(raw);
+      if (bare != raw) {
+        try {
+          return (true, jsonDecode(bare));
+        } catch (_) {}
+      }
     }
     return (false, null);
   }

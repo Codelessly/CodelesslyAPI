@@ -8,7 +8,7 @@ worked out, kept, or shared, or you need a function's signature.
 `state name=value` declares a variable of the screen, its type from its value; `state name:type=value` names the
 type (`state price:decimal=0`; with no value, `state note:text`). Types: {{variableTypes}}. `saved` after the
 value keeps it on the device: `state tab="inbox" saved` (not `state tab saved="inbox"`). A variable every page shares
-is the site's, declared in `site.json` (`"favourites": {"value": [], "persist": true}`): [site.md](site.md). A
+is the app's, declared in the site's `app.txt` with the same line (`state favourites=[] saved`): [site.md](site.md). A
 variable is not named after what the runtime gives every formula: `data`, `route`, `storage`, `screen`, `theme`,
 `auth`, `drag`, `perf`, `script`, `speech` (`state perfText=…`, not `state perf=…`), nor after a state a line's
 looks are written under (`hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`): on a line `pressed.fill=…`
