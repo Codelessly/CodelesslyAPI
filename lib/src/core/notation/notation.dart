@@ -10971,7 +10971,9 @@ class _Parser {
         'type': 'text',
         // In a tile's slot a text is as wide as it is; an accordion's header fills it.
         'layout': {'width': type == 'listTile' || _textStyle != null ? {'hug': 0} : {'fill': 0}, 'height': {'hug': 0}},
-        'props': {'text': texts[i], if (styled != null) 'style': styled},
+        // (A Badge's label is one line: its pill has one line's height, and a
+        // row with no room narrowed it to "★ 4." before the heading beside it.)
+        'props': {'text': texts[i], if (styled != null) 'style': styled, if (_textStyle != null) 'maxLines': 1},
         if (bound || _textColor != null) 'bind': {'props.style.color': _textColor ?? _namedIn(_read(ink!.substring(1).trim()), 'text')},
       };
       _parentOf[tid] = id;

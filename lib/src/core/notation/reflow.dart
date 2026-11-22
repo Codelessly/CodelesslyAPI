@@ -1033,7 +1033,11 @@ final class PageReflow {
       if (type == 'text') {
         texts++;
         fixed[k] = w;
-      } else if (w >= 80 && (type == 'row' || type == 'column')) {
+      } else if (w >= 80 && (type == 'row' || type == 'column' || isComponent(type))) {
+        // (A cell that is a design system's part, a status of a fixed
+        // width, is a column as the text of its head is: counted as a
+        // control it left the row no room, and the row lost its first
+        // column while its head kept it.)
         fixed[k] = w;
       }
     }
@@ -1078,13 +1082,19 @@ final class PageReflow {
         } else if (shared ? share(k) > 0 : fixed.containsKey(k)) {
           data.add(k);
         } else {
-          used += w ?? (_type(nodes[k]!) == 'spacer' ? 0 : 40);
+          // (What is not a column, a menu button or a checkbox, at 32: counted
+          // 40, a row with a menu button had
+          // less room than its head with a Spacer of 32 in its place, and
+          // hid a column its head kept.)
+          used += w ?? (_type(nodes[k]!) == 'spacer' ? 0 : 32);
         }
       }
       var full = false;
       for (final k in data) {
         final need = math.min(shared ? share(k) : fixed[k]!, least);
-        if (!full && used + need <= room) {
+        // The first column is what the row is of (a name): it is kept
+        // whatever the room, and the others go before it does.
+        if (k == data.first || (!full && used + need <= room)) {
           used += need;
         } else {
           full = true;
@@ -1143,7 +1153,11 @@ final class PageReflow {
     // lines where they no longer fit, as a row of choices does; `Row scroll`
     // or `keep` keeps them on one line.
     if (kids.length == 1) return _rowOfCopies(id, n);
-    if (kids.length < 2 || _leftAsWritten(id, list: true)) return;
+    if (kids.length < 2) return;
+    if (_leftAsWritten(id, list: true)) {
+      // (Here it is a list's row and nothing else of the writer's.)
+      return _listRow(id, n);
+    }
     // A row with a reorder Handle is a list's row: its grip stays beside
     // what it moves (what grows in it narrows), never alone on a line.
     if (kids.any((k) => nodes[k]?['reorderHandle'] == true)) return;
@@ -1221,6 +1235,46 @@ final class PageReflow {
     }
   }
 
+  /// What a row of controls with nothing that grows may need before it is
+  /// given further lines ([_listRow]).
+  static const num _controlsHold = 160;
+
+  /// A row of a list keeps its line while it has room (a name narrows
+  /// beside its avatar and its time). Where it has none, it is laid out as
+  /// any other row with none is, so nothing in it is squeezed to a sliver:
+  ///
+  /// - with something that grows (a text beside a picture of a fixed width,
+  ///   a field beside two more and three buttons), where a phone has no
+  ///   room for what keeps its width and the least what grows is read at,
+  ///   the row wraps there ([_crowded]): the picture a line, the text under
+  ///   it (it kept the picture's 240 and gave the text 45 px, a word to a
+  ///   line; the field 4 px);
+  /// - with nothing that grows (a price beside two buttons in a card of a
+  ///   grid), where its controls alone take more than [_controlsHold], it
+  ///   wraps when its place is narrower than it, at a tablet's width and
+  ///   under (the price was cut to "€2" under its buttons). A text beside
+  ///   less than that narrows to further lines of its own, as before.
+  void _listRow(String id, Json n) {
+    final kids = _kids(n);
+    if (_layout(n)['height'] is num || _props(n)['wrap'] == true || _props(n)['scrollable'] == true) return;
+    if (_underKept(id) || _own.contains(id) || kids.any(_own.contains)) return;
+    if (kids.any((k) => nodes[k]?['reorderHandle'] == true)) return;
+    final growing = [for (final k in kids) if (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null && _type(nodes[k]!) != 'spacer') k];
+    if (growing.isNotEmpty) return _crowded(id, n);
+    if (kids.any((k) => _type(nodes[k]!) == 'spacer')) return;
+    final texts = [for (final k in kids) if (_type(nodes[k]!) == 'text') k];
+    if (texts.isEmpty) return;
+    num held = 0;
+    for (final k in kids) {
+      if (!texts.contains(k)) held += _need(k);
+    }
+    if (held <= _controlsHold) return;
+    final spacing = _spacing(n);
+    _add(id, reflowTabletMax, {
+      'props': {'wrap': true, 'runSpacing': spacing > 0 ? math.min(spacing, 12) : 8},
+    });
+  }
+
   /// Whether [id] is a text of one line that ends in an ellipsis, or a
   /// column of only such texts.
   bool _truncates(String id) {
@@ -1286,7 +1340,17 @@ final class PageReflow {
     // (What grows gives way down to the least its words can be read at: a
     // text that ends in an ellipsis to almost nothing, any other to 120.
     // A column of them; a text alone narrows, as a list row's subject does.)
-    num least(String k) => _truncates(k) || _type(nodes[k]!) != 'column' ? 32 : math.max(32, math.min(120, _need(k)));
+    // (A field that grows too: it was counted at 32 and drawn 4 px wide
+    // beside two fields and three buttons.)
+    num least(String k) => _truncates(k)
+        ? 32
+        : _fields.contains(_type(nodes[k]!))
+            ? 120
+            : _type(nodes[k]!) != 'column'
+                ? 32
+                : _showsData(k)
+                    ? 120
+                    : math.max(32, math.min(120, _need(k)));
     final need = _sidesPadding(n) + _spacing(n) * math.max(0, shown.length - 1) + shown.fold<num>(0, (s, k) => s + (_fills(nodes[k]!) && _fixedWidth(nodes[k]!) == null ? least(k) : _need(k)));
     if (need <= _phoneRoom) return;
     final spacing = _spacing(n);
@@ -1305,6 +1369,21 @@ final class PageReflow {
         _add(k, reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'basis': basis, 'flex': switch (_layout(kid)['flex']) { final num f when f > 0 => f, _ => 1 }}});
       }
     }
+  }
+
+  /// Whether a column has a text that wraps and shows a value of the page
+  /// (a title from a record): how long it is is not known here, so it is
+  /// counted as a line of words ([_need] counts 60 for it, which let a
+  /// title and its summary be given 45 px beside a picture of 240).
+  bool _showsData(String id) {
+    for (final k in _kids(nodes[id]!)) {
+      final kid = nodes[k]!;
+      if (_type(kid) != 'text' || _truncates(k)) continue;
+      final t = _props(kid)['text'];
+      if (t is String && t.contains(r'${')) return true;
+      if (readMap(kid['bind'])?.containsKey('props.text') ?? false) return true;
+    }
+    return false;
   }
 
   /// A headline's size on a tablet and on a phone.
