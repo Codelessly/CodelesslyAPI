@@ -177,6 +177,27 @@ void main() {
     expect(_h(own, 'onPrimary'), '#FF334400');
   });
 
+  test('the washes of what is on the accent (onAccentWash: the same color, fainter) follow it', () {
+    final base = _desk.mergedWith(ThemeTokens.fromJson({
+      'colors': {'onAccentWash': '#26FFFFFF', 'onAccentLine': '#40FFFFFF'},
+      'dark': {
+        'colors': {'onAccentWash': '#26FFFFFF'},
+      },
+    }));
+    final lime = base.withSiteTheme(ThemeTokens.fromJson({'primary': '#FFC6F432'}));
+    expect(_h(lime, 'onAccentWash'), '#26111111');
+    expect(_h(lime, 'onAccentLine'), '#40111111');
+    final teal = base.withSiteTheme(ThemeTokens.fromJson({'primary': '#FF0D9488'}));
+    expect(_h(teal, 'onAccentWash'), '#26FFFFFF');
+  });
+
+  test('an ink that read on the design system\'s ground reads on a site\'s whose ink and ground are closer together', () {
+    final t = _desk.withSiteTheme(ThemeTokens.fromJson({'surface': '#FFE9DFC8', 'onSurface': '#FF4A4032'}));
+    for (final name in ['secondaryText', 'tertiaryText']) {
+      expect(ThemeTokens.contrastOf(_c(t, name), _c(t, 'pageFill')), greaterThanOrEqualTo(4.5), reason: '$name: ${_h(t, name)}');
+    }
+  });
+
   test('a color the site names itself is the site\'s', () {
     final t = _desk.withSiteTheme(ThemeTokens.fromJson({
       'surface': '#FFFAF4E6',
