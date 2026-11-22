@@ -1399,7 +1399,11 @@ final class _NodeLine {
     }
     doneNode.addAll(['visible', 'opacity', 'tooltip']);
     if (readMap(n['sticky']) case final Json s when s.length == 1 && s['offset'] is num) {
-      words.add(s['offset'] == 16 ? 'sticky' : 'sticky=${jsonEncode(s['offset'])}');
+      // The word alone is the offset its place gives it: none stacked in a
+      // column or a list (over what scrolls under it), 16 elsewhere.
+      final parentType = c.parentOf(id)?['type'];
+      final plain = parentType == 'column' || parentType == 'listView' ? 0 : 16;
+      words.add(s['offset'] == plain ? 'sticky' : 'sticky=${jsonEncode(s['offset'])}');
       doneNode.add('sticky');
     }
     if (n['ignorePointer'] == true && probe['ignorePointer'] != true) {

@@ -66,7 +66,7 @@ Column stretch scroll h=fill
   Column center pad=[24,64,24,64]
     Column gap=32 w=fill maxWidth=1120
       Column fill=#FFFFFFFF border=#FFE5E7EB radius=8 clip=antiAlias
-        Row gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky=0
+        Row gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky
           Row gap=4 grow
             Text.panelTitle "Name" color=#FF9CA3AF maxLines=1
           Row gap=4 end grow
@@ -226,7 +226,7 @@ Column stretch scroll h=fill
         Input "" hint=Search w=280 h=40.0 @search
         Select w=140 h=40.0 @status items=["All","Paid","Due"]
       Column#orders fill=#FFFFFFFF border=#FFE5E7EB radius=8 clip=antiAlias
-        Row#orders-head gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky=0
+        Row#orders-head gap=16 pad=[16,0,16,0] h=40 fill=#FFF8FAFC border-bottom=#FFE5E7EB sticky
           Row w=16
             Checkbox w=16 h=16 tooltip="Select all" value={length(chosen) > 0 && length(chosen) == length(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')) ? true : (length(chosen) == 0 ? false : null)} compact=true tristate=true onChange={chosen="{(length(chosen) == length(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')) ? [] : map(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc'), x => coalesce(x.id, x)))}"}
           Row gap=4 grow onTap={sortKey=(sortKey == "name" ? "-name" : "name")}
@@ -254,7 +254,7 @@ Column stretch scroll h=fill
                     Text.strong "{item.name}" size=16
                 Row gap=8 w=120
                   Row center pad=[8,0,8,0] h=20 fill=#FFF3F4F6 border=#FFE5E7EB radius=5
-                    Text.muted "{item.status}" size=11 weight=500 w=hug
+                    Text.muted "{item.status}" size=11 weight=500 w=hug maxLines=1
                 Row end w=100
                   Text "{item.total}" tabularFigures=true maxLines=1 overflow=ellipsis
         Column center pad=32 visible={length(sortBy(shown, replace(sortKey, '-', ''), startsWith(sortKey, '-') ? 'desc' : 'asc')) == 0}
