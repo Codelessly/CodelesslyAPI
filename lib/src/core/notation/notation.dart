@@ -1492,6 +1492,9 @@ const Map<String, String> notationVerbAliases = {'unfocus': 'blur'};
 /// as `=still ? …`): a name is read, not worked out.
 final _animateFormula = RegExp(r'^[{=]|[?&|<>!]|==');
 
+/// `{condition ? "name" : ""}`: a motion on one side of a condition.
+final _animateEither = RegExp(r'''^[{=](.+)\?\s*(?:"([A-Za-z _-]*)"|'([A-Za-z _-]*)')\s*:\s*(?:"([A-Za-z _-]*)"|'([A-Za-z _-]*)')\s*\}?$''');
+
 /// `animate:<word>`: how a node arrives or keeps moving, as a model writes
 /// it, by the animation preset and params it stands for. An entrance plays
 /// once when the node appears (from a pose to the node's own); a loop keeps
@@ -2470,6 +2473,137 @@ class _Parser {
     }
   }
 
+  /// The actions that store a move in [list], a list reached through a
+  /// record: a field of the record a `find` picks from a list variable
+  /// (`find(playlists,p=>p.id==at).tracks`), or of the item of the each
+  /// around it, when that each repeats a list variable of records with an
+  /// id (`item.conds`). `result` in them is the list in its new order. Null
+  /// for any other list.
+  String? _reorderStore(String list) {
+    var e = list.trim();
+    // A field of the item of the each around this one.
+    if (RegExp(r'^item\.([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(e) case final m?) {
+      final around = _stack.lastWhere((o) => o.each != null, orElse: () => _stack.first);
+      final outer = around.each == null ? null : around.list?.trim();
+      if (outer == null || !_identifier.hasMatch(outer) || _derived.containsKey(outer)) return null;
+      final rows = variables[outer]?['value'];
+      if (rows is! List || rows.isEmpty || !rows.every((r) => r is Map && r['id'] != null)) return null;
+      return '$outer=updateWhere($outer,reorderRow=>reorderRow.id==item.id,reorderRow=>with(reorderRow,"${m[1]}",result))';
+    }
+    // A field of the record a find picks: find(list, x=>…).field, in
+    // brackets or not (a state worked out is written out in them).
+    final field = RegExp(r'\)\s*\.\s*([A-Za-z_][A-Za-z0-9_]*)$').firstMatch(e);
+    if (field == null) return null;
+    e = e.substring(0, field.start + 1).trim();
+    while (e.startsWith('(') && _closes(e, 0) == e.length - 1) {
+      e = e.substring(1, e.length - 1).trim();
+    }
+    if (!e.startsWith('find(') || _closes(e, 4) != e.length - 1) return null;
+    final args = _split(e.substring(5, e.length - 1), ',');
+    if (args.length < 2) return null;
+    final from = args.first.trim(), pick = args.skip(1).join(',').trim();
+    if (!_identifier.hasMatch(from) || !variables.containsKey(from) || _derived.containsKey(from)) return null;
+    final lambda = RegExp(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=>').firstMatch(pick);
+    if (lambda == null) return null;
+    return '$from=updateWhere($from,$pick,${lambda[1]}=>with(${lambda[1]},"${field[1]}",result))';
+  }
+
+  /// Where the bracket at [open] of [s] closes (texts skipped); -1 when it
+  /// does not.
+  static int _closes(String s, int open) {
+    var depth = 0;
+    String? quote;
+    for (var k = open; k < s.length; k++) {
+      final c = s[k];
+      if (quote != null) {
+        if (c == r'\') k++;
+        if (c == quote) quote = null;
+      } else if (c == '"' || c == "'") {
+        quote = c;
+      } else if (c == '(' || c == '[' || c == '{') {
+        depth++;
+      } else if (c == ')' || c == ']' || c == '}') {
+        if (--depth == 0) return k;
+      }
+    }
+    return -1;
+  }
+
+  /// The overlays the writer's own definitions write beside or under their
+  /// tree (`define Shell` with `App …` and, at the definition's margin,
+  /// `Dialog#edit …`; a word that is a dialog and a sheet), each with the
+  /// lines under it: read after the page, as the overlays written there are.
+  final _definedOverlays = <({String head, List<PageLine> lines, int line})>[];
+  int? _definedOverlayAt;
+
+  static final _definedOverlayHead = RegExp('^(?:Dialog|Modal|Sheet|BottomSheet|Drawer|Menu|Popover|Popup)#$notationId(?=\\s|\$)');
+
+  /// Whether [l], a line a defined word stands for ([from]: where it is
+  /// written), is an overlay's head or under one, and so kept for the end
+  /// of the text rather than read into the page's tree.
+  bool _overlayOfDefinition(PageLine l, String? from) {
+    if (from == null || !_ownDefinitionFiles.contains(from.substring(0, from.lastIndexOf(':') < 0 ? from.length : from.lastIndexOf(':')))) {
+      _definedOverlayAt = null;
+      return false;
+    }
+    if (_definedOverlayAt case final int at) {
+      if (l.indent > at) {
+        _top._definedOverlays.last.lines.add((indent: l.indent - at, text: l.text));
+        return true;
+      }
+      _definedOverlayAt = null;
+    }
+    if (!_definedOverlayHead.hasMatch(l.text)) return false;
+    _definedOverlayAt = l.indent;
+    _top._definedOverlays.add((head: l.text, lines: [], line: _line));
+    return true;
+  }
+
+  /// The files of the definitions the text and its site write (not a
+  /// dictionary's or a design system's).
+  late final _ownDefinitionFiles = {
+    for (final defs in _top._defined.page.values)
+      for (final d in defs) d.file,
+  };
+
+  /// Reads the overlays kept by [_overlayOfDefinition].
+  void _readDefinedOverlays() {
+    final last = _line;
+    for (final p in _definedOverlays) {
+      if (_pages.overlay(_overlayCloseEvent(p.head)) case final Overlay o) {
+        _line = p.line;
+        _openBlock(o);
+        _blockIndent = 0;
+        _blockHead = p.head.split(RegExp(r'\s')).first;
+        _blockPrev = 0;
+        _blockTop = _actionsAt = null;
+        for (final l in p.lines) {
+          var rel = l.indent;
+          if (_block != null) _blockLines.add((indent: rel, text: l.text));
+          _blockTop ??= rel;
+          if (_actionsAt != null && rel <= _actionsAt!) _actionsAt = null;
+          if (_actionsAt == null && rel == _blockTop && RegExp(r'^Actions\b').hasMatch(l.text) && _dialogTakesActions) {
+            _feed(rel, 'slot actions');
+            _actionsAt = rel;
+          }
+          if (_actionsAt != null) rel += 2;
+          _feed(rel, l.text);
+        }
+        _closeBlock();
+        // The page opens it by the id it is written with (`open edit` for
+        // the word's `Dialog#edit`), where nothing else has that id.
+        final written = o.id.replaceFirst(RegExp(r'_[a-z][A-Za-z0-9]*\d+$'), '');
+        if (written != o.id && !_taken(written) && _overlayActions.containsKey(o.id)) {
+          for (final a in _opens) {
+            if (a['to'] == written) a.addAll({..._copy(_overlayActions[o.id]!), 'to': o.id});
+          }
+        }
+      }
+    }
+    _definedOverlays.clear();
+    _line = last;
+  }
+
   /// The lines written under the block being read, each with its indent.
   final _blockLines = <PageLine>[];
 
@@ -2671,7 +2805,11 @@ class _Parser {
     if (kind == 'universal' && (!options.openVocabulary || (_from != null && at == null))) return null;
     // A definition is not an answer: a word in its lines we do not have is
     // an issue there, open or not.
-    if (_from != null && at == null && kind != 'children' && kind != 'verb') {
+    // (A type the writer's own definition calls that nothing defines yet is
+    // the same as one a page calls: it stands in, and is recorded where the
+    // word is used, so a component may be written before the ones it calls.)
+    final owed = kind == 'type' && options.openVocabulary && _from != null && _ownDefinitionFiles.contains(_from!.substring(0, _from!.lastIndexOf(':') < 0 ? _from!.length : _from!.lastIndexOf(':')));
+    if (_from != null && at == null && kind != 'children' && kind != 'verb' && !owed) {
       if (kind == 'event') {
         _issue(column, '${on == null ? '' : '$on: '}"$word" is not an event the notation has here. Events: $_eventsTaught.');
       } else if (kind != 'alias') {
@@ -3262,7 +3400,7 @@ class _Parser {
     if (_open case final String open) {
       final all = '$open ${raw.trim()}';
       _openLines++;
-      if (_opened(all) > 0 && _openLines < 400) {
+      if (_opened(all) > 0 && _openLines < notationOpenLineLimit) {
         _open = all;
         return;
       }
@@ -3310,6 +3448,7 @@ class _Parser {
       _from = null;
       for (var (l, from) in _definedLines(indent, raw.trim())) {
         if (_atInDefinition(l, from)) continue;
+        if (_overlayOfDefinition(l, from)) continue;
         _from = from;
         // A line a defined word stands for reads the alias table as the
         // page's lines do (`Input onSubmitted=` is onSubmit), unrecorded.
@@ -5039,6 +5178,9 @@ class _Parser {
     _openedIds.addAll(RegExp(r'\bopen\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(text).map((m) => m[1]!));
     // A page that writes its own drawer gets none made from its sidebar.
     if (RegExp(r'^Drawer\b', multiLine: true).hasMatch(text)) _pages.ownDrawer = true;
+    for (final t in [text, ?definitions]) {
+      _pages.drawerIds.addAll(RegExp(r'^\s*Drawer#([A-Za-z_][A-Za-z0-9_]*)', multiLine: true).allMatches(t).map((m) => m[1]!));
+    }
     final rows = const LineSplitter().convert(text);
     _silentTopLines = _topLinesAlone(rows);
     rows.forEach(_readLine);
@@ -5615,6 +5757,9 @@ class _Parser {
     // `follow grow`: as tall as the room its column leaves (a chat over its
     // composer).
     final eachWords = <String, String>{};
+    // `each t in <formula> reorder onReorder={…}`: the move is stored by the
+    // writer's own actions, as on the line the each is under.
+    ({String value, int column})? eachOnReorder;
     final eachEvents = <String>[];
     // `each m in rows follow grow jumpToLatest=false`: the following list's
     // own keys, as its events are.
@@ -5655,6 +5800,12 @@ class _Parser {
           // events (onScroll, onScrollEnd, onRefresh…) are that list's, and
           // so are the keys of how it holds its place (jumpToLatest=false,
           // stickToStart=false, refreshStyle=spinner).
+          final moved = events.where((e) => e.startsWith('onReorder={')).firstOrNull;
+          if (moved != null && eachWords['reorder'] == '' && !eachWords.containsKey('follow')) {
+            events.remove(moved);
+            eachWords.remove('reorder');
+            eachOnReorder = (value: moved.substring('onReorder={'.length, moved.length - 1), column: column + eachHead.end + end);
+          }
           if (eachWords.containsKey('follow')) {
             eachEvents.addAll(events);
             for (final k in keys) {
@@ -5679,7 +5830,7 @@ class _Parser {
     // `reorder`: the rows are dragged by their Handle (or moved by keys from
     // it) and the new order is written to the list's variable; lists that
     // say the same `reorder=group` also pass rows to each other.
-    final reorders = eachWords.containsKey('reorder');
+    var reorders = eachWords.containsKey('reorder');
     final reorderGroup = eachWords['reorder'] ?? '';
     final follows = eachWords.containsKey('follow');
     final eachHeight = num.tryParse(eachWords['h'] ?? '');
@@ -5758,13 +5909,43 @@ class _Parser {
       final across = g == null && (parent.type == 'row' || (parent.type == 'flex' && (nodes[parent.id]?['props'] as Map?)?['direction'] == 'horizontal'));
       if (follows && (g != null || across)) return _issue(column, 'A list that follows its end runs down a Column, a Card or a Section, not across a Row or in a Grid.');
       final listName = each[2]!.trim();
-      if (reorders && (g != null || across)) return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid.');
+      if ((reorders || eachOnReorder != null) && (g != null || across)) {
+        return _issue(column, 'A list that is reordered runs down a Column, a Card or a Section, not across a Row or in a Grid: write the each under a Column (Column gap=8, and under it each row in rows reorder).');
+      }
       final isVariable = _identifier.hasMatch(listName) && !listName.contains('.') && variables.containsKey(listName);
+      if (reorders && !isVariable && reorderGroup.isEmpty) {
+        // A list reached through a record (`each t in find(lists,l=>l.id==at).tracks
+        // reorder`, `each c in rule.conds reorder` under an each of rules):
+        // the new order is written back into that record.
+        if (_reorderStore(listName) case final String store) {
+          eachOnReorder = (value: store, column: column);
+          reorders = false;
+        }
+      }
       if (reorders && !isVariable) {
-        return _issue(column, 'reorder writes the new order to a list variable: declare it (state $listName=[…]) and repeat it by name (each row in $listName reorder), or write reorder onReorder={…} on the line the each is under and store the move yourself (result.item, result.to). Rows moved between lists (a board) are a ListView\x27s: ListView reorder.group=board reorder.listKey={…} onReorder={…}.');
+        return _issue(column,
+            'reorder writes the new order to a list variable, and this each repeats a list that is worked out. Say on the same line how a move is stored: '
+            'each row in <list> reorder onReorder={<variable>=…} (in it, result is the list in its new order; result.item, result.from and result.to say what moved). '
+            'Rows moved between lists (a board) are a ListView\x27s: ListView reorder.group=board reorder.listKey={…} onReorder={…}.');
       }
       // The universal words of the line the list is under (docs/design/21
       // section 4.1): reorder, selectable, their events, a handle.
+      if (eachOnReorder case final on?) {
+        final had = _listUniversal[parent.id];
+        _listUniversal[parent.id] = _ListWords(
+          {
+            ...?(had == null || had.applied ? null : had.words),
+            'reorder': (value: 'true', column: on.column),
+            // (As an each's own reorder: its rows are moved by their Handle.)
+            'handle': (value: 'true', column: on.column),
+            'onReorder': on,
+          },
+          _line,
+          _src,
+          had?.on ?? 'each',
+          _srcPath,
+        );
+      }
       final lw = _listUniversal[parent.id];
       var listReorder = false, listSelect = false;
       if (lw != null && !lw.applied) {
@@ -5864,7 +6045,10 @@ class _Parser {
       // result.from, result.to, result.item as the list gives them.
       if ((listReorder ? lw!.value('onReorder') : null) case final String body) {
         final moved = isVariable ? listName : 'move($listName, result.from, result.to)';
-        final read = body.replaceAllMapped(RegExp(r'(?<![A-Za-z0-9_.])result(?![A-Za-z0-9_])(?!\s*\.\s*(?:from|to|item|fromList|toList)\b)'), (_) => '($moved)');
+        // (`result.list` is that list too.)
+        final read = body
+            .replaceAll(RegExp(r'(?<![A-Za-z0-9_.])result\s*\.\s*list(?![A-Za-z0-9_])'), 'result')
+            .replaceAllMapped(RegExp(r'(?<![A-Za-z0-9_.])result(?![A-Za-z0-9_])(?!\s*\.\s*(?:from|to|item|fromList|toList)\b)'), (_) => '($moved)');
         listActions.add({'trigger': {'type': 'reorder'}, 'actions': _actions(read, column)});
       }
       // selectable: the selection kept in a list variable, by each row's key
@@ -6096,6 +6280,10 @@ class _Parser {
     Set<String>? stackAlign;
     Json? animation;
     Map<String, int>? timing;
+    // A motion only while a condition holds (`animate={still ? "" : "pulse"}`)
+    // and a time worked out (`duration={slow ? 800 : 300}`): bound.
+    String? animateWhile;
+    final timingFormulas = <String, String>{};
     String? animationCurve;
     String? animateAfter;
     // `Text "{row.title}" mark={q}`: the text as written, and what to mark in it.
@@ -7334,8 +7522,24 @@ class _Parser {
             final decoded = jsonDecode(raw);
             if (_readsValues(decoded)) raw = '=${_formulaSource(decoded, numbers: const {'x', 'y', 'w', 'h'}.contains(key))}';
           } catch (_) {
-            _issue(col, 'Not a list of values. One that is worked out is written in braces: $key={$raw}.');
-            continue;
+            // `gradient=[p.c1,p.c2]`, `items=[a.name, b.name]`: a list that
+            // is no list of values and reads the state in each place can
+            // only be one worked out, so it is read as if in braces.
+            final inner = raw.startsWith('[') && raw.endsWith(']') ? raw.substring(1, raw.length - 1) : null;
+            final reads = inner != null &&
+                _split(inner, ',').every((e) {
+                  final t = e.trim();
+                  if (t.isEmpty) return false;
+                  if (_literal(t).$1) return true;
+                  final head = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*').stringMatch(t);
+                  if (head == null) return RegExp(r'^[("\x27\[{-]').hasMatch(t);
+                  return t.length > head.length || variables.containsKey(head) || _derived.containsKey(head) || (head == 'item' && _stack.any((o) => o.each != null));
+                });
+            if (!reads) {
+              _issue(col, 'Not a list of values: a text in a list is quoted ($key=["One","Two"]), and a list read from the state is its name in braces ($key={names}). $key=$raw is left out.');
+              continue;
+            }
+            raw = '=$raw';
           }
         } else if (raw != 'fill' && raw != 'hug' && !sizeWord && key != 'drag' && key != 'drop' && _variablePath.hasMatch(raw) && !_literal(raw).$1) {
           // A bare word is the word itself (tone=quiet). One that names a
@@ -7547,7 +7751,16 @@ class _Parser {
           // fadeIn, fade-in, "fade in" and fade are one word.
           final word = name.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]}-${m[2]}').toLowerCase().replaceAll(RegExp(r'[ _]'), '-');
           final look = notationAnimations[word] ?? notationAnimations[word.replaceAll(RegExp(r'-(in|once|loop)$'), '')];
-          if (look == null && _animateFormula.hasMatch(raw)) {
+          final either = look == null ? _animateEither.firstMatch(raw) : null;
+          String? motion(String? w) => w?.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]}-${m[2]}').toLowerCase().replaceAll(RegExp(r'[ _]'), '-');
+          final then = motion(either?[2] ?? either?[3]), otherwise = motion(either?[4] ?? either?[5]);
+          bool none(String? w) => w == '' || w == 'none';
+          if (either != null && ((none(then) && notationAnimations.containsKey(otherwise)) || (none(otherwise) && notationAnimations.containsKey(then)))) {
+            // `animate={reduced ? "" : "slide-up"}`: the one motion, on while
+            // its side of the condition holds (NodeAnimation.enabled).
+            animation = {'id': 'a', ..._copy(notationAnimations[none(then) ? otherwise : then]!)};
+            animateWhile = none(then) ? '!(${either[1]!.trim()})' : either[1]!.trim();
+          } else if (look == null && _animateFormula.hasMatch(raw)) {
             // `animate={still ? "" : "pulse"}`: the word is one name, read
             // once; what depends on the state is which line shows.
             final words = RegExp('["\']([A-Za-z-]+)["\']').allMatches(raw).map((m) => m[1]!).where(notationAnimations.containsKey);
@@ -7565,6 +7778,10 @@ class _Parser {
         }
         if ((key == 'duration' || key == 'delay' || key == 'stagger') && _milliseconds(raw) != null) {
           (timing ??= <String, int>{})[key] = _milliseconds(raw)!;
+          continue;
+        }
+        if ((key == 'duration' || key == 'delay') && (raw.startsWith('=') || _bracedExpression(raw)) && RegExp(r'(^|\s)(animate|animation|enter)=').hasMatch(line)) {
+          timingFormulas[key] = raw;
           continue;
         }
         // `animate=fade curve=easeIn`: the preset's easing, on a line whose
@@ -7614,13 +7831,19 @@ class _Parser {
         if (key == 'gradient' && raw.startsWith('=')) {
           final e = raw.substring(1).trim();
           final colors = e.startsWith('[') && e.endsWith(']') ? [for (final c in _split(e.substring(1, e.length - 1), ',')) if (c.trim().isNotEmpty) c.trim()] : const <String>[];
-          if (colors.length < 2) {
-            _issue(col, 'A gradient worked out is written as the list of its colors, each worked out in it: gradient={[m.c1, m.c2]} (two or more). gradient={$e} is left out.');
+          if (colors.length == 1) {
+            _issue(col, 'A gradient has two colors or more: gradient={[m.c1, m.c2]}, or a list of the state (gradient={m.colors}). gradient={$e} is left out.');
             continue;
           }
           key = 'fills';
-          raw = '=[{"type": "linear", "begin": "topLeft", "end": "bottomRight", "stops": ['
-              '${[for (var i = 0; i < colors.length; i++) '{"position": ${i / (colors.length - 1)}, "color": (${colors[i]})}'].join(', ')}]}]';
+          // A list of the state (`gradient={p.colors}`), or one chosen
+          // (`gradient={on ? [a, b] : [c, d]}`): its colors as they are when
+          // the page runs, spread evenly from the first to the last.
+          raw = colors.isEmpty
+              ? '=[{"type": "linear", "begin": "topLeft", "end": "bottomRight", "stops": '
+                  'map(range(length($e)), gradientStop=>{"position": gradientStop/max(1, length($e)-1), "color": ($e)[gradientStop]})}]'
+              : '=[{"type": "linear", "begin": "topLeft", "end": "bottomRight", "stops": ['
+                  '${[for (var i = 0; i < colors.length; i++) '{"position": ${i / (colors.length - 1)}, "color": (${colors[i]})}'].join(', ')}]}]';
         }
         if (key == 'fit' && written == 'Image') {
           imageFit = _literal(raw).$2?.toString() ?? raw;
@@ -8173,8 +8396,13 @@ class _Parser {
         if (key == 'selected' && type == 'chip') type = 'choiceChip';
         // A DataTable's records: rows={list}.
         if (ours && written == 'DataTable' && key == 'rows') {
-          if (!raw.startsWith('=')) {
-            _issue(col, 'The rows of a table are read from the state, so they are in braces: rows={orders}.');
+          // Records written on the line (`rows=[{"name":"mode","type":"text"}]`,
+          // a reference table of a page) are the table's rows as they are.
+          final written = raw.startsWith('[') ? _json(raw) : null;
+          if (written is List && written.every((r) => r is Map)) {
+            bind['data'] = '\${= ${_formulaSource(written)}}';
+          } else if (!raw.startsWith('=')) {
+            _issue(col, 'The rows of a table are its records: a list of the state in braces (rows={orders}), or the records written out (rows=[{"name":"Ada","total":12}]).');
           } else {
             bind['data'] = _identifier.hasMatch(raw.substring(1)) ? _read(raw.substring(1)) : _formula(raw.substring(1));
           }
@@ -9167,10 +9395,16 @@ class _Parser {
       if (animationCurve case final String c) animation['curve'] = c;
       if (animateAfter != null) animation['after'] = animateAfter;
       node['animations'] = [animation];
+      if (animateWhile case final String on) bind['animations[0].enabled'] = _formula(on);
+      for (final e in timingFormulas.entries) {
+        bind['animations[0].${e.key}'] = _formula(e.value.startsWith('=') ? e.value.substring(1) : e.value);
+      }
       // Under an `each`, each copy starts that much after the one before.
       if (timing?['stagger'] case final int step) {
         bind['animations[0].delay'] = '\${= index*$step${timing?['delay'] == null ? '' : '+${timing!['delay']}'}}';
       }
+    } else if (timing != null && RegExp(r'(^|\s)(animate|animation|enter)=').hasMatch(line)) {
+      // (The line's animate= was refused, and said: its times go with it.)
     } else if (timing != null) {
       _issue(column, 'duration=, delay= and stagger= go with animate= on the same line (animate=fade duration=400).');
     } else if (animationCurve != null) {
@@ -9239,7 +9473,10 @@ class _Parser {
       props.putIfAbsent('sortable', () => true);
       props.putIfAbsent('gridLineColor', () => options.track);
       layout.putIfAbsent('height', () => 320);
-      if (!bind.containsKey('data') || (!props.containsKey('columns') && !bind.containsKey('props.columns'))) {
+      // (Rows or columns that were written and refused are said where they
+      // are written: the line is not said a second time to want them.)
+      final wroteBoth = RegExp(r'(^|\s)rows=').hasMatch(line) && RegExp(r'(^|\s)columns=').hasMatch(line);
+      if (!wroteBoth && (!bind.containsKey('data') || (!props.containsKey('columns') && !bind.containsKey('props.columns')))) {
         _issue(column, 'A DataTable shows records in columns: DataTable rows={orders} columns=[{"key":"name","label":"Name"},{"key":"total","label":"Total"}].');
       }
       // A row chosen is a place in the order shown: a new order clears it.
@@ -10608,6 +10845,7 @@ class _Parser {
   /// [line] with the word [name] read as `item`, outside quoted text and
   /// inside `{…}` within it.
   static final _goes = RegExp(r'(?:^|[{;?:(]|\bthen)\s*go$');
+  static final _opensOrCloses = RegExp(r'(?:^|[{;?:(]|\bthen)\s*(?:open|close)$');
 
   String _rename(String line, String name, [String to = 'item']) {
     // A short loop name may also be a layout key (`each h ... Text ... h=120`).
@@ -10629,6 +10867,9 @@ class _Parser {
           // `go album` under `each album in â€¦` with a page called album: a
           // bare word after go is the page's id (the item is `go {album}`).
           if (_goes.hasMatch(before) && notationScreen(name, options.screens) != null) return m[0]!;
+          // `open story` beside a state or a loop item called story: a bare
+          // word after open or close is the overlay's id, never the value.
+          if (_opensOrCloses.hasMatch(before)) return m[0]!;
           return key ? m[0]! : to;
         });
     void flush(int end, bool isCode) {
@@ -11543,6 +11784,7 @@ class _Parser {
     // line's nodes sent before the next line's.
     _from = null;
     for (final d in _defined.finish()) {
+      if (_overlayOfDefinition((indent: d.indent, text: d.text), d.from)) continue;
       _from = d.from;
       for (final l in _pages.rewrite(d.indent, d.text)) {
         final role = _roleMark.firstMatch(l.text);
@@ -11565,6 +11807,7 @@ class _Parser {
       _close(_stack.removeLast());
     }
     nodes.keys.skip(before).toList().forEach(_emit);
+    if (_host == null) _readDefinedOverlays();
     for (final scroll in _scrolls) {
       if (_anchors[scroll['node']] case final String id) {
         scroll['node'] = id;
@@ -11580,9 +11823,13 @@ class _Parser {
       // overlay (kind `overlay`), not an issue.
       final have = {for (final o in _overlays) o.options.screen};
       final unwritten = <String, int>{};
+      // (The button made for the sidebar's drawer is not drawn where the
+      // writer has a menu button of their own, and no drawer is made: what
+      // it would open is not something the writer left out.)
+      final unmade = _pages.ownMenuButton ? _pages.sidebarMenu : null;
       for (final a in _opens) {
         final to = a['to'];
-        if (to is String && RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(to) && !have.contains(to) && !_taken(to)) {
+        if (to is String && to != unmade &&RegExp(r'^[A-Za-z_][A-Za-z0-9_-]*$').hasMatch(to) && !have.contains(to) && !_taken(to)) {
           unwritten.putIfAbsent(to, () => _actionLines[a] ?? _line);
         }
       }
@@ -11611,6 +11858,7 @@ class _Parser {
         final to = switch (a['type']) { 'openModal' => a['to'], 'scrollTo' => a['node'], _ => null };
         if (to is! String || to.contains(r'${')) return false;
         if (a['type'] == 'openModal' ? canvases.contains(to) : _taken(to)) return false;
+        if (a['type'] == 'openModal' && to == unmade) return true;
         missing.putIfAbsent('${a['type'] == 'openModal' ? 'open' : 'scroll'} $to', () => _actionLines[a] ?? _line);
         return true;
       }

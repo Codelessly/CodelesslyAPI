@@ -113,9 +113,13 @@ void main() {
       expect(bound, allOf(contains('"linear"'), contains('(item.c1)'), contains('(item.c2)'), contains('"position": 1.0')));
     });
 
-    test('one that is not a list of colors is said, not left out silently', () {
-      final r = _read('state cs=["#FF000000","#FFFFFFFF"]\nColumn\n  Box w=40 h=40 gradient={cs}\n');
-      expect(r.issues.single.message, allOf(contains('gradient={[m.c1, m.c2]}'), contains('gradient={cs} is left out')));
+    test('a list of the state is its colors, spread from the first to the last; one color alone is said', () {
+      final r = _read('state cs=["#FF000000","#FFFFFFFF"]\nColumn\n  Box#b w=40 h=40 gradient={cs}\n');
+      expect(r.issues, isEmpty);
+      final fills = (_node(r, 'b')['bind'] as Map)['decoration.fills'] as String;
+      expect(fills, allOf(contains('map(range(length(cs))'), contains('(cs)[gradientStop]')));
+      final one = _read('state c="#FF000000"\nColumn\n  Box w=40 h=40 gradient={[c]}\n');
+      expect(one.issues.single.message, allOf(contains('A gradient has two colors or more'), contains('gradient={[c]} is left out')));
     });
   });
 }

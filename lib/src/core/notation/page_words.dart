@@ -308,6 +308,18 @@ final class PageWords {
   /// no button for it are made.
   bool ownDrawer = false;
 
+  /// The ids of the drawers the text and its definitions write (`Drawer#id`).
+  final drawerIds = <String>{};
+
+  /// Whether a narrow window's button ([rest]: its line after its word) is
+  /// the writer's own way to the navigation: drawn as a menu, or opening a
+  /// Drawer the text writes. One that opens anything else (an "Add" that
+  /// shows a sheet) is no navigation, and the sidebar keeps its drawer.
+  bool _opensNavigation(String rest) {
+    if (RegExp(r'(^|\s)(icon=)?"?(menu|menu_open|dehaze|Menu|Navigation)"?(\s|$)').hasMatch(rest)) return true;
+    return RegExp(r'[{;]\s*open\s+([A-Za-z_][A-Za-z0-9_]*)').allMatches(rest).any((m) => drawerIds.contains(m[1]));
+  }
+
   /// A token of a line that says what it does at another width.
   static final _byWidth = RegExp(r'^(?:(?:phone|tablet|desktop|portrait|landscape|min\w+|max\w+)\.|hide=|show=)');
 
@@ -1028,7 +1040,7 @@ final class PageWords {
     // The writer's own button for a narrow window (`IconButton "menu"
     // show=phone onTap={open houseNav}`): the page has its navigation there,
     // so the button made for the sidebar, its bar and its drawer are not.
-    if (root == 'App' && sidebarRest != null && !ownMenuButton && (word == 'IconButton' || word == 'Button') && RegExp(r'\sshow=(phone|mobile|tablet)(\s|$)').hasMatch(rest) && RegExp(r'[{;]\s*open\s').hasMatch(rest)) {
+    if (root == 'App' && sidebarRest != null && !ownMenuButton && (word == 'IconButton' || word == 'Button') && RegExp(r'\sshow=(phone|mobile|tablet)(\s|$)').hasMatch(rest) && RegExp(r'[{;]\s*open\s').hasMatch(rest) && _opensNavigation(rest)) {
       ownMenuButton = true;
       slimBarSuperseded = true;
     }
@@ -1740,6 +1752,12 @@ class _Parts {
         if (quote != null) {
           if (c == r'\') i++;
           if (c == quote) quote = null;
+          // A text's {…} is a formula, and a text in it is the formula's
+          // ("{formatDate(day,"EEE d")}"): it does not end the text.
+          if (c == '{' && quote == '"') {
+            final end = _formulaEnd(s, i);
+            if (end > i) i = end;
+          }
         } else if (c == '"' || c == "'") {
           quote = c;
         } else if (c == '[' || c == '{' || c == '(') {
@@ -1756,6 +1774,27 @@ class _Parts {
   }
 
   final _tokens = <String>[];
+
+  /// Where the `{` at [open] of a text closes, its own texts skipped; -1
+  /// when it does not.
+  static int _formulaEnd(String s, int open) {
+    var depth = 0;
+    for (var k = open; k < s.length; k++) {
+      final c = s[k];
+      if (c == '{') {
+        depth++;
+      } else if (c == '}') {
+        if (--depth == 0) return k;
+      } else if (c == r'\') {
+        k++;
+      } else if ((c == '"' || c == "'") && k > open) {
+        final end = s.indexOf(c, k + 1);
+        if (end < 0) return -1;
+        k = end;
+      }
+    }
+    return -1;
+  }
 
   /// The `{…}` merged into the node, with the space before it ('' when none).
   String tail = '';

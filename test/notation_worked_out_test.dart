@@ -136,10 +136,8 @@ ${state}Column
     });
 
     test('what is said of a list that is no JSON is a line that is read', () {
-      final r = _parse('${state}Column\n  LineChart#c labels=["a","b"] series=[{"name":"T","values":{map(pts,p=>p.t)}}]\n');
-      final said = _said(r).firstWhere((m) => m.startsWith('Not a list of values'));
-      final suggested = RegExp(r'(series=\{.*\})\.$').firstMatch(said)![1]!;
-      final again = _parse('${state}Column\n  LineChart#c labels=["a","b"] $suggested\n');
+      // (A list that is no JSON and reads the state is one worked out: read as in braces.)
+      final again = _parse('${state}Column\n  LineChart#c labels=["a","b"] series=[{"name":"T","values":{map(pts,p=>p.t)}}]\n');
       expect(_said(again), isEmpty);
       expect(_node(again, 'c')['type'], 'chart');
       expect((_node(again, 'c')['bind'] as Map)['props.data'], contains('"s0": get(map(pts,p=>p.t), i)'));

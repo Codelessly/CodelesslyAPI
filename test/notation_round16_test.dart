@@ -122,12 +122,17 @@ Column
   });
 
   group('animate= written as a formula', () {
-    test('says what to write instead: the line under if and else', () {
+    test('one motion on one side of a condition is on while that side holds; two motions say what to write', () {
       for (final written in ['animate={still ? "" : "pulse"}', "animate={still ? 'none' : 'pulse'}"]) {
-        final r = _page('state still=false\nText "A" $written');
-        expect(r.issues.single.message, startsWith('animate= takes one name, not a formula: the motion was left out. For a motion only while a condition holds, write the line twice: '
-            'under if <condition> with animate=pulse, and under else without it. Names: fade, '));
+        final r = _page('state still=false\nText#t "A" $written');
+        expect(r.issues, isEmpty);
+        final node = (r.document['nodes'] as Map)['t'] as Map;
+        expect(jsonEncode(node['animations']), contains('"id":"a"'));
+        expect((node['bind'] as Map)['animations[0].enabled'], r'${= !(still)}');
       }
+      final two = _page('state still=false\nText "A" animate={still ? "fade" : "pulse"} duration=300');
+      expect(two.issues.single.message, startsWith('animate= takes one name, not a formula: the motion was left out. For a motion only while a condition holds, write the line twice: '
+          'under if <condition> with animate=fade, and under else without it. Names: fade, '));
       // What it says to write is read.
       final r = _page('state still=false\nColumn\n  if still\n    Text "A"\n  else\n    Text#b "A" animate=pulse');
       expect(r.issues, isEmpty);

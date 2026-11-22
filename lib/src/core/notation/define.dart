@@ -1174,7 +1174,10 @@ final class DefinedWords {
       if (RegExp(r'^state\s+([A-Za-z_][A-Za-z0-9_]*)').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^each\s+([A-Za-z_][A-Za-z0-9_]*)\s+in\s').firstMatch(l.text) case final m?) renamed[m[1]!] = '${m[1]}_$uid';
       if (RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z][A-Za-z0-9]*)*(?:~[a-z]+)?#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*)').firstMatch(l.text) case final m?) {
-        final to = identical(l, bodyRoot) ? uid : '${m[1]}_$uid';
+        // (An overlay that is the body's root keeps the id it is written
+        // with when the use gives none: the body's own `open` of it names
+        // that id too.)
+        final to = identical(l, bodyRoot) ? (p.id.isEmpty && _overlayId.hasMatch(l.text) ? m[1]! : uid) : '${m[1]}_$uid';
         ids[m[1]!] = to;
         // An id named like one of the word's parameters (`expand=true` and
         // `Glyph#expand`) is that id only where an id is read (`#expand`, an
