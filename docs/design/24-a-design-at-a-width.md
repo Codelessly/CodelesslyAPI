@@ -302,7 +302,7 @@ the code infers by itself (which lines, when) is listed beside.
 | 3 | a window's foot is kept in view | `notation.dart` `_feet` (Main split into its sticky head, a scrolling column, the foot; a Footer written in App moved into Main) | **not at all**: it is not a width; it holds at every width | moving a line written in App into Main. The split itself is base lines a definition could write with a named slot (`...Foot`, note 23 G3, G4) |
 | 4 | a row of controls with no room on a phone wraps (track-c) | `reflow.dart` | not needed: values (`phone.wrap=true`, `phone.w=fill` on the search, `hide=phone` on the spacer; experiment 7) | deciding that it has no room: a measurement |
 | 5 | a Table leaves out the columns with no room (track-c) | the Table word and `reflow.dart` | **partly**: a fixed choice per width is a value on a column (`"hide":"phone"`); the table as a list on a phone is a block, **completely** | which columns fit beside a sidebar at 834: a measurement |
-| 6 | a Sidebar is a rail on a tablet (track-c's `sizes.rail`) | `page_words.dart` (`railWidths`, `_railHide`), `reflow.dart` | **partly**: its width is a value (`tablet.w=64`) | each item showing its icon alone and a group label becoming a rule there: the item must know its sidebar is a rail at that width (G1, the frame it is in) |
+| 6 | a Sidebar is a rail on a tablet (a theme's `sizes.rail`), when every line under it folds by itself; one with a line written by hand stays as wide as written | `page_words.dart` (`railFolds`: which lines fold; `_menuSize`: no menu button beside a rail that shows), `notation.dart` (`_unrail` takes the rail's rules off a sidebar that does not fold; `_foldInRails` tells each component under a rail) | **completely**: its width is a value (`tablet.w=64`), and each component that declares `rail` has it true where its sidebar is narrower than 120 (the sidebar's rule with `rail` in place of the width, as if its line said `tablet.rail=true`). A component folds on `props.rail` alone, so under a sidebar as wide as written its words stay whole | none: the item no longer reads the window's width to guess that its sidebar is a rail; a hand-written line still says what it is there itself (`hide=tablet`) |
 | 7 | a list beside its detail is one at a time on a phone, with a back button (track-c for `Main w=380` beside a Pane) | `reflow.dart` (`ListDetail`), `notation.dart` `_listDetail` | **completely**, with the state and the row's tap the writer writes (as mail-client and notes-app did by hand) | finding the tap that selects a row and adding the step to it; the back button in the pane's own bar (a default placement); Escape and the system back (`blockBack`); the pane's enter animation |
 | 8 | a page header's actions go under its title (Desk's PageHeader) | Desk's component | not needed: values (`phone.direction=vertical phone.gap=12`, experiment 7) | none |
 | 9 | a bulk bar's actions go to a second line (Desk's BulkBar) | Desk's component | not needed: values (`phone.wrap=true`, or the direction) | none |
@@ -366,7 +366,7 @@ Table p in shown columns=["Name","Email","Role"]
           ...
 ```
 
-**6. The rail**: the width only.
+**6. The rail**: the width only. Each line that declares `rail` is told (`NavItem` reads as `NavItem … tablet.rail=true`).
 
 ```notation
 Sidebar tablet.w=64
@@ -439,7 +439,7 @@ collects or rewrites other lines, it places a line in another part, or it is a p
 | the window's foot | moving a line written in App into Main | `Footer` in an App: "kept in view" |
 | a row with no room wraps; a table keeps the columns that fit; a grid takes fewer columns; a headline smaller | measurements of a page that says nothing at that width | the reflow's own (no word: it is the default) |
 | a list beside its detail, wired | finding the tap that selects and adding to it; Escape and back | `Main` beside a `Pane` |
-| a sidebar's items as a rail | an item knowing the frame it is in (G1) | `Sidebar` at a width |
+| a sidebar's items as a rail | telling each component under a sidebar where it is a rail (its `rail` parameter, by the sidebar's own rule) | `Sidebar` at a width |
 
 Each keeps its word, as decision 4 says: the word is what a writer writes to get the behaviour without writing it.
 What form A adds is that each word's meaning can now be written down as the design it gives (sections 4.1 and 8),
@@ -461,7 +461,7 @@ own menu button in a Nav (one button where there were two): question 8.
 
 | | note 23's reason | with form A |
 |---|---|---|
-| G1 | reads the line it is under (the frame) | unchanged. The rail (row 6) shows G1 meeting a width: an item's look depends on its sidebar being a rail at that width |
+| G1 | reads the line it is under (the frame) | unchanged. The rail (row 6) is G1 meeting a width, and is done without it: the sidebar hands its rule down as a parameter (`rail`), so the item reads a value, not its frame |
 | G2 | works a value out as the use is read | unchanged |
 | G3 | sends a use's words elsewhere than the root | unchanged; `...#id` is a named place for a *line* under the use, not for a word |
 | G4 | writes two lines where one is written | unchanged |

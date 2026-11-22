@@ -423,7 +423,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 9380
+      "words": 9481
     },
     {
       "topic": "lists-a-list-over-data",
@@ -437,7 +437,7 @@
       "file": "lists.md",
       "anchor": "lists-a-table-of-records",
       "title": "A table of records",
-      "words": 934
+      "words": 1035
     },
     {
       "topic": "lists-a-list-of-its-own-line",
@@ -737,7 +737,7 @@
       "anchor": "page-responsive",
       "title": "Responsive",
       "summary": "A line's keys at other widths (media rules), the named sizes, breakpoints, and the looks of a line's states.",
-      "words": 3956
+      "words": 4106
     },
     {
       "topic": "responsive-keys-at-other-widths",
@@ -758,7 +758,7 @@
       "file": "responsive.md",
       "anchor": "responsive-what-reflow-does",
       "title": "What reflow does",
-      "words": 1520
+      "words": 1670
     },
     {
       "topic": "responsive-breakpoints",

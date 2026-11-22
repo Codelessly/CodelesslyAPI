@@ -84,6 +84,103 @@ ${people}Page
     expect('${row['bind']}', contains('contains(sel, coalesce(item.id, item))'));
   });
 
+  // A chosen row is the accent's tint, unless the theme names its own fill
+  // for one (`selectedRow`: a design system whose chosen things are neutral,
+  // the ticked box the accent's mark). The same for a selectable list's row
+  // and a line written `selected={…}`.
+  test("a chosen row's fill: the accent's tint, or the theme's selectedRow", () {
+    const text = '''
+${people}state open="a"
+Page
+  Section
+    Table#people p in people columns=["Name"] select=@sel
+    Column#list selectable selected=@sel
+      each p in people
+        Row#item pad=8
+          Text "{p.name}"
+    Row#line pad=8 selected={open == "a"}
+      Text "Ada"
+''';
+    Map<String, Object?> theme({String? row}) => {
+          'primary': '#FF2563EB',
+          'surface': '#FFFFFFFF',
+          'colors': {'activeTint': '#242563EB', 'selectedRow': ?row},
+        };
+    String? fill(NotationResult r, String id) {
+      // (The selectable list's row is the list's item, whatever its id.)
+      if (id == 'listItem') {
+        var at = 'list';
+        while (_nodes(r)[at]!['states'] == null) {
+          at = (_nodes(r)[at]!['children']! as List).first as String;
+        }
+        id = at;
+      }
+      final states = _nodes(r)[id]!['states']! as Map;
+      return ((((states['selected'] as Map)[id] as Map)['decoration'] as Map)['fills'] as List).single['color'] as String?;
+    }
+
+    for (final named in [false, true]) {
+      final tinted = _parse(text, options: NotationOptions.fromTheme(theme(), width: 1280, named: named));
+      final neutral = _parse(text, options: NotationOptions.fromTheme(theme(row: '#FFF3F4F6'), width: 1280, named: named));
+      expect(tinted.issues, isEmpty);
+      expect(neutral.issues, isEmpty);
+      for (final id in ['people-row', 'listItem', 'line']) {
+        expect(fill(neutral, id), named ? 'selectedRow' : '#FFF3F4F6', reason: '$id, named: $named');
+        expect(fill(tinted, id), isNot(anyOf('selectedRow', '#FFF3F4F6')), reason: '$id, named: $named');
+      }
+      expect(fill(tinted, 'people-row'), named ? 'activeTint' : '#FFE9EFFD');
+      expect(fill(tinted, 'listItem'), named ? 'activeTint' : '#242563EB');
+      // Printed and read back, each keeps its fill.
+      for (final r in [tinted, neutral]) {
+        final printed = printNotation(r.document, catalog: standardCatalog);
+        final back = parseNotation(printed, catalog: standardCatalog, options: notationOptionsFor(r.document));
+        for (final id in ['people-row', 'listItem', 'line']) {
+          expect(fill(back, id), fill(r, id), reason: '$id, named: $named\n$printed');
+        }
+      }
+    }
+  });
+
+  // A frame written `flush` (a design system's Panel: no padding round its
+  // lines, a rule under its head) is the border of what is in it: a Table
+  // under it draws no frame of its own. Its own border under the frame's rule
+  // was two rules under the head, and two down each side.
+  test('a Table under a frame written flush, or written flush itself, has no frame of its own', () async {
+    final files = {
+      'design_system.json': '{"id":"acme","name":"Acme","components":["components/Panel.json"]}',
+      'components/Panel.json': '{"schema":3,"id":"Panel","roots":["p"],"widget":{"type":"Panel","doc":"A titled section.","children":"list",'
+          '"props":[{"key":"title","type":{"kind":"string","flutter":"String"},"default":""},{"key":"flush","type":{"kind":"boolean","flutter":"bool"},"default":false}]},'
+          '"nodes":{"p":{"type":"column","layout":{"width":{"fill":0},"height":{"hug":0}},"children":["s"]},"s":{"type":"slot"}}}',
+    };
+    final ds = await DesignSystem.load((ref) async => files[ref]);
+    final catalog = ds.catalogOver(standardCatalog);
+    final options = NotationOptions.fromDesignSystem(ds, width: 1280);
+    Map<String, Object?> table(String lines) {
+      final r = Catalog.run(catalog, () => parseNotation('${people}Page\n  Section\n$lines', catalog: catalog, options: options));
+      expect(r.issues, isEmpty, reason: lines);
+      return _nodes(r)['t']!;
+    }
+
+    const line = 'Table#t p in people columns=["Name"]';
+    bool framed(Map<String, Object?> t) {
+      final d = (t['decoration'] as Map?) ?? const {};
+      return d['strokes'] != null && d['radius'] != null && d['fills'] != null;
+    }
+
+    expect(framed(table('    $line')), isTrue);
+    expect(framed(table('    Panel "Plans"\n      $line')), isTrue, reason: 'a padded frame: the table keeps its own');
+    expect(framed(table('    Panel "Plans" flush=false\n      $line')), isTrue);
+    for (final flush in ['    Panel "Plans" flush\n      $line', '    Panel "Plans" flush=true\n      $line', '    $line flush']) {
+      final t = table(flush);
+      expect(t['decoration'], isNull, reason: flush);
+      expect((t['props'] as Map?)?.containsKey('flush') ?? false, isFalse, reason: 'the word is the table\'s, not a key of its column');
+      // Its header's band and the rule under it are still drawn.
+      expect((_nodes(Catalog.run(catalog, () => parseNotation('${people}Page\n  Section\n$flush', catalog: catalog, options: options)))['t-head']!['decoration']! as Map)['strokeSides'], 'bottom');
+    }
+    // Only a table that is the frame's own line: one further in keeps its frame.
+    expect(framed(table('    Panel "Plans" flush\n      Column pad=16\n        $line')), isTrue);
+  });
+
   test('the lines under a Table are its cells, in its columns\x27 order; compact rows are denser', () {
     final r = _parse('''
 ${people}Page

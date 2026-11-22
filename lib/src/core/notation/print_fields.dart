@@ -1766,7 +1766,7 @@ final class _NodeLine {
           id: {
             'decoration': {
               'fills': [
-                {'color': c.options.selectedFill},
+                {'color': c.options.selectedRow ?? c.options.selectedFill},
               ],
             },
           },

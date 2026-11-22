@@ -354,7 +354,7 @@ defaults:
   rule for other widths a rail that wide on a tablet, its words folded to their icons, and the drawer on a phone,
   when every line under it folds by itself there. A line folds when it is a component that declares a `rail`
   parameter (the design system's `NavItem`, `Brand`, `Account`; a site's own component with `param rail:bool=false`
-  that shows its icon alone on a tablet), takes no width of its own (`Spacer`, `Divider`), or says what it is at
+  that shows its icon alone when `rail` is true), takes no width of its own (`Spacer`, `Divider`), or says what it is at
   that width itself (`hide=tablet`, `show=desktop`, `tablet.…`, `max899.…`: it and the lines under it are then
   yours). The sidebar's `Footer`, a plain `Column`, an `if`, an `each` and a defined word hold lines, and fold when
   their lines do; under an `at tablet` block, the block's lines are the ones read. With a line written by hand (a
@@ -362,6 +362,12 @@ defaults:
   as written on a tablet, as with no rail, and still the drawer on a phone: a label has no room in 64. To make
   such a sidebar a rail, write its width there and what each line does (`Sidebar tablet.w=64 hide=phone`, the
   labels `hide=tablet`).
+- A component that declares `rail` is told where its sidebar is a rail: wherever an app's `Sidebar` is narrower
+  than 120 (the design system's rail, your own `tablet.w=64`, or a sidebar written `w=64`), each such component
+  under it has `rail` true there, as if its line said `tablet.rail=true`. So a component folds on `props.rail`
+  alone, never on the window's width: under a sidebar that stays as wide as written (one with a line written by
+  hand) its words stay whole on a tablet, and in the phone's drawer too. A line that says `rail` itself (a value,
+  a binding such as `rail={folded}`, a rule) keeps what it says.
 - `keep` on a line (`Row#window keep`) leaves it and everything in it as written at every width (a child written
   `phone.w=fill` still turns its row there: that is what the line says).
 - A text never breaks inside a word. Where its box is narrower than its longest word the text is drawn smaller so
@@ -370,8 +376,10 @@ defaults:
   or a chip is one line and is never broken.
 - An `App` whose first pane is a `Sidebar` and that has a `Main` gets a menu button at the start of Main's top bar
   (a slim bar of its own when it has none), shown where the sidebar is not, and a drawer that repeats the
-  Sidebar's lines (its look, none of its rules for one width: `tablet.w=64 hide=phone` stay the rail's). A page
-  that writes its own `Drawer` line, or `App keep`, gets neither.
+  Sidebar's lines (its look, none of its rules for one width: `tablet.w=64 hide=phone` stay the rail's). With a
+  pane between the sidebar and Main (a list beside its detail) a tablet drops the sidebar and shows the button
+  too, unless the sidebar is a rail there: a rail stays, and the button is the phone's only. A page that writes
+  its own `Drawer` line, or `App keep`, gets neither.
 
 Write the rules you want where reflow's default is not the one: they win, and they turn reflow off for that line.
 

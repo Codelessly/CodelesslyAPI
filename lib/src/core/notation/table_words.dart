@@ -101,7 +101,13 @@ extension on PageWords {
 
   /// The plain lines of `Table…` at [at]; the table to keep on its line, or
   /// null when the line is not a table (no `… in …` and no `rows=`).
-  (List<PageLine>, _Table)? _tableLines(int at, String mark, String rest) {
+  ///
+  /// [flush]: the table is under a frame written `flush`, or is written
+  /// `flush` itself. Its place is its frame: it draws no border, corners
+  /// or ground of its own, only its header's band and the rules between
+  /// its rows (a border inside a border was two rules under the frame's
+  /// head and down its sides).
+  (List<PageLine>, _Table)? _tableLines(int at, String mark, String rest, {bool flush = false}) {
     final parts = _Parts(rest);
     var item = 'row';
     String? list;
@@ -126,6 +132,7 @@ extension on PageWords {
       }
     }
     final compact = parts.word('compact') | parts.word('dense');
+    flush = parts.word('flush') || parts.take('flush') == 'true' || flush;
     final comfortable = parts.word('comfortable');
     String? variable(String? v) => v == null ? null : (v.startsWith('@') ? v.substring(1) : v);
     final select = variable(parts.take('select') ?? parts.take('selected'));
@@ -149,7 +156,7 @@ extension on PageWords {
       // rows out apart, the header no longer over its columns at a tablet's
       // width: test 9, kanban 8); a column says where it is left out
       // (`"hide":"phone"`).
-      (indent: at, text: 'Column$mark w=fill fill=$surface border=$line radius=8 clip=antiAlias keep${height == null ? '' : ' h=$height'}${parts.all}'),
+      (indent: at, text: 'Column$mark w=fill${flush ? '' : ' fill=$surface border=$line radius=8 clip=antiAlias'} keep${height == null ? '' : ' h=$height'}${parts.all}'),
       // The header: labels in the caption's ink on the band's fill.
       (indent: at + 2, text: 'Row${sub('head')} w=fill h=$headH pad=[16,0,16,0] gap=16 fill=$head border-bottom=$line${stickyOff || height != null ? '' : ' sticky=0'}'),
       if (select != null) ...[
@@ -186,9 +193,11 @@ extension on PageWords {
         indent: at + 6,
         // A chosen row is tinted with the accent (a selectable list's row is
         // in its `selected` state). Under a theme's names it is the theme's
-        // selected tint (`activeTint`), which follows dark mode.
+        // selected tint (`activeTint`), which follows dark mode. A theme
+        // that names a chosen row's fill (`selectedRow`) has that: its
+        // ticked box is the accent's mark.
         text: 'Row${sub('row')} w=fill minHeight=$rowH pad=[16,6,16,6] gap=16 border-bottom=$line hovered.fill=$head'
-            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedFill.startsWith('#') || selectedFill == 'subtleFill' ? _mix(surface, accent, .1) : selectedFill}'}',
+            '${select == null ? '' : ' selected={contains($select, coalesce($item.id, $item))} selected.fill=${selectedRow ?? (selectedFill.startsWith('#') || selectedFill == 'subtleFill' ? _mix(surface, accent, .1) : selectedFill)}'}',
       ),
       if (select != null) ...[
         (indent: at + 8, text: 'Row w=16'),

@@ -109,7 +109,8 @@ const String notationPagesRule =
     '- A part several screens share (the app\'s navigation, a row, a stat) is a word of the app\'s own, written once: at the margin, '
     'define and the word as a line would use it, each value its default (define BudgetRow "name" spent=0 limit=100); under it, '
     'indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on a line of '
-    'its own is where the lines written under a use go. Every screen then calls it as any other word '
+    'its own is where the lines written under a use go. A line of its lines takes an at phone block as a page\'s does: the word\'s '
+    'own design at that width, at every use. Every screen then calls it as any other word '
     '(BudgetRow "Groceries" spent=320 limit=400). Define each word once, after the last screen, and none of the words taught here.';
 
 /// How an app or a site of several screens is written as files
@@ -123,7 +124,8 @@ const String notationSiteRule =
     '- components/<Word>.txt is one word of the app\'s own, shared by every page (the app\'s navigation, a row of a list, a stat): its '
     'first line is define and the word as a line would use it, each value its default (define BudgetRow "name" spent=0 limit=100); '
     'under it, indented, the lines it stands for, which read its strings and parameters by name in braces ({name}, {spent}); ... on '
-    'a line of its own is where the lines written under a use go. Every page and every other component then calls it as any other '
+    'a line of its own is where the lines written under a use go. A line of its lines takes an at phone block as a page\'s does: '
+    'the word\'s own design at that width, at every use. Every page and every other component then calls it as any other '
     'word (BudgetRow "Groceries" spent=320 limit=400), with nothing more said. One word a file, its file named after it, and none of '
     'the words taught here: a name the page has is the page\'s, never a component (not TopBar, AppBar, AppShell, Header, Footer, '
     'Nav, NavBar, SideNav, Sidebar, Rail, Main, Section, Hero, Panel, Pane, Drawer, Modal, Card, Badge, Chip, Avatar), so give '
@@ -711,6 +713,21 @@ const String notationAtPhoneLines = '''
             ...#find
   at tablet too (the wider first); never directly under each, if, Grid or App.''';
 
+/// What the open prompt says after [notationAtPhoneLines] where it asks for
+/// definitions: a word's own design at a width (docs/design/24-a-design-at-
+/// a-width.md). The indented example expands with no issue (a test reads it
+/// from here).
+const String notationAtDefinedLines = '''
+  A definition's lines take the same block: the word's own design at that width, at every use of it.
+    define Figure "label" value
+      Row gap=8 between middle
+        Text.muted#label "{label}"
+        Text.strong#value "{value}"
+        at phone
+          Column gap=2
+            ...#label
+            ...#value''';
+
 /// The taught prompt without what is vocabulary: the `{…}` escape and the
 /// reference pages (an unknown word is written, not escaped to JSON), and
 /// the behaviour words of a page (a shortcut, a range, a calendar, a table,
@@ -821,7 +838,10 @@ String _openPrompt(String taught, {bool define = true}) {
         .replaceFirst(' a details panel): Pane w=320 pad=16 gap=12', ' a details panel; pad=16 gap=12)')
         .replaceFirst(' They hold on a line under an if too: the condition counts only where the size shows the line.', ''));
     if (page && l.startsWith('  Only Row, Column, Stack, Box, Card, Grid, Pages')) out.add(notationPaintLines);
-    if (l.startsWith('  Side by side: Row gap=32')) out.add(notationAtPhoneLines);
+    if (l.startsWith('  Side by side: Row gap=32')) {
+      out.add(notationAtPhoneLines);
+      if (define) out.add(notationAtDefinedLines);
+    }
   }
   return '$notationOpenPreface${define ? notationDefinePreface : ''}${out.join('\n')}';
 }

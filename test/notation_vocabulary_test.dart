@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/notation/prompt.dart' show notationAtPhoneLines, notationDefinePreface, notationOpenPreface, notationPaintLines, notationPrompt;
+import 'package:codelessly_api/src/core/notation/prompt.dart' show notationAtDefinedLines, notationAtPhoneLines, notationDefinePreface, notationOpenPreface, notationPaintLines, notationPrompt;
 import 'package:test/test.dart';
 
 import 'notation_words.dart';
@@ -701,7 +701,9 @@ Page
     test('is smaller than the taught page prompt; the taught prompts are as they were', () {
       expect(plain(1280).length, lessThan(taught(1280).length - 2000));
       expect(plain(1280).length, lessThan(19500), reason: 'about 4,800 tokens (round 11 added four lines of what the notation has)');
-      expect(open(1280).length, plain(1280).length + notationDefinePreface.length);
+      // (With definitions: the preface, and a word's own design at a width.)
+      expect(open(1280).length, plain(1280).length + notationDefinePreface.length + notationAtDefinedLines.length + 1);
+      expect(open(390).length, plain(390).length + notationDefinePreface.length);
       expect(taught(390).length, lessThan(9000));
       expect(plain(390).length, lessThan(taught(390).length + notationOpenPreface.length));
     });
@@ -712,7 +714,8 @@ Page
       expect(page, contains('define after the last screen'));
       expect(plain(1280), startsWith(notationOpenPreface));
       expect(plain(1280), isNot(contains('define')));
-      expect(page.substring(notationOpenPreface.length + notationDefinePreface.length), plain(1280).substring(notationOpenPreface.length));
+      expect(page.substring(notationOpenPreface.length + notationDefinePreface.length).replaceFirst('\n$notationAtDefinedLines', ''),
+          plain(1280).substring(notationOpenPreface.length));
     });
 
     test('each definition in it is read, expands with its defaults; a page using them has no issue', () {
@@ -777,6 +780,21 @@ ${blocks.join('\n')}
       expect(phone.issues.map((i) => '$i'), isEmpty);
       final nodes = phone.document['nodes'] as Map;
       expect(nodes.keys, containsAll(['title', 'title_phone', 'kind_phone', 'find_phone']));
+
+      // A word's own design at a width: said after it where definitions are
+      // asked for, and its example reads as a page's block does.
+      expect(page.indexOf(notationAtDefinedLines), page.indexOf(notationAtPhoneLines) + notationAtPhoneLines.length + 1);
+      expect(plain(1280), contains(notationAtPhoneLines));
+      expect(plain(1280), isNot(contains(notationAtDefinedLines)));
+      expect(taught(1280), isNot(contains(notationAtDefinedLines)));
+      final word = _open('Column\n  Figure "Rooms" value="40"\n  Figure "Guests" value="90"\n\n${example(notationAtDefinedLines)}\n');
+      expect(word.issues.map((i) => '$i'), isEmpty);
+      expect(word.vocabulary.where((u) => u.kind != 'definition' && u.word == 'Figure'), isEmpty);
+      final used = (word.document['nodes'] as Map).values.cast<Map>();
+      // Each use has its own lines and the block's, the two texts read again.
+      expect(used.where((n) => n['name'] == 'at phone'), hasLength(2));
+      expect(used.where((n) => (n['props'] as Map?)?['text'] == 'Rooms'), hasLength(2));
+      expect(used.where((n) => (n['props'] as Map?)?['text'] == '90'), hasLength(2));
 
       // The rest of what it says of them, on one page.
       final r = _open('''

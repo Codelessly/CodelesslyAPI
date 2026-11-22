@@ -177,10 +177,17 @@ from a Column of Rows: write `Table`.
 - `sort=@sortKey` (a text variable, the key sorted by; `-key` the other way): a press on a header sorts by its
   column, again the other way; an arrow marks the column sorted, a quiet mark the others.
 - `select=@chosen` (a list variable of the rows' `id`s): a column of checkboxes leads; the header's picks every row
-  or none; a row is chosen by a press, Shift takes a range, Ctrl or Cmd adds, and is tinted with the accent.
+  or none; a row is chosen by a press, Shift takes a range, Ctrl or Cmd adds, and is tinted with the accent. A
+  design system that names a chosen row's fill (`colors.selectedRow` in its theme) has that instead, here, on a
+  selectable list's row and on a line written `selected={…}`: one whose chosen things are neutral, the ticked box
+  the accent's mark.
 - `compact` makes the rows denser (36 instead of 44), `comfortable` roomier (52); `h=400` gives the table a height
   its rows scroll in under the header; `empty="No orders match."` is said when there are no rows; `maxw=`, `w=`
   and the other keys of a Column are the frame's. A design system's own `Table` comes first.
+- `flush` leaves the frame out (no border, corners or ground of its own; the header's band and the rules between
+  the rows stay): for a place that is its frame already. A Table written directly under a design system's
+  component that is itself written `flush` (a `Panel "Plans" flush`: its lines run to its edges) is flush with
+  nothing written.
 
 ```notation width=1280 expands
 state orders=[{"id":"o1","name":"Ada Byron","status":"Paid","total":30},{"id":"o2","name":"Lin Chen","status":"Due","total":12}]

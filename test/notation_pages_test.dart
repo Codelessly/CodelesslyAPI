@@ -184,6 +184,25 @@ void main() {
     final open = notationPrompt(options: const NotationOptions(width: 1280), open: true, pages: true);
     expect(open, contains(notationPagesRule));
     expect(open, isNot(contains('- Several screens: each starts at a ### line')));
+    // A word of the app's own may have its own design at a width: said where
+    // the word is taught, as one answer and as a folder of files, in a
+    // prompt that teaches the block itself.
+    const said = 'takes an at phone block as a page\'s does';
+    expect(notationPagesRule, contains(said));
+    expect(notationSiteRule, contains(said));
+    final site = notationPrompt(options: const NotationOptions(width: 1280), site: true);
+    expect(site, contains(said));
+    expect(site, contains("A part's lines on a phone go in a block after its own: at phone"));
+    expect(paged, contains("A part's lines on a phone go in a block after its own: at phone"));
+  });
+
+  test('a word written as the rule says, with a block at a width, reads with no issue and has the block at each use', () {
+    const text = '### Home\nColumn gap=8\n  BudgetRow "Groceries" spent=320 limit=400\n  BudgetRow "Rent" spent=900 limit=900\n\n'
+        'define BudgetRow "name" spent=0 limit=100\n  Row gap=6\n    Text#n "{name}"\n    Text#s "{spent} of {limit}"\n    at phone\n      Column gap=2\n        ...#n\n        ...#s\n';
+    final pages = notationPages(text);
+    final read = _read(pages, pages.pages.single);
+    expect(read.issues, isEmpty);
+    expect((read.document['nodes'] as Map).values.where((n) => (n as Map)['name'] == 'at phone'), hasLength(2));
   });
 
   test('the rule\'s own example reads with no issue', () {

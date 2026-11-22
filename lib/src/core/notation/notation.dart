@@ -287,6 +287,7 @@ final class NotationOptions {
     this.height = 800,
     this.contentWidth = 1120,
     this.selectedFill = '#FFE5E7EB',
+    this.selectedRow,
     this.line = '#FFE5E7EB',
     this.narrowWidth = 720,
     this.sidebarWidth = 248,
@@ -391,6 +392,7 @@ final class NotationOptions {
         height: height,
         contentWidth: contentWidth,
         selectedFill: selectedFill,
+        selectedRow: selectedRow,
         line: line,
         narrowWidth: narrowWidth,
         sidebarWidth: sidebarWidth,
@@ -456,6 +458,7 @@ final class NotationOptions {
       contentWidth: base.contentWidth,
       line: base.line,
       selectedFill: base.selectedFill,
+      selectedRow: base.selectedRow,
       narrowWidth: base.narrowWidth,
       sidebarWidth: base.sidebarWidth,
       sidebarRail: base.sidebarRail,
@@ -716,6 +719,7 @@ final class NotationOptions {
       contentWidth: readDouble(sizes['content']) ?? 1120,
       line: color('line', color('primaryBorder', lineTone)),
       selectedFill: color('activeTint', color('primaryTint', color('subtleFill', fillTone))),
+      selectedRow: switch (color('selectedRow', '')) { '' => null, final String c => c },
       narrowWidth: readDouble(sizes['narrow']) ?? 720,
       sidebarWidth: readDouble(sizes['sidebar']) ?? 248,
       sidebarRail: readDouble(sizes['rail']),
@@ -815,6 +819,7 @@ final class NotationOptions {
         height: height,
         contentWidth: contentWidth,
         selectedFill: selectedFill,
+        selectedRow: selectedRow,
         line: line,
         narrowWidth: narrowWidth,
         sidebarWidth: sidebarWidth,
@@ -1016,6 +1021,14 @@ final class NotationOptions {
   /// The fill of a selected row and the hairline of a pane's edge and
   /// a bar's rule: a theme's `neutralFill` and `line`.
   final String selectedFill, line;
+
+  /// The fill of a chosen row (a Table's, a selectable list's, a line
+  /// written `selected={…}`), where the theme names one: its
+  /// `selectedRow`. Null: [selectedFill] (the accent's tint), or for a
+  /// Table under a theme with no tint the accent mixed into the surface.
+  /// A design system whose chosen things are neutral with an accent mark
+  /// (a ticked box, a bar at the row's start) gives its neutral here.
+  final String? selectedRow;
 
   /// What a `Card` inside a card adds (a row of options, a tile in a grid
   /// of cards): smaller corners, no shadow. Null: the same as [card].
@@ -3380,6 +3393,7 @@ class _Parser {
     }(),
     page: options.screen,
     selectedFill: options.selectedFill,
+    selectedRow: options.selectedRow,
     line: options.line,
     textVariants: options.textStyles.keys.toSet(),
     isComponent: (name) => notationTypes[name] == null && catalog.widget(name) != null,
@@ -4078,9 +4092,68 @@ class _Parser {
     _railSides.clear();
   }
 
+  /// A sidebar narrower than this at a width is a rail there (what
+  /// PageWords asks of a sidebar's written width before it makes it one).
+  static const _railBelow = 120.0;
+
+  /// Where an app's sidebar is a rail (the design system's, kept by
+  /// [_unrail], or a width rule of the writer's: `tablet.w=64`), each
+  /// component under it that folds by a `rail` parameter is told so there:
+  /// the sidebar's rule, with `rail` in place of the width. A component
+  /// folds because its sidebar is a rail, not because the window is a
+  /// tablet's: under a sidebar as wide as written its words stay whole. A
+  /// line that says `rail` itself (a value, a binding, a rule) keeps it.
+  void _foldInRails() {
+    bool folds(String? type) => type != null && notationTypes[type] == null && (catalog.widget(type)?.props.any((p) => p.key == 'rail') ?? false);
+    bool saysRail(Json n) =>
+        (readMap(n['props'])?.containsKey('rail') ?? false) ||
+        (readMap(n['bind'])?.containsKey('props.rail') ?? false) ||
+        [...?(n['media'] as List?)].any((m) => m is Map && (readMap(readMap(m['patch'])?['props'])?.containsKey('rail') ?? false));
+    for (final e in _roles.entries.toList()) {
+      if (e.value != 'sidebar') continue;
+      // A sidebar written as narrow as a rail is one wherever no rule
+      // of its own makes it wider.
+      final narrow = switch (readMap(nodes[e.key]?['layout'])?['width']) { final num w => w < _railBelow, _ => false };
+      final rails = <Json>[
+        for (final m in [...?(nodes[e.key]?['media'] as List?)])
+          if (m is Map)
+            if (readMap(readMap(m['patch'])?['layout'])?['width'] case final num w when (w < _railBelow) != narrow)
+              {
+                for (final c in m.entries)
+                  if (c.key != 'patch') '${c.key}': c.value,
+                'patch': {
+                  'props': {'rail': !narrow},
+                },
+              },
+      ];
+      if (rails.isEmpty && !narrow) continue;
+      final seen = <String>{};
+      void under(String id) {
+        final n = nodes[id];
+        if (n == null || !seen.add(id)) return;
+        if (folds(n['type'] as String?) && !saysRail(n)) {
+          final Json change = {
+            if (narrow) 'props': {'rail': true},
+            if (rails.isNotEmpty) 'media': [...?(n['media'] as List?), ...rails],
+          };
+          nodes[id] = mergePatch(n, change);
+          if (_canvas) ops.add({'op': 'patch', 'id': id, 'patch': change});
+        }
+        for (final c in [...?(n['children'] as List?)]) {
+          if (c is String) under(c);
+        }
+      }
+
+      for (final c in [...?(nodes[e.key]?['children'] as List?)]) {
+        if (c is String) under(c);
+      }
+    }
+  }
+
   void _reflow() {
     _rejoinWraps();
     _unrail();
+    _foldInRails();
     // The slim bar made for a sidebar's button before the page's own bar or
     // button was read (PageWords.slimBarSuperseded) is not drawn; with a
     // button of the writer's own, neither is the one made in Main's bar.
@@ -6007,7 +6080,7 @@ class _Parser {
               itemId: {
                 'decoration': {
                   'fills': [
-                    {'color': options.selectedFill},
+                    {'color': options.selectedRow ?? options.selectedFill},
                   ],
                 },
               },
@@ -9999,7 +10072,7 @@ class _Parser {
           id: <String, Object?>{
             'decoration': <String, Object?>{
               'fills': <Object?>[
-                <String, Object?>{'color': options.selectedFill},
+                <String, Object?>{'color': options.selectedRow ?? options.selectedFill},
               ],
             },
           },

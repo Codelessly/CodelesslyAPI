@@ -276,4 +276,129 @@ void main() {
         Catalog.run(s.catalog, () => parseNotation(text, catalog: s.catalog, options: s.options));
     expect(jsonEncode(_sorted(at390(phone).document)), jsonEncode(_sorted(at390(phonePlain).document)));
   });
+
+  // A word folds because its sidebar is a rail, not because the window is a
+  // tablet's: the sidebar's rule is handed to each component under it that
+  // declares `rail`, with `rail` in place of the width.
+  group('the components under a sidebar are told where it is a rail', () {
+    /// The rules of the nodes of [type] that set `rail`, and the `rail`
+    /// each is written with, one entry a node.
+    /// Those under the sidebar, or with [drawer] the others (the copies in
+    /// the drawer a phone opens).
+    List<String> told(NotationResult r, String type, {bool drawer = false}) {
+      final nodes = (r.document['nodes'] as Map).cast<String, Object?>();
+      final under = <String>{};
+      void walk(String id) {
+        if (!under.add(id)) return;
+        for (final c in ((nodes[id] as Map?)?['children'] as List?) ?? const []) {
+          walk(c as String);
+        }
+      }
+
+      if (nodes.containsKey('side')) walk('side');
+      return [
+        for (final e in nodes.entries)
+          if (e.value case final Map n when n['type'] == type && under.contains(e.key) != drawer)
+            jsonEncode([
+              (n['props'] as Map?)?['rail'],
+              for (final m in (n['media'] as List?) ?? const [])
+                if (((m as Map)['patch'] as Map)['props'] case {'rail': _}) m,
+            ]),
+      ];
+    }
+    const atRail = '[null,{"maxWidth":1023,"patch":{"props":{"rail":true}}}]';
+    const untold = '[null]';
+
+    test("the design system's rail: every folding component, however deep, and nothing else", () {
+      final r = read(_app('''
+  Sidebar#side
+    Brand "Acme"
+    Divider
+    Column gap=2
+      NavItem "Inbox" icon="inbox"
+    each p in people
+      NavItem "{p.name}" icon="person"
+    Go "Sent" icon="send"
+    Footer
+      NavItem "Settings" icon="settings"''', before: 'define Go "label" icon\n  NavItem "{label}" icon={icon}\n'));
+      expect(media(r), isRail);
+      expect(told(r, 'NavItem'), List.filled(4, atRail));
+      expect(told(r, 'Brand'), [atRail]);
+      // The drawer a phone opens holds the same lines, told nothing: it is as wide as written.
+      expect(told(r, 'NavItem', drawer: true), List.filled(4, untold));
+      expect(jsonEncode(r.document).split('"rail":true'), hasLength(6));
+    });
+
+    test('a sidebar with a line written by hand is no rail: its components are told nothing', () {
+      final r = read(_app('  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"\n    Row gap=8 middle\n      Icon "bolt"\n      Text "Upgrade"'));
+      expect(told(r, 'NavItem'), [untold]);
+      expect(told(r, 'Brand'), [untold]);
+      // Nor outside an app's sidebar: a component on a page.
+      expect(told(read('Column\n  NavItem "Inbox" icon="inbox"\n'), 'NavItem', drawer: true), [untold]);
+    });
+
+    test("a writer's own rail: the rule's width, with or without a rail in the design system", () {
+      for (final rail in [true, false]) {
+        final r = read(_app('  Sidebar#side tablet.w=72 hide=phone\n    NavItem "Inbox" icon="inbox"\n    Tile "Storage"'), rail: rail);
+        expect(told(r, 'NavItem'), [atRail]);
+        expect(told(r, 'Tile'), [untold]);
+        // A rule that leaves it wide says nothing.
+        expect(told(read(_app('  Sidebar#side tablet.w=200\n    NavItem "Inbox" icon="inbox"'), rail: rail), 'NavItem'), [untold]);
+      }
+    });
+
+    test('a sidebar written as narrow as a rail is one wherever its own rule does not widen it', () {
+      expect(told(read(_app('  Sidebar#side w=64\n    NavItem "Inbox" icon="inbox"')), 'NavItem'), ['[true]']);
+      expect(told(read(_app('  Sidebar#side w=64 desktop.w=240\n    NavItem "Inbox" icon="inbox"')), 'NavItem'),
+          ['[true,{"minWidth":1024,"patch":{"props":{"rail":false}}}]']);
+    });
+
+    test('a line that says rail itself keeps what it says', () {
+      final r = read('state folded=false\n${_app('  Sidebar#side\n    NavItem "Inbox" icon="inbox" rail={folded}\n    NavItem "Sent" icon="send" rail=false\n    NavItem "Drafts" icon="edit" tablet.rail=false\n    Brand "Acme"')}');
+      expect(media(r), isRail);
+      final items = told(r, 'NavItem');
+      expect(items, hasLength(3));
+      expect(items.where((t) => t.contains('"rail":true')), isEmpty);
+      expect(told(r, 'Brand'), [atRail]);
+    });
+  });
+
+  // A window of a sidebar, a list and the main pane drops the sidebar at a
+  // tablet's width, and a button for its drawer shows there (in Main's bar,
+  // or in a slim bar made for it). A sidebar that is a rail there is not
+  // dropped: the button is a phone's only.
+  group('the button for the drawer, with a list between the sidebar and the main pane', () {
+    String window(String side, {String bar = ''}) =>
+        'App\n$side\n  Pane#list w=400\n    Text "Inbox"\n  Main#main\n$bar    Text "Hello"\n';
+
+    /// From which width up the menu button (or the slim bar that holds it)
+    /// is hidden.
+    Object? hiddenFrom(NotationResult r) {
+      final nodes = (r.document['nodes'] as Map).cast<String, Map>();
+      final main = [for (final c in nodes['main']!['children'] as List) nodes[c]!];
+      final bar = main.first;
+      final holder = bar['type'] == 'row' && jsonEncode(bar['media'] ?? const []).contains('"visible":false')
+          ? bar
+          : nodes.values.firstWhere((n) => n['type'] == 'iconButton' && jsonEncode(n['media'] ?? const []).contains('"visible":false'));
+      return [
+        for (final m in holder['media'] as List)
+          if (((m as Map)['patch'] as Map)['visible'] == false) m['minWidth'],
+      ].single;
+    }
+
+    const rail = '  Sidebar#side\n    Brand "Acme"\n    NavItem "Inbox" icon="inbox"';
+    const hand = '  Sidebar#side\n    NavItem "Inbox" icon="inbox"\n    Row gap=8\n      Icon "bolt"\n      Text "Upgrade"';
+
+    test('a rail: a phone only, in a slim bar and in a bar of the page', () {
+      expect(hiddenFrom(read(window(rail))), 700);
+      expect(hiddenFrom(read(window(rail, bar: '    Nav\n      Text "Mail"\n'))), 700);
+      expect(hiddenFrom(read(window('  Sidebar#side tablet.w=72 hide=phone\n    NavItem "Inbox" icon="inbox"'))), 700);
+    });
+
+    test('a sidebar the tablet drops (as wide as written, or with no rail in the design system): a tablet too', () {
+      expect(hiddenFrom(read(window(hand))), 1024);
+      expect(hiddenFrom(read(window(hand, bar: '    Nav\n      Text "Mail"\n'))), 1024);
+      expect(hiddenFrom(read(window(rail), rail: false)), 1024);
+    });
+  });
 }

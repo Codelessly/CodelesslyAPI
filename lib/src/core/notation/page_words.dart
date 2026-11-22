@@ -52,6 +52,7 @@ final class PageWords {
     this.siteType = const {},
     this.page,
     this.selectedFill = '#FFE5E7EB',
+    this.selectedRow,
     this.line = '#FFE5E7EB',
     this.textVariants = const {},
     this.isComponent = _none,
@@ -97,6 +98,10 @@ final class PageWords {
 
   /// Colors, as the notation takes them (`#AARRGGBB`).
   final String accent, selectedFill, line;
+
+  /// A theme's own fill for a chosen row (`selectedRow`); null: the
+  /// accent's tint.
+  final String? selectedRow;
 
   /// The size of a website's headline (`Text.pageTitle`, `Text.heading1` in
   /// a Page's Section), its second and third levels in
@@ -387,12 +392,22 @@ final class PageWords {
   /// no button for it are made.
   bool ownDrawer = false;
 
+  /// The word `flush` on a line (`flush`, `flush=true`).
+  static final _flush = RegExp(r'(^|\s)flush(=true)?(\s|$)');
+
   /// A token of a line that says what it does at another width.
   static final _byWidth = RegExp(r'^(?:(?:phone|tablet|desktop|portrait|landscape|min\w+|max\w+)\.|hide=|show=)');
 
   /// Where the sidebar's button shows: on a phone, and on a tablet too when
-  /// the window drops the first of two panes there.
-  String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 ? 'tablet' : 'phone';
+  /// the window drops the first of two panes there. A first pane that is a
+  /// rail at a tablet's width (the design system's, every line under it
+  /// folding, or the writer's own `tablet.w=64`) is not dropped there: it
+  /// has its own rule for that width, and a button beside a rail that shows
+  /// opened a drawer of the same items.
+  String get _menuSize => _panesBefore >= 2 && _widthBefore > 420 && !_firstIsRail ? 'tablet' : 'phone';
+  bool get _firstIsRail => _firstOwnRail || (_firstRail != null && _firstRail!.railBreaks == 0);
+  _Line? _firstRail;
+  bool _firstOwnRail = false;
 
   /// The ink of what an overlay draws by itself, with no theme of its own.
   String get _overlayInk => overlaySurface == null ? '' : ' color=onSurface';
@@ -1070,7 +1085,11 @@ final class PageWords {
     railWritten = false;
 
     _Line open({String? frame, int shift = 0, String? after}) {
-      final l = _Line(indent, frame, before: at - indent, shift: shift, after: after)..breaksBefore = side?.railBreaks ?? 0;
+      final l = _Line(indent, frame, before: at - indent, shift: shift, after: after)
+        ..breaksBefore = side?.railBreaks ?? 0
+        // A design system's frame written `flush` (Cards' `Panel … flush`):
+        // its lines run to its edges, which are their border.
+        ..flush = word != null && isComponent(word) && _flush.hasMatch(rest);
       _open.add(l);
       return l;
     }
@@ -1088,7 +1107,7 @@ final class PageWords {
     // else follows an if at the same depth" was said of one that did).
     if (parent?.table case final _Table t when !RegExp(r'^else\b').hasMatch(text)) out.add(_cellLine(t));
     if (word == 'Table' && !isComponent('Table') && !declares('Table')) {
-      if (_tableLines(at, mark, rest) case (final lines, final table)) {
+      if (_tableLines(at, mark, rest, flush: parent?.flush ?? false) case (final lines, final table)) {
         // Its cells go under a row's: eight further in than its own lines.
         open(frame: 'Table', shift: 8).table = table;
         return out..addAll(lines);
@@ -1328,6 +1347,10 @@ final class PageWords {
         _panesBefore++;
         _widthBefore += double.tryParse(width) ?? sidebarWidth;
         _sideRail = railed ? opened : null;
+        if (_panesBefore == 1) {
+          _firstRail = _sideRail;
+          _firstOwnRail = parts.railWidths.any((w) => w == 'tablet');
+        }
         _sideWritten = parts.railWidths.any((w) => w != 'phone')
             ? 64
             : tokens.contains('hide=tablet') || tokens.contains('tablet.hidden') || tokens.contains('tablet.visible=false')
@@ -1789,6 +1812,9 @@ class _Line {
 
   /// The table this line is (`Table … in …`), whose cells are the lines under it.
   _Table? table;
+
+  /// A component written `flush`: what is under it runs to its edges.
+  bool flush = false;
 
   /// A website's Nav: the links written in it (for its phone menu), and
   /// whether it writes a menu of its own.
