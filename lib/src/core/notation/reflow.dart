@@ -318,7 +318,13 @@ final class PageReflow {
       final type = _type(n);
       if (type == 'row' && !_handled.contains(id) && roles[id] != 'app' && _frame(id, n)) {
         // A window of panes written as a Row, with no width rules in it: as an `App`.
-        if (!_underKept(id) && !_own.contains(id) && !_kids(n).any(_own.contains)) _app(id, n);
+        if (!_underKept(id) && !_own.contains(id) && !_kids(n).any(_own.contains)) {
+          _app(id, n);
+        } else if (!_underKept(id) && !_saysTablet(n) && !_kids(n).any((k) => _saysTablet(nodes[k]!))) {
+          // Its width rules are a phone's only (`hide=phone`, with the
+          // phone's layout written beside it): a tablet is still the reflow's.
+          _panesOnTablet(id, n);
+        }
       } else if (type == 'row' && !_handled.contains(id) && !_leftAsWritten(id)) {
         if (gridRows[id] case final g?) {
           _gridRow(id, n, g);
@@ -464,6 +470,61 @@ final class PageReflow {
     if (detail != null && !_levels.contains(kids[main])) {
       _add(kids[main], reflowPhoneMax, {'layout': {'width': {'fill': 0}, 'flex': 1}});
       _hide(detail, reflowPhoneMax);
+    }
+  }
+
+  /// Whether a node's own rules say what it does on a tablet: one that
+  /// holds at a width wider than a phone, or from a width up.
+  bool _saysTablet(Json n) {
+    for (final r in (n['media'] as List? ?? const [])) {
+      final rule = readMap(r);
+      if (rule == null) continue;
+      final max = rule['maxWidth'];
+      if (rule['minWidth'] != null || max is! num || max > reflowPhoneMax) return true;
+    }
+    return false;
+  }
+
+  /// The least width the pane that takes the room left is read at.
+  static const num _readable = 320;
+
+  /// A tablet's width as the panes are counted against it.
+  static const num _tabletCounted = 768;
+
+  /// A window of panes written as a Row (`Row grow` of `Column w=232`,
+  /// `Column w=380`, `Column grow`) on a tablet: while the pane that grows
+  /// would be narrower than a readable width, the first pane beside it goes
+  /// (with the splitter that sizes it), as an `App`'s panes do; the panes
+  /// nearest the one that grows stay.
+  void _panesOnTablet(String id, Json n) {
+    final kids = _kids(n);
+    final main = kids.indexWhere((k) => !_sized(k) && _fills(nodes[k]!));
+    if (main < 0) return;
+    final panes = [
+      for (var i = 0; i < kids.length; i++)
+        if (i != main && _sized(kids[i])) kids[i],
+    ];
+    num room = _tabletCounted;
+    for (final k in panes) {
+      room -= _paneWidth(nodes[k]!);
+    }
+    // The farthest from the main pane first: those before it from the
+    // first, then those after it from the last.
+    final order = [
+      ...panes.where((k) => kids.indexOf(k) < main),
+      ...panes.where((k) => kids.indexOf(k) > main).toList().reversed,
+    ];
+    for (final k in order) {
+      if (room >= _readable) break;
+      if (nodes[k]?['media'] != null) continue;
+      _hide(k, reflowTabletMax);
+      room += _paneWidth(nodes[k]!);
+      // The splitter that sizes it: the one beside it, on the main pane's side.
+      final i = kids.indexOf(k);
+      final beside = i < main ? i + 1 : i - 1;
+      if (beside >= 0 && beside < kids.length && beside != main && _type(nodes[kids[beside]]!) == 'splitter') {
+        _hide(kids[beside], reflowTabletMax);
+      }
     }
   }
 
