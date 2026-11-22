@@ -651,6 +651,7 @@ Flutter `TableView`; its slots are the cell templates.
 | `pinHeaderColumn` | `true`/`false` | `true` | 1 |  |
 | `gridLineColor` | [Color](values.md#type-Color) | `#FFE0E2E8` | 1 | The lines between cells; transparent for none. |
 | `gridLineWidth` | number (≥ 0) | `1` | 1 |  |
+| `columnLines` | `true`/`false` | `true` | 1 | Whether the lines between columns are drawn (false: only the rules under rows, a ruled list). |
 | `stripeColor` | [Color](values.md#type-Color) |  | 1 | Every other body row's background. |
 | `headerColor` | [Color](values.md#type-Color) |  | 1 | The header row's and column's background. |
 | `cacheExtent` | number (≥ 0) |  | 1 |  |

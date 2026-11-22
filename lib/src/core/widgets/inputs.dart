@@ -688,9 +688,13 @@ abstract final class CalendarProps {
 
   /// Whether it picks a range (a start, then an end) or one day.
   static const range = PropDef<bool>('range', Codecs.bool, true);
+
+  /// The day a week starts on (`monday` ... `sunday`); empty: the locale's
+  /// (Sunday in English).
+  static const weekStart = PropDef<String>('weekStart', Codecs.string, '');
   static const spec = WidgetSpec('calendar', hugs: true,
-      props: [start, end, range, firstDate, lastDate, disabledDates, dayPrices, marks, label, enabled, PickerFieldProps.pickerTheme],
-      doc: 'An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.');
+      props: [start, end, range, weekStart, firstDate, lastDate, disabledDates, dayPrices, marks, label, enabled, PickerFieldProps.pickerTheme],
+      doc: 'An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd; weekStart (monday ... sunday) is the day its weeks start on (default: that of the locale). A changed event returns {start, end}, or with range false the day picked.');
 }
 
 /// A field showing a time (`HH:mm`; empty shows its hint) that opens hour and

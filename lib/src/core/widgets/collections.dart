@@ -731,6 +731,10 @@ abstract final class TableViewProps {
   static const gridLineColor = PropDef<Color>('gridLineColor', Codecs.color, Color(0xFFE0E2E8));
   static const gridLineWidth = PropDef<double>('gridLineWidth', Codecs.positive, 1);
 
+  /// Whether the lines between columns are drawn (false: only the rules
+  /// under rows, a ruled list).
+  static const columnLines = PropDef<bool>('columnLines', Codecs.bool, true);
+
   /// Every other body row's background.
   static const stripeColor = PropDef<Color?>('stripeColor', _optionalColor, null);
 
@@ -774,7 +778,7 @@ abstract final class TableViewProps {
     props: [
       columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
       pinHeaderRow, pinHeaderColumn,
-      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, horizontalPadding,
+      gridLineColor, gridLineWidth, columnLines, stripeColor, headerColor, cacheExtent, clipBehavior, horizontalPadding,
       headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, sortable, sortColumn, sortAscending,
       stretchLastColumn,
     ],

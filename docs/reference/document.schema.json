@@ -10316,6 +10316,9 @@
                     "type": "number",
                     "minimum": 0.0
                   },
+                  "columnLines": {
+                    "type": "boolean"
+                  },
                   "stripeColor": {
                     "anyOf": [
                       {
@@ -11957,6 +11960,9 @@
                   },
                   "range": {
                     "type": "boolean"
+                  },
+                  "weekStart": {
+                    "type": "string"
                   },
                   "firstDate": {
                     "anyOf": [

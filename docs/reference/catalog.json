@@ -2884,6 +2884,14 @@
           "doc": ""
         },
         {
+          "key": "columnLines",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Whether the lines between columns are drawn (false: only the rules under rows, a ruled list)."
+        },
+        {
           "key": "stripeColor",
           "type": "Color",
           "kind": "value",
@@ -4825,7 +4833,7 @@
       "docs": "forms.md#node-datePicker"
     },
     "calendar": {
-      "doc": "An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.\n\nA month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.",
+      "doc": "An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd; weekStart (monday ... sunday) is the day its weeks start on (default: that of the locale). A changed event returns {start, end}, or with range false the day picked.\n\nA month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.",
       "children": "none",
       "slots": [],
       "decorated": false,
@@ -4854,6 +4862,14 @@
           "default": true,
           "nullable": false,
           "doc": "Whether it picks a range (a start, then an end) or one day."
+        },
+        {
+          "key": "weekStart",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The day a week starts on (`monday` ... `sunday`); empty: the locale's (Sunday in English)."
         },
         {
           "key": "firstDate",

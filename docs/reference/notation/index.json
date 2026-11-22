@@ -359,7 +359,7 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13760
+      "words": 13801
     },
     {
       "topic": "forms-a-control-and-its-value",
@@ -401,7 +401,7 @@
       "file": "forms.md",
       "anchor": "forms-words",
       "title": "Words",
-      "words": 9926
+      "words": 9967
     },
     {
       "topic": "forms-behaviors",
@@ -437,7 +437,7 @@
       "anchor": "page-lists",
       "title": "Lists and data",
       "summary": "Lists over data, grids, tables, paged views, reordering and swipe actions.",
-      "words": 9814
+      "words": 9840
     },
     {
       "topic": "lists-a-list-over-data",
@@ -500,7 +500,7 @@
       "file": "lists.md",
       "anchor": "lists-words",
       "title": "Words",
-      "words": 3560
+      "words": 3586
     },
     {
       "topic": "lists-behaviors",

@@ -82,13 +82,33 @@ void main() {
       expect(props['headerHeight'], 40);
       expect(props['headerColor'], 'band');
       expect(props['gridLineColor'], 'line');
+      // Rules under its rows only, as the theme's Table has.
+      expect(props['columnLines'], false);
       expect(jsonEncode(_node(r, 'tHeader')['props']), contains('columnHead'));
+    });
+
+    test('under that theme, columnLines=true keeps the lines between its columns', () {
+      final r = _parse(table.replaceFirst('DataTable#t', 'DataTable#t columnLines=true'), NotationOptions.fromTheme(const {
+        'colors': {'band': '#FFFAFAFB', 'line': '#FFE4E4E7', 'primaryBorder': '#FFE4E4E7'},
+        'textStyles': {
+          'body': {'fontSize': 13},
+          'columnHead': {'fontSize': 12, 'fontWeight': 500},
+        },
+      }, named: true, width: 1440));
+      expect(r.issues, isEmpty, reason: '${r.issues}');
+      expect((_node(r, 't')['props']! as Map)['columnLines'], true);
     });
 
     test('with no such theme: as before', () {
       final props = (_node(_parse(table), 't')['props']! as Map);
       expect(props['rowHeight'], 48);
       expect(props.containsKey('headerColor'), isFalse);
+      expect(props.containsKey('columnLines'), isFalse, reason: 'a table draws both directions unless it says otherwise');
+    });
+
+    test('columnLines is a tableView prop, true unless said', () {
+      expect(TableViewProps.columnLines.defaultValue, isTrue);
+      expect(TableViewProps.spec.props, contains(TableViewProps.columnLines));
     });
   });
 }

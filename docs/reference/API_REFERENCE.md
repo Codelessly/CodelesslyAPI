@@ -789,8 +789,8 @@ section's anchor is its topic.
 | [layout.md](#page-layout) | Sizes, rows, columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a page gutter, cards that wrap, a row turning into a column, a sticky header). | 10517 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 3143 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 4582 |
-| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 14128 |
-| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8364 |
+| [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 14168 |
+| [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 8389 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 5053 |
 | [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colors), the actions that change state, and sandboxed scripts. | 6913 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 6518 |
@@ -3724,7 +3724,7 @@ A pane divider. Its value is the width (in logical pixels) of the pane before it
 <a id="node-calendar"></a>
 ### `calendar`
 
-An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd. A changed event returns {start, end}, or with range false the day picked.
+An inline month calendar that picks a start and end date (range false: one day, in start). Disabled dates cannot be picked or crossed; dayPrices and marks are maps keyed by yyyy-MM-dd; weekStart (monday ... sunday) is the day its weeks start on (default: that of the locale). A changed event returns {start, end}, or with range false the day picked.
 
 A month calendar in the page. A pick chooses the range's start, then its end; disabled dates cannot be crossed. The renderer uses the date picker's month grid, including its locale, keyboard movement and theme.
 
@@ -3736,6 +3736,7 @@ A month calendar in the page. A pick chooses the range's start, then its end; di
 | `start` | String | `""` |  |  |
 | `end` | String | `""` |  |  |
 | `range` | bool | `true` |  | Whether it picks a range (a start, then an end) or one day. |
+| `weekStart` | String | `""` |  | The day a week starts on (`monday` ... `sunday`); empty: the locale's (Sunday in English). |
 | `firstDate` | String | unset |  |  |
 | `lastDate` | String | unset |  |  |
 | `disabledDates` | List<String> | `[]` |  |  |
@@ -4954,6 +4955,7 @@ Flutter's `TableView` (two_dimensional_scrollables): a table that scrolls on bot
 | `pinHeaderColumn` | bool | `true` |  |  |
 | `gridLineColor` | [Color](#type-Color) | `"#FFE0E2E8"` |  | The lines between cells; transparent for none. |
 | `gridLineWidth` | double | `1` | ≥ 0 |  |
+| `columnLines` | bool | `true` |  | Whether the lines between columns are drawn (false: only the rules under rows, a ruled list). |
 | `stripeColor` | [Color](#type-Color) | unset |  | Every other body row's background. |
 | `headerColor` | [Color](#type-Color) | unset |  | The header row's and column's background. |
 | `cacheExtent` | double | unset | ≥ 0 |  |

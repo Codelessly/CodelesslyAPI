@@ -9900,6 +9900,8 @@ class _Parser {
       props.putIfAbsent('fillWidth', () => true);
       props.putIfAbsent('sortable', () => true);
       props.putIfAbsent('gridLineColor', () => themed ? options.line : options.track);
+      // The theme's `Table` rules its rows only: so does its DataTable.
+      if (themed) props.putIfAbsent('columnLines', () => false);
       if (themed) props.putIfAbsent('headerColor', () => options.band);
       if (!layout.containsKey('height')) {
         layout['height'] = {'hug': 0};

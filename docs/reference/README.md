@@ -22,8 +22,8 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [layout.md](layout.md) | Feature page. | 10517 | 19105 |
 | [theme.md](theme.md) | Feature page. | 3143 | 5390 |
 | [decoration.md](decoration.md) | Feature page. | 4582 | 7930 |
-| [forms.md](forms.md) | Feature page. | 14128 | 23846 |
-| [lists.md](lists.md) | Feature page. | 8364 | 14600 |
+| [forms.md](forms.md) | Feature page. | 14168 | 23901 |
+| [lists.md](lists.md) | Feature page. | 8389 | 14633 |
 | [navigation.md](navigation.md) | Feature page. | 5053 | 8691 |
 | [state.md](state.md) | Feature page. | 6913 | 12391 |
 | [interaction.md](interaction.md) | Feature page. | 6518 | 10532 |
@@ -39,10 +39,10 @@ examples instead of the render command and site files), and the `ui_docs` tool a
 | [edit-ops.md](edit-ops.md) | Feature page. | 3591 | 5881 |
 | [render.md](render.md) | Feature page. | 2186 | 3649 |
 | [values.md](values.md) | Appendix: value types, models no page claims, enums. | 17188 | 25860 |
-| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 117878 | 201807 |
-| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 83436 | 214408 |
+| [API_REFERENCE.md](API_REFERENCE.md) | Everything above in one file (the base, the index, the pages, the appendix). | 117943 | 201895 |
+| [catalog.json](catalog.json) | The reference as data; each item names the page and anchor that documents it. | 83509 | 214567 |
 | [index.json](index.json) | The index as data: each topic's file, anchor, summary and size. | 10823 | 29889 |
-| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27588 | 114794 |
+| [document.schema.json](document.schema.json) | A JSON Schema for a layout document. | 27598 | 114840 |
 | [ui_tools.json](ui_tools.json) | The `ui_apply` and `ui_read` tools (full schemas). | 1280 | 3866 |
 | [ui_tools.compact.json](ui_tools.compact.json) | The compact tools the runtime base goes with. | 292 | 818 |
 | [_missing_docs.md](_missing_docs.md) | Declarations without a doc string. | 2753 | 11579 |
