@@ -11,7 +11,9 @@ when a UI needs an illustration, a chart of its own, a dial or any shape the box
 A `customPaint` line under the node that paints carries the painter's own keys; each line under it is one draw op,
 in order, over the node's own fill and border and under its children; a `foregroundPainter` line (under the
 `customPaint` line, or under the node beside it) holds the ops drawn over the children too. A rectangle with round
-corners is `rrect rect=[left,top,width,height] radius=4` (not `rect x= y= w= h=`); a shape's opacity is its
+corners is `rrect rect=[left,top,width,height] radius=4` (not `rect x= y= w= h=`); every `rect=` (a `rect`'s, an
+`oval`'s, an `arc`'s) is its left, top, width and height, never its right and bottom: `rect=[0,100,240,60]` starts
+100 down and is 60 high. A point is one key too (`c=[x,y]`, not `cx=` and `cy=`). A shape's opacity is its
 colour's alpha (`fill=#80FF0000`). An op line is the op's name, a
 quoted string first where it has one (a `paragraph`'s text, an `image`'s URL), and its fields by their own names.
 Its paint is `fill=<color>` (fills the shape) and `stroke=<color>` with the stroke's keys beside it

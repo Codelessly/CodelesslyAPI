@@ -591,11 +591,17 @@ final class NotationSiteFiles {
       final l = lines[i];
       if (l.trim().isEmpty || l.startsWith(' ') || l.startsWith('\t') || l.startsWith('//')) continue;
       if (RegExp(r'^(define|primitive)\s').hasMatch(l)) continue;
+      // A line at the margin with an id (`Sheet#player "Now playing"`): what
+      // a word opens is one of the word's lines, so it is written under the
+      // word's `define`, as far in as its other lines.
+      final word = RegExp(r'^(define|primitive)\s+([A-Z][A-Za-z0-9]*)').allMatches(lines.take(i).join('\n')).lastOrNull?[2];
+      final part = RegExp(r'^[A-Z][A-Za-z0-9]*(?:\.[A-Za-z0-9_]+)*#[A-Za-z_][A-Za-z0-9_]*').stringMatch(l);
       problems.add((
         path: path,
         line: i + 1,
         message: '`${l.length > 50 ? '${l.substring(0, 47)}...' : l}` is in no definition, so it is not read: '
-            'a file of definitions holds `define` (or `primitive`) lines, each with its lines indented under it.',
+            'a file of definitions holds `define` (or `primitive`) lines, each with its lines indented under it.'
+            '${part == null || word == null ? '' : ' For $word to write $part (a dialog or a sheet it opens), indent this line and the lines under it by two spaces, so that they are among the lines of define $word; or write them in the page\x27s file, after the page.'}',
       ));
     }
     for (final e in read.words.entries) {

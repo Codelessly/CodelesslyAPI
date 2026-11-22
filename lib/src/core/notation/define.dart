@@ -1229,7 +1229,17 @@ final class DefinedWords {
             // past the signature's own is its next parameter's value.
             values[key] = x.raw;
           } else {
-            unknown('parameter', 'string${strings + 1}', x.raw, col(x),'A ${d.word} takes ${d.strings.length} string${d.strings.length == 1 ? '' : 's'}. It takes: ${takes()}.');
+            // (A definition of the writer's own takes the texts its first
+            // line names: said with that line as it would be written.)
+            final own = d.dictionary == null && !d.primitive;
+            unknown(
+                'parameter',
+                'string${strings + 1}',
+                x.raw,
+                col(x),
+                'A ${d.word} takes ${d.strings.isEmpty ? 'no text' : d.strings.length == 1 ? 'one text' : '${d.strings.length} texts'}'
+                '${takes().isEmpty ? ': its definition names no parameter' : '. It takes: ${takes()}'}, so ${x.raw} is left out.'
+                '${own ? ' For its lines to read it, name it on the definition\x27s first line: ${d.file == 'page' ? 'define ' : ''}${d.signature.trim()} "text${d.strings.isEmpty ? '' : '${d.strings.length + 1}'}" (its lines then read {text${d.strings.isEmpty ? '' : '${d.strings.length + 1}'}}).' : ''}');
           }
           strings++;
         case 'pair' when x.value!.startsWith('@'):

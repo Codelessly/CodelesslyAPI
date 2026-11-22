@@ -11517,6 +11517,11 @@ class _Parser {
           // `open story` beside a state or a loop item called story: a bare
           // word after open or close is the overlay's id, never the value.
           if (_opensOrCloses.hasMatch(before)) return m[0]!;
+          // `count(range(4), i=>…)` beside `state count={sum(cart,l=>l.qty)}`
+          // (or under `each count in …`): a name called is the formulas'
+          // own function, never the value of that name. (Written out as the
+          // value, the formula did not parse, and what read it got nothing.)
+          if (notationFormulaFunctionNames.contains(name) && RegExp(r'^\s*\(').hasMatch(part.substring(m.end))) return m[0]!;
           return key ? m[0]! : to;
         });
     void flush(int end, bool isCode) {
@@ -13574,9 +13579,70 @@ class _Parser {
     return out.toString();
   }
 
+  /// Where the first `?` and the `:` after it are at the top of the action
+  /// [a] (not in brackets or a text; not `?.`, `??` or the `://` of a link),
+  /// -1 where there is none.
+  static ({int question, int colon}) _choiceMarks(String a) {
+    var depth = 0, quoted = false, question = -1, colon = -1;
+    for (var i = 0; i < a.length; i++) {
+      final c = a[i];
+      if (c == '"' && (i == 0 || a[i - 1] != r'\')) quoted = !quoted;
+      if (quoted) continue;
+      if (c == '{' || c == '[' || c == '(') depth++;
+      if (c == '}' || c == ']' || c == ')') depth--;
+      if (depth != 0) continue;
+      final next = i + 1 < a.length ? a[i + 1] : '', before = i > 0 ? a[i - 1] : '';
+      if (c == '?' && question < 0 && next != '.' && next != '?' && before != '?') {
+        question = i;
+      } else if (c == ':' && colon < 0 && next != '/' && next != ':' && before != ':') {
+        colon = i;
+      }
+    }
+    return (question: question, colon: colon);
+  }
+
+  static final _startsSet = RegExp(r'^([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*([-+*/])?=(?!=)');
+  static final _startsVerb = RegExp(r'^(emit|open|scroll|close|go|toast|announce|link|confirm|focus|copy|if|setThemeMode)\b');
+
+  /// The actions [parts] with a choice whose first branch is several
+  /// actions written with no braces (`ok ? a=1; b=2 : toast "No"`) put back
+  /// together, that branch in braces (`ok ? {a=1; b=2} : toast "No"`): a
+  /// `:` at the top of an action closes a choice and nothing else, so the
+  /// `;` before it were the branch's. (The choice ended at its first
+  /// action, the others always ran, and the last set its name to a formula
+  /// that does not parse.)
+  List<String> _choicesRejoined(List<String> parts) {
+    for (var i = 0; i < parts.length - 1; i++) {
+      final a = parts[i].trim();
+      final m = _choiceMarks(a);
+      if (m.question <= 0 || m.colon > m.question || _startsSet.hasMatch(a) || _startsVerb.hasMatch(a) || a.startsWith('{') || startsTyped(a)) continue;
+      for (var j = i + 1; j < parts.length; j++) {
+        final b = parts[j].trim();
+        final n = _choiceMarks(b);
+        // (Another choice begins: this one has no else. A link's address
+        // has a colon of its own.)
+        if (n.question >= 0 || RegExp(r'^link\b').hasMatch(b)) break;
+        if (n.colon < 0) continue;
+        final yes = [a.substring(m.question + 1), ...parts.sublist(i + 1, j), b.substring(0, n.colon)].map((p) => p.trim()).where((p) => p.isNotEmpty).join('; ');
+        return _choicesRejoined([
+          ...parts.sublist(0, i),
+          '${a.substring(0, m.question).trim()} ? {$yes} : ${b.substring(n.colon + 1).trim()}',
+          ...parts.sublist(j + 1),
+        ]);
+      }
+    }
+    return parts;
+  }
+
+  /// What is said of an action the notation does not have.
+  String _unknownAction(String verb) =>
+      'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, '
+      'any action of the catalog by its type and fields (animate node=hero command=forward), or JSON'
+      '${switch (didYouMean(verb, [..._verbs, 'confirm', for (final s in catalog.actions) s.type])) { final String n => '. Did you mean "$n"?', _ => '.' }}';
+
   List<Json> _actions(String text, int column) {
     final out = <Json>[];
-    for (final part in _split(text, ';')) {
+    for (final part in _choicesRejoined(_split(text, ';'))) {
       // `setThemeMode lower(result)`, `setThemeMode result ? dark : light`:
       // the mode worked out, written after the verb with no braces (light,
       // dark and system in it are the modes, where no state has that name).
@@ -13793,7 +13859,11 @@ class _Parser {
               continue;
             }
             if (options.openVocabulary) {
-              _use('verb', name, column + (_verbAt++), on: _srcWord, value: rest);
+              // (Said as it is with the vocabulary closed: what an action
+              // is, and that several actions used again are written out
+              // where they are used, since no word stands for them.)
+              _use('verb', name, column + (_verbAt++), on: _srcWord, value: rest,
+                  say: '${_unknownAction(name)} It is left out: actions have no name of their own, so write the actions it stands for here.');
               continue;
             }
           }
@@ -13805,9 +13875,7 @@ class _Parser {
                 'An action that chooses is written cond ? {actions} : {actions} (onTap={ready ? {a=1; go next} : toast "Fill it in"}), or as the if action with its fields: if condition={ready} then={a=1; go next} else={toast "Fill it in"}.');
             continue;
           }
-          _issue(column, 'Unknown action "$verb". Actions: name=value, emit <event>, toast "…", open <id>, close, go <screen>, scroll <id>, link <url>, announce "…", confirm "Question" then {actions}, focus <id>, copy "…", a choice cond ? actions : actions, '
-              'any action of the catalog by its type and fields (animate node=hero command=forward), or JSON'
-              '${switch (didYouMean(verb, [..._verbs, 'confirm', for (final s in catalog.actions) s.type])) { final String n => '. Did you mean "$n"?', _ => '.' }}');
+          _issue(column, _unknownAction(verb));
       }
     }
     return out;

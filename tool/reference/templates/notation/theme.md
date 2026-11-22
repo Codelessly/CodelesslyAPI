@@ -72,6 +72,13 @@ Button "Dark mode" onTap={setThemeMode mode=dark}
 
 `setThemeMode dark` and `setThemeMode {isDark ? "light" : "dark"}` (its one value written alone) are the same.
 
+A site that is dark by design says so in its theme, `"mode": "dark"` in `site.json` with its dark colors under
+`dark` ([site.md](site.md)): it opens dark everywhere, with no action. The theme also names what the page words
+draw in: a style `<look>Page` beside `<look>` (`heading1Page`, `leadPage`, `bodyPage`) is a text's on a website's
+page, `colors.card` a card's ground, `colors.selectedRow` a chosen row's fill; and a band of a page with a
+ground of its own (`Section fill=`, `gradient=`, `image=`) gives its texts the ink that reads on it
+([navigation.md](navigation.md)).
+
 {{reference}}
 
 {{examples}}

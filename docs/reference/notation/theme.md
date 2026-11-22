@@ -76,6 +76,13 @@ Button "Dark mode" onTap={setThemeMode mode=dark}
 
 `setThemeMode dark` and `setThemeMode {isDark ? "light" : "dark"}` (its one value written alone) are the same.
 
+A site that is dark by design says so in its theme, `"mode": "dark"` in `site.json` with its dark colors under
+`dark` ([site.md](site.md)): it opens dark everywhere, with no action. The theme also names what the page words
+draw in: a style `<look>Page` beside `<look>` (`heading1Page`, `leadPage`, `bodyPage`) is a text's on a website's
+page, `colors.card` a card's ground, `colors.selectedRow` a chosen row's fill; and a band of a page with a
+ground of its own (`Section fill=`, `gradient=`, `image=`) gives its texts the ink that reads on it
+([navigation.md](navigation.md)).
+
 <a id="theme-words"></a>
 ## Words
 
@@ -192,7 +199,7 @@ Column#example
 <a id="theme-example-theme-md-setthememode"></a>
 ### theme.md: setThemeMode
 
-From [theme.md](../theme.md) (the block at line 93 of its template, pages/theme.md); the action on a button's tap.
+From [theme.md](../theme.md) (the block at line 101 of its template, pages/theme.md); the action on a button's tap.
 
 ```notation
 Button#run "Run" onTap={setThemeMode mode={theme.isDark ? 'light' : 'dark'}}
@@ -215,7 +222,7 @@ Column#col gap=12 pad=24 w={"fill":390} h={"fill":844} crossAxisAlignment=null
 <a id="theme-example-theme-md-schema-pages"></a>
 ### theme.md: schema, pages
 
-From [theme.md](../theme.md) (the block at line 132 of its template, pages/theme.md). It is a site's manifest (`site.json`), not a page. It is written as JSON:
+From [theme.md](../theme.md) (the block at line 140 of its template, pages/theme.md). It is a site's manifest (`site.json`), not a page. It is written as JSON:
 
 ```json
 {

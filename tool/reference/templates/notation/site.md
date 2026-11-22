@@ -122,7 +122,10 @@ Write the first page before `app.txt`: it draws at once with its structure, its 
   (its own `dark` over its design system's dark side) on every device, in a render, in an app and in the
   editor, with nothing else written; `"theme": {"primary": "#FFC6F432", "mode": "dark"}` is a whole dark theme
   under a design system that has a dark side. With no `mode` the site follows the device, and a picture of it is
-  light. A color
+  light. A text style named `<look>Page` beside `<look>` (`heading1Page`, `leadPage`, `bodyPage`) is what a text of
+  that look takes under a `Page` ([navigation.md](navigation.md)); `colors.card` is the ground of a `Card` and
+  `colors.selectedRow` the fill of a chosen row ([lists.md](lists.md)), each the design system's unless the site
+  names it. A band's picture is the page's line, `Section image="…"` ([navigation.md](navigation.md)). A color
   is `"#AARRGGBB"` (or `"#RRGGBB"`) or the name of one `colors` defines (`"surface": "paper"`). A key a theme does
   not have (`"background"`), and a color name nothing defines, is said with the line of `site.json` it is on.
 - **`fonts`**: font files shipped beside `site.json`, by family: `{"family": "Inter", "fonts": [{"asset":

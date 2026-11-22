@@ -78,7 +78,7 @@ Column
 
     test('each of them expands with no issue', () {
       String head(String word) => notationLookedUpLines.firstWhere((l) => l.contains(word)).split(': ').first;
-      final shapes = RegExp(r'(rect rect=\S+ fill=\S+), (circle c=\S+ radius=\d+ fill=\S+), (path d="[^"]+" fill=\S+), (line p1=\S+ p2=\S+ stroke=\S+ strokeWidth=\d)')
+      final shapes = RegExp(r'(rect rect=\S+ fill=\S+) \(a rect is [^)]*\), (circle c=\S+ radius=\d+ fill=\S+), (path d="[^"]+" fill=\S+), (line p1=\S+ p2=\S+ stroke=\S+ strokeWidth=\d)')
           .firstMatch(notationLookedUpLines.firstWhere((l) => l.startsWith('customPaint viewBox')))!;
       final r = _page('''
 state hour=2

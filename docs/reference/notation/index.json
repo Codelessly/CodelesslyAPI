@@ -174,14 +174,14 @@
       "anchor": "page-theme",
       "title": "Text and theme",
       "summary": "Text, its looks and its style keys, the theme's names for colors and styles, and text direction.",
-      "words": 1843
+      "words": 1933
     },
     {
       "topic": "theme-text",
       "file": "theme.md",
       "anchor": "theme-text",
       "title": "Text",
-      "words": 606
+      "words": 696
     },
     {
       "topic": "theme-words",
@@ -309,14 +309,14 @@
       "anchor": "page-paint",
       "title": "Custom paint",
       "summary": "Drawing with paths, shapes, text and images on a node's canvas: a `customPaint` line and its op lines.",
-      "words": 2311
+      "words": 2350
     },
     {
       "topic": "paint-the-lines",
       "file": "paint.md",
       "anchor": "paint-the-lines",
       "title": "The lines",
-      "words": 379
+      "words": 418
     },
     {
       "topic": "paint-conditions-and-lists-in-a-drawing",
@@ -536,14 +536,14 @@
       "anchor": "page-state",
       "title": "State and formulas",
       "summary": "Variables, formula variables and functions, bindings, and every formula function.",
-      "words": 3884
+      "words": 4074
     },
     {
       "topic": "state-variables",
       "file": "state.md",
       "anchor": "state-variables",
       "title": "Variables",
-      "words": 306
+      "words": 496
     },
     {
       "topic": "state-values-in-a-text",
@@ -593,7 +593,7 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 6709
+      "words": 6767
     },
     {
       "topic": "events-an-event",
@@ -621,7 +621,7 @@
       "file": "events.md",
       "anchor": "events-actions",
       "title": "Actions",
-      "words": 4277
+      "words": 4335
     },
     {
       "topic": "interaction",
@@ -829,14 +829,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 5223
+      "words": 5287
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 1391
+      "words": 1455
     },
     {
       "topic": "navigation-over-the-page",
@@ -972,7 +972,7 @@
       "anchor": "page-site",
       "title": "The site",
       "summary": "A site's files: its pages, its components, the state they share (`app.txt`) and its manifest, `site.json`: a page order, a theme (colors, text styles, spacing, radii, dark colors), fonts, a design system and dictionaries.",
-      "words": 1472
+      "words": 1529
     },
     {
       "topic": "site-the-files",
@@ -1000,7 +1000,7 @@
       "file": "site.md",
       "anchor": "site-its-keys",
       "title": "Its keys",
-      "words": 768
+      "words": 825
     },
     {
       "topic": "document",

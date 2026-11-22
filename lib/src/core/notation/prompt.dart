@@ -149,8 +149,8 @@ const String notationSiteRule =
     'before any other page (primary, surface, onSurface, titleFontFamily, radius): every page written after it is then seen in '
     'the app\'s own looks, and a theme left for last is a theme not written. Only a request that names no look leaves it out. '
     '"dark" holds the colours that differ in the dark ({"surface": "#FF0F1115", "onSurface": "#FFF2F3F5"}); an app that is '
-    'always dark also sets "mode": "dark", so that it opens dark (the preview\'s own light or dark switch changes what the person '
-    'looks at, never what the app is).';
+    'always dark also sets "mode": "dark" beside it, so that it opens dark on those colours ("mode": "light": always light; with '
+    'no mode it follows the device). The preview\'s own light or dark switch changes what the person looks at, never what the app is.';
 
 /// How the prompt teaches a computed value and a formula of the writer's own
 /// (the end of its `state` line): a model looked `computed` up before its
@@ -164,6 +164,13 @@ const String notationComputedRule =
     'with parameters and its type (:boolean, :text, :integer, :decimal, :list) it is your own function, not named as a listed one: '
     'state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).';
 
+/// The names a state may not take: the runtime gives each to every
+/// expression (`state theme="light"` is refused). Said with the state
+/// line of a page's open prompt, which has no line of its own for it (a
+/// card's has no room).
+const String notationReservedNamesRule =
+    'A state\'s name is never one the runtime has: data, route, storage, screen, theme, auth, drag, perf, script, speech, device.';
+
 /// What the page prompt says of what a model looked up before its first
 /// write (round 16: a place in a Stack, a key's name, a click with a key
 /// held, how far a node is scrolled or dragged, the window's width, the dark
@@ -176,9 +183,9 @@ const List<String> notationLookedUpLines = [
   'Row onTap={picked=result.shift ? append(picked,r.id) : [r.id]}: a click with a key held reads result.shift, result.meta (Ctrl, ⌘ on a Mac) and result.alt.',
   'Column scroll h=400 onScroll={read=result.fraction}: how far a scrolling node is, 0 to 1 (result.offset: in pixels; on a Page: the page).',
   'Box onDrag={x=x+result.dx; y=y+result.dy} onDragEnd={x=0}: a node dragged by hand, each move its step (onDragEnd: result.vx, result.vy its speed).',
-  'Button "Dark" onTap={setThemeMode dark}: the site in its dark colors (light, system); theme.isDark says which in a formula, and site.json\'s theme gives the colors of each.',
+  'Button "Dark" onTap={setThemeMode dark}: the site in its dark colors (light, system); theme.isDark says which in a formula, and site.json\'s theme gives the colors of each (an app that opens dark: "mode": "dark" there, its dark colors in "dark": {…}).',
   'Box h=200 gradient=["#FF2563EB","#FF7C3AED"]: a gradient as a fill (two colors or more). Text "…" fontFamily="Georgia" italic sets one text\'s font; tabularFigures=true lines its digits up. screen.width in a formula is the window\'s width (if screen.width < 700), for what the phone rules below do not do.',
-  'customPaint viewBox=[240,160] fit=contain: under a Box w=240 h=160, a drawing, a line per shape under it in the viewBox\'s units, the later over the earlier: rect rect=[0,0,240,160] fill=#FFE8F1F8, circle c=[180,50] radius=24 fill=#FFF4B740, path d="M0 160 L70 60 L240 160 Z" fill=#FF2563EB, line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2 (also rrect, oval, arc, paragraph "Peak" offset=[8,8]; a number may be {an expression}).',
+  'customPaint viewBox=[240,160] fit=contain: under a Box w=240 h=160, a drawing, a line per shape under it in the viewBox\'s units, the later over the earlier: rect rect=[0,100,240,60] fill=#FFE8F1F8 (a rect is [left,top,width,height]), circle c=[180,50] radius=24 fill=#FFF4B740, path d="M0 160 L70 60 L240 160 Z" fill=#FF2563EB, line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2 (also rrect, oval, arc, paragraph "Peak" offset=[8,8]; a number may be {an expression}).',
   'repeat count=12: under a customPaint, draws the lines under it once for each index, read by the name index and no other (line p1=[{index*20+10},{80-(index*37%50)}] p2=[{index*20+10},{80+(index*37%50)}] stroke=#FF5D6D7E strokeWidth=2 is a waveform); not i, whatever an each around the drawing calls its own (repeat count=12 indexAs=i renames it). Each item of a set (a cover, a dish, a poster, a photo) gets its own picture, its shapes and colours chosen by a field of its data: one drawing repeated, or a gradient alone, is not a picture.',
   'if c.kind=="tree": inside a customPaint, if, else if, else and each x in list take shapes under them, so a drawing follows its data. A customPaint takes its size from the line it is under (Box w=240 h=160): no w= or h= of its own.',
   'on load={sel=first(msgs).id; day=today()}: on its own line at the margin, beside state, every and key, runs once when the screen opens, before its first picture; never a timer made to run once (every 300 when !boot). Start a screen on its main case (the first message open, the first note chosen, a workout under way): what a picture shows first is the screen in use, not "Nothing open".',
@@ -710,11 +717,11 @@ const String notationPaintLines = '''
   A picture (an illustration, a diagram, a dial) is drawn, never stacked from boxes: under a Box a customPaint line, under it a line per shape in the viewBox's units, the later over the earlier:
     Box w=240 h=160
       customPaint viewBox=[240,160] fit=contain
-        rect rect=[0,0,240,160] fill=#FFE8F1F8
+        rect rect=[0,100,240,60] fill=#FFE8F1F8
         circle c=[180,50] radius=24 fill=#FFF4B740
         path d="M0 160 L70 60 L120 120 L160 80 L240 160 Z" fill=#FF2563EB
         line p1=[0,150] p2=[240,150] stroke=#FF5D6D7E strokeWidth=2
-  Also rrect (rect= radius=), oval rect=, arc rect= startAngle=0 sweepAngle=3.14, paragraph "Peak" offset=[8,8] style.color=#FF…; each takes fill= or stroke= strokeWidth=. A number may be {an expression}; repeat count={length(list)} draws its lines for each index (rect=[{index*10},0,6,{list[index]}]). viewBox is plain numbers; fit=contain keeps its shape.''';
+  A rect is [left,top,width,height]. Also rrect (rect= radius=), oval rect=, arc rect= startAngle=0 sweepAngle=3.14, paragraph "Peak" offset=[8,8] style.color=#FF…; each takes fill= or stroke= strokeWidth=. A number may be {an expression}; repeat count={length(list)} draws its lines for each index (rect=[{index*10},0,6,{list[index]}]). viewBox is plain numbers; fit=contain keeps its shape.''';
 
 /// How the open prompt teaches a part whose lines differ on a phone (where
 /// rows and columns side by side are taught): an `at phone` block, its
@@ -793,6 +800,12 @@ String _openPrompt(String taught, {bool define = true}) {
     if (l.startsWith('- state name=value on its own line (top level) declares') && !l.contains(notationComputedRule)) {
       out.add(
           '$l state total={price*qty} is worked out and kept up to date; with parameters and its type (:boolean, :text, :integer, :decimal, :list) it is your own function, not named as a listed one: state fits(c):boolean={kind=="All" || c.kind==kind}, then each c in filter(cards,c=>fits(c)).');
+      continue;
+    }
+    // (A page's: its line on the names a state may not take is among the
+    // behaviour words, which go.)
+    if (l.startsWith('- state name=value on its own line (top level) declares')) {
+      out.add('$l $notationReservedNamesRule');
       continue;
     }
     if (l.startsWith('- Beyond these words:') ||

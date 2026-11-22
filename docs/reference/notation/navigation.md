@@ -63,7 +63,10 @@ image="assets/harbour.jpg"` (from edge to edge under a scrim its text reads on: 
 `scrim=none` none; `image={cover}` reads it from the state). The texts written on a dark fill, a dark gradient, a
 picture or the accent are in the ink that reads there (white, a lead and a muted line a little dimmer, a caption
 dimmer still; on `fill=primary` the theme's `onPrimary`), unless a line says its `color` or stands on a ground of
-its own (a `Card` on the band, a `Box fill=`). The first `Section` under the page's bar keeps a section's whole
+its own (a `Card` on the band, a `Box fill=`). Under a theme whose ground is dark where the site opens (a dark
+`surface`, or `"mode": "dark"` with a dark `surface` under `dark`) the same holds the other way: the texts on a
+light fill or a light gradient are in a dark ink, a lead and a caption dimmer; a fill by a name is judged by the
+color the site opens in. The first `Section` under the page's bar keeps a section's whole
 space above it when it holds the page's headline (`Text.heading1`, `Text.pageTitle`, a text of `size=32` and up: a
 hero) and starts half of it down when it does not (a list, a form: a page that is a tool). A `Nav` takes `maxw` for how
 wide its items spread, in the middle of the bar. A Column (Row, Stack) written `maxw=` straight in the column

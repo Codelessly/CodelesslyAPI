@@ -42,6 +42,26 @@ state usd(n):text={'$' + round(n)}
 Text "{usd(total)}"
 ```
 
+Whatever is written in braces after `state name=` is a formula, with or without a type: `state m={cur % 12}`,
+`state late={due < today()}`, `state b={a}` (b follows a); a value in braces stays a value (`state rec={"n": 1}`,
+`state n={3}`). Inside a formula, braces group as parentheses do, so a value written `{id}` where `id` would do is
+read (`filter(rows, x => x.id == {id})`); a record (`{"id": x.id}`) stays a record. A function's own parameter is
+the function's, whatever else has its name: in `map(xs, top => top.a)` beside `state top={n * 2}`, `top` is the item.
+A name that is called is the formulas' own function, never a state of that name: beside `state count={sum(cart, l =>
+l.qty)}`, `count(rows, r => r.done)` still counts.
+
+A formula variable is its formula wherever it is read, so it cannot be set: `day=addDays(day, 1)` beside `state
+day={today()}` is said, with what to write. A value that starts worked out and then changes is a plain variable set
+when the screen opens ([events.md](events.md)):
+
+```notation
+state day=""
+Column gap=8
+  Text "{formatDate(day, 'EEE d MMM')}"
+  Button "Next day" onTap={day=addDays(day, 1)}
+on load={day=today()}
+```
+
 ## Values in a text
 
 A text reads a value in braces: `Text "{count} of {total}"`, `Text "Hello {user.name}"`, a formula

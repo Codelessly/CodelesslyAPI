@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
+import 'package:codelessly_api/notation_site.dart';
 import 'package:test/test.dart';
 
 import 'notation_words.dart';
@@ -92,6 +93,61 @@ Page
 ''');
       expect(r.issues, isEmpty);
       expect(_doc(r), contains(r"${= join(map(xs, (top, i)=>top.a + i), ',')} ${item.a}"));
+    });
+  });
+
+  group('a name that is called', () {
+    test('is the formulas\' own function, beside a worked-out state of that name', () {
+      final r = _parse('''
+state cart=[{"qty":2}]
+state cats=["a","b"]
+state count={sum(cart,l=>l.qty)}
+state active={cats[max(0,count(range(2),i=>i<1)-1)]}
+Page
+  Text#a "{count(cart,l=>l.qty>1)} of {count}"
+  Text#b "{active}"
+''');
+      expect(r.issues, isEmpty);
+      final doc = _doc(r);
+      expect(doc, contains('count(cart,l=>l.qty>1)'));
+      expect(doc, contains('(sum(cart,l=>l.qty))'));
+      expect(doc, contains('count(range(2),i=>i<1)'));
+      expect(doc, isNot(contains('(sum(cart,l=>l.qty))(')));
+    });
+
+    test('is the function under an each whose item has its name', () {
+      final r = _parse('state rows=[[1,2],[3]]\nPage\n  each count in rows\n    Text "{count(count,x=>x>1)} {length(count)}"\n');
+      expect(r.issues, isEmpty);
+      expect(_doc(r), contains('count(item,x=>x>1)'));
+    });
+  });
+
+  group('a choice whose first branch is several actions with no braces', () {
+    List<Object?> actionsOf(NotationResult r, String id) => ((((r.document['nodes'] as Map)[id] as Map)['actions'] as List).single as Map)['actions'] as List;
+
+    test('is that choice: the actions before the colon are its branch', () {
+      final r = _parse('state draft=""\nstate items=[]\nstate n=0\nPage\n'
+          '  Button#b "Add" onTap={draft!="" ? items=append(items,draft); n=n+1; draft="" : toast "Type an item first"}\n'
+          '  Button#c "Add" onTap={draft!="" ? {items=append(items,draft); n=n+1; draft=""} : toast "Type an item first"}\n');
+      expect(r.issues, isEmpty);
+      final written = actionsOf(r, 'b'), braced = actionsOf(r, 'c');
+      expect(jsonEncode(written), jsonEncode(braced));
+      expect(written, hasLength(1));
+      final choice = written.single as Map;
+      expect(choice['type'], 'if');
+      expect((choice['then'] as List).map((a) => (a as Map)['variable']), ['items', 'n', 'draft']);
+      expect(((choice['else'] as List).single as Map)['type'], 'showToast');
+    });
+
+    test('a choice with no else, a link\'s colon, and a value chosen stay as they are', () {
+      final r = _parse('state ok=true\nstate n=0\nstate m=0\nPage\n'
+          '  Button#a "A" onTap={ok ? n=1; m=2}\n'
+          '  Button#b "B" onTap={ok ? n=1; link https://example.com/a}\n'
+          '  Button#c "C" onTap={n = ok ? 1 : 2; m=3}\n');
+      expect(r.issues, isEmpty);
+      expect(actionsOf(r, 'a').map((a) => (a as Map)['type']), ['if', 'setVariable']);
+      expect(actionsOf(r, 'b'), hasLength(2));
+      expect(actionsOf(r, 'c').map((a) => (a as Map)['type']), ['setVariable', 'setVariable']);
     });
   });
 
@@ -217,6 +273,50 @@ Page
       expect(_say(open, 'cy'), allOf(contains('did you mean c?'), contains('c=[x,y]')));
       final closed = _parse('Page\n  Box w=40 h=40\n    customPaint\n      circle c=[1,2] cy=3 radius=4 fill=#FF000000\n');
       expect(_said(closed).single, contains('c=[x,y]'));
+    });
+
+    test('an action the notation does not have: what an action is, and that it is written out', () {
+      final open = _parse('state n=0\nPage\n  Button "Start" onTap={startConvo; close}\n', open: true);
+      expect(open.issues, isEmpty);
+      expect(_say(open, 'startConvo'), allOf(startsWith('Unknown action "startConvo". Actions: name=value'), contains('write the actions it stands for here')));
+      final closed = _parse('state n=0\nPage\n  Button "Start" onTap={startConvo; close}\n');
+      expect(_said(closed).single, startsWith('Unknown action "startConvo". Actions: name=value'));
+    });
+
+    test('a text a definition of the page does not name: the first line to write', () {
+      final none = _parse('define CasaNav\n  Row\n    Text "Casa"\nPage\n  CasaNav "home"\n', open: true);
+      expect(_say(none, 'string1'), allOf(startsWith('A CasaNav takes no text: its definition names no parameter, so "home" is left out.'), contains('define CasaNav "text"'), contains('{text}')));
+      final one = _parse('define CasaNav "current"\n  Row\n    Text "{current}"\nPage\n  CasaNav "home" "more"\n', open: true);
+      expect(_say(one, 'string2'), allOf(startsWith('A CasaNav takes one text. It takes: "current", so "more" is left out.'), contains('define CasaNav "current" "text2"')));
+      // The line it says is one the reader takes.
+      final fixed = _parse('define CasaNav "text"\n  Row\n    Text "{text}"\nPage\n  CasaNav "home"\n', open: true);
+      expect(fixed.issues, isEmpty);
+      expect(fixed.vocabulary.where((u) => u.kind == 'parameter'), isEmpty);
+    });
+
+    test('an overlay at the margin of a word\'s file: indent it under the word\'s define', () {
+      final site = NotationSiteFiles(
+        {
+          'pages/home.txt': 'Column\n  PlayerBar\n',
+          'components/PlayerBar.txt': 'define PlayerBar\n  Row\n    Button "Open" onTap={open player}\nSheet#player "Now playing" stops=[0.5,0.95]\n  Text "Song"\nstray words\n',
+        },
+        catalog: standardCatalog,
+      );
+      final said = [for (final p in site.problems) '${p.path}:${p.line} ${p.message}'];
+      expect(said, [
+        allOf(startsWith('components/PlayerBar.txt:4 `Sheet#player "Now playing" stops=[0.5,0.95]` is in no definition'),
+            contains('For PlayerBar to write Sheet#player'), contains('indent this line and the lines under it by two spaces')),
+        allOf(startsWith('components/PlayerBar.txt:6 `stray words` is in no definition'), isNot(contains('indent this line'))),
+      ]);
+      // Written as it says, it is the word's.
+      final fixed = NotationSiteFiles(
+        {
+          'pages/home.txt': 'Column\n  PlayerBar\n',
+          'components/PlayerBar.txt': 'define PlayerBar\n  Row\n    Button "Open" onTap={open player}\n  Sheet#player "Now playing" stops=[0.5,0.95]\n    Text "Song"\n',
+        },
+        catalog: standardCatalog,
+      );
+      expect(fixed.problems, isEmpty);
     });
 
     test('a parameter a definition of the page does not name: the first line to write', () {
