@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart' show mergePatch;
@@ -280,32 +282,11 @@ final class ThemeTokens {
   ///   proportion the site's radius has to the design system's (a pill
   ///   stays one; `"radius": 0` squares every corner).
   ThemeTokens _withSiteRoles(ThemeTokens merged, ThemeTokens site) {
-    Map<String, Object?> colorsOf(ThemeTokens base, ThemeTokens? given, ThemeTokens now) {
-      final out = <String, Object?>{};
-      if (given == null) return out;
-      // A surface that is the design system's own changes nothing (its page
-      // stays the grey it draws white panes on).
-      if (given.surface != null) {
-        if (now.color('surface') case final Color to when to.value != base.color('surface')?.value) {
-          for (final n in groundNames) {
-            if (base.colors.containsKey(n) && !given.colors.containsKey(n)) out[n] = to.toJson();
-          }
-        }
-      }
-      final ink = base.color('onSurface');
-      if (given.onSurface != null && ink != null) {
-        if (now.color('onSurface') case final Color to) {
-          for (final n in inkNames) {
-            if (base.color(n) case final Color c when c.value == ink.value && !given.colors.containsKey(n)) out[n] = to.toJson();
-          }
-        }
-      }
-      return out;
-    }
-
-    final light = colorsOf(this, site, merged);
+    final light = _sideOf(this, site, merged, other: dark == null ? null : forBrightness(dark: true), otherNow: merged.forBrightness(dark: true));
     final d = dark;
-    final night = d == null ? const <String, Object?>{} : colorsOf(forBrightness(dark: true), site.dark, merged.forBrightness(dark: true));
+    final night = d == null
+        ? const <String, Object?>{}
+        : _sideOf(forBrightness(dark: true), site.dark ?? none, merged.forBrightness(dark: true), other: this, otherNow: merged);
     // A design system with no title family of its own may still write its
     // headings in a second one (Cards' Inter Display): they are the site's
     // title family, or with none given its one family.
@@ -315,6 +296,16 @@ final class ThemeTokens {
         for (final e in textStyles.entries)
           if (_titleStyle.hasMatch(e.key) && e.value.fontFamily != title && site.textStyles[e.key]?.fontFamily == null) e.key: {'fontFamily': title},
     };
+    // A style the design system has for a website's page too (`heading1`
+    // and `heading1Page`): what the site says of the style it says of both.
+    for (final e in site.textStyles.entries) {
+      for (final tier in const ['Page', 'Wide']) {
+        final name = '${e.key}$tier';
+        if (textStyles.containsKey(name) && !site.textStyles.containsKey(name)) {
+          styles[name] = {...?(styles[name] as Map<String, Object?>?), ...e.value.toJson()..remove('from')};
+        }
+      }
+    }
     final was = radius, to = site.radius;
     final corners = <String, Object?>{
       if (was != null && to != null && was > 0 && to != was)
@@ -322,12 +313,206 @@ final class ThemeTokens {
           if (e.value < 999 && !site.radii.containsKey(e.key)) e.key: (e.value * to / was * 10).round() / 10,
     };
     final patch = <String, Object?>{
-      if (light.isNotEmpty) 'colors': light,
-      if (night.isNotEmpty) 'dark': {'colors': night},
+      ...light,
+      if (night.isNotEmpty) 'dark': night,
       if (styles.isNotEmpty) 'textStyles': styles,
       if (corners.isNotEmpty) 'radii': corners,
     };
     return patch.isEmpty ? merged : fromJson(mergePatch(merged.toJson(), patch));
+  }
+
+  /// One side (the light colors, or the dark) of a design system under a
+  /// site's theme, as a patch of that side: [base] is the design system's
+  /// side, [given] what the site says of it, [now] the side after the
+  /// site's accent ([_withSiteAccent]). [other] and [otherNow] are the
+  /// design system's opposite side, before and after.
+  ///
+  /// * A `surface` as dark as the opposite side's ground and unlike this
+  ///   side's (a site that writes its near-black ground as its light
+  ///   `surface`) starts from the opposite side's colors, roles and
+  ///   shadows: the design system's dark tints, status inks and lines.
+  /// * `surface` is the ground a page is drawn on ([groundNames]) and
+  ///   `onSurface` the ink; every neutral of the design system (a color on
+  ///   the line from its ground to its ink: a chrome, a band, a card, a
+  ///   field, a hairline, a second and a third ink, a hover) keeps its
+  ///   place between the two, on the site's ground and in the site's ink. A
+  ///   color lighter than a light ground (a white card on a grey page)
+  ///   stays as much lighter. Hues (a status tint, a label's) stay.
+  /// * Contrast is kept: an ink for text in the accent (`accentText`, a
+  ///   `link`) too close to the ground is moved toward the ink until it
+  ///   reads, and the color on the accent (`onPrimary`, `onAccent`) is
+  ///   dark on a light accent, light on a dark one.
+  static Map<String, Object?> _sideOf(ThemeTokens base, ThemeTokens given, ThemeTokens now, {ThemeTokens? other, ThemeTokens? otherNow}) {
+    final colors = <String, Object?>{};
+    final roles = <String, Object?>{};
+    Color? groundOf(ThemeTokens t) {
+      for (final n in const ['page', 'pageFill', 'primaryBackground']) {
+        if (t.colors.containsKey(n)) return t.color(n);
+      }
+      return t.color('surface') ?? t.ground;
+    }
+
+    Color? inkOf(ThemeTokens t) => t.color('onSurface') ?? t.color('primaryText') ?? t.color('ink');
+    var ref = base, cur = now;
+    final surface = given.surface == null ? null : now.color('surface');
+    final regrounds = surface != null && surface.value != base.color('surface')?.value;
+    if (regrounds && other != null && otherNow != null) {
+      final own = groundOf(base), far = groundOf(other);
+      if (own != null && far != null && _isDark(surface) != _isDark(own) && _isDark(far) == _isDark(surface)) {
+        ref = other;
+        cur = otherNow;
+        // The accent the site gives this side is this side's accent, not
+        // the one the opposite side made from it.
+        final made = otherNow.color('primary'), own = given.primary == null ? null : now.color('primary');
+        for (final e in otherNow.colors.entries) {
+          if (given.colors.containsKey(e.key)) continue;
+          final c = e.value;
+          colors[e.key] = (made != null && own != null && c.name == null && _rgb(c) == _rgb(made) ? Color((c.alpha << 24) | _rgb(own)) : c).toJson();
+        }
+        // Where this side's accent is its primary, it is the site's here too.
+        if (own != null && !given.colors.containsKey('accent') && base.colors.containsKey('accent') && base.color('accent')?.value == base.color('primary')?.value) {
+          colors['accent'] = own.toJson();
+        }
+        for (final r in const ['primary', 'onPrimary', 'onSurface', 'error', 'success', 'warning']) {
+          if (given._role(r) == null && otherNow._role(r) != null) roles[r] = otherNow._role(r)!.toJson();
+        }
+        if (otherNow.shadows.isNotEmpty && given.shadows.isEmpty) {
+          roles['shadows'] = {for (final e in otherNow.shadows.entries) e.key: [for (final x in e.value) x.toJson()]};
+        }
+      }
+    }
+    final g = groundOf(ref);
+    var i = inkOf(ref);
+    // A side with no ink of its own that reads on its ground (a dark side
+    // that names no `onSurface`): the light or the dark end.
+    if (g != null && (i == null || _contrast(i, g) < 3)) i = _isDark(g) ? const Color(0xFFF4F4F5) : const Color(0xFF18181B);
+    final toG = regrounds ? surface : g;
+    var toI = given.onSurface == null ? i : (now.color('onSurface') ?? i);
+    final says = regrounds || given.onSurface != null;
+    if (g != null && i != null && toG != null && toI != null && (says || given.primary != null)) {
+      // An ink the site does not give, unreadable on the ground it gives:
+      // the lighter or the darker end, whichever reads.
+      if (says && given.onSurface == null && _contrast(toI, toG) < 3) {
+        toI = _isDark(toG) ? const Color(0xFFF4F4F5) : const Color(0xFF18181B);
+        roles['onSurface'] = toI.toJson();
+      }
+      final moved = toG.value != g.value || _rgb(toI) != _rgb(i);
+      if (!says) {
+        // Only the accent is the site's: the ground and the ink stand.
+      } else if (moved) {
+        for (final e in cur.colors.entries) {
+          final c = e.value;
+          if (c.name != null || given.colors.containsKey(e.key) || _notOfTheGround(e.key)) continue;
+          if (regrounds && groundNames.contains(e.key)) {
+            colors[e.key] = toG.toJson();
+          } else if (_neutral(c, g, i)) {
+            colors[e.key] = _regrounded(c, g, i, toG, toI).toJson();
+          }
+        }
+      } else if (regrounds) {
+        for (final n in groundNames) {
+          if (cur.colors.containsKey(n) && !given.colors.containsKey(n)) colors[n] = toG.toJson();
+        }
+      }
+      // Text in the accent that does not read on the ground.
+      Color? at(String name) => colors[name] != null ? Color.fromJson(colors[name]) : cur.color(name);
+      for (final n in const ['accentText', 'link', 'linkHover']) {
+        if (given.colors.containsKey(n)) continue;
+        final c = at(n);
+        if (c == null || c.alpha != 0xFF || _contrast(c, toG) >= 3) continue;
+        var out = c;
+        for (var t = .1; t <= 1.0001 && _contrast(out, toG) < 4.5; t += .1) {
+          out = Color(0xFF000000 | _mix(_rgb(c), _rgb(toI), t));
+        }
+        colors[n] = out.toJson();
+      }
+    }
+    // What is drawn on the accent reads on it.
+    Color on(Color fill, Color was) {
+      if (was.alpha != 0xFF || fill.alpha != 0xFF || _contrast(was, fill) >= 3) return was;
+      const lightOn = Color(0xFFFFFFFF), darkOn = Color(0xFF111111);
+      return _contrast(lightOn, fill) >= _contrast(darkOn, fill) ? lightOn : darkOn;
+    }
+
+    final primary = roles['primary'] != null ? Color.fromJson(roles['primary']) : cur.color('primary');
+    if (primary != null && given.onPrimary == null) {
+      if (cur.color('onPrimary') case final Color was) {
+        final c = on(primary, was);
+        if (c.value != was.value) roles['onPrimary'] = c.toJson();
+      }
+    }
+    final accent = colors['accent'] != null ? Color.fromJson(colors['accent']) : cur.color('accent');
+    if (accent != null && !given.colors.containsKey('onAccent') && cur.colors.containsKey('onAccent')) {
+      final was = cur.color('onAccent');
+      if (was != null) {
+        final c = on(accent, was);
+        if (c.value != was.value) colors['onAccent'] = c.toJson();
+      }
+    }
+    return {...roles, if (colors.isNotEmpty) 'colors': colors};
+  }
+
+  /// A color that is not a tone of the ground whatever its value: what is
+  /// drawn on a fill of its own (`onAccent`, `onPrimary`), a scrim, a shadow.
+  static bool _notOfTheGround(String name) =>
+      RegExp(r'^on[A-Z]').hasMatch(name) || name.toLowerCase().contains('scrim') || name.toLowerCase().contains('shadow');
+
+  static double _luma(Color c) => (0.2126 * c.red + 0.7152 * c.green + 0.0722 * c.blue) / 255;
+
+  static bool _isDark(Color c) => _luma(c) < 0.35;
+
+  /// The WCAG contrast ratio of two opaque colors (1 to 21).
+  static double contrastOf(Color a, Color b) => _contrast(a, b);
+
+  static double _contrast(Color a, Color b) {
+    double lin(int v) {
+      final x = v / 255;
+      return x <= 0.03928 ? x / 12.92 : math.pow((x + 0.055) / 1.055, 2.4).toDouble();
+    }
+
+    double l(Color c) => 0.2126 * lin(c.red) + 0.7152 * lin(c.green) + 0.0722 * lin(c.blue);
+    final la = l(a), lb = l(b);
+    return la > lb ? (la + 0.05) / (lb + 0.05) : (lb + 0.05) / (la + 0.05);
+  }
+
+  /// Whether [c] is a neutral of a design system whose ground is [g] and
+  /// whose ink is [i]: a gray (or nearly: a cool or a warm one), or a color
+  /// on the line from the ground to the ink (a cream paper's warm tones).
+  static bool _neutral(Color c, Color g, Color i) {
+    final (_, s, _) = _hsl(c);
+    if (s < 0.2) return true;
+    // The distance from the line through the ground and the ink.
+    final d = [i.red - g.red, i.green - g.green, i.blue - g.blue], v = [c.red - g.red, c.green - g.green, c.blue - g.blue];
+    final dd = d[0] * d[0] + d[1] * d[1] + d[2] * d[2];
+    if (dd == 0) return false;
+    final t = (v[0] * d[0] + v[1] * d[1] + v[2] * d[2]) / dd;
+    var dist = 0.0;
+    for (var k = 0; k < 3; k++) {
+      final off = v[k] - d[k] * t;
+      dist += off * off;
+    }
+    return dist < 36;
+  }
+
+  /// [c], a neutral between a ground [g] and an ink [i], at the same place
+  /// between [toG] and [toI] (by its lightness), at its own opacity. Past
+  /// the ink: the ink. Past the ground (lighter than a light one, darker
+  /// than a dark one): as far toward white, or black, from the new ground.
+  static Color _regrounded(Color c, Color g, Color i, Color toG, Color toI) {
+    final l = _luma(c), lg = _luma(g), li = _luma(i);
+    if (lg == li) return c;
+    final t = (l - lg) / (li - lg);
+    int rgb;
+    if (t >= 1) {
+      rgb = _rgb(toI);
+    } else if (t >= 0) {
+      rgb = _mix(_rgb(toG), _rgb(toI), t);
+    } else {
+      final end = lg > li ? 1.0 : 0.0;
+      final u = end == lg ? 0.0 : ((l - lg) / (end - lg)).clamp(0.0, 1.0);
+      rgb = _mix(_rgb(toG), _luma(toG) >= _luma(toI) ? 0xFFFFFF : 0x000000, u);
+    }
+    return Color((c.alpha << 24) | rgb);
   }
 
   /// The names a design system gives the ground a page is drawn on: a site's
