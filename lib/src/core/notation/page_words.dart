@@ -1269,7 +1269,7 @@ final class PageWords {
       final banded = tint && !parts.has('fill') ? ' fill=${band ?? '#14808080'} border-top=$line border-bottom=$line' : '';
       final gap = parts.take('gap') ?? (footer ? '24' : '32');
       final inner = parts.takeWords(const {'center', 'middle', 'start', 'end', 'between', 'stretch', 'left', 'right'});
-      open(frame: 'Section', shift: 2);
+      open(frame: 'Section', shift: 2).foot = footer;
       // A page's Footer sits at the window's foot when the page is short: what
       // is left goes above it (nothing, on a page longer than the window).
       if (footer && parent?.frame == 'Page') out.add((indent: at, text: 'Spacer'));
@@ -1526,6 +1526,16 @@ final class PageWords {
     // written.
     if (word == 'Text' && site && !inApp && root == 'Page' && !_open.any((l) => l.frame == 'Nav') && !mark.startsWith('.{') && !const ['size', 'fontSize', 'style', 'from'].any(parts.has)) {
       final name = mark.startsWith('.') ? mark.substring(1).split('#').first : 'body';
+      // A theme with a style for a website's page beside the one for an app
+      // (`heading1Page` beside `heading1`: a design system made for an app's
+      // window says what its headline, its lead and its running text are on
+      // a page): the text takes it, whole (its size, its line height, its
+      // spacing). A page's foot keeps the small type.
+      if (textVariants.contains('${name}Page') && !name.endsWith('Page') && !_open.any((l) => l.frame == 'Section' && l.foot)) {
+        open(frame: null);
+        final id = mark.contains('#') ? mark.substring(mark.indexOf('#')) : '';
+        return out..add((indent: at, text: 'Text.${name}Page$id$rest'));
+      }
       if (siteType[name] case final num size) {
         open(frame: null);
         // A small heading is a phone's size on a phone (18): a card of a set
@@ -1841,6 +1851,9 @@ class _Line {
 
   /// A website's Section that holds its headline (a hero): its buttons are large.
   bool hero = false;
+
+  /// Whether this Section is the page's Footer.
+  bool foot = false;
   ///
   /// Each is a link (a quiet button) or, with its [mark] (`.outline`, empty
   /// for a plain one), another labelled button of the bar.
