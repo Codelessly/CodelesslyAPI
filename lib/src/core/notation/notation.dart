@@ -9743,6 +9743,27 @@ class _Parser {
       final across = (vertical && parent.type == 'column') || (!vertical && parent.type == 'row');
       if (across && (layout[along] == null || (layout[along] is Map && (layout[along] as Map).containsKey('hug')))) layout[along] = {'fill': 0};
     }
+    // A pane of a row that has a height of its own (a row that grows, fills
+    // or is sized: an app's panes side by side) is as tall as the row where
+    // it says no height: under a row that says `stretch` every Column, Row,
+    // Box or Stack is (a child that hugs across a stretching row of a set
+    // height keeps its content's height, so the pane's fill and hairline
+    // stopped under its last line: test 17, mail); and under any such row a
+    // Column that scrolls is (a scroll as tall as its content never
+    // scrolls, and its hairline stopped under its last row: notes).
+    if (parent?.type == 'row' &&
+        !cell &&
+        const {'column', 'row', 'flex', 'stack', 'container'}.contains(type) &&
+        !component &&
+        (layout['height'] == null || (layout['height'] is Map && (layout['height'] as Map).containsKey('hug'))) &&
+        !namedOnLine.any((k) => k == 'h' || k == 'height' || k == 'layout.height' || k == 'ratio' || k == 'aspectRatio')) {
+      final row = nodes[parent!.id];
+      final rowHeight = (row?['layout'] as Map?)?['height'];
+      final sized = rowHeight is num || (rowHeight is Map && rowHeight.containsKey('fill'));
+      final stretches = _crossWritten.contains(parent.id) && (row?['props'] as Map?)?['crossAxisAlignment'] == 'stretch';
+      final scrolls = type == 'column' && props['scrollable'] == true;
+      if (sized && (stretches || scrolls)) layout['height'] = {'fill': 0};
+    }
     // On a page, cards side by side are one row of panels: equally tall.
     if (inRow && (written == 'Card' && !component) && options.width >= 700) {
       final row = nodes[parent!.id];
