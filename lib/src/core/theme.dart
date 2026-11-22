@@ -591,9 +591,13 @@ final class ThemeTokens {
   /// is a little darker than a site's dark teal, not a bright cyan at the
   /// indigo's lightness; its tint (near white) stays near white.
   static Color _rehued(Color c, Color accent, Color was) {
-    final (_, _, own) = _hsl(c);
-    final (_, _, from) = _hsl(was);
-    final (h, s, to) = _hsl(accent);
+    final (_, ownS, own) = _hsl(c);
+    final (_, fromS, from) = _hsl(was);
+    final (h, accentS, to) = _hsl(accent);
+    // A shade much greyer than its accent (a dark theme's tint of it: a
+    // chosen row, a selected item's fill) is as much greyer than the site's:
+    // at a vivid accent's own saturation it was a loud green bar.
+    final s = fromS > 0 && ownS / fromS < 0.6 ? accentS * ownS / fromS : accentS;
     final l = own >= from
         ? (from >= 1 ? to : to + (own - from) * (1 - to) / (1 - from))
         : (from <= 0 ? to : to * own / from);
