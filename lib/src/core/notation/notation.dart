@@ -7277,6 +7277,10 @@ class _Parser {
           } else if (word == 'live' && !standIn) {
             // Read out as it changes: a Text's (and a block's that takes live).
             _issue(col, 'live is a Text\x27s: the Text whose words change is read out when they do. Put it on that Text (Text "{status}" live), or say the change with announce "…" in the action that makes it.');
+          } else if (standIn && RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(word)) {
+            // (A word not written yet may take it as a value, `Pic "a" p.id`
+            // for `define Pic "c" seed=0`: it is in the stand-in's record.)
+            dropped.add(word);
           } else if (RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$').hasMatch(word)) {
             // Text plan.name: a value shown as text is in a string.
             // The line's x was read as `item`: say it by the name written.

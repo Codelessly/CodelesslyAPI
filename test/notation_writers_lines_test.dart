@@ -372,6 +372,12 @@ Column
       expect(texts, containsAll([r'${parent.item} ${item}', r'${= days[dayi]} x', r'${item.name}b${item.id}', r'${item.name} ${item.id}']));
     });
 
+    test('given to a word not written yet, a value of the page is kept for it: nothing is said of the line', () {
+      final r = _parse('state rs=[{"id":3,"name":"A"}]\nColumn\n  each p in rs\n    Pic "{p.name}" "b" p.id\n    Text p.name\n');
+      expect(_said(r), ['A value shown as text is written in a string: "{p.name}".'], reason: 'a Text is a word the notation has: it is still said there');
+      expect(_standIns(r), ['type Pic']);
+    });
+
     test('a text past the signature\'s own is its next parameter\'s value; a value past them all is still said', () {
       final r = _parse('Column\n  MiseNav "week"\n  StoryCard "a" "b" 3 4\n', definitions: words);
       expect(_nodes(r).where((n) => n['type'] == 'text').map((n) => (n['props'] as Map)['text']), contains('week'));
