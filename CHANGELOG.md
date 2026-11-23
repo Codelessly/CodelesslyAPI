@@ -1,3 +1,72 @@
+## 43.0.0
+
+The notation has one form for each thing. A form that said what another form says is no longer read: it is refused
+with the line to write, the writer's own values in it. Notation written with a removed form has to be rewritten, so
+read "Reads differently" before upgrading. With CodelesslySDK 43.0.0.
+
+### Reads differently
+
+Each row is the one form that is read, and the forms that are now refused with it.
+
+- **Formulas**: a function with its value first (`filter(rows, …)`, `length(rows)`, `fixed(n, 2)`) and `&&`, `||`,
+  `!`. Refused: a method on a value (`rows.filter(…)`, `rows.length()`, `n.toFixed(2)`), `and`, `or`, `not`.
+- **Actions**: `name=value`; `c ? {…} : {…}` with its branches in braces; `scroll <id>`; `blur`; `go <page>` or
+  `go {expression}`; `copy "{link}"`. Refused: `n++`, `n += 1`, `rows.add(x)`, a branch in parentheses.
+- **Events**: `onTap`, `onRightClick`, `onPointerDown`, `onPointerUp`, `onChange`, `onSubmit`, `onClose`, `onBlur`,
+  `onRemove`. Refused: `onPress`, `onPressed`, `onClick`, `onContextMenu`, `onSecondaryClick`, `onPressStart`,
+  `onPressDown`, `onMouseDown`, `onTouchStart`, `onPressEnd`, `onPressUp`, `onRelease`, `onMouseUp`, `onTouchEnd`,
+  `onChanged`, `onSubmitted`, `onEnter`, `onClosed`, `onDismiss`, `onHide`, `onSaved`, `onDelete`.
+- **A control's value**: `@name` alone, a range `@low @high`. Refused: `value=@x`, `selected=@x`, `checked=@x`,
+  `low=@a high=@b`, `start=@a end=@b`.
+- **Sizes**: `xs`, `small`, `medium`, `large`, `xl`, for `size=` and for `shadow=` (with `none`). Refused: `sm`,
+  `md`, `lg`, `soft`, `true`, `false`.
+- **Widths**: `phone`, `tablet`, `desktop`; `hide=` and `show=` take `phone` or `tablet`. Refused: `mobile`,
+  `hide=desktop` (write `show=tablet`), `show=desktop` (write `hide=tablet`).
+- **Shown by a condition**: `visible={c}`. Refused: `hide={c}`, `show={c}`, `hidden={c}`.
+- **Names**: `{name}` or the bare name. Refused: `$name`.
+- **Greatest width**: `maxw=`. Refused: `maxWidth=`, `max-width=`, `maxwidth=`. The printer writes `maxw=`.
+- **Border**: `border=<colour>`, `strokeWidth=<width>`, a side `border-bottom=`. Refused: `border=2`,
+  `border="#ccc 2"`, `borderColor=`, `border-color=`, `strokeColor=`, `borderWidth=`, `border-width=`,
+  `borderSize=`, `borderBottom=`, `border-b=`.
+- **Text style**, on a `Text` and an `Input` alike: `size=`, `weight=`, `fontFamily=`. Refused: `fontSize=`,
+  `fontWeight=`, `font=`, `textSize=`.
+- **An `Input`**: `hint=`, `icon=`, `maxLength=`, `lines=`, `multiline`, and `type=number`, `email`, `phone`,
+  `search`, `date`, `time` or `address`. Refused: `placeholder=`, `prefixIcon=`, `maxlength=`, `maxChars=`,
+  `rows=`, `textarea`, `tel`, `telephone`, `numeric`, `decimal`, `integer`, `int`.
+- **A choice takes the words its parameter declares** (`tone=danger`). Refused: another word for the same value
+  (`error`, `warn`, `ok`, `destructive`).
+- **`Image "url"`**. Refused: `Image url=`, `Image src=`.
+- **A `Grid`**: `cols=`, `gap=`. Refused: `columns=`, `crossAxisCount=`, `crossAxisSpacing=`, `mainAxisSpacing=`.
+- **A `Table`**: `p in list`, `columns=`, `select=`, `sort=`, `compact`. Refused: `rows={x}`, `cols=`, `selected=`,
+  `sortBy=`, `dense`.
+- **Words**: `App`, `Main`, `Nav`, `Sidebar`, `Dialog`, `Sheet`, `Popover`, `Footer`, `Column`, `Slider`,
+  `Calendar`, `Gauge`, `Donut`, `Pie`, `Text mark=`, `Barcode "text" symbology=qrCode`, `ListTile "a" "b"`.
+  No longer read as these: `AppShell`, `Window`, `Content`, `Navbar`, `NavBar`, `TopBar`, `Topbar`, `Header`,
+  `AppBar`, `Aside`, `SideNav`, `Sidenav`, `Modal`, `BottomSheet`, `Popup`, `StickyBar`, `StickyFooter`,
+  `BottomBar`, `List`, `RangeSlider`, `MiniCalendar`, `CalendarMonth`, `MonthGrid`, `Dial`, `DonutChart`,
+  `PieChart`, `Pie donut=true`, `Grid data={…}` (write `GridView`), `Highlight`, `HighlightText`, `QRCode`, `QrCode`, a `ListTile`'s `title=` and
+  `subtitle=`, a `Barcode`'s `value=`, `code=`, `format=` and `type=`. A page may define a component by one of
+  these names.
+- **Flags**: `strike`, `reorder`. Refused: `strikethrough`, `sortable`, `reorderable`.
+- **State**: `state name=value`, a lowercase type, `saved`. Refused: `saved=true`, `persist`, `persisted`,
+  `persistent`, `:Map?`, `let`, `var`, `const`.
+- **Repeats**: `each row in rows`; `every 1m`. Refused: `for r in rows`, `each rows`, `every 1min`.
+- **A worked-out id**: `id={expression}`. Refused: `id="sec{m.n}"` outside a definition.
+- **A control bound to a field of a worked-out state that other states read** is refused with a message; it
+  sometimes wrote through.
+
+### Fixed
+
+- **A chain of worked-out states stays as long as it was written.** A worked-out state that others read more than
+  once is kept by name as a variable with its formula; it was written out into each reader, so a chain whose every
+  step reads the one before twice doubled at each step (a ten-step chain reached 935,000 characters of formulas,
+  and reads slowly in 42.0.0 and 42.1.0). `app.txt`'s formulas are resolved in the order they depend on each other.
+
+### Changed
+
+- **`notationPrompt` and the reference** teach the one form of each thing: braces for an action's branches,
+  `visible={c}`, `shadow=small`, `onPointerDown` and `onPointerUp`, `maxw=`.
+
 ## 42.1.0
 
 A `Table`'s rows take an action and a caption, a few lines lay out differently, and many refusals now say the exact
