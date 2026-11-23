@@ -21,18 +21,19 @@ const notationMotionKeys = {
   'translateY': 'motion.translateY',
 };
 
-/// Words that name one value of a choice (a tone, a size): a parameter that
-/// takes one of them takes another of its set as that one (`tone="error"`
-/// where the choice is `danger`).
+/// Words that name one value of a choice (a tone, a size, a keyboard): a
+/// parameter that takes one of them is said with it where another of its
+/// set is written (`tone="error"` where the choice is `danger`).
 const List<Set<String>> notationSameValues = [
-  {'danger', 'error', 'destructive', 'critical'},
+  {'danger', 'error', 'destructive', 'critical', 'bad'},
   {'warning', 'warn', 'caution'},
-  {'success', 'ok', 'positive'},
+  {'success', 'ok', 'positive', 'good'},
   {'info', 'information', 'note'},
   {'neutral', 'default', 'muted'},
   {'sm', 'small'},
   {'md', 'medium'},
   {'lg', 'large'},
+  {'email', 'emailAddress'},
 ];
 
 /// The shadows `shadow=` names by size, each the effects it is written out

@@ -14198,11 +14198,14 @@ final meant = const {'sm': 'small', 'soft': 'small', 'true': 'small', 'md': 'med
       if (key == 'columns' || key == 'crossAxisCount') return 'cols';
       if (key == 'spacing' || key == 'crossAxisSpacing' || key == 'mainAxisSpacing') return 'gap';
     }
-    // Names that say one thing (a second line, a field's hint): a word that
-    // takes exactly one of them has it under that name.
+    // Names that say one thing (a second line, a field's hint, its keyboard,
+    // its masked text): a word that takes exactly one of them has it under
+    // that name.
     for (final kin in const [
       {'description', 'detail', 'note'},
       {'placeholder', 'hint'},
+      {'keyboard', 'type'},
+      {'obscure', 'password'},
     ]) {
       if (!kin.contains(key)) continue;
       final taken = [
