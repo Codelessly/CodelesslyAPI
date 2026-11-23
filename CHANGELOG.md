@@ -1,3 +1,14 @@
+## 44.0.0
+
+With CodelesslySDK 44.0.0, whose Cards blocks take the notation's own words for a tone, a size, a hint and a
+keyboard. The notation itself reads as in 43.0.0.
+
+### New
+
+- **A block's key or value written under the name another system gave it is refused with the line to write**:
+  `keyboard=` is said with `type=`, `obscure=true` with `password=true`, and `good`, `bad` and `emailAddress` with
+  the value the choice declares (`tone=success`, `tone=danger`, `type=email`).
+
 ## 43.0.0
 
 The notation has one form for each thing. A form that said what another form says is no longer read: it is refused
