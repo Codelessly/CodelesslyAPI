@@ -363,7 +363,7 @@ final class PageWords {
   /// A line folds when it is a component that declares a `rail` parameter
   /// ([folds]), takes no width of its own (a Spacer, a Divider), or says
   /// what it is at a tablet's width itself (`hide=tablet`, `tablet.…`,
-  /// `show=desktop`: the lines under it are then its own business). The
+  /// `show=tablet`: the lines under it are then its own business). The
   /// sidebar's `Footer`, a plain `Column`, an `if`, an `each` and a defined
   /// word's lines hold lines, and fold when theirs do. An `at` block that
   /// holds at a tablet's width is what its part shows there: its lines are
@@ -383,7 +383,7 @@ final class PageWords {
     if (t.startsWith('hide=') || t.startsWith('show=')) {
       final size = t.substring(5);
       if (!const {'phone', 'mobile', 'tablet', 'desktop'}.contains(size)) return false;
-      return !(t.startsWith('hide=') && (size == 'phone' || size == 'mobile'));
+      return !(t.startsWith('hide=') && size == 'phone');
     }
     final read = mediaCondition(t.split('=').first);
     return read != null && read.problem == null && _tablets.any((w) => atHolds(read.condition, w.$1, w.$2));
@@ -1276,7 +1276,7 @@ final class PageWords {
     // The writer's own button for a narrow window (`IconButton "menu"
     // show=phone onTap={open houseNav}`): the page has its navigation there,
     // so the button made for the sidebar, its bar and its drawer are not.
-    if (root == 'App' && sidebarRest != null && !ownMenuButton && (word == 'IconButton' || word == 'Button') && RegExp(r'\sshow=(phone|mobile|tablet)(\s|$)').hasMatch(rest) && RegExp(r'[{;]\s*open\s').hasMatch(rest) && _opensNavigation(rest)) {
+    if (root == 'App' && sidebarRest != null && !ownMenuButton && (word == 'IconButton' || word == 'Button') && RegExp(r'\sshow=(phone|tablet)(\s|$)').hasMatch(rest) && RegExp(r'[{;]\s*open\s').hasMatch(rest) && _opensNavigation(rest)) {
       ownMenuButton = true;
       slimBarSuperseded = true;
     }

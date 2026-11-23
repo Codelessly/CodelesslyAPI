@@ -439,7 +439,7 @@ ${notationLookedUpLines.map((l) => '    $l').join('\n')}${options.reflow ? '''
     for (final e in notationTypes.entries)
       // (Words that are a Column or a Row underneath name them by their own
       // name: the list said Badge and Wanted for Row and Column.)
-      if (!const {'Card', 'Image', 'CodeInput', 'Handle', 'DataTable', 'NumberInput', 'Avatar', 'List', 'Badge', 'Grid', 'GridView', 'Box', 'Wanted'}.contains(e.key))
+      if (!const {'Card', 'Image', 'CodeInput', 'Handle', 'DataTable', 'NumberInput', 'Avatar', 'List', 'Badge', 'Grid', 'Box', 'Wanted'}.contains(e.key))
         e.value.type: e.key,
   };
   String written(String type) => short[type] ?? '${type[0].toUpperCase()}${type.substring(1)}';

@@ -166,7 +166,13 @@ void main() {
   });
 
   group('the types written by their catalog names', () {
-    for (final type in const ['box', 'gridView', 'badge']) {
+    test('a grid over data is written GridView, the catalog\'s name, and reads as it', () {
+      final printed = printNotation(_expand('Column\n  GridView'), catalog: standardCatalog);
+      expect(printed.split('\n').any((l) => l.trim().startsWith('GridView')), isTrue, reason: printed);
+      expect(_node(_expand(printed), 'gridView')['type'], 'gridView');
+    });
+
+    for (final type in const ['box', 'badge']) {
       test('$type is written $type and reads as it', () {
         final doc = _expand('Column\n  $type');
         final printed = printNotation(doc, catalog: standardCatalog);

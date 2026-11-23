@@ -323,7 +323,7 @@ CommandPalette#palette "Commands" placeholder="Type a command"
     test('a word the notation has under one name is not read under another: said with the line to write', () {
       String said(String text) => _closed(text).issues.map((i) => i.message).join('\n');
       for (final (text, line) in [
-        ('state low=0\nstate high=100\nColumn\n  RangeSlider low=@low high=@high min=0 max=100\n', 'Slider low=@low high=@high min=0 max=100'),
+        ('state low=0\nstate high=100\nColumn\n  RangeSlider low=@low high=@high min=0 max=100\n', 'Slider @low @high min=0 max=100'),
         ('state q="a"\nColumn\n  Highlight "Ada Lovelace" match={q} weight=600\n', 'Text "Ada Lovelace" mark={q} weight=600'),
         ('state q="a"\nColumn\n  HighlightText "Ada Lovelace" query={q}\n', 'Text "Ada Lovelace" mark={q}'),
         ('state day=""\nColumn\n  MiniCalendar @day\n', 'Calendar @day'),

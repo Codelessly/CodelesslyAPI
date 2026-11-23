@@ -176,7 +176,7 @@ Flutter `Row`.
 
 Flutter `Column`.
 
-- Written `Column`; also `Avatar`, `Grid`, `GridView`, `Box`, `Card`, `Wanted`. Level 0 (Core).
+- Written `Column`; also `Avatar`, `Grid`, `Box`, `Card`, `Wanted`. Level 0 (Core).
 - Each quoted string is a node under it (a `Text`, its `props.text`): `Column "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.
@@ -413,7 +413,7 @@ Column#page scroll w={"fill":1440} h={"fill":900} crossAxisAlignment=null
     Icon#menu "menu" w=28 h=28 color=#FFFFFFFF minDesktop.hidden
   Column#content gap=24 stretch pad=[16,24,16,24] w={"fill":1440} h={"hug":800} maxw=1200 align=null minTablet.gap=32 minTablet.pad=[32,48,32,48]
     Text.heading2#title "Plans that scale with your team" size=32 lineHeight=1.1 w={"fill":1136} h={"hug":64} minTablet.size=40 minDesktop.size=56
-    gridView#plans w={"fill":1136} h={"hug":200} physics=never minCrossAxisExtent=280 crossAxisSpacing=24 mainAxisSpacing=24
+    GridView#plans w={"fill":1136} h={"hug":200} physics=never minCrossAxisExtent=280 crossAxisSpacing=24 mainAxisSpacing=24
       each item in plans
         Column#plan gap=8 pad=24 h={"fill":160} fill=#FFF3F4F6 radius=12 w={"fill":360}
           Text.heading3#plan-name "{item.name}" w={"fill":312} h={"hug":24}
@@ -439,7 +439,7 @@ Column#page scroll w={"fill":1440} h={"fill":900} crossAxisAlignment=null
         each row in rows
           Row#tr w={"fill":1200} h={"hug":44} border-bottom=#FF374151 crossAxisAlignment=null
             Text#label "" size=14 color=#FFD1D5DB w={"fill":180} h={"hug":20} grow=2 text={item.label}
-            gridView#cells w={"fill":600} h={"hug":44} grow=3 cols={length(item.values)} physics=never props.crossAxisCount=3
+            GridView#cells w={"fill":600} h={"hug":44} grow=3 cols={length(item.values)} physics=never props.crossAxisCount=3
               each item in item.values
                 Text#cell "" size=14 color=#FFFFFFFF center h={"hug":20} margin=[0,12,0,12] text={item} w={"fill":200}
 ```
@@ -476,7 +476,7 @@ Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
       Text#edition "Saturday edition" color=#FFCBD5E1 w={"hug":120} h={"hug":18} max599.hidden
   Column#main pad=[20,24,20,40] w={"fill":390} h={"hug":1200} crossAxisAlignment=null
     Flex#split w={"fill":350} h={"hug":1200} maxw=1200 direction=vertical gap=32 crossAxisAlignment=start min834.direction=horizontal
-      gridView#river w={"fill":350} h={"hug":900} cols=1 physics=never mainAxisSpacing=28 crossAxisSpacing=24 min834.crossAxisCount=2 min1200.crossAxisCount=3
+      GridView#river w={"fill":350} h={"hug":900} cols=1 physics=never mainAxisSpacing=28 crossAxisSpacing=24 min834.crossAxisCount=2 min1200.crossAxisCount=3
         each item in stories
           Column#story gap=8 h={"hug":300} columnSpan={index == 0 ? 2 : 1} w={"fill":350}
             box#storyArt w={"fill":350} layout.height=200 gradient=["#FF94A3B8","#FF1F2A44"] radius=4 h={index == 0 ? 340 : 200}
@@ -504,7 +504,7 @@ Column#page gap=12 scroll pad=20 w={"fill":390} h={"fill":844}
     Text#track1 "Main hall" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}
     Text#track2 "Studio" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}
     Text#track3 "Workshop room" weight=700 color=#FF6B7280 w={"fill":100} h={"hug":20}
-  gridView#grid w={"fill":350} h={"hug":400} shrinkWrapRows=null cols=1 mainAxisExtent=64 mainAxisSpacing=8 crossAxisSpacing=12 physics=never min600.crossAxisCount=3
+  GridView#grid w={"fill":350} h={"hug":400} shrinkWrapRows=null cols=1 mainAxisExtent=64 mainAxisSpacing=8 crossAxisSpacing=12 physics=never min600.crossAxisCount=3
     each item in sessions
       Column#session gap=2 pad=10 h={"fill":64} fill=#FFEEF2FF radius=6 w={"fill":350} min600.columnStart={item.track} min600.rowStart={item.slot} min600.rowSpan={item.slots} min600.columnSpan={item.tracks}
         Text.small#sessionTime "{item.time} · {item.room}" color=#FF4338CA w={"fill":320} h={"hug":16}

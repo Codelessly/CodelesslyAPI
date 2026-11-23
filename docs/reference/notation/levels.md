@@ -7,7 +7,7 @@ The words by feature level (`lib/src/core/levels.dart`, the same table as the JS
 <a id="level-core"></a>
 ## 0. Core (`core`)
 
-- **Words:** [`canvas`](layout.md#node-canvas), [`Stack`](layout.md#node-stack), [`box`](layout.md#node-box), [`Row`](layout.md#node-row), [`Column`](layout.md#node-column), [`Flex`](layout.md#node-flex), [`Text`](theme.md#node-text), [`Icon`](decoration.md#node-icon), [`Spacer`](layout.md#node-spacer), [`ListView`](lists.md#node-listView), [`gridView`](lists.md#node-gridView), [`Divider`](layout.md#node-divider), [`VerticalDivider`](layout.md#node-verticalDivider), [`Placeholder`](components.md#node-placeholder), [`SinglePlaceholder`](components.md#node-singlePlaceholder)
+- **Words:** [`canvas`](layout.md#node-canvas), [`Stack`](layout.md#node-stack), [`box`](layout.md#node-box), [`Row`](layout.md#node-row), [`Column`](layout.md#node-column), [`Flex`](layout.md#node-flex), [`Text`](theme.md#node-text), [`Icon`](decoration.md#node-icon), [`Spacer`](layout.md#node-spacer), [`ListView`](lists.md#node-listView), [`GridView`](lists.md#node-gridView), [`Divider`](layout.md#node-divider), [`VerticalDivider`](layout.md#node-verticalDivider), [`Placeholder`](components.md#node-placeholder), [`SinglePlaceholder`](components.md#node-singlePlaceholder)
 - **Events:** [`onTap`](events.md#trigger-click), [`onLinkTap`](events.md#trigger-linkTap)
 - **Actions:** [`componentEvent`](events.md#action-componentEvent), [`emitEvent`](engage.md#action-emitEvent), [`openLink`](events.md#action-openLink)
 - **Keys any line takes:** [`textDirection`](theme.md#behavior-textDirection), [`defaultTextStyle`](theme.md#behavior-defaultTextStyle), [`ignorePointer`](interaction.md#behavior-ignorePointer)

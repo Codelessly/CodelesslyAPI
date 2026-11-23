@@ -351,7 +351,7 @@ reads "at this width, these keys have these values". The condition is one or mor
 | Segment | Condition |
 |---|---|
 | `phone`, `tablet` | `maxWidth` 699, 1023: the named sizes `hide=phone`, `hide=tablet` hide at |
-| `desktop` | `minWidth` 1024 (`hide=desktop`) |
+| `desktop` | `minWidth` 1024 (hidden there: `show=tablet`) |
 | `max899`, `min1100` | `maxWidth`, `minWidth` in px |
 | `minTablet`, `maxMobile` | `minWidth`, `maxWidth` naming a breakpoint (`"tablet"`), its id with a capital |
 | `portrait`, `landscape` | `orientation` |

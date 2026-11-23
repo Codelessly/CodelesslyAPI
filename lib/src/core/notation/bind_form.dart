@@ -23,10 +23,6 @@ typedef NotationBindRewrite = ({String line, List<NotationBound> bound, List<Str
 /// when it has none to rewrite).
 String notationBindForm(String line, {Catalog? catalog}) => notationBindRewrite(line, catalog: catalog).line;
 
-/// The words a model writes for a slider with two thumbs and for a month,
-/// read as ours ([NotationVocabulary.core]).
-const _rangeWords = {'RangeSlider': 'slider', 'MiniCalendar': 'calendar', 'CalendarMonth': 'calendar', 'MonthGrid': 'calendar'};
-
 /// A variable, a field of one, or an entry of one: what `@` takes.
 final _path = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*|\[[^\]\s]*\])*$');
 final _name = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
@@ -50,8 +46,8 @@ bool notationIsLiteral(String v) =>
 /// variables those bind (a mark already written `@name` is the line's as it
 /// is: neither rewritten nor listed). Only what 33 read as a binding is
 /// rewritten: `bind=` and `bindEnd=` (a name, a path, or one in braces), a
-/// block's variable parameter given a bare name (`direction=dir`), a
-/// RangeSlider's ends given bare names. A value in braces anywhere else
+/// block's variable parameter given a bare name (`direction=dir`). A value
+/// in braces anywhere else
 /// (`value={s}`, `lo={lo}`) was shown, one way, and is left as written.
 ///
 /// A signature (`define Word …`, `primitive Word …`) names the variable the
@@ -81,12 +77,12 @@ NotationBindRewrite notationBindRewrite(String line, {Catalog? catalog}) {
   if (parts == null || !RegExp(r'^[A-Z]').hasMatch(parts.word) || const {'state', 'project', 'let', 'each', 'for', 'if', 'else', 'every', 'key', 'node', 'document'}.contains(parts.word)) return none;
   final word = parts.word;
   final read = notationLineType(word, c);
-  final type = _rangeWords[word] ?? read.type;
+  final type = read.type;
   final component = signature == null ? read.component : null;
   final range = type == 'slider' || type == 'calendar';
   final ends = type == 'calendar' ? const ('start', 'end') : const ('low', 'high');
   // A list's selection: on a box (or a word the notation does not have).
-  final list = (const {'column', 'row', 'stack'}.contains(type) || (component == null && c.widget(type) == null)) && ['selectable', 'reorder', 'sortable', 'reorderable'].any(parts.has);
+  final list = (const {'column', 'row', 'stack'}.contains(type) || (component == null && c.widget(type) == null)) && ['selectable', 'reorder'].any(parts.has);
   final shows = component == null && (notationShowsValue(type) || word == 'Badge');
   final variables = [for (final p in component?.props ?? const <PropDef<Object?>>[]) if (p.type.isVariable) p];
   final mainParam = variables.where((p) => p.key == 'value').firstOrNull ?? variables.firstOrNull;
@@ -227,20 +223,6 @@ NotationBindRewrite notationBindRewrite(String line, {Catalog? catalog}) {
       continue;
     }
     if (signature != null) continue;
-    // A slider with two thumbs written with its ends' names (bare: in braces
-    // they were values shown).
-    if (word == 'RangeSlider' && v == inner && _path.hasMatch(inner) && !reserved(inner)) {
-      if (const {'low', 'lo', 'start', 'from'}.contains(key)) {
-        main = p;
-        mainName = inner;
-        continue;
-      }
-      if (const {'high', 'hi', 'end', 'to'}.contains(key)) {
-        end = p;
-        endName = inner;
-        continue;
-      }
-    }
     // A block's variable, written by its name (in braces it is a value
     // shown, one way; beside bind= the value is bind='s).
     final param = variables.where((x) => x.key == key).firstOrNull;

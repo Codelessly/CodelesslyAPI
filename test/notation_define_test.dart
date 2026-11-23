@@ -753,7 +753,17 @@ define Badge2 "label" tone="#FFDCFCE7"
   group('what passed the tools and was wrong at run time (the vocabulary loop, Review 7, D31)', () {
     String actions(NotationResult r, String id) => jsonEncode(_node(r, id)['actions']);
 
-    test('@value, value=@ and a path bind the variable the use names; name=@ a further one; a use that binds none keeps its own', () {
+    test('a body\'s own lines bind a control\'s value by @name alone, as a page\'s do', () {
+      final r = parseNotation('state email=""\nColumn\n  Field "Name" @email\ndefine Field "label" @value\n  Input "{label}" value=@value\n', catalog: standardCatalog);
+      expect(r.issues.single.message, endsWith('The value of an Input is bound by @name alone, with no key before it: @email.'));
+      final range = parseNotation('state lo=1\nstate hi=9\nColumn\n  Range @lo end=@hi\ndefine Range @low end=@\n  Slider low=@low high=@end min=0 max=100\n', catalog: standardCatalog);
+      expect([for (final i in range.issues) i.message.replaceFirst(RegExp(r'^page:\d+: '), '')], [
+        'The value of a Slider is bound by @name alone, with no key before it: @lo.',
+        'The other end of a range is the second @name of the line, with no key before it: @hi.',
+      ]);
+    });
+
+    test('@value and a path bind the variable the use names; name=@ a further one; a use that binds none keeps its own', () {
       final r = parseNotation('''
 state email=""
 state s={"weight":"1"}
@@ -770,7 +780,7 @@ define Field "label" @value
 define Field2 "label" @value
   Column
     Input#a "{label}" @value
-    Input#b "{label}" value=@value
+    Input#b "{label}" @value
 define Range @low end=@
   Slider @low @end min=0 max=100
 ''', catalog: standardCatalog);

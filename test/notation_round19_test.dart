@@ -483,6 +483,16 @@ Column
       expect(_said(_page('Column\n  TopBar "Acme"\ndefine TopBar "title"\n  Row\n    Text "{title}"\n')), isEmpty);
     });
 
+    test('a grid over data is a GridView, the catalog\'s own word; a Grid lays out the lines under it', () {
+      const state = 'state rows=[{"n":"a"},{"n":"b"}]\n';
+      expect(_said(_page('${state}Column\n  Grid data={rows} cols=2\n    Text "{item.n}"\n')).first,
+          'A grid over data is a GridView (a Grid lays out the lines written under it): GridView data={rows} cols=2');
+      final r = _page('${state}Column\n  GridView#g data={rows} cols=2\n    Text "{item.n}"\n');
+      expect(_said(r), isEmpty);
+      expect(_node(r, 'g')['type'], 'gridView');
+      expect(_said(_page('${state}Column\n  Grid cols=2\n    each r in rows\n      Text "{r.n}"\n')), isEmpty);
+    });
+
     test('one word for a thing: a crossed-out text, a pie, a column, a meter', () {
       for (final (line, said) in [
         ('Text "a" strikethrough', 'A Text crossed out is written strike.'),

@@ -1448,7 +1448,6 @@ const Map<String, ({String type, Json node})> notationTypes = {
   'Badge': (type: 'row', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
   'Grid': (type: 'column', node: {}),
-  'GridView': (type: 'column', node: {}),
   'Image': (type: 'box', node: {}),
   'Box': (type: 'column', node: {}),
   'Card': (type: 'column', node: {}),
@@ -3194,6 +3193,9 @@ class _Parser {
         parts.parts[i] = LinePart.word(to);
       }
     }
+    // (A line a caller's table rewrote names what it binds by the caller's
+    // key: `Fader level=@vol` is read as `Slider value=@vol`.)
+    if (changed) _top._methodsSaid.add('$_line aliased');
     return [changed ? parts.toString() : text];
   }
 
@@ -3259,7 +3261,9 @@ class _Parser {
       }
     }
     if (!typed && dropped.isEmpty) return text;
-    if (_top._methodsSaid.add('$_line name $text')) _issue(column, 'The notation has one name for each word and key: write $fixed');
+    // (A control's value, and a range's ends, are bound by the mark alone.)
+    final line = const {'Slider', 'Calendar'}.contains(fixed.word) ? '$fixed'.replaceAll(RegExp(r' (low|high|start|end|value)=@'), ' @') : '$fixed';
+    if (_top._methodsSaid.add('$_line name $text')) _issue(column, 'The notation has one name for each word and key: write $line');
     if (typed) return text;
     for (final i in dropped.reversed) {
       kept.parts.removeAt(i);
@@ -6772,13 +6776,14 @@ class _Parser {
     if (RegExp(r'(?<!\\)"').allMatches(line).length.isOdd) {
       _issue(column, 'A quoted text is not closed on its line: a text is one line, a line break in it is written \\n ("one\\ntwo", and in an expression \'\\n\').');
     }
-    // `GridView data={rows}` (or `Grid`): a grid over data is the catalog's
-    // gridView, its line under it the cell repeated for each row, as
-    // `ListView data={…}` is; the Grid word lays out the lines written
-    // under it and has no data.
-    if (RegExp(r'^(GridView|Grid)(?=[#\s])').hasMatch(line) && catalog.widget(line.split(RegExp(r'[#\s]')).first) == null &&
+    // `Grid data={rows}`: a grid over data is the catalog's GridView, its
+    // line under it the cell repeated for each row, as `ListView data={…}`
+    // is; the Grid word lays out the lines written under it and has no
+    // data. Said, and read as the GridView it names.
+    if (RegExp(r'^Grid(?=[#\s])').hasMatch(line) && catalog.widget('Grid') == null &&
         (LineParts.of(line)?.parts.any((p) => p.kind == 'pair' && p.key == 'data') ?? false)) {
-      line = line.replaceFirst(RegExp(r'^(GridView|Grid)'), 'gridView');
+      line = line.replaceFirst('Grid', 'GridView');
+      _issue(column, 'A grid over data is a GridView (a Grid lays out the lines written under it): $line');
     }
     final t = _Tokens(line);
     final head = RegExp(r'^([A-Za-z][A-Za-z0-9]*)(?:\.([A-Za-z][A-Za-z0-9]*))?(?:#([A-Za-z_][A-Za-z0-9_]*(?:-[A-Za-z0-9_]+)*))?').firstMatch(line);
@@ -6975,8 +6980,8 @@ class _Parser {
         decoration['radius'] = tile ?? options.sectionRadius;
       }
     }
-    final id = head[3] ?? _id((written == 'Grid' || written == 'GridView') ? 'grid' : type);
-    final grid = (written == 'Grid' || written == 'GridView') ? _Grid(id) : null;
+    final id = head[3] ?? _id(written == 'Grid' ? 'grid' : type);
+    final grid = written == 'Grid' ? _Grid(id) : null;
     if ((written == 'Card' && !component)) _cards.add(id);
     if (grid != null) props['spacing'] = grid.gap;
     final under = _stack.reversed.where((o) => o.condition != null).firstOrNull?.condition;
@@ -7246,7 +7251,7 @@ class _Parser {
       // The line's own value, and a range's other end, have one form: the
       // mark alone, in order. (A caller's own word read as this one names
       // them: `Fader level=@vol` is the caller's.)
-      if (named != null && !component && !standIn && (_srcWord == null || _srcWord == written) && (named == 'value' || (range && (named == ends.$1 || named == ends.$2)) || (!range && _valueProps[type]?.prop == named))) {
+      if (named != null && !component && !standIn && !_top._methodsSaid.contains('$_line aliased') && (named == 'value' || (range && (named == ends.$1 || named == ends.$2)) || (!range && _valueProps[type]?.prop == named))) {
         _issue(
             col,
             range && named == ends.$2
@@ -13105,7 +13110,7 @@ final meant = const {'sm': 'small', 'soft': 'small', 'true': 'small', 'md': 'med
   /// field.
   static bool _textAt(String type, String written) =>
       type == 'text' ||
-      (const {'column', 'row', 'stack', 'listTile', 'accordion', 'expansionTile'}.contains(type) && written != 'Grid' && written != 'GridView') ||
+      (const {'column', 'row', 'stack', 'listTile', 'accordion', 'expansionTile'}.contains(type) && written != 'Grid') ||
       (type.endsWith('Button') && type != 'iconButton') ||
       type.endsWith('Chip') ||
       type == 'chip';

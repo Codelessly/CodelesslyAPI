@@ -566,11 +566,11 @@ Flutter `ListView`; the first child is the item.
 | `refreshStyle` | `disc` `spinner` | `disc` | 0 | What a list pulled to refresh draws: `disc` (a round disc over the list) or `spinner` (iOS's ticked spinner in the room the pull opens, no disc). |
 
 <a id="node-gridView"></a>
-### `gridView` (`gridView`)
+### `GridView` (`gridView`)
 
 Flutter `GridView`; the first child is the item.
 
-- Written `gridView`. Level 0 (Core).
+- Written `GridView`. Level 0 (Core).
 - Takes no quoted string.
 - The lines under it are its children. Slots: `loading`, `error`, `end`, `reorderPlaceholder`.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
@@ -989,7 +989,7 @@ Column#col pad=24 w={"fill":390} h={"fill":400} crossAxisAlignment=null
     each row in habits
       Column#habit gap=6 w={"fill":342} h={"hug":70}
         Text#name "{item.name}: {count(item.days, d => d)}" size=15 w={"fill":342} h={"hug":20}
-        gridView#week w={"fill":342} h={"hug":40} shrinkWrapRows=null cols=7 mainAxisExtent=40 crossAxisSpacing=6 physics=never
+        GridView#week w={"fill":342} h={"hug":40} shrinkWrapRows=null cols=7 mainAxisExtent=40 crossAxisSpacing=6 physics=never
           each item in item.days
             box#day h={"fill":40} fills=[{"color":"#FFE5E7EB"}] fill={item ? '#FF16A34A' : '#FFE5E7EB'} radius=20 w={"fill":40} onTap={habits="{setAt(habits, parent.index, set(parent.item, 'days', setAt(parent.item.days, index, !item)))}"}
 ```

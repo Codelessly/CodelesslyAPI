@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5351
+      "words": 5350
     },
     {
       "topic": "layout-sizes",
@@ -145,7 +145,7 @@
       "file": "layout.md",
       "anchor": "layout-words",
       "title": "Words",
-      "words": 2789
+      "words": 2788
     },
     {
       "topic": "layout-behaviors",

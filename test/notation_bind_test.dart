@@ -485,7 +485,6 @@ define Label "text"
         'Slider bind=lo bindEnd=hi max=50': ('Slider @lo @hi max=50', {'lo': 0, 'hi': 50}),
         'Slider bindEnd=hi bind=lo': ('Slider @lo @hi', {'lo': 0, 'hi': 1}),
         'Calendar bind=a bindEnd=b': ('Calendar @a @b', {'a': '', 'b': ''}),
-        'RangeSlider low=a high=b': ('RangeSlider @a @b', {'a': 0, 'b': 1}),
         'Progress bind={done/total}': ('Progress value={done/total}', {}),
         'Progress bind=share': ('Progress value={share}', {}),
         'Text bind=label': ('Text "{label}"', {}),
@@ -503,7 +502,7 @@ define Label "text"
         // A list reordered (not selected from) kept nothing in its bind=: the
         // order goes to the list its each repeats.
         'Column reorder bind=xs onReorder={xs=result}': ('Column reorder onReorder={xs=result}', {}),
-        'Column sortable gap=8 bind=xs': ('Column sortable gap=8', {}),
+        'Column reorder gap=8 bind=xs': ('Column reorder gap=8', {}),
         'define Bar "label" value=0 bind=value': ('define Bar "label" @value=0', {}),
         'define Bar "label" bind=value value="x" onChange': ('define Bar "label" @value="x" onChange', {}),
         'define Crop bindX=0.5 bindY=0.5': ('define Crop x=@0.5 y=@0.5', {}),
@@ -544,8 +543,6 @@ define Label "text"
           'Rating value={photos[at].myRating} max=5',
           'SortMenu direction={dir}',
           'Choice "A" group={pick}',
-          'RangeSlider lo={lo} hi={hi} min=0 max=9',
-          'RangeSlider low={a} high={b}',
           'Stepper.progress steps=["A","B"] value={step}',
         ]) {
           final got = notationBindRewrite(line, catalog: catalog);
@@ -563,8 +560,6 @@ define Label "text"
           'Rating value=4.6',
           'Rating value=true',
           'Rating value=null',
-          'RangeSlider low=4 high=9',
-          'RangeSlider from="a" to="b"',
           'Slider bind="volume"',
           'Slider bind=[1,2]',
           'Thing bind=f(a',

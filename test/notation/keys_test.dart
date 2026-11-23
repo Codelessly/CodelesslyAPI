@@ -260,7 +260,7 @@ void main() {
       // A Box is a column, a Grid a column of rows, a Badge a row, an
       // AppBar a column, a Modal the screen's: no line is the type itself.
       // (radialGauge is the node as written since the paint family, 4.6.)
-      expect(all.where((t) => !heads.containsKey(t)).toSet(), {'box', 'gridView', 'badge', 'appBar', 'modal'});
+      expect(all.where((t) => !heads.containsKey(t)).toSet(), {'box', 'badge', 'appBar', 'modal'});
     });
 
     final misses = <String>[];

@@ -164,8 +164,8 @@ place it, is nearer to what the web does than a second copy of the content.
 | `phone:` | short; CSS- and YAML-like | the grammar has no line ending in a colon; a writer would also write `phone: Column …` on one line |
 | `phone` alone | the width word writers already write (898 times) | a bare lowercase line reads as nothing; `max899` alone reads worse |
 
-`at phone`: the width word writers already use, in the statement form the grammar already has. `at mobile` is read as
-`at phone`, as `mobile.pad` is today.
+`at phone`: the width word writers already use, in the statement form the grammar already has. A phone has one name:
+`at mobile` and `mobile.pad` are not read, and are said with `phone`.
 
 ### 3.2 Where it may appear
 

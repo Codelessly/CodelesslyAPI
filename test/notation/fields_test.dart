@@ -83,9 +83,9 @@ void main() {
         ('textButton', 'Button.ghost'),
         ('elevatedButton', 'Button.elevated'),
         ('listView', 'ListView'),
-        // A capital is another word: Box is a column, GridView a grid, Badge a pill.
+        // A capital is another word: Box is a column, Badge a pill.
         ('box', 'box'),
-        ('gridView', 'gridView'),
+        ('gridView', 'GridView'),
         ('badge', 'badge'),
         // LineChart adds a height and a color (design 22, 4.5): a line
         // chart with neither is the catalog's lineChart.
@@ -251,7 +251,7 @@ void main() {
       ('Column\n  Progress value=0.4', 'progressBar', 'props.value', 0.4),
       ('Column\n  Slider min=0 max=10', 'slider', 'props.max', 10),
       ('Column\n  Checkbox "Agree" value=true', 'checkbox', 'props.value', true),
-      ('Column\n  gridView cols=3','gridView', 'props.crossAxisCount', 3),
+      ('Column\n  GridView cols=3','gridView', 'props.crossAxisCount', 3),
       ('Column\n  Text "x" style=caption', 'text', 'props.style', 'caption'),
       // A prop bound to a text with values in it.
       ('state k=""\nColumn\n  Text "x" shortcut="Ctrl+{k}"', 'text', 'bind.props.shortcut', r'Ctrl+${k}'),
