@@ -28,9 +28,8 @@ whose first line is `define Name …` (or `primitive`) is the site's definitions
 reads them, as a page reads a `define` after its last line; a file that is neither fails the expand, `--open` too,
 saying what to write. A word the notation already has is the notation's, whoever defines it: a page's or a site's
 `define`, `primitive` or component named like a core word or a page word (`Card`, `Rail`) is not used, and the
-expand says so at the definition. A name the notation only reads as another of its words (`MonthGrid` as
-`Calendar`, `DataTable` as `Table`) is yours to define: a `define` of it is the one read (a `primitive` of it,
-which has no lines to draw, is not). A defined word whose lines are an overlay (`define SideMenu` over
+expand says so at the definition. A name that is no word of the notation (`MonthGrid`, `TopBar`, `Modal`) is yours to define: a `define` of it is
+the one read; with none, the line is said with the notation's own word for it (`Calendar`, `Nav`, `Dialog`). A defined word whose lines are an overlay (`define SideMenu` over
 `Drawer#menu â€¦`) is that overlay wherever its use is written, opened by the id its lines give (`open menu`). Every
 expand saves the site's vocabulary record (`vocabulary.json` and `VOCABULARY.md` in the site's folder) and says
 each word that stood in as a placeholder.
@@ -61,8 +60,9 @@ page (`Pic "a" p.seed`).
 An item of an `each` is passed whole: `define ProductCard p={}` reads `{p.name}` and `{p.price}` in its lines, and a
 use under `each p in products` writes `ProductCard p={p}` (`p=p` is read the same: a whole item is never a word).
 
-A parameter that is a choice (a tone, a size) takes another word for one of its values as that value: `tone="error"`
-where the tones are `info`, `success`, `warning`, `danger`; `warn`, `ok`, `small`, `medium`, `large` likewise.
+A parameter that is a choice (a tone, a size) takes the words it declares and no other: `tone="error"` where the
+tones are `info`, `success`, `warning`, `danger` is not read, and is said with the value to write
+(`tone=danger`).
 
 <a id="components-the-shorthand-words-of-earlier-versions"></a>
 ## The shorthand words of earlier versions
@@ -353,7 +353,7 @@ From [`site/pages/home.json`](../components.md).
 ```notation components
 canvas "Home" path="/" h=844 fill=paper
 Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
-  Header#header type=Header w={"fill":390} h=56 savedCount={length(saved)}
+  Header#header w={"fill":390} h=56 savedCount={length(saved)}
   Column#main gap=16 pad=20 w={"fill":390} h={"hug":300} maxw=960 align=null
     Text#title "Trips by rail" w={"fill":350} h={"hug":34} style=title
     ListView#tripList w={"fill":350} h={"hug":200} scrollable=false gap=12
@@ -379,7 +379,7 @@ state trip:map={coalesce(find(trips, 'id', route.id), first(trips))}
 state isSaved:boolean={contains(saved, trip.id)}
 canvas "Trip" path="/trip" h=844 fill=paper
 Column#page scroll w={"fill":390} h={"fill":844} crossAxisAlignment=null
-  Header#header type=Header w={"fill":390} h=56 savedCount={length(saved)}
+  Header#header w={"fill":390} h=56 savedCount={length(saved)}
   Column#main gap=16 pad=20 w={"fill":390} h={"hug":400} maxw=960 align=null
     Text#back "Back" w={"hug":120} h={"hug":22} style=link onTap={navigate mode=pop}
     Text#title "{trip.name}" w={"fill":350} h={"hug":34} style=title

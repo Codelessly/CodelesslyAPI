@@ -349,7 +349,7 @@ Column w=fill
     expect(printNotation(doc, catalog: standardCatalog), contains('runSpacing=0'));
   });
 
-  test('the prompt does not teach Wanted, List or Content; the words still expand', () {
+  test('the prompt does not teach Wanted, List or Content; Wanted still expands, List is said with Column and Content with Main', () {
     for (final open in [false, true]) {
       for (final width in [390.0, 1440.0]) {
         final prompt = notationPrompt(catalog: standardCatalog, options: NotationOptions(width: width), open: open);
@@ -359,7 +359,7 @@ Column w=fill
     }
     final r = _parse('''
 Column w=fill
-  List#l gap=4
+  Column#l gap=4
     Text "a"
   Wanted#w "PollResults" "each option with its share"
     Text "b"
@@ -372,6 +372,8 @@ App
   Content
     Text "c"
 ''', options: const NotationOptions(width: 1440));
-    expect(page.issues, isEmpty);
+    expect(page.issues.single.message, 'Content is written Main: Main');
+    expect(_parse('Column\n  List#l gap=4\n    Text "a"\n').issues.first.message, 'The notation has one name for each word and key: write Column#l gap=4');
+    expect(_parse('App\n  Main\n    Text "c"\n', options: const NotationOptions(width: 1440)).issues, isEmpty);
   });
 }

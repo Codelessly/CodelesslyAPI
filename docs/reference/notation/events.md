@@ -131,9 +131,10 @@ Menu, a Popover) runs once it has closed, however it was closed, wherever the pa
 <a id="events-a-press-as-it-starts-and-as-it-ends"></a>
 ## A press as it starts and as it ends
 
-`onPointerDown={…}` runs as a press starts on a line and `onPointerUp={…}` as it ends; `onPressStart`, `onPressDown`
-and `onMouseDown` are read as the first, `onPressEnd`, `onPressUp`, `onRelease` and `onMouseUp` as the second (a
-story paused while a finger is down: `Stack onPressStart={paused=true} onPressEnd={paused=false}`). `onHold={…}`
+`onPointerDown={…}` runs as a press starts on a line and `onPointerUp={…}` as it ends (a story paused while a
+finger is down: `Stack onPointerDown={paused=true} onPointerUp={paused=false}`). An event has one name: another
+name for one (`onPressStart`, `onMouseDown`, `onRelease`, `onPress`, `onClick`) is not read, and is said with
+the event to write. `onHold={…}`
 runs once a press has been held; `onLongPress` is the platform's long press.
 
 Hold to repeat (a stepper that keeps counting while its button is held) is a press that sets a state and a timer

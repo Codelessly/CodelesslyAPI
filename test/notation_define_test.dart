@@ -596,10 +596,10 @@ define Guide visible=true steer=0
     });
 
     test('a border\'s width and colour together, as models write them', () {
-      final r = read('Column\n  Ring2 on=true\ndefine Ring2 on=false\n  Column gap=4\n    Box#a w=40 h=40 border=#FF2563EB strokeWidth=2\n    Box#b w=40 h=40 border="#FF2563EB 2"\n    Box#c w=40 h=40 strokeWidth=3 border=#FF2563EB\n    Box#d w=40 h=40 border=#FF2563EB strokeWidth={on ? 2 : 0}\n    Box#e w=40 h=40 border=1\n');
+      final r = read('Column\n  Ring2 on=true\ndefine Ring2 on=false\n  Column gap=4\n    Box#a w=40 h=40 border=#FF2563EB strokeWidth=2\n    Box#c w=40 h=40 strokeWidth=3 border=#FF2563EB\n    Box#d w=40 h=40 border=#FF2563EB strokeWidth={on ? 2 : 0}\n    Box#e w=40 h=40 strokeWidth=1\n');
       expect(r.issues, isEmpty);
       Map<String, Object?> deco(String id) => (_node(r, '${id}_ring21')['decoration'] as Map).cast();
-      for (final (id, w) in [('a', 2), ('b', 2), ('c', 3)]) {
+      for (final (id, w) in [('a', 2), ('c', 3)]) {
         expect(deco(id), {'strokes': [{'color': '#FF2563EB'}], 'strokeWidth': w}, reason: id);
       }
       // `{on ? 2 : 0}` with on=true written: worked out as the use is read.
@@ -608,8 +608,19 @@ define Guide visible=true steer=0
       expect(deco('e'), {'strokes': [{'color': const NotationOptions().line}], 'strokeWidth': 1});
     });
 
-    test('a font and a weight on an Input', () {
-      final r = read('Column\n  Field2\ndefine Field2\n  Input "Code" font="JetBrains Mono" weight=600 fontSize=18\n');
+    test('a border\'s width has one key: written in border= it is said with strokeWidth=', () {
+      String said(String line) => read('Column\n  $line\n').issues.single.message;
+      const head = 'A border\'s colour is border=, its width strokeWidth= (alone: the theme\'s line at that width): ';
+      expect(said('Box w=40 h=40 border="#FF2563EB 2"'), '${head}border=#FF2563EB strokeWidth=2.');
+      expect(said('Box w=40 h=40 border=1'), '${head}strokeWidth=1.');
+    });
+
+    test('a font and a weight on an Input, by the names a Text has them', () {
+      for (final (written, line) in [('font="Georgia"', 'fontFamily="Georgia"'), ('textSize=18', 'size=18'), ('fontSize=18', 'size=18'), ('fontWeight=600', 'weight=600')]) {
+        final key = written.split('=').first;
+        expect(read('Column\n  Input "Code" $written\n').issues.single.message, 'An Input\'s $key is written ${line.split('=').first}: $line.');
+      }
+      final r = read('Column\n  Field2\ndefine Field2\n  Input "Code" fontFamily="JetBrains Mono" weight=600 size=18\n');
       expect(r.issues, isEmpty);
       expect((_node(r, 'field21')['props'] as Map)['style'], {'fontFamily': 'JetBrains Mono', 'fontWeight': 600, 'fontSize': 18});
     });
@@ -802,7 +813,7 @@ define Board items=[]
       expect(_node(r, 'v_board1')['draggable'], {'group': 'booking', 'data': r'${item.id}'});
     });
 
-    test('an event forwarded with its result: onSubmitted is onSubmit, a result path read once, a choice of events with a branch not given', () {
+    test('an event forwarded with its result, a result path read once, a choice of events with a branch not given', () {
       final r = parseNotation('''
 state got=""
 state on=true
@@ -812,7 +823,7 @@ Column
   Pick on={on} onA={got="a"; on=false}
   Pick on={on} onB={got="b"}
 define Search onSubmit
-  Input "Find" onSubmitted={onSubmit(result)}
+  Input "Find" onSubmit={onSubmit(result)}
 define Drop onDrop
   Box h=40 drop=x onDrop={onDrop(result.data)}
 define Pick on=false onA onB

@@ -166,8 +166,25 @@ void main() {
     });
 
     test('the names the notation had keep their triggers, on a block too', () {
-      final r = _parse('Box#b onHover={x=1} onHoverMove={x=2} onRightClick={x=3} onContextMenu={x=4} onBlur={x=5}');
-      expect([for (final e in _reactions(r, 'b')) ((e as Map)['trigger'] as Map)['type']], ['cursorEnter', 'hover', 'secondaryClick', 'secondaryClick', 'focusLost']);
+      final r = _parse('Box#b onHover={x=1} onHoverMove={x=2} onRightClick={x=3} onBlur={x=5}');
+      expect([for (final e in _reactions(r, 'b')) ((e as Map)['trigger'] as Map)['type']], ['cursorEnter', 'hover', 'secondaryClick', 'focusLost']);
+    });
+
+    test('an event has one name: another name for it is said with the event to write', () {
+      for (final (written, line) in [
+        ('onPress={x=1}', 'onTap={x=1}'),
+        ('onClick={x=1}', 'onTap={x=1}'),
+        ('onContextMenu={x=4}', 'onRightClick={x=4}'),
+        ('onPressStart={x=1}', 'onPointerDown={x=1}'),
+        ('onMouseDown={x=1}', 'onPointerDown={x=1}'),
+        ('onPressEnd={x=1}', 'onPointerUp={x=1}'),
+        ('onRelease={x=1}', 'onPointerUp={x=1}'),
+      ]) {
+        final r = _parse('Box#b $written');
+        final key = written.split('=').first;
+        expect(r.issues.single.message, 'A Box\'s $key is written ${line.split('=').first}: $line.', reason: written);
+        expect(_node(r, 'b')['actions'], isNull, reason: written);
+      }
     });
   });
 

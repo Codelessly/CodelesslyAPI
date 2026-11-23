@@ -1437,18 +1437,14 @@ const Map<String, ({String type, Json node})> notationTypes = {
   // share and a small trend line (design 16: asked with no vocabulary, it
   // writes gauge, dial, ring, sparkline).
   'Gauge': (type: 'radialGauge', node: {}),
-  'Dial': (type: 'radialGauge', node: {}),
   'Ring': (type: 'circularProgressIndicator', node: {}),
   'Sparkline': (type: 'lineChart', node: {}),
   // Shares of a whole, and a line chart that fills under its line.
   'Donut': (type: 'chart', node: {}),
-  'DonutChart': (type: 'chart', node: {}),
-  'PieChart': (type: 'chart', node: {}),
   'Pie': (type: 'chart', node: {}),
   'AreaChart': (type: 'lineChart', node: {}),
   // A person as a round mark: their initials, or their picture.
   'Avatar': (type: 'column', node: {}),
-  'List': (type: 'column', node: {}),
   'Badge': (type: 'row', node: {}),
   // A grid of the children written under it: rows of `cols` equal cells.
   'Grid': (type: 'column', node: {}),
@@ -1514,7 +1510,7 @@ const _typeKeys = notationTypeKeys;
 const Map<String, String> _shownValue = {'progressBar': 'value', 'circularProgressIndicator': 'value', 'radialGauge': 'value', 'text': 'text'};
 
 /// The short names a design system's component of the same name replaces.
-const _softNames = {'CodeInput', 'DataTable', 'Handle', 'NumberInput', 'Gauge', 'Dial', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'DonutChart', 'PieChart', 'Pie', 'AreaChart'};
+const _softNames = {'CodeInput', 'DataTable', 'Handle', 'NumberInput', 'Gauge', 'Ring', 'Sparkline', 'Avatar', 'Donut', 'Pie', 'AreaChart'};
 
 /// What a line starting with [written] is, as its bindings read it: the
 /// node type, and the design system's component when it is one.
@@ -3094,6 +3090,7 @@ class _Parser {
   /// word the notation already has is never an alias. Several lines when
   /// the word is a line of another shape that takes more than one.
   List<String> _aliased(String text, int column) {
+    text = _otherNamesSaid(text, column);
     final table = options.vocabulary;
     if (table.isEmpty) return [text];
     final parts = LineParts.of(text);
@@ -3168,7 +3165,7 @@ class _Parser {
       if (p.kind == 'pair') {
         final key = p.key!;
         var to = own[key] ??
-            (known(key) ? null : of(p.isEvent ? table.events : table.parameters, key) ?? (p.isEvent || spec == null ? null : parameterKin(key, known)));
+            (known(key) ? null : of(p.isEvent ? table.events : table.parameters, key));
         if (to == null || to == key) continue;
         // An alias to a choice (StatusBadge status → tone) holds for one of
         // its values; another, on a line with no string, is the line's text
@@ -3200,6 +3197,76 @@ class _Parser {
     return [changed ? parts.toString() : text];
   }
 
+  /// [text] where it uses a name the notation has under another
+  /// ([NotationVocabulary.otherNames]: `RangeSlider`, `disabled`,
+  /// `onDelete=`, `state x=1 persist`): said with the line to write, and
+  /// returned without the keys and flags so named (a type so named is left
+  /// as written: no word of the notation).
+  String _otherNamesSaid(String text, int column) {
+    const table = NotationVocabulary.otherNames;
+    final parts = LineParts.of(text);
+    if (parts == null) return text;
+    if (parts.word == 'state' || parts.word == 'project') {
+      final last = RegExp(r'\s([A-Za-z][A-Za-z0-9]*)$').firstMatch(text);
+      final to = last == null ? null : table.flags[parts.word]?[last[1]];
+      if (to == null || !text.contains('=')) return text;
+      if (_top._methodsSaid.add('$_line name $text')) _issue(column, 'A state kept on the device is written with the word $to after it: ${text.substring(0, last!.start)} $to');
+      return text.substring(0, last!.start);
+    }
+    const statements = {'if', 'each', 'else', 'node', 'document', 'every', 'key', 'on'};
+    if (statements.contains(parts.word)) return text;
+    final written = parts.word;
+    if (written.isEmpty || _defined.has(written)) return text;
+    final fixed = LineParts.of(text)!, kept = LineParts.of(text)!;
+    var typed = false;
+    if (!_ownType(written)) {
+      final alias = table.types[written];
+      if (alias == null || alias.to == null || !_knowsType(alias.to!) || !alias.holdsOn(parts)) return text;
+      fixed.word = alias.to!;
+      typed = true;
+      if (alias.add != null) {
+        for (final a in LineParts.of('X ${alias.add}')?.parts ?? const <LinePart>[]) {
+          if (fixed.parts.any((p) => p.kind == a.kind && (a.kind == 'pair' ? p.key == a.key : p.raw == a.raw))) continue;
+          fixed.parts.add(a..at = -1);
+        }
+      }
+    } else if (written[0] != written[0].toUpperCase()) {
+      return text;
+    }
+    final type = fixed.word;
+    final own = typed ? table.types[written]!.parameters : const <String, String>{};
+    final spec = _specOf(type);
+    bool known(String key) => spec != null && (spec.props.any((p) => p.key == key) || spec.events.any((e) => e.key == key));
+    String? of(Map<String, Map<String, String>> names, String key) => names[type]?[key] ?? names['*']?[key];
+    final dropped = <int>[];
+    for (var i = 0; i < parts.parts.length; i++) {
+      final p = parts.parts[i];
+      if (p.kind == 'pair') {
+        final key = p.key!;
+        final to = own[key] ?? (known(key) ? null : of(p.isEvent ? table.events : table.parameters, key));
+        if (to == null || to == key) continue;
+        fixed.parts[i] = to == r'$text'
+            ? LinePart.string(asLineString(p.value!))
+            : to.startsWith('!')
+                ? LinePart.pair(to.substring(1), negatedValue(p.value!))
+                : LinePart.pair(to, p.value!);
+        dropped.add(i);
+      } else if (p.kind == 'word') {
+        final to = own[p.raw] ?? (known(p.raw) ? null : of(table.flags, p.raw));
+        if (to == null || to == p.raw) continue;
+        fixed.parts[i] = LinePart.word(to);
+        dropped.add(i);
+      }
+    }
+    if (!typed && dropped.isEmpty) return text;
+    if (_top._methodsSaid.add('$_line name $text')) _issue(column, 'The notation has one name for each word and key: write $fixed');
+    if (typed) return text;
+    for (final i in dropped.reversed) {
+      kept.parts.removeAt(i);
+    }
+    return kept.toString();
+  }
+
   /// [text], a use of a defined word, with the parameters, events and flags
   /// the alias table names for that word (`"parameters": {"Timeline":
   /// {"events": "items"}}`) read as the names its definitions take; a name
@@ -3227,7 +3294,7 @@ class _Parser {
       final p = parts.parts[i];
       final col = column + (p.at < 0 ? 0 : p.at);
       if (p.kind == 'pair' && !names.contains(p.key)) {
-        final to = (p.isEvent ? events : params)?[p.key] ?? (p.isEvent ? null : parameterKin(p.key!, names.contains));
+        final to = (p.isEvent ? events : params)?[p.key];
         if (to == null || to == p.key) continue;
         // Never two of one name: the line's own is kept.
         if (parts.parts.any((x) => x.kind == 'pair' && x.key == to)) continue;
@@ -3458,6 +3525,16 @@ class _Parser {
 
   /// Reads one line (without its newline).
   void line(String raw) {
+    // A frame, a bar or an overlay under another word (`AppShell`, `Navbar`,
+    // `Modal#id`): the notation has one word for each. Said, and read as
+    // that word (the lines under it are its own).
+    if (!_continues) {
+      if (_otherWord.firstMatch(raw) case final m? when catalog.widget(m[2]!) == null && !_defined.has(m[2]!) && !options.ownComponents.contains(m[2])) {
+        final to = _otherWords[m[2]]!;
+        if (!_top._quiet) issues.add(NotationIssue(_line + 1, m[1]!.length + 1, '${m[2]} is written $to: $to${raw.substring(m.end).trimRight()}'));
+        raw = '${m[1]}$to${raw.substring(m.end)}';
+      }
+    }
     // A component's tree has started: its overlays' lines read its parameters too.
     if (_host == null && _root != null && _widget != null) raw = _paramsRead(raw);
     // An `at` block ends at the next line not indented past it (at_width.dart).
@@ -5850,7 +5927,10 @@ class _Parser {
     // The small model marks a name with `$` (`$total`, `"{money($total)}"`):
     // the name is the same without it. A price ("$24") and an interpolation
     // already written (`${…}`) keep their sign.
-    if (line.contains(r'$')) line = line.replaceAllMapped(RegExp(r'(?<!\\)\$(?=[A-Za-z_])'), (_) => '');
+    if (line.contains(r'$')) {
+      final plain = _withoutNameMarks(line);
+      if (plain != line) return _issue(column, 'A name is written as it is, with no \$ before it: write $plain');
+    }
     // A state is declared with the word state, a list repeated with each:
     // what a language writes for them (`name = value` on a line of its own
     // before the page, `let total = …`, `for r in rows`) is said with the
@@ -6867,7 +6947,10 @@ class _Parser {
       // A sentence before the UI ("Here is the card=") is not a node.
       // Nor is one after it ("Two limits remain: …").
       if ((_root == null || indent == 0) && line.contains(' ')) return;
-      _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
+      // (A word the notation has under another name was said with the line to write.)
+      if (!(NotationVocabulary.otherNames.types[written]?.holdsOn(LineParts.of(source) ?? LineParts.of('X')!) ?? false)) {
+        _issue(column, 'No node type "$written". Write a type of the catalog (Column, Row, Text, Button, Input, Toggle, Slider…).');
+      }
       return;
     }
     final spec = found;
@@ -7137,8 +7220,8 @@ class _Parser {
     String binds() {
       final can = <String>[
         if (_valueProps.containsKey(type) && !component) 'its value (@name)',
-        if (range && type == 'slider') 'a range (@low @high, or low=@low high=@high)',
-        if (range && type == 'calendar') 'a range of days (@start @end, or start=@start end=@end)',
+        if (range && type == 'slider') 'a range (@low @high)',
+        if (range && type == 'calendar') 'a range of days (@start @end)',
         if (mainParam != null) 'its ${mainParam.key} (@name)',
         for (final p in spec.props)
           if (component && p.type.isVariable && !identical(p, mainParam)) '${p.key}=@name',
@@ -7160,6 +7243,17 @@ class _Parser {
       // Which property: the line's value, a range's other end, a list's
       // selection, or a block's variable of that name.
       final String role;
+      // The line's own value, and a range's other end, have one form: the
+      // mark alone, in order. (A caller's own word read as this one names
+      // them: `Fader level=@vol` is the caller's.)
+      if (named != null && !component && !standIn && (_srcWord == null || _srcWord == written) && (named == 'value' || (range && (named == ends.$1 || named == ends.$2)) || (!range && _valueProps[type]?.prop == named))) {
+        _issue(
+            col,
+            range && named == ends.$2
+                ? 'The other end of a range is the second @name of the line, with no key before it: @$expr.'
+                : 'The value of ${_a(written).toLowerCase()} $written is bound by @name alone, with no key before it: @$expr.');
+        return;
+      }
       if (named == null) {
         bareMarks++;
         if (bareMarks == 1) {
@@ -7286,7 +7380,7 @@ class _Parser {
     // that name, written bare or `=true` ([value]): whether it was read.
     // An Input's own words (section 7) are read here too.
     bool universalFlag(String word, int col, {String value = 'true', String of = 'flag'}) {
-      final w = const {'sortable': 'reorder', 'reorderable': 'reorder', 'readonly': 'readOnly'}[word] ?? word;
+      final w = const {'readonly': 'readOnly'}[word] ?? word;
       void used() => universal.add((word: word, column: col, of: of));
       switch (w) {
         case 'reorder' || 'selectable' when listLine:
@@ -7463,6 +7557,13 @@ class _Parser {
         // Where the strings go: before any key=value or bare word.
         final textPosition = !afterKey;
         afterKey = true;
+        if (withFields == null && RegExp(r'(^|\.)mobile\.').hasMatch(word.split('=').first)) {
+          final eqAt = word.indexOf('=');
+          if (eqAt == word.length - 1 && t.peek == '"') t.string();
+          if (eqAt == word.length - 1 && (t.peek == '{' || t.peek == '[')) t.balanced();
+          _issue(col, 'A phone\x27s width is written phone: ${t.s.substring(from, t.at).replaceFirst('mobile.', 'phone.')}.');
+          continue;
+        }
         if (word.isEmpty) {
           _issue(col, 'Unexpected "${t.peek}".');
           t.at++;
@@ -7605,7 +7706,9 @@ class _Parser {
             if (word == 'middle') props['mainAxisAlignment'] = 'center';
           } else if (type == 'text' && const {'center', 'right', 'left'}.contains(word)) {
             props['textAlign'] = word;
-          } else if (type == 'text' && (word == 'strike' || word == 'strikethrough' || word == 'underline')) {
+          } else if (type == 'text' && word == 'strikethrough') {
+            _issue(col, 'A Text crossed out is written strike.');
+          } else if (type == 'text' && (word == 'strike' || word == 'underline')) {
             textLine = word == 'underline' ? 'underline' : 'lineThrough';
           } else if (written == 'CodeInput' && word == 'digits') {
             props['otpDigitsOnly'] = true;
@@ -7783,8 +7886,55 @@ class _Parser {
                       ? t.balanced()
                       : '';
           if (_oneKey(key, spec, type: type, grid: grid != null, component: component) case final String to) {
-            _issue(col, 'A $written\x27s $key is written $to: $to=${valueHere()}.');
+            _issue(col, '${_a(written)} $written\x27s $key is written $to: $to=${valueHere()}.');
             continue;
+          }
+          // An event under another name (`onPress=`, `onClick=`, the web's
+          // `onMouseDown=`): the notation's name for it.
+          if (_oneEvent[key] case final String to when !spec.events.any((e) => e.key == key) && !spec.props.any((p) => p.key == key)) {
+            _issue(col, '${_a(written)} $written\x27s $key is written $to: $to=${valueHere()}.');
+            continue;
+          }
+          // A size or a width under another word (`size=sm`, `hide=mobile`,
+          // `show=desktop`): one word for each.
+          if (key == 'size' && !(component && spec.props.any((p) => p.key == 'size'))) {
+            if (const {'sm': 'small', 'md': 'medium', 'lg': 'large'}[word.substring(eq + 1)] case final String to) {
+              _issue(col, 'A size is xs, small, medium, large or xl: size=$to.');
+              continue;
+            }
+          }
+          if ((key == 'hide' || key == 'show') && !spec.props.any((p) => p.key == key)) {
+            final to = switch ((key, word.substring(eq + 1))) {
+              (_, 'mobile') => '$key=phone',
+              ('show', 'desktop') => 'hide=tablet',
+              ('hide', 'desktop') => 'show=tablet',
+              _ => null,
+            };
+            if (to != null) {
+              _issue(col, 'A line left out at a width is written hide=phone or hide=tablet (a tablet and a phone), one shown only there show=phone or show=tablet: $to.');
+              continue;
+            }
+          }
+          // `border=2`, `border={on ? 2 : 0}`, `border="#FF2563EB 2"`: a
+          // border's colour is border=, its width strokeWidth=.
+          if (key == 'border' && !component && type != 'textField' && !spec.props.any((p) => p.key == 'border')) {
+            final v = word.length > eq + 1 ? word.substring(eq + 1) : (t.peek == '{' ? (_Tokens(t.s)..at = t.at).balanced() : (t.peek == '"' ? '"${(_Tokens(t.s)..at = t.at).string()}"' : ''));
+            final plain = v.replaceAll('"', '').trim();
+            final parts = plain.split(RegExp(r'\s+'));
+            String? to;
+            if (num.tryParse(plain) != null && plain != '0') {
+              to = 'strokeWidth=$plain';
+            } else if (v.startsWith('{') && RegExp(r'^\{\s*(-?\d+(\.\d+)?|.*\?\s*-?\d+(\.\d+)?\s*:\s*-?\d+(\.\d+)?)\s*\}$').hasMatch(v)) {
+              to = 'strokeWidth=$v';
+            } else if (parts.length == 2 && parts.any((w) => num.tryParse(w) != null)) {
+              final w = parts.firstWhere((w) => num.tryParse(w) != null);
+              to = 'border=${parts.firstWhere((x) => x != w)} strokeWidth=$w';
+            }
+            if (to != null) {
+              valueHere();
+              _issue(col, 'A border\x27s colour is border=, its width strokeWidth= (alone: the theme\x27s line at that width): $to.');
+              continue;
+            }
           }
           if (const {'hide', 'show', 'hidden'}.contains(key) && !spec.props.any((p) => p.key == key) && word.length == eq + 1 && t.peek == '{') {
             final braced = t.balanced();
@@ -7824,7 +7974,7 @@ class _Parser {
         }
         // `show=phone` is where a node shows (a screen's size), never a
         // condition, which is visible={…}.
-        final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'mobile', 'tablet', 'desktop'}.contains(word.substring(eq + 1));
+        final sizeWord = (key == 'show' || key == 'hide') && const {'phone', 'tablet'}.contains(word.substring(eq + 1));
         if ((key == 'show' || key == 'hide') && !sizeWord && !spec.props.any((p) => p.key == key)) {
           _issue(col, '$key= takes a size (phone, tablet): a condition is written visible={condition}.');
           if (t.peek == '{' || t.peek == '[') t.balanced();
@@ -8200,15 +8350,10 @@ class _Parser {
           decoration['clip'] = raw == 'true' ? 'antiAlias' : 'none';
           continue;
         }
-        if ((grid == null ? null : const {'crossAxisCount': 'cols', 'crossAxisSpacing': 'gap', 'mainAxisSpacing': 'gap'}[key]) case final String to) {
-          _use('alias', key, col, of: 'parameter', to: to, on: written);
-          key = to;
-        }
         if (grid != null && (key == 'mainAxisExtent' || key == 'childAspectRatio') && num.tryParse(raw) != null) {
           // A cell's height (or its width over its height): the gridView's
           // own, for the cells an each repeats; a row's height for cells
           // written one by one.
-          _use('alias', key, col, of: 'parameter', to: key == 'mainAxisExtent' ? 'h' : 'aspectRatio', on: written);
           grid.cellLayout[key] = num.parse(raw);
           continue;
         }
@@ -8513,7 +8658,7 @@ class _Parser {
         }
         // `strike=true`, `strike={done}` (16 lines in the corpora): the flag,
         // or a line through the text while the condition holds.
-        if (type == 'text' && (key == 'strike' || key == 'strikethrough' || key == 'underline')) {
+        if (type == 'text' && (key == 'strike' || key == 'underline')) {
           final on = key == 'underline' ? 'underline' : 'lineThrough';
           if (raw.startsWith('=')) {
             props['style'] ??= switch (options.textStyles['body']) {
@@ -8536,7 +8681,7 @@ class _Parser {
           } else {
             // size=small | medium | large: the icon's size by name.
             if (key == 'size') {
-              final named = switch (_literal(raw).$2?.toString() ?? raw) { 'xs' => 14, 'small' || 'sm' => 16, 'medium' || 'md' => 20, 'large' || 'lg' => 28, _ => null };
+              final named = switch (_literal(raw).$2?.toString() ?? raw) { 'xs' => 14, 'small' => 16, 'medium' => 20, 'large' => 28, _ => null };
               if (named != null) {
                 (buttonLook ??= <String, Object?>{})['iconSize'] = named;
                 continue;
@@ -8567,10 +8712,10 @@ class _Parser {
         }
         if ((key == 'hide' || key == 'show') && sizeWord) {
           final Json? rule = switch ((key, raw)) {
-            ('hide', 'phone' || 'mobile') => {'maxWidth': reflowPhoneMax},
-            ('hide', 'tablet') || ('show', 'desktop') => {'maxWidth': reflowTabletMax},
-            ('show', 'phone' || 'mobile') => {'minWidth': reflowPhoneMax + 1},
-            ('show', 'tablet') || ('hide', 'desktop') => {'minWidth': reflowTabletMax + 1},
+            ('hide', 'phone') => {'maxWidth': reflowPhoneMax},
+            ('hide', 'tablet') => {'maxWidth': reflowTabletMax},
+            ('show', 'phone') => {'minWidth': reflowPhoneMax + 1},
+            ('show', 'tablet') => {'minWidth': reflowTabletMax + 1},
             _ => null,
           };
           // A line under an `if` binds visible, and a binding shows over
@@ -8809,7 +8954,7 @@ class _Parser {
         // The universal words (docs/design/21) where the type has no word of
         // that name, and an Input's own (section 7).
         // The step of a scale a size word names (xs, small, medium, large, xl).
-        final sizeStep = key == 'size' ? const {'xs': 0, 'small': 1, 'sm': 1, 'medium': 2, 'md': 2, 'large': 3, 'lg': 3, 'xl': 4}[_literal(raw).$2?.toString() ?? raw] : null;
+        final sizeStep = key == 'size' ? const {'xs': 0, 'small': 1, 'medium': 2, 'large': 3, 'xl': 4}[_literal(raw).$2?.toString() ?? raw] : null;
         // A size word where the type's own size is a number is still the
         // universal step (Icon "star" size=small).
         final ownNumber = sizeStep != null && spec.props.any((p) => p.key == 'size' && (p.type.kind == PropKind.number || p.type.kind == PropKind.integer));
@@ -9050,11 +9195,6 @@ class _Parser {
         if (key == 'label' && type == 'textField') _labelByName.add(id);
         // Input "Search" icon="search": the icon inside the field, before
         // the text (its decoration's prefixIcon).
-        // `prefixIcon="search"` (Flutter's name, test 10) is the same.
-        if (key == 'prefixIcon' && type == 'textField' && !raw.startsWith('{')) {
-          _use('alias', key, col, of: 'parameter', to: 'icon', on: written);
-          key = 'icon';
-        }
         // A formatter is one of the kinds a field applies; another is said
         // (it would let every edit through).
         if (key == 'inputFormatter' && type == 'textField' && raw.startsWith('{"')) {
@@ -9140,8 +9280,8 @@ class _Parser {
         if (unknownKey && !standIn && !component && key == 'shadow' && spec.decorated && !raw.startsWith('=')) {
           final named = notationShadows[_unquoted(raw).toLowerCase()];
           if (named == null) {
-final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 'large': 'lg', 'false': 'none'}[_unquoted(raw).toLowerCase()];
-            _issue(col, 'shadow= takes a size (sm, md, lg) or none: ${meant == null ? '"$raw" is none of them, and is left out' : 'write shadow=$meant'}. Any other shadow is written out: effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}].');
+final meant = const {'sm': 'small', 'soft': 'small', 'true': 'small', 'md': 'medium', 'lg': 'large', 'false': 'none'}[_unquoted(raw).toLowerCase()];
+            _issue(col, 'shadow= takes a size (small, medium, large) or none: ${meant == null ? '"$raw" is none of them, and is left out' : 'write shadow=$meant'}. Any other shadow is written out: effects=[{"type":"dropShadow","color":"#33000000","offset":[0,4],"blurRadius":16}].');
           } else {
             decoration['effects'] = _copyValue(named);
           }
@@ -9152,10 +9292,11 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
         // with that line, and left out.
         if (unknownKey && !standIn && !component && key == 'shadow' && spec.decorated && raw.startsWith('=')) {
           final choice = RegExp(r'''^(.+?)\s*\?\s*["']([A-Za-z]+)["']\s*:\s*["']([A-Za-z]+)["']$''').firstMatch(raw.substring(1).trim());
+          String size(String w) => const {'sm': 'small', 'md': 'medium', 'lg': 'large'}[w.toLowerCase()] ?? w;
           final line = choice == null
-              ? 'shadow=md selected={<condition>} selected.shadow=lg'
-              : '${const {'none', 'false'}.contains(choice[3]!.toLowerCase()) ? '' : 'shadow=${choice[3]} '}selected={${choice[1]}} selected.shadow=${choice[2]}';
-          _issue(col, 'A shadow is a size (sm, md, lg, none), and a look that follows the state is the look of a state of the line: $line. $key=${_written(word, eq, raw)} is left out.');
+              ? 'shadow=medium selected={<condition>} selected.shadow=large'
+              : '${const {'none', 'false'}.contains(choice[3]!.toLowerCase()) ? '' : 'shadow=${size(choice[3]!)} '}selected={${choice[1]}} selected.shadow=${size(choice[2]!)}';
+          _issue(col, 'A shadow is a size (small, medium, large, none), and a look that follows the state is the look of a state of the line: $line. $key=${_written(word, eq, raw)} is left out.');
           continue;
         }
         if (unknownKey && !standIn && key == 'variant' && raw.startsWith('=')) {
@@ -9239,7 +9380,17 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
           var v = _value(raw);
           // `Input "Email" type=email`: the keyboards by the names a model
           // writes for them (the document's are Flutter's).
-          if (path == 'props.keyboardType' && v is String) v = _keyboards[v.toLowerCase()] ?? v;
+          if (path == 'props.keyboardType' && v is String) {
+            if (const {'tel': 'phone', 'telephone': 'phone', 'numeric': 'number', 'decimal': 'number', 'integer': 'number', 'int': 'number'}[v.toLowerCase()] case final String to) {
+              _issue(col, 'An Input\x27s keyboard is type=number, email, phone, search, date, time or address: type=$to.');
+              continue;
+            }
+            if (v.toLowerCase() == 'textarea') {
+              _issue(col, 'An Input of several lines is written with the word multiline (Input "Note" multiline).');
+              continue;
+            }
+            v = _keyboards[v.toLowerCase()] ?? v;
+          }
           // grow=true is grow.
           if (path == 'layout.flex' && v is bool) {
             if (v) layout['flex'] = 1;
@@ -9275,7 +9426,10 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
           // danger): that value.
           if (declared != null && !declared.isVariable && declared.kind == PropKind.enumeration && v is String && !declared.values.contains(v)) {
             final same = notationSameValues.where((s) => s.contains(v)).expand((s) => s).where(declared.values.contains).firstOrNull;
-            if (same != null) v = same;
+            if (same != null) {
+              _issue(col, 'A $written\x27s $key is one of ${declared.values.join(', ')}: $key=$same.');
+              continue;
+            }
           }
           if (open && declared != null && !(v is String && v.contains(r'${'))) {
             final wrong = !declared.isVariable &&
@@ -9562,7 +9716,7 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
 
     // Shares of a whole: values=[…] labels=[…] colors=[…] as a donut (a pie
     // is a thick one).
-    if (ours && const {'Donut', 'DonutChart', 'PieChart', 'Pie'}.contains(written)) {
+    if (ours && const {'Donut', 'Pie'}.contains(written)) {
       final values = props.remove('values'), labels = props.remove('labels'), colors = props.remove('colors');
       // A slice whose color is not written takes the theme's next series
       // color where it is drawn (in light and in dark); beside written
@@ -9606,7 +9760,8 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
       final keyed = legend != false && labeled && parent?.type != 'stack';
       if (legend == false) props['legend'] = false;
       if (keyed) props['legend'] = true;
-      final pie = written.startsWith('Pie') && props['donut'] != true;
+      if (props['donut'] != null) _issue(column, 'Shares of a whole with a hole are a Donut, without one a Pie: write the word, no donut=.');
+      final pie = written == 'Pie';
       props.putIfAbsent('donutThickness', () => pie ? 0.5 : 0.22);
       props.remove('donut');
       // The whole in a donut's hole, under it what it is a total of
@@ -10383,9 +10538,9 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
       final step = switch (props.remove('size')) {
         'xs' => 24.0,
         'compact' => 28.0,
-        'small' || 'sm' => 32.0,
-        'medium' || 'md' => 36.0,
-        'large' || 'lg' => 44.0,
+        'small' => 32.0,
+        'medium' => 36.0,
+        'large' => 44.0,
         _ => _controlHeight,
       };
       if (step != null && !layout.containsKey('height')) layout['height'] = step;
@@ -10416,7 +10571,7 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
         if (n != null) {
           props['style'] = style()..['fontSize'] = n;
         } else if (!layout.containsKey('height') && props['maxLines'] == null && props['minLines'] == null) {
-          final h = const {'xs': 24, 'compact': 28, 'small': 32, 'sm': 32, 'medium': 36, 'md': 36, 'large': 44, 'lg': 44, 'xl': 52}[size]!;
+          final h = const {'xs': 24, 'compact': 28, 'small': 32, 'medium': 36, 'large': 44, 'xl': 52}[size]!;
           final label = type == 'textField' && switch ((props['decoration'] as Map?)?['labelText']) { final String l => l.isNotEmpty, _ => false };
           layout['height'] = h + (label ? (options.fieldLabel == null ? 20 : 23) : 0);
         }
@@ -14038,10 +14193,29 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
       if (key == 'columns' || key == 'crossAxisCount') return 'cols';
       if (key == 'spacing' || key == 'crossAxisSpacing' || key == 'mainAxisSpacing') return 'gap';
     }
+    // Names that say one thing (a second line, a field's hint): a word that
+    // takes exactly one of them has it under that name.
+    for (final kin in const [
+      {'description', 'detail', 'note'},
+      {'placeholder', 'hint'},
+    ]) {
+      if (!kin.contains(key)) continue;
+      final taken = [
+        for (final k in kin)
+          if (k != key && spec.props.any((p) => p.key == k)) k,
+      ];
+      if (taken.length == 1) return taken.single;
+    }
     if (component) return null;
     if (type == 'text') {
-      if (const {'fontSize': 'size', 'fontWeight': 'weight', 'font': 'fontFamily'}[key] case final String to) return to;
+      if (const {'fontSize': 'size', 'fontWeight': 'weight', 'font': 'fontFamily', 'strikethrough': 'strike'}[key] case final String to) return to;
     }
+    // (An Input's size= is its text's when a number, as a Text's is; a
+    // word, the control's step.)
+    if (type == 'textField') {
+      if (const {'font': 'fontFamily', 'textSize': 'size', 'fontSize': 'size', 'fontWeight': 'weight', 'prefixIcon': 'icon', 'placeholder': 'hint'}[key] case final String to) return to;
+    }
+    if (type == 'dropdown' && key == 'placeholder') return 'hint';
     return const {
       'max-width': 'maxw', 'maxwidth': 'maxw', 'maxWidth': 'maxw', //
       'borderBottom': 'border-bottom', 'borderTop': 'border-top', 'borderLeft': 'border-left', 'borderRight': 'border-right',
@@ -14050,6 +14224,47 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
       'borderWidth': 'strokeWidth', 'border-width': 'strokeWidth', 'borderSize': 'strokeWidth',
     }[key];
   }
+
+  /// The notation's name for an event written under another (what other
+  /// frameworks call it).
+  static const _oneEvent = {
+    'onPress': 'onTap', 'onPressed': 'onTap', 'onClick': 'onTap', //
+    'onContextMenu': 'onRightClick', 'onSecondaryClick': 'onRightClick',
+    'onPressStart': 'onPointerDown', 'onPressDown': 'onPointerDown', 'onMouseDown': 'onPointerDown', 'onTouchStart': 'onPointerDown',
+    'onPressEnd': 'onPointerUp', 'onPressUp': 'onPointerUp', 'onRelease': 'onPointerUp', 'onMouseUp': 'onPointerUp', 'onTouchEnd': 'onPointerUp',
+    'onChanged': 'onChange', 'onSubmitted': 'onSubmit', 'onEnter': 'onSubmit',
+    'onClosed': 'onClose', 'onDismiss': 'onClose', 'onDismissed': 'onClose', 'onHide': 'onClose', 'onHidden': 'onClose',
+  };
+
+  /// [line] without the `$` written before a name where a value is read
+  /// (`$total`, `"{money($total)}"`, `visible={$open}`): outside its texts,
+  /// and in the braces inside them. A text's own `$` ("$24", "Pay $now")
+  /// and a read already written (`${…}`) are left.
+  static String _withoutNameMarks(String line) {
+    final out = StringBuffer();
+    var quoted = false, depth = 0;
+    for (var i = 0; i < line.length; i++) {
+      final c = line[i];
+      if (c == '"' && (i == 0 || line[i - 1] != r'\') && depth == 0) quoted = !quoted;
+      if (quoted && c == '{' && (i == 0 || line[i - 1] != r'$')) depth++;
+      if (quoted && c == '}' && depth > 0) depth--;
+      final read = !quoted || depth > 0;
+      if (c == r'$' && read && (i == 0 || line[i - 1] != r'\') && i + 1 < line.length && RegExp(r'[A-Za-z_]').hasMatch(line[i + 1])) continue;
+      out.write(c);
+    }
+    return out.toString();
+  }
+
+  static const _otherWords = {
+    'AppShell': 'App', 'Window': 'App', 'Content': 'Main', //
+    'Navbar': 'Nav', 'NavBar': 'Nav', 'TopBar': 'Nav', 'Topbar': 'Nav', 'Header': 'Nav', 'AppBar': 'Nav',
+    'Aside': 'Sidebar', 'SideNav': 'Sidebar', 'Sidenav': 'Sidebar',
+    'Modal': 'Dialog', 'BottomSheet': 'Sheet', 'Popup': 'Popover',
+  };
+  static final _otherWord = RegExp('^(\\s*)(${_otherWords.keys.join('|')})(?=[#.\\s]|\$)');
+
+  /// `A` or `An` before [word].
+  static String _a(String word) => RegExp(r'^[AEIOU]').hasMatch(word) ? 'An' : 'A';
 
   /// What is said of an action the notation does not have.
   String _unknownAction(String verb) =>
@@ -14418,17 +14633,10 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
   /// `type=` on an Input, as written → the keyboard the document names.
   static const _keyboards = {
     'email': 'emailAddress',
-    'tel': 'phone',
-    'telephone': 'phone',
-    'numeric': 'number',
-    'decimal': 'number',
-    'integer': 'number',
-    'int': 'number',
     'search': 'webSearch',
     'date': 'datetime',
     'time': 'datetime',
     'address': 'streetAddress',
-    'textarea': 'multiline',
   };
 
   /// Variables an action made before anything said their kind (`x=c.start`
@@ -14511,7 +14719,7 @@ final meant = const {'small': 'sm', 'soft': 'sm', 'true': 'sm', 'medium': 'md', 
     // written with the state's name before the key.
     if (const {'hover': 'hovered', 'hovered': 'hovered', 'ishovered': 'hovered', 'pressed': 'pressed', 'ispressed': 'pressed', 'focus': 'focused', 'focused': 'focused', 'isfocused': 'focused'}[key.toLowerCase()] case final String state) {
       return 'A $written has no "$key": left out. A line knows by itself when it is $state, with no state kept for it: its look then is written on it with $state. before the key '
-          '($state.fill=#FFF3F4F6 $state.shadow=md), and onHover={…} runs actions when the pointer comes over it.';
+          '($state.fill=#FFF3F4F6 $state.shadow=medium), and onHover={…} runs actions when the pointer comes over it.';
     }
     return null;
   }

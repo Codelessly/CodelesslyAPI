@@ -39,9 +39,9 @@ const List<Set<String>> notationSameValues = [
 /// as (`effects=[…]`).
 const Map<String, List<Map<String, Object?>>> notationShadows = {
   'none': [],
-  'sm': _shadowSmall,
-  'md': _shadowMedium,
-  'lg': _shadowLarge,
+  'small': _shadowSmall,
+  'medium': _shadowMedium,
+  'large': _shadowLarge,
 };
 const _shadowSmall = [
   {'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 2], 'blurRadius': 8},
@@ -57,13 +57,9 @@ const _shadowLarge = [
 const Map<String, Map<String, List<String>>> notationTypeKeys = {
   'textField': {
     'hint': ['props.decoration.hintText'],
-    'placeholder': ['props.decoration.hintText'],
     'label': ['props.decoration.labelText'],
     'helper': ['props.decoration.helperText'],
     'error': ['props.decoration.errorText'],
-  },
-  'dropdown': {
-    'placeholder': ['props.hint'],
   },
   'gridView': {
     'cols': ['props.crossAxisCount'],
@@ -84,8 +80,8 @@ const notationTextStyleKeys = {
 
 /// Keys written on an Input that belong to the style of its typed text.
 const notationFieldStyleKeys = {
-  'font': 'fontFamily', 'fontFamily': 'fontFamily', 'fontSize': 'fontSize', 'textSize': 'fontSize', //
-  'weight': 'fontWeight', 'fontWeight': 'fontWeight', 'letterSpacing': 'letterSpacing', 'lineHeight': 'height',
+  'fontFamily': 'fontFamily', //
+  'weight': 'fontWeight', 'letterSpacing': 'letterSpacing', 'lineHeight': 'height',
   'fontFamilyFallback': 'fontFamilyFallback',
 };
 
@@ -111,7 +107,7 @@ const _ownFirst = {
 
 /// Keys the parser reads as words of its own on one type.
 const Map<String, Set<String>> _typeWords = {
-  'text': {'mark', 'decoration', 'strike', 'strikethrough', 'underline', 'bold'},
+  'text': {'mark', 'decoration', 'strike', 'underline', 'bold'},
   'textField': {'type', 'value', 'prefix', 'suffix', 'caps', 'icon', 'color', 'size', 'password'},
   'dropdown': {'color', 'size'},
   'iconButton': {'color', 'size'},
@@ -236,6 +232,9 @@ String notationKeyFor(String path, String type, {Catalog? catalog}) {
   bool means(String k) => notationKeyPath(k, type, catalog: c) == path;
   String? best;
   void consider(String k) {
+    // (An Input's text size is size=, a number, as a Text's is: the field's
+    // own name alone is not read there.)
+    if (type == 'textField' && k == 'fontSize') return;
     if ((best == null || k.length < best!.length) && means(k)) best = k;
   }
 

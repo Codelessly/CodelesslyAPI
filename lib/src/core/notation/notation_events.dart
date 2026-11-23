@@ -22,24 +22,6 @@ const Map<String, String> notationEventNames = {
   'submitted': 'onSubmit',
 };
 
-/// Names read for a trigger that the notation does not write (what models
-/// and other frameworks call them).
-const Map<String, String> _eventAliases = {
-  'onPress': 'click',
-  'onPressed': 'click',
-  'onContextMenu': 'secondaryClick',
-  // A press as it starts and as it ends (press and hold: a story paused
-  // while a finger is down, a before/after shown while a button is held).
-  'onPressStart': 'pointerDown',
-  'onPressDown': 'pointerDown',
-  'onMouseDown': 'pointerDown',
-  'onTouchStart': 'pointerDown',
-  'onPressEnd': 'pointerUp',
-  'onPressUp': 'pointerUp',
-  'onRelease': 'pointerUp',
-  'onMouseUp': 'pointerUp',
-  'onTouchEnd': 'pointerUp',
-};
 
 /// The names of one event a block may have under another name (design 13
 /// section 3): `onTap` on a block whose event is `onPressed` is that event,
@@ -79,7 +61,6 @@ String? notationEventTrigger(String key) {
   for (final e in notationEventNames.entries) {
     if (e.value == key) return e.key;
   }
-  if (_eventAliases[key] case final String t) return t;
   for (final t in _eventTriggers) {
     if ('on${_capital(t)}' == key) return t;
   }

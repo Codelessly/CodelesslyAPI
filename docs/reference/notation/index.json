@@ -2,7 +2,7 @@
   "version": "42.1.0",
   "base": {
     "file": "NOTATION.md",
-    "words": 4623
+    "words": 4607
   },
   "topics": [
     {
@@ -11,7 +11,7 @@
       "anchor": "page-notation",
       "title": "The notation",
       "summary": "The compact notation writes a Codelessly document one node per line.",
-      "words": 4623
+      "words": 4607
     },
     {
       "topic": "notation-a-line",
@@ -25,7 +25,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-words",
       "title": "Words",
-      "words": 600
+      "words": 585
     },
     {
       "topic": "notation-words-every-line-takes",
@@ -74,7 +74,7 @@
       "file": "NOTATION.md",
       "anchor": "notation-pages-at-other-widths",
       "title": "Pages at other widths",
-      "words": 214
+      "words": 213
     },
     {
       "topic": "notation-hover-press-focus",
@@ -103,7 +103,7 @@
       "anchor": "page-layout",
       "title": "Layout",
       "summary": "Sizes, rows, columns, stacks, flex and scrolling: every layout key and the layout words.",
-      "words": 5352
+      "words": 5351
     },
     {
       "topic": "layout-sizes",
@@ -145,7 +145,7 @@
       "file": "layout.md",
       "anchor": "layout-words",
       "title": "Words",
-      "words": 2790
+      "words": 2789
     },
     {
       "topic": "layout-behaviors",
@@ -359,14 +359,14 @@
       "anchor": "page-forms",
       "title": "Controls and forms",
       "summary": "Buttons, inputs, toggles, choices, pickers, chips, and forms that validate.",
-      "words": 13801
+      "words": 13804
     },
     {
       "topic": "forms-a-control-and-its-value",
       "file": "forms.md",
       "anchor": "forms-a-control-and-its-value",
       "title": "A control and its value",
-      "words": 598
+      "words": 601
     },
     {
       "topic": "forms-tabs-segments-and-chips-chosen-from",
@@ -593,7 +593,7 @@
       "anchor": "page-events",
       "title": "Events and actions",
       "summary": "Every event (trigger) a line can react to, with its fields, and every action, with its fields and its verb.",
-      "words": 6767
+      "words": 6775
     },
     {
       "topic": "events-an-event",
@@ -614,7 +614,7 @@
       "file": "events.md",
       "anchor": "events-a-press-as-it-starts-and-as-it-ends",
       "title": "A press as it starts and as it ends",
-      "words": 98
+      "words": 106
     },
     {
       "topic": "events-actions",
@@ -743,7 +743,7 @@
       "anchor": "page-charts",
       "title": "Charts and indicators",
       "summary": "Progress bars and rings, spinners, badges, gauges, bar, line, donut and plotted charts, and barcodes.",
-      "words": 9162
+      "words": 9159
     },
     {
       "topic": "charts-writing-a-chart",
@@ -764,7 +764,7 @@
       "file": "charts.md",
       "anchor": "charts-words",
       "title": "Words",
-      "words": 7192
+      "words": 7189
     },
     {
       "topic": "charts-records",
@@ -793,14 +793,14 @@
       "file": "responsive.md",
       "anchor": "responsive-keys-at-other-widths",
       "title": "Keys at other widths",
-      "words": 552
+      "words": 551
     },
     {
       "topic": "responsive-a-design-at-a-width",
       "file": "responsive.md",
       "anchor": "responsive-a-design-at-a-width",
       "title": "A design at a width",
-      "words": 1503
+      "words": 1504
     },
     {
       "topic": "responsive-what-reflow-does",
@@ -829,14 +829,14 @@
       "anchor": "page-navigation",
       "title": "Navigation and overlays",
       "summary": "Page frames (Page, Section, Nav, App, Sidebar…), screens and going between them, dialogs, sheets, drawers, menus, popovers, lightboxes, toasts, app bars and tabs.",
-      "words": 5287
+      "words": 5272
     },
     {
       "topic": "navigation-page-frames",
       "file": "navigation.md",
       "anchor": "navigation-page-frames",
       "title": "Page frames",
-      "words": 1455
+      "words": 1440
     },
     {
       "topic": "navigation-over-the-page",
@@ -893,14 +893,14 @@
       "file": "components.md",
       "anchor": "components-calling-one",
       "title": "Calling one",
-      "words": 593
+      "words": 592
     },
     {
       "topic": "components-values-a-word-of-your-own-is-given",
       "file": "components.md",
       "anchor": "components-values-a-word-of-your-own-is-given",
       "title": "Values a word of your own is given",
-      "words": 179
+      "words": 182
     },
     {
       "topic": "components-the-shorthand-words-of-earlier-versions",
@@ -935,7 +935,7 @@
       "file": "components.md",
       "anchor": "components-examples",
       "title": "Examples",
-      "words": 942
+      "words": 940
     },
     {
       "topic": "design-systems",
@@ -1044,7 +1044,7 @@
       "anchor": "page-values",
       "title": "Values",
       "summary": "How each value type and enum is written, and the records no other page shows.",
-      "words": 17526
+      "words": 17336
     },
     {
       "topic": "values-writing-a-value",
@@ -1058,7 +1058,7 @@
       "file": "values.md",
       "anchor": "values-other-spellings-also-read",
       "title": "Other spellings (also read)",
-      "words": 304
+      "words": 114
     },
     {
       "topic": "values-value-types",

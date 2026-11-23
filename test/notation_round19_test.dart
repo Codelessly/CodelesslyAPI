@@ -361,9 +361,10 @@ Column
     });
 
     test('a shadow that follows the state', () {
-      final r = _page('state playing=false\nColumn\n  Box#b radius=30 shadow={playing ? "lg" : "none"}\n    Text "a"\n');
-      expect(_said(r).single, contains('is the look of a state of the line: selected={playing} selected.shadow=lg. shadow={playing ? "lg" : "none"} is left out.'));
-      final named = _page('state playing=false\nColumn\n  Box#b radius=30 selected={playing} selected.shadow=lg\n    Text "a"\n');
+      final r = _page('state playing=false\nColumn\n  Box#b radius=30 shadow={playing ? "large" : "none"}\n    Text "a"\n');
+      expect(_said(r).single, contains('is the look of a state of the line: selected={playing} selected.shadow=large. shadow={playing ? "large" : "none"} is left out.'));
+      expect(_said(_page('state playing=false\nColumn\n  Box#b radius=30 shadow={playing ? "lg" : "sm"}\n    Text "a"\n')).single, contains(': shadow=small selected={playing} selected.shadow=large. '));
+      final named = _page('state playing=false\nColumn\n  Box#b radius=30 selected={playing} selected.shadow=large\n    Text "a"\n');
       expect(_said(named), isEmpty);
       expect(jsonEncode(_node(named, 'b')['states']), contains('dropShadow'));
     });
@@ -428,6 +429,73 @@ Column
     test('an every\'s unit', () {
       expect(_said(_page('state n=0\nevery 1min onTick={n=n+1}\nColumn\n  Text "{n}"\n')).single, endsWith(': write every 1m onTick={n=n+1}'));
       expect(_said(_page('state n=0\nevery 1m onTick={n=n+1}\nColumn\n  Text "{n}"\n')), isEmpty);
+    });
+
+    test('one word for each size, the same words wherever a size is chosen', () {
+      for (final (line, said) in [
+        ('Button "x" size=sm', 'A size is xs, small, medium, large or xl: size=small.'),
+        ('Icon "home" size=lg', 'A size is xs, small, medium, large or xl: size=large.'),
+        ('Input "x" size=md', 'A size is xs, small, medium, large or xl: size=medium.'),
+      ]) {
+        expect(_said(_page('Column\n  $line\n')), [said], reason: line);
+      }
+      expect(_said(_page('Column\n  Box shadow=lg\n')).single, startsWith('shadow= takes a size (small, medium, large) or none: write shadow=large.'));
+      expect(_said(_page('Column\n  Button "x" size=small\n  Icon "home" size=large\n  Box shadow=medium\n  Box shadow=none\n')), isEmpty);
+    });
+
+    test('one name for each width: a phone is phone, and hide= and show= take phone or tablet', () {
+      const head = 'A line left out at a width is written hide=phone or hide=tablet (a tablet and a phone), one shown only there show=phone or show=tablet: ';
+      for (final (word, said) in [
+        ('hide=mobile', '${head}hide=phone.'),
+        ('show=mobile', '${head}show=phone.'),
+        ('hide=desktop', '${head}show=tablet.'),
+        ('show=desktop', '${head}hide=tablet.'),
+        ('mobile.gap=4', 'A phone\'s width is written phone: phone.gap=4.'),
+        ('mobile.hidden', 'A phone\'s width is written phone: phone.hidden.'),
+      ]) {
+        expect(_said(_page('Column#a pad=24 $word\n  Text "a"\n')), [said], reason: word);
+      }
+      expect(_said(_page('Column#a pad=24 hide=phone phone.gap=4 tablet.pad=8 desktop.pad=32\n  Text "a"\n')), isEmpty);
+      // What is hidden on a desktop only is written, and printed, show=tablet.
+      final r = _page('Column\n  Text#t "a" show=tablet\n');
+      expect(printNotation(r.document, catalog: standardCatalog), contains('show=tablet'));
+    });
+
+    test('a name is written as it is: no \$ before it', () {
+      expect(_said(_page('state n=1\nColumn\n  Text "{\$n} of 3" hidden={\$n > 2}\n')), ['A name is written as it is, with no \$ before it: write Text "{n} of 3" hidden={n > 2}']);
+      // A sum of money in a text is the text's own.
+      expect(_said(_page('state n=1\nColumn\n  Text "\$12 for {n}"\n')), isEmpty);
+    });
+
+    test('a frame, a bar and an overlay have one word each', () {
+      for (final (text, said) in [
+        ('AppShell\n  Main\n    Text "a"\n', 'AppShell is written App: App'),
+        ('App\n  Navbar "Acme"\n  Main\n    Text "a"\n', 'Navbar is written Nav: Nav "Acme"'),
+        ('App\n  TopBar "Acme"\n  Main\n    Text "a"\n', 'TopBar is written Nav: Nav "Acme"'),
+        ('App\n  SideNav\n    Text "s"\n  Main\n    Text "a"\n', 'SideNav is written Sidebar: Sidebar'),
+        ('Column\n  Button "Open" onTap={open m}\nModal#m "Title"\n  Text "a"\n', 'Modal is written Dialog: Dialog#m "Title"'),
+        ('Column\n  Button "Open" onTap={open m}\nBottomSheet#m "Title"\n  Text "a"\n', 'BottomSheet is written Sheet: Sheet#m "Title"'),
+      ]) {
+        expect(_said(_page(text)), [said], reason: text);
+      }
+      expect(_said(_page('App\n  Nav "Acme"\n  Sidebar\n    Text "s"\n  Main\n    Text "a"\n')), isEmpty);
+      // A page's own word of such a name is the page's.
+      expect(_said(_page('Column\n  TopBar "Acme"\ndefine TopBar "title"\n  Row\n    Text "{title}"\n')), isEmpty);
+    });
+
+    test('one word for a thing: a crossed-out text, a pie, a column, a meter', () {
+      for (final (line, said) in [
+        ('Text "a" strikethrough', 'A Text crossed out is written strike.'),
+        ('Pie values=[1,2] donut=true', 'Shares of a whole with a hole are a Donut, without one a Pie: write the word, no donut=.'),
+        ('PieChart values=[1,2]', 'The notation has one name for each word and key: write Pie values=[1,2]'),
+        ('DonutChart values=[1,2]', 'The notation has one name for each word and key: write Donut values=[1,2]'),
+        ('Dial 40', 'The notation has one name for each word and key: write Gauge 40'),
+        ('List gap=4', 'The notation has one name for each word and key: write Column gap=4'),
+        ('Dropdown "A" placeholder="Pick"', 'A Dropdown\'s placeholder is written hint: hint="Pick".'),
+      ]) {
+        expect(_said(_page('Column\n  $line\n')).first, said, reason: line);
+      }
+      expect(_said(_page('Column\n  Text "a" strike\n  Pie values=[1,2] h=120\n  Donut values=[1,2] h=120\n  Gauge 40\n')), isEmpty);
     });
   });
 }

@@ -21,8 +21,8 @@ void main() {
     expect(_props(r, 'b').containsKey('weekStart'), isFalse);
   });
 
-  test('the words read as a calendar take it too', () {
-    final r = _parse('state day=""\nColumn\n  MiniCalendar#a @day weekStart=monday\n');
+  test('a calendar with an id takes it too', () {
+    final r = _parse('state day=""\nColumn\n  Calendar#a @day weekStart=monday\n');
     expect(r.issues, isEmpty, reason: '${r.issues}');
     expect(_props(r, 'a')['weekStart'], 'monday');
   });

@@ -161,16 +161,14 @@ Popover#p onClose={seen=true}
     taken('a press held, and hold-to-repeat', '''
 every 120 when held onTick={qty=qty+1}
 Column
-  Box w=40 h=40 onPressStart={held=true} onPressEnd={held=false}
-  Box w=40 h=40 onPressStart={held=true} onRelease={held=false}
   Box w=40 h=40 onPointerDown={held=true} onPointerUp={held=false}
 ''');
     taken('a line drawn larger, turned or moved, and its shadow', '''
 Column
-  Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=sm
-  Box scale={zoom} shadow=sm
-  Box shadow=md
-  Box shadow=lg
+  Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=small
+  Box scale={zoom} shadow=small
+  Box shadow=medium
+  Box shadow=large
   Box shadow=none
 ''');
     taken('an each line\'s padding and gap, a formula for the mode, a literal brace, a grip\'s icon, no menu', '''

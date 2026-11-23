@@ -109,8 +109,6 @@ const Map<String, UniversalWord> notationUniversal = {
   'autofocus': UniversalWord(UniversalKind.flag, 'has the keyboard\'s focus when the page opens', on: {'control'}),
   // On a list: the line whose lines come from an each.
   'reorder': UniversalWord(UniversalKind.flag, 'its rows are dragged (or moved by Alt and the arrows) into a new order, written to the list variable the each runs over (over a formula: onReorder); between lists: a ListView with reorder.group and reorder.listKey', on: {'container'}),
-  'sortable': UniversalWord(UniversalKind.flag, 'reorder', on: {'container'}, of: 'reorder'),
-  'reorderable': UniversalWord(UniversalKind.flag, 'reorder', on: {'container'}, of: 'reorder'),
   'handle': UniversalWord(UniversalKind.flag, 'with reorder: its rows are dragged by their Handle', on: {'container'}),
   'onReorder': UniversalWord(UniversalKind.event, 'after a move: result is the list in its new order', on: {'container'}),
   'selectable': UniversalWord(UniversalKind.flag,
@@ -119,7 +117,6 @@ const Map<String, UniversalWord> notationUniversal = {
   'onSelect': UniversalWord(UniversalKind.event, 'after the selection changes: result is the selection', on: {'container'}),
   'removable': UniversalWord(UniversalKind.flag, 'a small x that fires onRemove'),
   'onRemove': UniversalWord(UniversalKind.event, 'its x was pressed (or Delete on a chip)'),
-  'onDelete': UniversalWord(UniversalKind.event, 'onRemove', of: 'onRemove'),
 };
 
 /// Whether [word] (a key, a bare word or an event) is a word every line

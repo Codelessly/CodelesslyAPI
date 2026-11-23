@@ -12,7 +12,7 @@ over the page.
 A page is written once inside a frame that owns the widths, margins and scrolling. A website's bands stack in a
 `Page`; an app window is an `App` of panes. Written under another line (`Page grow` under a site's own header, `App
 grow` under a page's), each is that region of the page: its scrolling column of bands, or its panes side by side,
-taking the room its column leaves. The frame words: `App`, `AppBar`, `AppShell`, `Aside`, `BottomSheet`, `Content`, `Dialog`, `Drawer`, `Dropdown`, `Footer`, `Header`, `Hero`, `Lightbox`, `Main`, `Menu`, `Modal`, `Nav`, `NavBar`, `Navbar`, `Page`, `Pane`, `Panel`, `Popover`, `Popup`, `Rail`, `Section`, `Sheet`, `SideNav`, `Sidebar`, `Sidenav`, `SwipeAction`, `TopBar`, `Topbar`, `Wanted`, `Window`.
+taking the room its column leaves. The frame words: `App`, `Dialog`, `Drawer`, `Dropdown`, `Footer`, `Hero`, `Lightbox`, `Main`, `Menu`, `Nav`, `Page`, `Pane`, `Panel`, `Popover`, `Rail`, `Section`, `Sheet`, `Sidebar`, `SwipeAction`, `Wanted`.
 
 ```notation width=1280 expands
 Page
@@ -638,11 +638,11 @@ Flutter `ExpansionTile`: its header is the list tile in its `tile` slot (in the 
 | `radius` | [BorderRadius](values.md#type-BorderRadius) | `0` | 1 |  |
 
 <a id="node-modal"></a>
-### `Modal` (`modal`)
+### `modal` (`modal`)
 
 Flutter `showDialog` + `Dialog`.
 
-- Written `Modal`. Level 1 (Widget catalog).
+- Written `modal`. Level 1 (Widget catalog).
 - Takes no quoted string.
 - Its children are slots: `trigger`, `content`.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).

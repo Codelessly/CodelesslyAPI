@@ -386,13 +386,13 @@ Card
     expect((_node(r, 'accordion1')['props'] as Map)['expanded'], false);
     expect((_node(r, 'accordion2')['props'] as Map)['expanded'], true);
   });
-  test('a root that is not a card is on the surface; List holds an each; state written as a formula is read where it is used', () {
+  test('a root that is not a card is on the surface; a Column holds an each; state written as a formula is read where it is used', () {
     final r = _parse('''
 state cart=[{"name":"Beans","price":24,"qty":1}]
 state subtotal=sum(cart,x=>x.price*x.qty)
 state mode=fast
 Column gap=8
-  List gap=4
+  Column gap=4
     each row in cart
       Text "{row.name}"
   Text "Total {subtotal}"
@@ -627,13 +627,13 @@ Card gap=12
   });
 
 
-  test('the words a model reaches for: Gauge, Dial, Ring, Sparkline, animate, and a Stack that centers', () {
+  test('the words a model reaches for: Gauge, Ring, Sparkline, animate, and a Stack that centers', () {
     const text = '''
 state steps=7240
 state rows=[{"t":"a"},{"t":"b"}]
 Card
   Gauge#g 72 min=0 max=180 limit=100 unit="km/h"
-  Dial#d value={steps}
+  Gauge#d value={steps}
   Stack#s center middle w=96 h=96
     Ring#r value={steps/10000} w=96
     Text#pct "72%"
@@ -1604,7 +1604,7 @@ App
     test('a root written h:fill is a window too; a frame word inside a card is a plain row or column', () {
       final windowed = parseNotation('Row h=fill\n  Text "a"', catalog: standardCatalog, options: withTestWords());
       expect((node(windowed, 'screen')['layout']! as Map)['height'], {'fill': 800});
-      final card = parseNotation('Card\n  Header#h\n    Text "Title"\n  Section#s\n    Text "Body"', catalog: standardCatalog, options: withTestWords());
+      final card = parseNotation('Card\n  Nav#h\n    Text "Title"\n  Section#s\n    Text "Body"', catalog: standardCatalog, options: withTestWords());
       expect(card.issues, isEmpty);
       expect(node(card, 'h')['type'], 'row');
       expect((node(card, 's')['children']! as List).length, 1);
@@ -3180,7 +3180,7 @@ Column
     final other = _node(r, 'other');
     expect(other['bind'], {'props.value': r'${bottom}', 'props.rangeEnd': r'${top}'});
     expect([for (final a in other['actions'] as List) ((a as Map)['actions'] as List).length], [2, 1]);
-    expect(_parse('Slider high=@high').issues.single.message, contains('Slider @low @high'));
+    expect(_parse('Slider high=@high').issues.single.message, 'The other end of a range is the second @name of the line, with no key before it: @high.');
     expect(notationPrompt(catalog: standardCatalog, options: const NotationOptions(width: 1280)), contains('Slider @low @high'));
   });
 
@@ -3760,7 +3760,7 @@ Column
     expect(_node(marked, 'm')['bind'], containsPair('props.marks', r'${events}'));
     final declared = {for (final v in (r.document['variables'] as Map).values.expand((v) => v as List)) (v as Map)['name']: v['value']};
     expect(declared, {'arrival': '2026-11-20', 'departure': '', 'day': ''});
-    expect(_parse('Calendar end=@departure').issues.single.message, contains('Calendar @arrival @departure'));
+    expect(_parse('Calendar end=@departure').issues.single.message, 'The other end of a range is the second @name of the line, with no key before it: @departure.');
     expect(_pagePrompt(), contains('Calendar @arrival @departure disabledDates=["2026-11-24"] marks={"2026-11-20":"£225"}'));
     expect(notationPrompt(catalog: standardCatalog), isNot(contains('Calendar')));
   });

@@ -129,7 +129,7 @@ void main() {
 
   group('the fields: the keys the line reads', () {
     test('words with one condition are one rule, in the order written; hide= is a rule of its own', () {
-      _word('Column#a pad=24 phone.gap=8 phone.pad=12 tablet.pad=16 hide=desktop', [
+      _word('Column#a pad=24 phone.gap=8 phone.pad=12 tablet.pad=16 show=tablet', [
         {'maxWidth': 699, 'patch': {'layout': {'padding': 12}, 'props': {'spacing': 8}}},
         {'maxWidth': 1023, 'patch': {'layout': {'padding': 16}}},
         {'minWidth': 1024, 'patch': {'visible': false, 'bind': {'visible': null}}},

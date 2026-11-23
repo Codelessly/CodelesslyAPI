@@ -5,7 +5,6 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/notation.dart';
-import 'package:codelessly_api/src/core/notation/vocabulary.dart' show parameterKin;
 import 'package:test/test.dart';
 
 NotationResult _parse(String text, [NotationOptions options = const NotationOptions()]) => parseNotation(text, catalog: standardCatalog, options: options);
@@ -227,14 +226,9 @@ Column selectable selected=@picked
     expect(jsonEncode(_node(r, 'textField1')['bind']), contains(r'"props.style.fontSize":"${fs}"'));
   });
 
-  test('description, detail and note are one name, and placeholder and hint, where a word takes one of them', () {
-    expect(parameterKin('description', {'note'}.contains), 'note');
-    expect(parameterKin('note', {'detail'}.contains), 'detail');
-    expect(parameterKin('placeholder', {'hint'}.contains), 'hint');
-    expect(parameterKin('hint', {'placeholder', 'label'}.contains), 'placeholder');
-    // Its own name, none of them, or two of them: left as written.
-    expect(parameterKin('note', {'note', 'detail'}.contains), isNull);
-    expect(parameterKin('description', {'label'}.contains), isNull);
-    expect(parameterKin('description', {'detail', 'note'}.contains), isNull);
+  test('a hint has one name: placeholder= on an Input or a Dropdown is said with hint=', () {
+    final r = _parse('Column\n  Input "Note" placeholder="Write here"\n');
+    expect(r.issues.single.message, 'An Input\'s placeholder is written hint: hint="Write here".');
+    expect(_parse('Column\n  Input "Note" hint="Write here"\n').issues, isEmpty);
   });
 }

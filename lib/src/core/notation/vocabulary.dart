@@ -327,11 +327,25 @@ final class NotationVocabulary {
   /// No aliases at all.
   static const none = NotationVocabulary();
 
-  /// The names models reach for (SDK tool/vocabulary/corpus) for words the
-  /// notation has under another name. Each was checked against what the
-  /// parser accepts; `test/notation_vocabulary_test.dart` expands every one
-  /// beside our own spelling.
+  /// The table a reader starts with: the two universal words a control has
+  /// under its own name (`disabled` is a control's `enabled=false`,
+  /// `readonly` an input's `readOnly`): one word on every line, a box's and
+  /// a control's alike. The notation has one name for everything else; a
+  /// caller's own words (a design system's, a dictionary's) are the
+  /// caller's to give.
   static const core = NotationVocabulary(
+    parameters: {
+      '*': {'disabled': '!enabled', 'readonly': 'readOnly'},
+    },
+    flags: {
+      '*': {'disabled': 'enabled=false', 'readonly': 'readOnly'},
+    },
+  );
+
+  /// The names models reach for (SDK tool/vocabulary/corpus) for words the
+  /// notation has under one name. None is read: a line that uses one is
+  /// said with the line to write, the notation's own word in its place.
+  static const otherNames = NotationVocabulary(
     types: {
       // A slider with two thumbs: ours when the line binds a variable for
       // each end (`RangeSlider @lo @hi`, `low=@lo high=@hi`). (Most answers
@@ -357,14 +371,14 @@ final class NotationVocabulary {
       // QR code.
       'QRCode': TypeAlias(to: 'Barcode', add: 'symbology=qrCode'),
       'QrCode': TypeAlias(to: 'Barcode', add: 'symbology=qrCode'),
+      // A round meter, and shares of a whole.
+      'Dial': TypeAlias(to: 'Gauge'),
+      // A column of lines.
+      'List': TypeAlias(to: 'Column'),
+      'DonutChart': TypeAlias(to: 'Donut'),
+      'PieChart': TypeAlias(to: 'Pie'),
     },
     parameters: {
-      '*': {
-        // We teach enabled=; 12 of 20 apps wrote its opposite on a Button.
-        'disabled': '!enabled',
-        // The universal words' other names (docs/design/21).
-        'readonly': 'readOnly',
-      },
       // Input (docs/design/21 section 7): the text field's own words under
       // the names answers wrote.
       'Input': {'maxlength': 'maxLength', 'maxChars': 'maxLength', 'rows': 'lines'},
@@ -372,7 +386,7 @@ final class NotationVocabulary {
       'ListTile': {'subtitle': r'$text', 'title': r'$text'},
       // What a barcode encodes, and how (three self-defining answers named
       // it value or code: the vocabulary loop's Review 5).
-      'Barcode': {'value': 'data', 'code': 'data', 'format': 'symbology', 'type': 'symbology'},
+      'Barcode': {'value': r'$text', 'code': r'$text', 'format': 'symbology', 'type': 'symbology'},
     },
     events: {
       // A universal event under its other name (docs/design/21).
@@ -384,7 +398,7 @@ final class NotationVocabulary {
       'Calendar': {'onSelect': 'onChange'},
     },
     flags: {
-      '*': {'disabled': 'enabled=false', 'readonly': 'readOnly', 'sortable': 'reorder', 'reorderable': 'reorder'},
+      '*': {'sortable': 'reorder', 'reorderable': 'reorder'},
       'Input': {'uppercase': 'caps', 'allcaps': 'caps'},
       // A value kept on the device: ours is `state draft="" saved` (12 of 20
       // apps wrote persist, which was read into the value).
@@ -392,28 +406,6 @@ final class NotationVocabulary {
       'project': {'persist': 'saved', 'persisted': 'saved', 'persistent': 'saved'},
     },
   );
-}
-
-/// Names that say one thing, each read as another of its set where a word
-/// takes that one and not the name written: a StatCard's `description` is
-/// its note, a TimelineItem's `note` its detail, a field's `placeholder` its
-/// hint (and `hint` its placeholder). Models reach for any of them.
-const List<Set<String>> parameterSynonyms = [
-  {'description', 'detail', 'note'},
-  {'placeholder', 'hint'},
-];
-
-/// The name of [key]'s set ([parameterSynonyms]) that a word takes
-/// ([takes]), when it takes exactly one of them and not [key] itself; else
-/// null.
-String? parameterKin(String key, bool Function(String) takes) {
-  if (takes(key)) return null;
-  for (final kin in parameterSynonyms) {
-    if (!kin.contains(key)) continue;
-    final taken = [for (final k in kin) if (k != key && takes(k)) k];
-    return taken.length == 1 ? taken.single : null;
-  }
-  return null;
 }
 
 /// One part of a line after its head: a string, a key=value, a bare word

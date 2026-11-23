@@ -382,15 +382,23 @@ Sheet#story "{cur.head}" stops=[0.5,0.9] onClose={readIds=append(readIds,cur.id)
       expect(jsonEncode(((r.document['nodes'] as Map)['home'] as Map)['actions']), contains('"variable":"readIds"'), reason: 'a key\'s open too');
     });
 
-    test('onPressStart and onPressEnd are the pointer going down and coming up', () {
-      final r = _parse('state paused=false\nStack h=640 onPressStart={paused=true} onPressEnd={paused=false}\n  Text "x"\n');
+    test('the pointer going down and coming up: onPointerDown and onPointerUp, and no other name', () {
+      expect(_said(_parse('state paused=false\nStack h=640 onPressStart={paused=true} onPressEnd={paused=false}\n  Text "x"\n')), [
+        'A Stack\'s onPressStart is written onPointerDown: onPointerDown={paused=true}.',
+        'A Stack\'s onPressEnd is written onPointerUp: onPointerUp={paused=false}.',
+      ]);
+      final r = _parse('state paused=false\nStack h=640 onPointerDown={paused=true} onPointerUp={paused=false}\n  Text "x"\n');
       expect(_said(r), isEmpty);
       expect(_standIns(r), isEmpty);
       expect([for (final a in _reactions(_first(r, 'stack'))) ((a as Map)['trigger'] as Map)['type']], ['pointerDown', 'pointerUp']);
     });
 
-    test('onRelease beside onPress', () {
-      final r = _parse('state hold=false\nColumn\n  Button.outline "Hold to compare" onPress={hold=true} onRelease={hold=false}\n');
+    test('onPointerUp beside onTap; onPress and onRelease are said with them', () {
+      expect(_said(_parse('state hold=false\nColumn\n  Button.outline "Hold to compare" onPress={hold=true} onRelease={hold=false}\n')), [
+        'A Button\'s onPress is written onTap: onTap={hold=true}.',
+        'A Button\'s onRelease is written onPointerUp: onPointerUp={hold=false}.',
+      ]);
+      final r = _parse('state hold=false\nColumn\n  Button.outline "Hold to compare" onTap={hold=true} onPointerUp={hold=false}\n');
       expect(_standIns(r), isEmpty);
       expect([for (final a in _reactions(_first(r, 'outlinedButton'))) ((a as Map)['trigger'] as Map)['type']], ['click', 'pointerUp']);
     });
@@ -409,13 +417,14 @@ Sheet#story "{cur.head}" stops=[0.5,0.9] onClose={readIds=append(readIds,cur.id)
       expect(_said(r).single, contains('translateX= and translateY='));
     });
 
-    test('Box shadow=sm is a small drop shadow; another word says the sizes, another name of one the size to write', () {
-      expect(_said(_parse('Column\n  Box shadow=soft\n    Text "s"\n')).single, startsWith('shadow= takes a size (sm, md, lg) or none: write shadow=sm.'));
-      final r = _parse('Column\n  Box shadow=sm pad=8\n    Text "s"\n  Card shadow=lg\n    Text "c"\n  Box shadow=glow\n    Text "g"\n');
+    test('Box shadow=small is a small drop shadow; another word says the sizes, another name of one the size to write', () {
+      expect(_said(_parse('Column\n  Box shadow=soft\n    Text "s"\n')).single, startsWith('shadow= takes a size (small, medium, large) or none: write shadow=small.'));
+      expect(_said(_parse('Column\n  Box shadow=sm\n    Text "s"\n')).single, startsWith('shadow= takes a size (small, medium, large) or none: write shadow=small.'));
+      final r = _parse('Column\n  Box shadow=small pad=8\n    Text "s"\n  Card shadow=large\n    Text "c"\n  Box shadow=glow\n    Text "g"\n');
       expect(_standIns(r), isEmpty);
       expect(((_node(r, 'column2')['decoration'] as Map)['effects'] as List).single, {'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 2], 'blurRadius': 8});
       expect((((_node(r, 'column3')['decoration'] as Map)['effects'] as List).single as Map)['blurRadius'], 36);
-      expect(_said(r).single, contains('shadow= takes a size (sm, md, lg) or none'));
+      expect(_said(r).single, contains('shadow= takes a size (small, medium, large) or none'));
     });
 
     test('follow on a Column says it is an each line\'s', () {
@@ -445,7 +454,7 @@ Sheet#story "{cur.head}" stops=[0.5,0.9] onClose={readIds=append(readIds,cur.id)
       expect(_standIns(r), isEmpty);
     });
 
-    test('a choice named by another word for its value: tone="error" where the tones have danger', () {
+    test('a choice has one word for each value: tone="error" where the tones have danger is said with it', () {
       const banner = 'component Banner\n  param message="" required\n  param tone:info|success|warning|danger|neutral="info"\nRow\n  Text "{props.message} {props.tone}"\n';
       final ds = DesignSystem(
         manifest: DesignSystemManifest.fromJson({'id': 't', 'components': [DesignSystem.componentRef('Banner')]}),
@@ -456,8 +465,7 @@ Sheet#story "{cur.head}" stops=[0.5,0.9] onClose={readIds=append(readIds,cur.id)
           catalog,
           () => parseNotation('Column\n  Banner message="Sold out" tone="error"\n',
               catalog: catalog, options: NotationOptions.fromDesignSystem(ds, screen: 'home').open(openVocabulary: true)));
-      expect(_standIns(r), isEmpty);
-      expect((_first(r, 'Banner')['props'] as Map)['tone'], 'danger');
+      expect(_said(r), ['A Banner\'s tone is one of info, success, warning, danger, neutral: tone=danger.']);
     });
   });
 

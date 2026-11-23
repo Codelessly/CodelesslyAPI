@@ -27,7 +27,8 @@ Column gap=12
 
 Words a writer reaches for, and what they read as:
 
-- `RangeSlider @low end=@high min=0 max=90` is `Slider @low @high min=0 max=90`, a slider with two thumbs.
+- `Slider @low @high min=0 max=90` is a slider with two thumbs: its two ends, in order, with no key before
+  either.
 - `semanticLabel="Wi-Fi"` on a Toggle, Checkbox, Radio or Slider is the name a screen reader says, not shown (a
   `label` is drawn beside it). A Toggle, Checkbox or Radio in a Row that already shows its string as a text (a
   settings row: `Text "Single sign-on"` … `Toggle "Single sign-on"`) keeps the string as that spoken name and
@@ -39,7 +40,7 @@ Words a writer reaches for, and what they read as:
 - `Button "Donate" h=44 radius=22` and `IconButton "play_arrow" radius=20`: `radius` is the corners of a
   button's shape. `fill=` on a Button or an IconButton is its own ground (its label reads on it unless the
   line gives `color=`).
-- `Input "Search" prefixIcon="search"` is `icon="search"`: the icon inside the field.
+- `Input "Search" icon="search"`: the icon inside the field.
 - `Input "Password" password` hides what is typed (`obscureText`; there is no `obscure`). `password` and
   `multiline` are flags, written bare (`Input "Note" multiline`; `multiline=true` is the same, `=false` none). An
   Input has no variants (`Input.outline` is refused): its line says its look, `border=` its line (`border=none`:

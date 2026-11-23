@@ -18,7 +18,7 @@ import 'notation.dart' show NotationResult;
 import 'reflow.dart' show reflowPhoneMax, reflowTabletMax;
 
 /// The notation's named sizes as a rule's condition: the bounds `hide=phone`,
-/// `hide=tablet` and `hide=desktop` hide at (design 13 section 14).
+/// `hide=tablet` hide at and `desktop.` holds at (design 13 section 14).
 const Map<String, Json> mediaSizes = {
   'phone': {'maxWidth': reflowPhoneMax},
   'tablet': {'maxWidth': reflowTabletMax},
@@ -30,12 +30,13 @@ const Map<String, Json> mediaSizes = {
 const Json mediaHidden = {'visible': false, 'bind': {'visible': null}};
 
 /// The rule `hide=<size>` / `show=<size>` makes, by the word as it is printed
-/// (`hide=tablet` and `show=desktop` are one rule: the first is printed).
+/// (`hide=` and `show=` take phone or tablet: what holds on a desktop only
+/// is `show=tablet`'s other side, `hide=tablet`).
 const Map<String, Json> mediaHideWords = {
   'hide=phone': {'maxWidth': reflowPhoneMax},
   'hide=tablet': {'maxWidth': reflowTabletMax},
   'show=phone': {'minWidth': reflowPhoneMax + 1},
-  'hide=desktop': {'minWidth': reflowTabletMax + 1},
+  'show=tablet': {'minWidth': reflowTabletMax + 1},
 };
 
 final _bound = RegExp(r'^(min|max)(?:(\d+)|([A-Z][A-Za-z0-9]*))$');
@@ -56,7 +57,7 @@ final _bound = RegExp(r'^(min|max)(?:(\d+)|([A-Z][A-Za-z0-9]*))$');
   }
 
   for (final s in parts.take(parts.length - 1)) {
-    final size = mediaSizes[s == 'mobile' ? 'phone' : s];
+    final size = mediaSizes[s];
     final bound = _bound.firstMatch(s);
     if (size != null) {
       size.forEach((k, v) => set(k, v!, s));

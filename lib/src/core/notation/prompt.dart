@@ -141,8 +141,8 @@ const String notationSiteRule =
     'a line of its own is where the lines written under a use go. A line of its lines takes an at phone block as a page\'s does: '
     'the word\'s own design at that width, at every use. Every page and every other component then calls it as any other '
     'word (BudgetRow "Groceries" spent=320 limit=400), with nothing more said. One word a file, its file named after it, and none of '
-    'the words taught here: a name the page has is the page\'s, never a component (not TopBar, AppBar, AppShell, Header, Footer, '
-    'Nav, NavBar, SideNav, Sidebar, Rail, Main, Section, Hero, Panel, Pane, Drawer, Modal, Card, Badge, Chip, Avatar), so give '
+    'the words taught here: a name the page has is the page\'s, never a component (not Nav, Sidebar, Rail, Main, Section, Footer, '
+    'Hero, Panel, Pane, Drawer, Dialog, Sheet, Card, Badge, Chip, Avatar), so give '
     'the app\'s own bar a name of its own (LedgerNav, SiteTop).\n'
     '- app.txt is the state every page and component shares, read and set by name with no state line of their own: state lines '
     'as a page writes them and nothing else, one a line (state plan="pro", state income=4800 saved, state left={income-spent}). A '
@@ -202,8 +202,8 @@ const List<String> notationLookedUpLines = [
   'state unread=3: a state\'s name is the writer\'s own, never one the runtime gives every expression: data, route, storage, screen, theme, auth, drag, perf, script, speech, device (state themeName="light", not state theme).',
   'Row end={m.mine}: a word of a line given a condition holds while it does (Column center={n==1}). A variant is not chosen by a formula: write the line under if s.done as Button.primary "Done" and under else as Button.outline "Done".',
   'Column id={m.name}: a line an each repeats takes an id worked out for each copy (id={"sec"+m.n}), reached by scroll {m.name} or scroll sec2.',
-  'Sheet#filters "Filters" onClose={seen=true}: what an overlay does as it closes (a Dialog, Drawer, Menu or Popover too). A press held: onPressStart={…} and onPressEnd={…} (or onRelease); hold-to-repeat is onPointerDown={held=true} onPointerUp={held=false} with every 120 when held onTick={qty=qty+1}.',
-  'Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=sm: a line drawn larger, turned or moved (scale={zoom} follows the state); shadow is sm, md, lg or none.',
+  'Sheet#filters "Filters" onClose={seen=true}: what an overlay does as it closes (a Dialog, Drawer, Menu or Popover too). A press held: onPointerDown={…} as it starts and onPointerUp={…} as it ends; hold-to-repeat is onPointerDown={held=true} onPointerUp={held=false} with every 120 when held onTick={qty=qty+1}.',
+  'Box scale=1.2 rotate=8 translateX=12 translateY=-4 shadow=small: a line drawn larger, turned or moved (scale={zoom} follows the state); shadow is small, medium, large or none.',
   'each m in msgs follow grow pad=[24,16] gap=6: an each line takes its list\'s padding and gap. Also: setThemeMode lower(result) takes a formula; a literal brace in a text is \\{ and \\}; Handle icon="menu" is a grip with an icon of its own; menu=none takes a menu off a line.',
   'Text "{formatDate(addDays(today(),3),\'EEE d MMM\')}": a date is "yyyy-MM-dd" text, worked out, never numbered by hand: today(), addDays(date,n), addMonths(date,n), diffDays(from,to), weekday(date) (1 Monday to 7 Sunday), daysInMonth(date); and shown through formatDate, never raw. A month\'s cell reads its day\'s events by date: each e in filter(events,e=>e.date==addDays(start,i)).',
   'Text "{n.body}" maxLines=2: a preview is cut by lines, with its ellipsis; never slice(text,0,70), which cuts in a word.',
@@ -561,7 +561,7 @@ define ColorPicker @color swatches=["#FF111827","#FFDC2626","#FF2563EB"] size=28
   state color=""
   Row gap=8 middle
     each swatch in swatches
-      Box w={size} h={size} radius={size/2} fill={swatch} border={swatch == color ? 2 : 0} onTap={color=swatch; onPick(swatch)}
+      Box w={size} h={size} radius={size/2} fill={swatch} strokeWidth={swatch == color ? 2 : 0} onTap={color=swatch; onPick(swatch)}
 
 define Group "title"
   Card gap=8 pad=16

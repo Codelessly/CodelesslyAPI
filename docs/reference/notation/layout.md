@@ -176,7 +176,7 @@ Flutter `Row`.
 
 Flutter `Column`.
 
-- Written `Column`; also `Avatar`, `List`, `Grid`, `GridView`, `Box`, `Card`, `Wanted`. Level 0 (Core).
+- Written `Column`; also `Avatar`, `Grid`, `GridView`, `Box`, `Card`, `Wanted`. Level 0 (Core).
 - Each quoted string is a node under it (a `Text`, its `props.text`): `Column "…" "…"` writes two, in order.
 - The lines under it are its children.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): yes.

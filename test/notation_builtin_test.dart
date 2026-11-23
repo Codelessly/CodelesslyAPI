@@ -10,11 +10,11 @@ import 'package:test/test.dart';
 const _text = '''
 state n=0
 Column
-  MiniCalendar
+  Calendar
   Card
     Text "x"
   Rating2 "Ok"
-primitive MiniCalendar "label"
+primitive Calendar "label"
 define Card "title"
   Box pad=4
 define Rating2 "label"
@@ -26,7 +26,7 @@ void main() {
     // A name the notation reads as another of its words (an alias) is the
     // notation's over a primitive of the name, which has no lines to read
     // in its place; a define of the name is the one read.
-    expect(notationBuiltInWord('MiniCalendar', primitive: true), "MiniCalendar, read as the notation's Calendar");
+    expect(notationBuiltInWord('MiniCalendar', primitive: true), isNull);
     expect(notationBuiltInWord('MiniCalendar'), isNull);
     expect(notationBuiltInWord('Rail'), startsWith('Rail, a word of the page'));
     expect(notationBuiltInWord('Text', catalog: standardCatalog), startsWith('Text, a word of the notation'));
@@ -55,10 +55,10 @@ void main() {
         vocabulary = r.vocabulary;
       }
       final said = [for (final i in issues) '$i'];
-      expect(said, contains(contains('The notation already has MiniCalendar, read as the notation\'s Calendar')));
+      expect(said, contains(contains('The notation already has Calendar, a word of the notation')));
       expect(said, contains(contains('So this definition of Card is not used: Card is the notation\'s.')));
       if (!stream) {
-        expect(issues.where((i) => i.message.contains('MiniCalendar')).single.line, 7);
+        expect(issues.where((i) => i.message.contains('already has Calendar')).single.line, 7);
         expect(issues.where((i) => i.message.contains('of Card')).single.line, 8);
       }
       // The built-in is read: a calendar, not a primitive's box.

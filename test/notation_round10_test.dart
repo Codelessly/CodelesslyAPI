@@ -271,7 +271,7 @@ Column
   group('B: words writers expected, read as the notation\'s (recorded as aliases)', () {
     List<String> aliases(NotationResult r) => [for (final v in r.vocabulary) if (v.kind == 'alias') v.word];
 
-    test('Image url=, Input prefixIcon=, RangeSlider, Grid\'s Flutter names', () {
+    test('Image url=, an Input\'s icon, a Slider with two ends, a Grid\'s cell height', () {
       final r = _parse('''
 state images=["a.png"]
 state frame=0
@@ -281,8 +281,8 @@ state items=[1,2]
 Column
   Image#i "https://x/y.png" w=100 h=100
   Image#j "{images[frame]}" h=300
-  Input#q "Search" prefixIcon="search"
-  RangeSlider#rs @lo end=@hi min=0 max=10
+  Input#q "Search" icon="search"
+  Slider#rs @lo @hi min=0 max=10
   Grid#g cols=3 gap=12 mainAxisExtent=30
     each i in items
       Text "{i}"
@@ -298,7 +298,7 @@ Column
       expect(grid['props'], containsPair('crossAxisCount', 3));
       expect(grid['props'], containsPair('crossAxisSpacing', 12));
       expect(grid['props'], containsPair('mainAxisExtent', 30));
-      expect(aliases(r), containsAll(['prefixIcon', 'RangeSlider', 'mainAxisExtent']));
+      expect(aliases(r), isEmpty);
       // One name for each: the picture is an Image's string, a Grid has cols and gap.
       final said = _parse('Column\n  Image url="https://x/y.png"\n  Grid crossAxisCount=3 crossAxisSpacing=12 columns=2\n    Text "a"\n');
       expect([for (final i in said.issues) i.message], [

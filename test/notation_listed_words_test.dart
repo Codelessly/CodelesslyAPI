@@ -58,12 +58,10 @@ void main() {
       expect(refused, isEmpty);
     });
 
-    test('a control\'s value bound by its property\'s name, as NOTATION.md writes selected=@picked, $name', () {
-      expect(_doc, contains('`selected=@picked`'));
+    test('a control\'s value is bound by @name alone: by its property\'s name it is said, $name', () {
       final r = parseNotation('state picked=false\nColumn\n  FilterChip#c "Unread" selected=@picked\n', catalog: standardCatalog, options: options);
-      expect(r.issues, isEmpty);
-      final bare = parseNotation('state picked=false\nColumn\n  FilterChip#c "Unread" @picked\n', catalog: standardCatalog, options: options);
-      expect((r.document['nodes'] as Map)['c'], (bare.document['nodes'] as Map)['c']);
+      expect(r.issues.single.message, 'The value of a FilterChip is bound by @name alone, with no key before it: @picked.');
+      expect(parseNotation('state picked=false\nColumn\n  FilterChip#c "Unread" @picked\n', catalog: standardCatalog, options: options).issues, isEmpty);
     });
   }
 }

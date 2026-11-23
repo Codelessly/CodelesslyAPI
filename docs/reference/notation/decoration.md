@@ -32,7 +32,7 @@ Row gap=8
 
 Shadows and blurs are `effects=[…]` ([Effect](#type-Effect)); `clip=true` clips the content to the corners. Its
 numbers are pixels: `offset` `[x, y]`, `blurRadius`, `spreadRadius` (CSS `box-shadow: 0 4px 16px` is
-`"offset":[0,4],"blurRadius":16`). `shadow=sm`, `shadow=md` and `shadow=lg` on a box are a drop shadow
+`"offset":[0,4],"blurRadius":16`). `shadow=small`, `shadow=medium` and `shadow=large` on a box are a drop shadow
 of that size, read as the effect it is (and printed as `effects=`); `shadow=none` is no shadow. Any other shadow is
 written out as an effect.
 

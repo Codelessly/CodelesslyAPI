@@ -117,14 +117,14 @@ void main() {
       expect(bar['name'], isNull);
     });
 
-    test('the condition is any a key\'s prefix takes; at mobile is at phone', () {
+    test('the condition is any a key\'s prefix takes; a phone has one name', () {
       List<Object?> rules(String at) {
         final r = _parse('Row#bar\n  Text#a "A"\n  at $at\n    Text#b "B"');
         expect(r.issues, isEmpty, reason: at);
         return [_node(r, 'b')['name'], _node(r, 'b')['media'], _node(r, 'a')['media']];
       }
 
-      expect(rules('mobile'), rules('phone'));
+      expect(_parse('Row#bar\n  Text#a "A"\n  at mobile\n    Text#b "B"').issues.single.message, startsWith('at mobile: "mobile" is not a width. A block is written at phone,'));
       expect(rules('max899'), [
         'at max899',
         [

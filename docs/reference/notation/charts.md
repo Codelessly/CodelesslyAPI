@@ -210,7 +210,7 @@ Flutter `Badge`: over its `child`, a dot or a count at `alignment`. With no chil
 
 Radial gauge (dial).
 
-- Written `RadialGauge`; also `Gauge`, `Dial`. Level 4 (Full vocabulary).
+- Written `RadialGauge`; also `Gauge`. Level 4 (Full vocabulary).
 - Takes no quoted string.
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).
@@ -297,7 +297,7 @@ Gauge meter (arc or bar).
 
 Series chart (bar, line, timeline, donut).
 
-- Written `Chart`; also `Donut`, `DonutChart`, `PieChart`, `Pie`. Level 4 (Full vocabulary).
+- Written `Chart`; also `Donut`, `Pie`. Level 4 (Full vocabulary).
 - Takes no quoted string.
 - Takes no lines under it.
 - Decoration keys (`fill`, `border`, `radius`, `effects`…): only `effects` (blurs).

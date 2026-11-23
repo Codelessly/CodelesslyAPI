@@ -16,7 +16,7 @@ the line writes it. Keys with the same condition are one rule; rules hold in the
 |---|---|---|
 | `phone` | up to 699 px | `hide=phone` |
 | `tablet` | up to 1023 px | `hide=tablet` |
-| `desktop` | from 1024 px | `hide=desktop` |
+| `desktop` | from 1024 px |  |
 
 The other conditions:
 
@@ -75,7 +75,7 @@ Where a part's lines differ at a width, and not only its values, write `at <widt
 lines: the lines under it are the part's children where the width holds, and its own lines show everywhere else.
 The part's own line (its id, its keys, its events) holds at every width; its values at a width stay keys on it. The
 width is any condition a key's prefix takes: `at phone`, `at tablet`, `at desktop`, `at max899`, `at
-min700.tablet`, `at portrait` (`at mobile` is `at phone`).
+min700.tablet`, `at portrait`. A phone has one name, `phone`.
 
 In a block, `...` is the part's own lines, in order, and `...#links` the one of them with that id, with the lines
 under it: content written once and placed again. A bar whose links are a menu on a phone:
@@ -355,7 +355,7 @@ defaults:
   when every line under it folds by itself there. A line folds when it is a component that declares a `rail`
   parameter (the design system's `NavItem`, `Brand`, `Account`; a site's own component with `param rail:bool=false`
   that shows its icon alone when `rail` is true), takes no width of its own (`Spacer`, `Divider`), or says what it is at
-  that width itself (`hide=tablet`, `show=desktop`, `tablet.…`, `max899.…`: it and the lines under it are then
+  that width itself (`hide=tablet`, `show=tablet`, `tablet.…`, `max899.…`: it and the lines under it are then
   yours). The sidebar's `Footer`, a plain `Column`, an `if`, an `each` and a defined word hold lines, and fold when
   their lines do; under an `at tablet` block, the block's lines are the ones read. A line written by hand that
   only shows something (a `Box` with a note in it, a `Text` group label, a `Row` of an `Avatar` and two texts:

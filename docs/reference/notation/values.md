@@ -32,27 +32,10 @@ says them instead). They are listed so you know them when you read them, not as 
 
 | Also read | As a | Is | On |
 |---|---|---|---|
-| `RangeSlider` | word | `Slider`, `start=` as `low=`, `end=` as `high=`, `rangeEnd=` as `high=` (with `low=`, `high=`) |  |
-| `Highlight`, `HighlightText` | word | `Text`, `match=` as `mark=`, `query=` as `mark=` |  |
-| `MiniCalendar`, `CalendarMonth`, `MonthGrid` | word | `Calendar` |  |
-| `StickyBar`, `StickyFooter`, `BottomBar`, `FooterBar`, `BottomDock` | word | `Footer` |  |
-| `QRCode`, `QrCode` | word | `Barcode symbology=qrCode` |  |
 | `disabled=` | key | `enabled=` negated | any line |
 | `readonly=` | key | `readOnly=` | any line |
-| `maxlength=`, `maxChars=` | key | `maxLength=` | `Input` |
-| `rows=` | key | `lines=` | `Input` |
-| `subtitle=`, `title=` | key | its next quoted string | `ListTile` |
-| `value=`, `code=` | key | `data=` | `Barcode` |
-| `format=`, `type=` | key | `symbology=` | `Barcode` |
 | `disabled` | flag | `enabled=false` | any line |
 | `readonly` | flag | `readOnly` | any line |
-| `sortable`, `reorderable` | flag | `reorder` | any line |
-| `uppercase`, `allcaps` | flag | `caps` | `Input` |
-| `persist`, `persisted`, `persistent` | flag | `saved` | `state`, `project` |
-| `onDelete={…}` | event | `onRemove={…}` | any line |
-| `onEnter={…}`, `onSubmitted={…}` | event | `onSubmit={…}` | `Input` |
-| `onSaved={…}` | event | `onBlur={…}` | `Input` |
-| `onSelect={…}` | event | `onChange={…}` | `Calendar` |
 
 <a id="values-value-types"></a>
 ## Value types

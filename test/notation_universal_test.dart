@@ -42,11 +42,10 @@ void main() {
       }
       expect(universalWords.toSet(), {
         'color', 'size', 'icon', 'enabled', 'disabled', 'readonly', 'readOnly', 'required', 'autofocus', //
-        'reorder', 'sortable', 'reorderable', 'handle', 'onReorder', 'selectable', 'onSelect', 'removable', 'onRemove', 'onDelete',
+        'reorder', 'handle', 'onReorder', 'selectable', 'onSelect', 'removable', 'onRemove',
       });
       expect(notationUniversal['onReorder']!.kind, UniversalKind.event);
       expect(notationUniversal['removable']!.kind, UniversalKind.flag);
-      expect(notationUniversal['sortable']!.of, 'reorder');
       expect(isUniversal('items'), isFalse);
     });
   });
@@ -227,8 +226,8 @@ Column
   group('on a list', () {
     const items = 'state items=[{"id":"a","name":"Alpha"},{"id":"b","name":"Beta"},{"id":"c","name":"Gamma"}]\n';
 
-    test('reorder (sortable) on the line over an each is that each reordered: by a long press, written to the list', () {
-      final r = _clean('${items}state q=""\nColumn sortable onReorder={q=result[0].name}\n  each it in items\n    Text "{it.name}"\n');
+    test('reorder on the line over an each is that each reordered: by a long press, written to the list', () {
+      final r = _clean('${items}state q=""\nColumn reorder onReorder={q=result[0].name}\n  each it in items\n    Text "{it.name}"\n');
       final list = _node(r, 'listView1');
       expect((list['props'] as Map)['reorder'], {'start': 'longPress', 'keyboard': true, 'apply': 'variable'});
       expect(list['focusGroup'], {'axis': 'vertical', 'wrap': false});
@@ -282,8 +281,8 @@ Column
       expect(_unknown(r), {'flag Column.selectable', 'parameter Column.selected'});
     });
 
-    test('removable: a chip is an input chip whose x fires onRemove (onDelete); a row gets an x at its end', () {
-      final r = _clean('state tags=["a","b"]\nstate q=""\nColumn\n  Chip "a" onDelete={tags=without(tags,"a")}\n  Row removable onRemove={q="gone"}\n    Text "Row"\n');
+    test('removable: a chip is an input chip whose x fires onRemove; a row gets an x at its end', () {
+      final r = _clean('state tags=["a","b"]\nstate q=""\nColumn\n  Chip "a" onRemove={tags=without(tags,"a")}\n  Row removable onRemove={q="gone"}\n    Text "Row"\n');
       expect(_node(r, 'chip1')['type'], 'inputChip');
       expect(_actions(r, 'chip1').single['trigger'], {'type': 'deleted'});
       final row = _node(r, 'row1');
@@ -353,7 +352,7 @@ define Note "text" fill=#FFFDE68A
   });
 
   group('Input (D8)', () {
-    test('its words: clearable, maxlength, caps, autogrow, center, value beside bind, prefix and suffix', () {
+    test('its words: clearable, maxLength, caps, autogrow, center, value beside bind, prefix and suffix', () {
       final r = _clean('''
 state q=""
 state draft=""
@@ -361,7 +360,7 @@ state code=""
 state w=""
 Column
   Input "Search" @q clearable
-  Input "Code" @code maxlength=5 caps center
+  Input "Code" @code maxLength=5 caps center
   Input "Note" @draft multiline autogrow
   Input "Title" @q value={draft}
   Input "Weight" @w prefix="~" suffix="kg"
@@ -381,8 +380,8 @@ Column
       expect(weight, allOf(containsPair('prefixText', '~'), containsPair('suffixText', 'kg'), containsPair('affixesAlwaysVisible', true)));
     });
 
-    test('its events: onEnter is onSubmit, onSaved is onBlur, onKeyDown a key in the field (key is result.key)', () {
-      final r = _clean('state q=""\nstate i=0\nColumn\n  Input "a" @q onEnter={i=1} onSaved={i=2} onKeyDown={i=key=="ArrowDown" ? 3 : 4}\n');
+    test('its events: onSubmit, onBlur, onKeyDown a key in the field (key is result.key)', () {
+      final r = _clean('state q=""\nstate i=0\nColumn\n  Input "a" @q onSubmit={i=1} onBlur={i=2} onKeyDown={i=key=="ArrowDown" ? 3 : 4}\n');
       final triggers = [for (final a in _actions(r, 'textField1')) (a['trigger'] as Map)['type']];
       expect(triggers, containsAll(['submitted', 'focusLost', 'keyDown']));
       final key = _actions(r, 'textField1').firstWhere((a) => (a['trigger'] as Map)['type'] == 'keyDown');

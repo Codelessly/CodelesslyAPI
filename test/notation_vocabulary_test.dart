@@ -320,36 +320,35 @@ CommandPalette#palette "Commands" placeholder="Type a command"
     });
 
 
-    test('RangeSlider is a Slider when it names a variable for each end; bound to one list it is not ours', () {
-      const ours = 'state low=0\nstate high=100\nColumn\n  Slider @low @high min=0 max=100\n';
-      _same('state low=0\nstate high=100\nColumn\n  RangeSlider @low @high min=0 max=100\n', ours, word: 'RangeSlider', to: 'Slider');
-      _same('state low=0\nstate high=100\nColumn\n  RangeSlider low=@low high=@high min=0 max=100\n', ours, word: 'RangeSlider', to: 'Slider');
-      final one = _open('state range=[0,10]\nColumn\n  RangeSlider @range min=0 max=100\n');
-      expect(_uses(one, 'alias'), isEmpty);
-      expect(_uses(one, 'type').single.word, 'RangeSlider');
+    test('a word the notation has under one name is not read under another: said with the line to write', () {
+      String said(String text) => _closed(text).issues.map((i) => i.message).join('\n');
+      for (final (text, line) in [
+        ('state low=0\nstate high=100\nColumn\n  RangeSlider low=@low high=@high min=0 max=100\n', 'Slider low=@low high=@high min=0 max=100'),
+        ('state q="a"\nColumn\n  Highlight "Ada Lovelace" match={q} weight=600\n', 'Text "Ada Lovelace" mark={q} weight=600'),
+        ('state q="a"\nColumn\n  HighlightText "Ada Lovelace" query={q}\n', 'Text "Ada Lovelace" mark={q}'),
+        ('state day=""\nColumn\n  MiniCalendar @day\n', 'Calendar @day'),
+        ('state day=""\nColumn\n  MonthGrid @day\n', 'Calendar @day'),
+        ('App\n  Main\n    Column pad=24\n      Text "Albums"\n    StickyBar\n      Text.strong "Night Drive"\n', 'Footer'),
+        ('Column\n  QRCode "https://example.com"\n', 'Barcode "https://example.com" symbology=qrCode'),
+        ('Column\n  ListTile "Ada" subtitle="Engineer"\n', 'ListTile "Ada" "Engineer"'),
+        ('state v=""\nColumn\n  Input "Name" @v maxlength=20 onSubmitted={v=""}\n', 'Input "Name" @v maxLength=20 onSubmit={v=""}'),
+        ('state rows=[1]\nColumn sortable\n  each r in rows\n    Text "{r}"\n', 'Column reorder'),
+        ('Column\n  Chip "A" removable onDelete={toast "x"}\n', 'Chip "A" removable onRemove={toast "x"}'),
+      ]) {
+        expect(said(text), contains('The notation has one name for each word and key: write $line'), reason: text);
+        expect(said(text), isNot(contains('No node type')), reason: text);
+      }
+      // The lines they name read.
+      for (final text in [
+        'state low=0\nstate high=100\nColumn\n  Slider @low @high min=0 max=100\n',
+        'state q="a"\nColumn\n  Text "Ada Lovelace" mark={q} weight=600\n',
+        'state day=""\nColumn\n  Calendar @day\n',
+        'Column\n  ListTile "Ada" "Engineer"\n',
+      ]) {
+        expect(_closed(text).issues, isEmpty, reason: text);
+      }
+      // One bound to a list is not our Slider: an unknown word, as it was.
       expect(_closed('state range=0\nColumn\n  RangeSlider @range\n').issues.single.message, contains('No node type "RangeSlider"'));
-    });
-
-    test('Highlight and HighlightText are a Text with what matched marked', () {
-      const ours = 'state q="a"\nColumn\n  Text "Ada Lovelace" mark={q} weight=600\n';
-      _same('state q="a"\nColumn\n  Highlight "Ada Lovelace" match={q} weight=600\n', ours, word: 'Highlight', to: 'Text');
-      _same('state q="a"\nColumn\n  HighlightText "Ada Lovelace" query={q} weight=600\n', ours, word: 'HighlightText', to: 'Text');
-      _same('state q="a"\nColumn\n  Highlight "Ada Lovelace" query={q} weight=600\n', ours, word: 'query', to: 'mark');
-      _same('state q="a"\nColumn\n  HighlightText "Ada Lovelace" match={q} weight=600\n', ours, word: 'match', to: 'mark');
-    });
-
-    test('MiniCalendar, CalendarMonth and MonthGrid are a Calendar', () {
-      for (final name in ['MiniCalendar', 'CalendarMonth', 'MonthGrid']) {
-        _same('state day=""\nColumn\n  $name @day\n', 'state day=""\nColumn\n  Calendar @day\n', word: name, to: 'Calendar');
-      }
-    });
-
-    test('StickyBar, StickyFooter, BottomBar, FooterBar and BottomDock are the Footer of an app\'s Main', () {
-      const page = 'App\n  Main\n    Column pad=24\n      Text "Albums"\n    {foot}\n      Text.strong "Night Drive"\n';
-      final ours = page.replaceFirst('{foot}', 'Footer');
-      for (final name in ['StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock']) {
-        _same(page.replaceFirst('{foot}', name), ours, word: name, to: 'Footer');
-      }
     });
 
     test('disabled is enabled, the other way round', () {
@@ -361,47 +360,26 @@ CommandPalette#palette "Commands" placeholder="Type a command"
       expect(_node(r, 'filledButton1')['bind'], {'props.enabled': r'${= !(n==0)}'});
     });
 
-    test('a ListTile\'s subtitle (and title) are its strings', () {
-      _same('Column\n  ListTile "Ada" subtitle="Engineer"\n', 'Column\n  ListTile "Ada" "Engineer"\n', word: 'subtitle', to: r'$text');
-      _same('Column\n  ListTile title="Ada" subtitle="Engineer"\n', 'Column\n  ListTile "Ada" "Engineer"\n', word: 'title');
-      _same('state r={"role":"Engineer"}\nColumn\n  ListTile "Ada" subtitle={r.role}\n', 'state r={"role":"Engineer"}\nColumn\n  ListTile "Ada" "{r.role}"\n', word: 'subtitle');
-    });
-
-    test('persist after a state is saved (it was read into the value)', () {
-      _same('state draft="" persist\nColumn\n  Input "Note" @draft\n', 'state draft="" saved\nColumn\n  Input "Note" @draft\n', word: 'persist', to: 'saved');
-      _same('state n=20 persisted\nColumn\n  Text "{n}"\n', 'state n=20 saved\nColumn\n  Text "{n}"\n', word: 'persisted');
-      _same('state n=20 persistent\nColumn\n  Text "{n}"\n', 'state n=20 saved\nColumn\n  Text "{n}"\n', word: 'persistent');
-      _same('project cart=[] persist\nColumn\n  Text "{length(cart)}"\n', 'project cart=[] saved\nColumn\n  Text "{length(cart)}"\n', word: 'persist');
+    test('persist after a state is said with saved (it was read into the value)', () {
       final r = _closed('state n=20 persist\nColumn\n  Text "{n}"\n');
-      expect(((r.document['variables'] as Map)['screen'] as List).single, {'name': 'n', 'type': 'integer', 'value': 20, 'persist': true});
+      expect(r.issues.single.message, 'A state kept on the device is written with the word saved after it: state n=20 saved');
+      expect(((r.document['variables'] as Map)['screen'] as List).single, {'name': 'n', 'type': 'integer', 'value': 20});
+      expect(_closed('state n=20 saved\nColumn\n  Text "{n}"\n').issues, isEmpty);
     });
 
-    test('every alias of the built-in table is one of the above', () {
-      const tested = {
-        'RangeSlider', 'Highlight', 'HighlightText', 'MiniCalendar', 'CalendarMonth', 'MonthGrid', //
-        'StickyBar', 'StickyFooter', 'BottomBar', 'FooterBar', 'BottomDock', 'QRCode', 'QrCode',
-      };
-      expect(NotationVocabulary.core.types.keys.toSet(), tested);
-      // Its ends by the names a range is written with (test 10: end=@hi).
-      expect(NotationVocabulary.core.types['RangeSlider']!.parameters, {'start': 'low', 'end': 'high', 'rangeEnd': 'high'});
-      expect(NotationVocabulary.core.types['RangeSlider']!.requires, ['low', 'high']);
-      // The universal words' other names and an Input's (docs/design/21) are
-      // tested in notation_universal_test.dart.
+    test('the table a reader starts with holds the two universal words a control has under its own name, and nothing else', () {
+      expect(NotationVocabulary.core.types, isEmpty);
       expect(NotationVocabulary.core.parameters, {
         '*': {'disabled': '!enabled', 'readonly': 'readOnly'},
-        'ListTile': {'subtitle': r'$text', 'title': r'$text'},
-        'Input': {'maxlength': 'maxLength', 'maxChars': 'maxLength', 'rows': 'lines'},
-        'Barcode': {'value': 'data', 'code': 'data', 'format': 'symbology', 'type': 'symbology'},
       });
-      expect(NotationVocabulary.core.flags.keys.toSet(), {'*', 'Input', 'state', 'project'});
-      expect(NotationVocabulary.core.flags['*'], {'disabled': 'enabled=false', 'readonly': 'readOnly', 'sortable': 'reorder', 'reorderable': 'reorder'});
-      expect(NotationVocabulary.core.flags['state'], {'persist': 'saved', 'persisted': 'saved', 'persistent': 'saved'});
-      expect(NotationVocabulary.core.events, {
-        '*': {'onDelete': 'onRemove'},
-        'Input': {'onEnter': 'onSubmit', 'onSubmitted': 'onSubmit', 'onSaved': 'onBlur'},
-        'Calendar': {'onSelect': 'onChange'},
+      expect(NotationVocabulary.core.flags, {
+        '*': {'disabled': 'enabled=false', 'readonly': 'readOnly'},
       });
+      expect(NotationVocabulary.core.events, isEmpty);
       expect(NotationVocabulary.core.verbs, isEmpty);
+      // What is said with the line to write, never read.
+      expect(NotationVocabulary.otherNames.types.keys, containsAll(['RangeSlider', 'Highlight', 'MiniCalendar', 'StickyBar', 'QRCode', 'Dial', 'PieChart']));
+      expect(NotationVocabulary.otherNames.types['RangeSlider']!.requires, ['low', 'high']);
     });
 
     test('a word the notation already has is never an alias', () {
@@ -456,7 +434,6 @@ CommandPalette#palette "Commands" placeholder="Type a command"
       same('Column\n  Button "Go" disabled\n', 'Column\n  Button "Go" enabled=false\n');
       final again = NotationVocabulary.fromJson((jsonDecode(jsonEncode(table.toJson())) as Map).cast<String, Object?>());
       expect(jsonEncode(again.toJson()), jsonEncode(table.toJson()));
-      expect(again.types['RangeSlider']!.requires, ['low', 'high']);
       // With no table at all nothing is an alias.
       final none = _closed('Column\n  Button "Go" disabled\n', options: _page.open(openVocabulary: false, vocabulary: NotationVocabulary.none));
       expect(none.vocabulary, isEmpty);
@@ -577,11 +554,14 @@ CommandPalette#palette "Commands" placeholder="Type a command"
     });
 
     test('Input type=email: the keyboard by the name the prompt teaches', () {
-      for (final (written, keyboard) in [('email', 'emailAddress'), ('phone', 'phone'), ('tel', 'phone'), ('number', 'number'), ('url', 'url')]) {
+      for (final (written, keyboard) in [('email', 'emailAddress'), ('phone', 'phone'), ('number', 'number'), ('url', 'url')]) {
         final r = _closed('Column\n  Input "Field" type=$written\n');
         expect(r.issues, isEmpty);
         expect((_node(r, 'textField1')['props'] as Map)['keyboardType'], keyboard);
       }
+      // A keyboard has one name.
+      expect(_closed('Column\n  Input "Field" type=tel\n').issues.single.message, 'An Input\'s keyboard is type=number, email, phone, search, date, time or address: type=phone.');
+      expect(_closed('Column\n  Input "Field" type=numeric\n').issues.single.message, endsWith(': type=number.'));
     });
 
     test('an overlay written inside the page is still over the page, and the page goes on after it', () {
@@ -657,9 +637,9 @@ Page
       }
     });
 
-    test('Barcode "…" encodes its text as bars; value=, code= and format= are its own words; QRCode is one as a QR code', () {
+    test('Barcode "…" encodes its text as bars; symbology= says which, qrCode a QR code', () {
       for (final read in [_open, _closed]) {
-        final r = read('Column\n  Barcode#a "29034 00718 4421" w=260\n  Barcode#b value="X1" format=ean13 h=96\n  QRCode#c value="https://example.com"\n');
+        final r = read('Column\n  Barcode#a "29034 00718 4421" w=260\n  Barcode#b "X1" symbology=ean13 h=96\n  Barcode#c "https://example.com" symbology=qrCode\n');
         expect(r.issues, isEmpty);
         expect(_node(r, 'a')['props'], {'data': '29034 00718 4421', 'symbology': 'code128'});
         expect((_node(r, 'a')['layout'] as Map)['height'], 80);

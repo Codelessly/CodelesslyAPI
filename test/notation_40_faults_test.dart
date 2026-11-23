@@ -544,8 +544,8 @@ Column
       expect(r.issues, isEmpty);
       expect(_node(r, 'mg')['type'], 'column');
       expect(_nodes(r).where((n) => (n['props'] as Map?)?['text'] == 'my grid Dec'), hasLength(1));
-      // Without a definition the name is still the notation's Calendar.
-      expect(_node(_parse('Column\n  MonthGrid#mg\n'), 'mg')['type'], 'calendar');
+      // Without a definition the name is no word: said with the notation's.
+      expect(_parse('Column\n  MonthGrid#mg\n').issues.single.message, 'The notation has one name for each word and key: write Calendar#mg');
     });
 
     test('a define of a word the notation has itself is not used, and that is said', () {

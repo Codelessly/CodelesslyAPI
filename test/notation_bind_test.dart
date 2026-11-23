@@ -122,8 +122,8 @@ Future<Catalog> _withRating() async {
 
 void main() {
   group('bare: the line\'s value', () {
-    test('@name binds a control\'s value both ways, as value=@name does', () {
-      for (final line in ['Slider @volume min=0 max=100', 'Slider value=@volume min=0 max=100', 'Slider min=0 max=100 @volume']) {
+    test('@name binds a control\'s value both ways, wherever it is on the line', () {
+      for (final line in ['Slider @volume min=0 max=100', 'Slider min=0 max=100 @volume']) {
         final r = _parse('state volume=40\nColumn\n  $line');
         expect(r.issues, isEmpty, reason: line);
         expect(_bind(r, 'slider1')['props.value'], r'${volume}', reason: line);
@@ -229,8 +229,18 @@ Column selectable selected=@picked
   });
 
   group('a range: two ends in order', () {
-    test('Slider @low @high, and low=@ high=@', () {
-      for (final line in ['Slider @lo @hi min=0 max=100', 'Slider low=@lo high=@hi min=0 max=100', 'RangeSlider @lo @hi min=0 max=100', 'RangeSlider low=@lo high=@hi min=0 max=100']) {
+    test('a range has one form: its ends by name, or under another word, are said with it', () {
+      List<String> said(String line) => [for (final i in _parse('state lo=10\nstate hi=90\nColumn\n  $line').issues) i.message];
+      expect(said('Slider low=@lo high=@hi min=0 max=100'), [
+        'The value of a Slider is bound by @name alone, with no key before it: @lo.',
+        'The other end of a range is the second @name of the line, with no key before it: @hi.',
+      ]);
+      expect(said('RangeSlider @lo @hi min=0 max=100').first, 'The notation has one name for each word and key: write Slider @lo @hi min=0 max=100');
+      expect(said('Slider value=@lo min=0 max=100'), ['The value of a Slider is bound by @name alone, with no key before it: @lo.']);
+    });
+
+    test('Slider @low @high', () {
+      for (final line in ['Slider @lo @hi min=0 max=100']) {
         final r = _parse('state lo=10\nstate hi=90\nColumn\n  $line');
         expect(r.issues, isEmpty, reason: line);
         expect(_bind(r, 'slider1'), allOf(containsPair('props.value', r'${lo}'), containsPair('props.rangeEnd', r'${hi}')), reason: line);
@@ -238,8 +248,12 @@ Column selectable selected=@picked
       }
     });
 
-    test('Calendar @start @end, and start=@ end=@', () {
-      for (final line in ['Calendar @from @to', 'Calendar start=@from end=@to']) {
+    test('Calendar @start @end', () {
+      expect([for (final i in _parse('state from=""\nstate to=""\nColumn\n  Calendar start=@from end=@to').issues) i.message], [
+        'The value of a Calendar is bound by @name alone, with no key before it: @from.',
+        'The other end of a range is the second @name of the line, with no key before it: @to.',
+      ]);
+      for (final line in ['Calendar @from @to']) {
         final r = _parse('state from=""\nstate to=""\nColumn\n  $line');
         expect(r.issues, isEmpty, reason: line);
         expect(_bind(r, 'calendar1'), allOf(containsPair('props.start', r'${from}'), containsPair('props.end', r'${to}')), reason: line);

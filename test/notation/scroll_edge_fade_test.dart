@@ -25,7 +25,7 @@ void main() {
   });
 
   test('a fade of its own is kept; a list down the page has none', () {
-    final r = _parse('state tags=["World","Politics"]\nColumn\n  Row#chips scroll gap=8 edgeFade=0\n    each t in tags\n      Text "{t}"\n  List#down\n    each t in tags\n      Text "{t}"\n');
+    final r = _parse('state tags=["World","Politics"]\nColumn\n  Row#chips scroll gap=8 edgeFade=0\n    each t in tags\n      Text "{t}"\n  Column#down\n    each t in tags\n      Text "{t}"\n');
     expect(r.issues, isEmpty, reason: '${r.issues}');
     expect((_node(r, 'chips')['props'] as Map)['edgeFade'], 0);
     expect(((_node(r, 'down')['props'] as Map?) ?? const {}).containsKey('edgeFade'), isFalse);
